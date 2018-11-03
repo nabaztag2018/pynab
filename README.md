@@ -1,3 +1,7 @@
+# Noyau Nabaztag en Python pour Raspberry Pi pour Paris Maker Faire 2018
+
+[![Build Status](https://travis-ci.org/nabaztag2018/pynab.svg?branch=master)](https://travis-ci.org/nabaztag2018/pynab)
+
 # Architecture
 
 - nabd : daemon qui gère le lapin (i/o, chorégraphies)
