@@ -1,5 +1,5 @@
 import asyncio
-import nabio
+from . import nabio
 
 class NabIOMock(nabio.NabIO):
   """ Mock for unit tests """

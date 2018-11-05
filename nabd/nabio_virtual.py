@@ -1,5 +1,5 @@
 import asyncio
-import nabio
+from . import nabio
 
 class NabIOVirtual(nabio.NabIO):
   """ Virtual implementation for testing purposes """

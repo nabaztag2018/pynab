@@ -1,5 +1,10 @@
+import sys,os
+pynab_root = os.path.realpath(os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+if pynab_root not in sys.path:
+  sys.path.insert(0, pynab_root)
+
 import unittest, threading, time, asyncio, socket, json, io
-import nabd, nabio_mock
+from nabd import nabd, nabio_mock
 
 class SocketIO(io.RawIOBase):
   """ Use RawIOBase for buffering lines """

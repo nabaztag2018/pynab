@@ -1,5 +1,5 @@
 import asyncio, json, datetime, collections
-import nabio_virtual
+from . import nabio_virtual
 
 class Nabd:
   PORT_NUMBER = 10543
