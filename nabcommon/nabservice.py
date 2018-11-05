@@ -1,28 +1,28 @@
 import asyncio, os, json
 from django.conf import settings
 from django.apps import apps
+from nabd import nabd
 
 class NabService:
-  NABD_PORT = 10543
-
   def __init__(self):
-    conf = {
+    if not settings.configured:
+      conf = {
         'INSTALLED_APPS': [
-            'nabclockd'
+          type(self).__name__
         ],
         'DATABASES': {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': 'pynab',                      
-                'USER': 'pynab',
-                'PASSWORD': '',
-                'HOST': '',
-                'PORT': '',
-            }
+          'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'pynab',
+            'USER': 'pynab',
+            'PASSWORD': '',
+            'HOST': '',
+            'PORT': '',
+          }
         }
-    }
-    settings.configure(**conf)
-    apps.populate(settings.INSTALLED_APPS)
+      }
+      settings.configure(**conf)
+      apps.populate(settings.INSTALLED_APPS)
     self.reader = None
     self.writer = None
     self.loop = None
@@ -49,7 +49,7 @@ class NabService:
 
   def connect(self):
     loop = asyncio.get_event_loop()
-    connection = asyncio.open_connection(host="127.0.0.1", port=NabService.NABD_PORT)
+    connection = asyncio.open_connection(host="127.0.0.1", port=nabd.Nabd.PORT_NUMBER)
     try:
       (reader, writer) = loop.run_until_complete(connection)
     except ConnectionRefusedError:
