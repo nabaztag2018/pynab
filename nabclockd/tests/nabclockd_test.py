@@ -1,30 +1,8 @@
-import sys,os
-pynab_root = os.path.realpath(os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
-if pynab_root not in sys.path:
-  sys.path.insert(0, pynab_root)
-
-import unittest, asyncio, threading, json, django, time, datetime, signal
-from django.conf import settings
-from django.apps import apps
-
-if not settings.configured:
-  conf = {
-    'INSTALLED_APPS': [
-      'nabclockd'
-    ],
-    'DATABASES': {
-      'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
-      }
-    }
-  }
-  settings.configure(**conf)
-  apps.populate(settings.INSTALLED_APPS)
-
+import unittest, asyncio, threading, json, django, time, datetime, signal, pytest
 from nabclockd import nabclockd, models
 from nabd import nabd
 
+@pytest.mark.django_db
 class TestNabclockd(unittest.TestCase):
   async def mock_nabd_service_handler(self, reader, writer):
     self.service_writer = writer
@@ -45,7 +23,6 @@ class TestNabclockd(unittest.TestCase):
       self.mock_nabd_loop.close()
 
   def setUp(self):
-    self.test_db = django.db.connection.creation.create_test_db(verbosity=0)
     self.service_writer = None
     self.mock_nabd_loop = None
     self.mock_nabd_thread = threading.Thread(target = self.mock_nabd_thread_entry_point, args = [self])
@@ -53,7 +30,6 @@ class TestNabclockd(unittest.TestCase):
     time.sleep(1)
 
   def tearDown(self):
-    django.db.connection.creation.destroy_test_db(self.test_db, verbosity=0)
     self.mock_nabd_loop.call_soon_threadsafe(lambda : self.mock_nabd_loop.stop())
     self.mock_nabd_thread.join(3)
 
@@ -169,6 +145,3 @@ class TestNabclockd(unittest.TestCase):
     self.assertEqual(service.clock_response(datetime.datetime(2018,11,2,8,1,0)), ['sleep'])
     self.assertEqual(service.clock_response(datetime.datetime(2018,11,2,22,0,0)), ['chime'])
     self.assertEqual(service.clock_response(datetime.datetime(2018,11,2,23,0,0)), ['chime'])
-
-if __name__ == '__main__':
-    unittest.main()

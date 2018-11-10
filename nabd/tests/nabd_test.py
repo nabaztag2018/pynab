@@ -1,9 +1,4 @@
-import sys,os
-pynab_root = os.path.realpath(os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
-if pynab_root not in sys.path:
-  sys.path.insert(0, pynab_root)
-
-import unittest, threading, time, asyncio, socket, json, io
+import unittest, threading, time, asyncio, socket, json, io, pytest
 from nabd import nabd, nabio_mock
 
 class SocketIO(io.RawIOBase):
@@ -173,6 +168,3 @@ class TestNabd(unittest.TestCase):
       self.assertEqual(packet_j['state'], 'idle')
     finally:
       s1.close()
-
-if __name__ == '__main__':
-    unittest.main()
