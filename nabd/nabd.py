@@ -1,5 +1,8 @@
-import asyncio, json, datetime, collections
-from . import nabio_virtual
+import asyncio, json, datetime, collections, sys, getopt
+from lockfile.pidlockfile import PIDLockFile
+from lockfile import AlreadyLocked, LockFailed
+from pydoc import locate
+from .nabio_virtual import NabIOVirtual
 
 class Nabd:
   PORT_NUMBER = 10543
@@ -292,6 +295,39 @@ class Nabd:
     if not self.loop.is_closed():
       self.loop.call_soon_threadsafe(lambda : self.loop.stop())
 
+  @staticmethod
+  def main(argv):
+    pidfilepath = "/var/run/nabd.pid"
+    nabiocls = NabIOVirtual
+    usage = f'nabd [options]\n' \
+     + ' -h                   display this message\n' \
+     + f' --pidfile=<pidfile>  define pidfile (default = {pidfilepath})\n' \
+     + f' --nabio=nabio_class  define nabio implementation (default = {nabiocls.__module__}.{nabiocls.__name__})'
+    try:
+      opts, args = getopt.getopt(argv,"h",["pidfile=","nabio="])
+    except getopt.GetoptError:
+      print(usage)
+      exit(2)
+    for opt, arg in opts:
+      if opt == '-h':
+        print(usage)
+        exit(0)
+      elif opt == '--pidfile':
+        pidfilepath = arg
+      elif opt == '--nabio':
+        nabiocls = locate(arg)
+    pidfile = PIDLockFile(pidfilepath, timeout=-1)
+    try:
+      with pidfile:
+        nabio = nabiocls()
+        nabd = Nabd(nabio)
+        nabd.run()
+    except AlreadyLocked:
+      print(f'nabd already running? (pid={pidfile.read_pid()})')
+      exit(1)
+    except LockFailed:
+      print(f'Cannot write pid file to {pidfilepath}, please fix permissions')
+      exit(1)
+
 if __name__ == '__main__':
-  nabd = Nabd(nabio_virtual.NabIOVirtual())
-  nabd.run()
+  Nabd.main(sys.argv[1:])
