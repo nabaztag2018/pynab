@@ -1,0 +1,88 @@
+<div class="card" id="nabclockd-settings">
+  <form action="/nabclockd/settings">
+    {% csrf_token %}
+    <div class="card-header">
+      <h5 class="card-title">Horloge</h5>
+    </div>
+    <div class="card-body">
+      <div class="row mb-2">
+        <div class="col-6">
+          Chime hours
+        </div>
+        <div class="col-6">
+          <button type="button" class="btn btn-toggle{% if config.chime_hour %} active{% endif %}" data-name="chime_hour" data-toggle="button" aria-pressed="false" autocomplete="off"><div class="handle"></div></button>
+          <input name="chime_hour" type="hidden" value="{% if config.chime_hour %}true{% else %}false{% endif %}">
+        </div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-6">
+          Wake-up time
+        </div>
+        <div class="col-6">
+          <div class="input-group clockpicker" data-autoclose="true">
+            <input name="wakeup_time" type="text" class="form-control" value="{% if config.wakeup_hour < 10 %}0{% endif %}{{ config.wakeup_hour }}:{% if config.wakeup_min < 10 %}0{% endif %}{{ config.wakeup_min }}">
+            <span class="input-group-addon">
+              <span class="glyphicon glyphicon-time"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-6">
+          Sleep time
+        </div>
+        <div class="col-6">
+          <div class="input-group clockpicker" data-autoclose="true">
+            <input name="sleep_time" type="text" class="form-control" value="{% if config.sleep_hour < 10 %}0{% endif %}{{ config.sleep_hour }}:{% if config.sleep_min < 10 %}0{% endif %}{{ config.sleep_min }}">
+            <span class="input-group-addon">
+              <span class="glyphicon glyphicon-time"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="row mb-2">
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary disabled ml-2 float-right save-button">Save</button>
+          <button type="reset" class="btn btn-outline-primary disabled ml-2 float-right reset-button">Reset</button>
+        </div>
+      </div>
+    </div>
+  </form>
+  <script type="text/javascript">
+  $(function() {
+    var form = $('#nabclockd-settings form');
+    var saveBtn = form.find('button.save-button');
+    var resetBtn = form.find('button.reset-button');
+    var url = form.attr('action');
+    form.find('button.btn-toggle').on('click', function() {
+      saveBtn.removeClass('disabled');
+      resetBtn.removeClass('disabled');
+    });
+    form.find('.clockpicker').clockpicker();
+    form.find('input').on('change', function() {
+      saveBtn.removeClass('disabled');
+      resetBtn.removeClass('disabled');
+    });
+    form.on('submit', function() {
+      form.find("input[name='chime_hour']").val(form.find('button.btn-toggle').hasClass('active'));
+      var formdata = form.serialize();
+      $.ajax({
+        url: url,
+        method: "POST",
+        data: formdata,
+        success: function (data) {
+          $("#nabclockd-settings").replaceWith(data);
+        }
+      });
+      return false;
+    });
+    resetBtn.on("click", function() {
+      $.get(url, function(data) {
+        $("#nabclockd-settings").replaceWith(data);
+      });
+    });
+  });
+  </script>
+</div>

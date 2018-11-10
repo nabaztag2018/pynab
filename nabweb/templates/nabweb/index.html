@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="{% static "nabweb/css/bootstrap.min.css" %}">
+    <link rel="stylesheet/less" type="text/css" href="{% static "nabweb/css/bootstrap-button-toggle.less" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "nabweb/css/bootstrap4-clockpicker.min.css" %}">
+    <title>Nabaztag configuration</title>
+    <script src="{% static "nabweb/js/jquery-3.3.1.min.js" %}"></script>
+    <script src="{% static "nabweb/js/popper.min.js" %}"></script>
+    <script src="{% static "nabweb/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "nabweb/js/less.min.js" %}"></script>
+    <script src="{% static "nabweb/js/bootstrap4-clockpicker.min.js" %}"></script>
+  </head>
+  <body>
+    <header class="navbar navbar-expand-lg navbar-light bg-light">
+      <span class="navbar-brand mb-0 h1">Nabaztag configuration</span>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        </ul>
+      </div>
+    </header>
+    <div class="container-fluid mt-3">
+      <div class="row">
+        <div class="settings col-md-6" data-url="/nabclockd/settings"></div>
+      </div>
+    </div>
+    <script type="text/javascript">
+      $(function() {
+        $("div.settings").each(function(index, element) {
+          var url = $(element).data('url');
+          $.get(url, function(data) {
+            $(element).html(data);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -42,3 +42,8 @@ class SingletonModel(models.Model):
       if not created:
         obj.set_cache()
     return cache.get(cls.__name__)
+
+  @classmethod
+  def reset_cache(cls):
+    """ Reset cache, used for tests """
+    cache.delete(cls.__name__)
