@@ -1,4 +1,4 @@
-import sys, signal, asyncio, json, datetime
+import sys, asyncio, json, datetime, sys
 from nabcommon import nabservice
 
 class NabClockd(nabservice.NabService,asyncio.Protocol):
@@ -7,13 +7,8 @@ class NabClockd(nabservice.NabService,asyncio.Protocol):
     from . import models
     self.config = models.Config.load()
     self.loop_cv = asyncio.Condition()
-    self.loop = None
     self.asleep = None
     self.last_chime = None
-    signal.signal(signal.SIGUSR1, self.signal_handler)
-
-  def signal_handler(self, sig, frame):
-    self.loop.call_soon_threadsafe(self.reload_config())
 
   async def reload_config(self):
     from django.core.cache import cache
@@ -116,5 +111,4 @@ class NabClockd(nabservice.NabService,asyncio.Protocol):
       self.loop.close()
 
 if __name__ == '__main__':
-  service = NabClockd()
-  service.run()
+  NabClockd.main(sys.argv[1:])

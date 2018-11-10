@@ -2,3 +2,4 @@ pytest
 django
 psycopg2-binary
 pytest-django
+lockfile
