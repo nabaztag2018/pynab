@@ -4,3 +4,7 @@ python:
 dist: xenial
 sudo: true
 script: pytest
+services:
+  - postgresql
+before_script:
+  - psql -U postgres -d postgres -c "CREATE USER pynab; ALTER ROLE pynab CREATEDB;"
