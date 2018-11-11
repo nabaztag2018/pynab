@@ -14,7 +14,7 @@ insert_final_newline = true
 charset = utf-8
 
 # 2 space indentation
-[*.py]
+[*.{js,html,css,py}]
 indent_style = space
 indent_size = 2
 
