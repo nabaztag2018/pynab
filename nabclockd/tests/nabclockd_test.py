@@ -33,9 +33,6 @@ class TestNabclockd(unittest.TestCase):
     self.mock_nabd_loop.call_soon_threadsafe(lambda : self.mock_nabd_loop.stop())
     self.mock_nabd_thread.join(3)
 
-  def interrupt_nabclockd(self, loop):
-    loop.stop()
-
   async def connect_handler(self, reader, writer):
     writer.write(b'{"type":"state","state":"idle"}\r\n')
     self.connect_handler_called = self.connect_handler_called + 1
