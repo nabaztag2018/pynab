@@ -77,7 +77,7 @@ class TestMastodond(unittest.TestCase):
     self.connect_with_ears_handler_called = 0
     this_loop = asyncio.new_event_loop()
     asyncio.set_event_loop(this_loop)
-    this_loop.call_later(1, lambda : this_loop.stop())
+    this_loop.call_later(2, lambda : this_loop.stop())
     config = models.Config.load()
     config.spouse_left_ear_position = 3
     config.spouse_right_ear_position = 5
