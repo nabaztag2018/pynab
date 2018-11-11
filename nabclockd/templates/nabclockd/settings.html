@@ -5,35 +5,29 @@
       <h5 class="card-title">Horloge</h5>
     </div>
     <div class="card-body">
-      <div class="row mb-2">
+      <div class="form-group row">
+        <label for="chimeHoursBtn" class="col-6 col-form-label">Chime hours</label>
         <div class="col-6">
-          Chime hours
-        </div>
-        <div class="col-6">
-          <button type="button" class="btn btn-toggle{% if config.chime_hour %} active{% endif %}" data-name="chime_hour" data-toggle="button" aria-pressed="false" autocomplete="off"><div class="handle"></div></button>
-          <input name="chime_hour" type="hidden" value="{% if config.chime_hour %}true{% else %}false{% endif %}">
+          <button id="chimeHoursBtn" type="button" class="btn btn-toggle{% if config.chime_hour %} active{% endif %}" data-name="chime_hour" data-toggle="button" aria-pressed="false" autocomplete="off"><div class="handle"></div></button>
+          <input name="chime_hour" type="hidden" value="{% if config.chime_hour %}true{% else %}false{% endif %}" />
         </div>
       </div>
-      <div class="row mb-2">
-        <div class="col-6">
-          Wake-up time
-        </div>
+      <div class="form-group row">
+        <label for="wakeupTime" class="col-6 col-form-label">Wake-up time</label>
         <div class="col-6">
           <div class="input-group clockpicker" data-autoclose="true">
-            <input name="wakeup_time" type="text" class="form-control" value="{% if config.wakeup_hour < 10 %}0{% endif %}{{ config.wakeup_hour }}:{% if config.wakeup_min < 10 %}0{% endif %}{{ config.wakeup_min }}">
+            <input id="wakeupTime" name="wakeup_time" type="text" class="form-control" value="{% if config.wakeup_hour < 10 %}0{% endif %}{{ config.wakeup_hour }}:{% if config.wakeup_min < 10 %}0{% endif %}{{ config.wakeup_min }}">
             <span class="input-group-addon">
               <span class="glyphicon glyphicon-time"></span>
             </span>
           </div>
         </div>
       </div>
-      <div class="row mb-2">
-        <div class="col-6">
-          Sleep time
-        </div>
+      <div class="form-group row">
+        <label for="sleepTime" class="col-6 col-form-label">Sleep time</label>
         <div class="col-6">
           <div class="input-group clockpicker" data-autoclose="true">
-            <input name="sleep_time" type="text" class="form-control" value="{% if config.sleep_hour < 10 %}0{% endif %}{{ config.sleep_hour }}:{% if config.sleep_min < 10 %}0{% endif %}{{ config.sleep_min }}">
+            <input id="sleepTime" name="sleep_time" type="text" class="form-control" value="{% if config.sleep_hour < 10 %}0{% endif %}{{ config.sleep_hour }}:{% if config.sleep_min < 10 %}0{% endif %}{{ config.sleep_min }}">
             <span class="input-group-addon">
               <span class="glyphicon glyphicon-time"></span>
             </span>
