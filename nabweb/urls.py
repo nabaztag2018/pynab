@@ -20,5 +20,6 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('nabclockd/', include('nabclockd.urls')),
+    path('nabmastodond/', include('nabmastodond.urls')),
     path('', views.index, name='index'),
 ]
