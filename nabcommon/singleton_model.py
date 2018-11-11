@@ -25,7 +25,7 @@ class SingletonModel(models.Model):
     abstract = True
 
   def set_cache(self):
-    cache.set(self.__class__.__name__, self)
+    cache.set(self.__class__.cache_key(), self)
 
   def save(self, *args, **kwargs):
     self.pk = 1
@@ -36,14 +36,18 @@ class SingletonModel(models.Model):
     pass
 
   @classmethod
+  def cache_key(cls):
+    return cls.__module__ + '.' + cls.__name__
+
+  @classmethod
   def load(cls):
-    if cache.get(cls.__name__) is None:
+    if cache.get(cls.cache_key()) is None:
       obj, created = cls.objects.get_or_create(pk=1)
       if not created:
         obj.set_cache()
-    return cache.get(cls.__name__)
+    return cache.get(cls.cache_key())
 
   @classmethod
   def reset_cache(cls):
     """ Reset cache, used for tests """
-    cache.delete(cls.__name__)
+    cache.delete(cls.cache_key())
