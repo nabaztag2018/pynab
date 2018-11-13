@@ -51,3 +51,23 @@ class SingletonModel(models.Model):
   def reset_cache(cls):
     """ Reset cache, used for tests """
     cache.delete(cls.cache_key())
+
+class UncachableSingletonModel(SingletonModel):
+  class Meta:
+    abstract = True
+
+  def set_cache(self):
+    pass
+
+  def save(self, *args, **kwargs):
+    self.pk = 1
+    super(SingletonModel, self).save(*args, **kwargs)
+
+  @classmethod
+  def load(cls):
+    obj, created = cls.objects.get_or_create(pk=1)
+    return obj
+
+  @classmethod
+  def reset_cache(cls):
+    pass
