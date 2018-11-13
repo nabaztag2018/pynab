@@ -92,7 +92,6 @@ class NabClockd(nabservice.NabService,asyncio.Protocol):
 
   def run(self):
     super().connect()
-    self.loop = asyncio.get_event_loop()
     clock_task = self.loop.create_task(self.clock_loop())
     try:
       self.loop.run_forever()

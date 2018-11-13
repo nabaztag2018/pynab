@@ -64,16 +64,16 @@ class NabService(ABC):
         self.loop.stop()
 
   def connect(self):
-    loop = asyncio.get_event_loop()
+    self.loop = asyncio.get_event_loop()
     connection = asyncio.open_connection(host="127.0.0.1", port=nabd.Nabd.PORT_NUMBER)
     try:
-      (reader, writer) = loop.run_until_complete(connection)
+      (reader, writer) = self.loop.run_until_complete(connection)
     except ConnectionRefusedError:
       print('Could not connect to server. Is nabd running?')
       exit(1)
     self.reader = reader
     self.writer = writer
-    loop.create_task(self.client_loop())
+    self.loop.create_task(self.client_loop())
 
   @abstractmethod
   def run(self):
