@@ -13,6 +13,7 @@ class NabService(ABC):
         'INSTALLED_APPS': [
           type(self).__name__.lower()
         ],
+        'USE_TZ': True,
         'DATABASES': {
           'default': {
             'ENGINE': 'django.db.backends.postgresql',
