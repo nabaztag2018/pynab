@@ -1,3 +1,4 @@
+import json
 from urllib.parse import urlparse, urlunparse
 from django.shortcuts import render
 from django.views.generic import View, TemplateView
@@ -120,3 +121,65 @@ class OAuthCBView(View):
       config.save()
       NabMastodond.signal_daemon()
     return HttpResponseRedirect('/')
+
+class WeddingView(View):
+  def put(self, request, *args, **kwargs):
+    config = Config.load()
+    if config.spouse_pairing_state == None:
+      mastodon_client = Mastodon( \
+        client_id = config.client_id, \
+        client_secret = config.client_secret, \
+        access_token = config.access_token, \
+        api_base_url = 'https://' + config.instance)
+      params = json.loads(request.body)
+      spouse = params['spouse']
+      status = NabMastodond.send_dm(mastodon_client, spouse, 'proposal')
+      config.spouse_pairing_date = status.created_at
+      config.spouse_pairing_state = 'proposed'
+      config.spouse_handle = spouse
+      config.save()
+      NabMastodond.signal_daemon()
+    context = {'config': config}
+    return render(request, SettingsView.template_name, context=context)
+
+  def post(self, request, *args, **kwargs):
+    config = Config.load()
+    if config.spouse_pairing_state == 'waiting_approval'and config.spouse_handle == request.POST['spouse']:
+      mastodon_client = Mastodon( \
+        client_id = config.client_id, \
+        client_secret = config.client_secret, \
+        access_token = config.access_token, \
+        api_base_url = 'https://' + config.instance)
+      if request.POST['accept'] == 'true':
+        status = NabMastodond.send_dm(mastodon_client, config.spouse_handle, 'acceptation')
+        config.spouse_pairing_date = status.created_at
+        config.spouse_pairing_state = 'married'
+      else:
+        status = NabMastodond.send_dm(mastodon_client, config.spouse_handle, 'rejection')
+        config.spouse_pairing_date = None
+        config.spouse_pairing_state = None
+        config.spouse_handle = None
+      config.save()
+      NabMastodond.signal_daemon()
+    context = {'config': config}
+    return render(request, SettingsView.template_name, context=context)
+
+  def delete(self, request, *args, **kwargs):
+    config = Config.load()
+    params = json.loads(request.body)
+    spouse = params['spouse']
+    if (config.spouse_pairing_state == 'married' or config.spouse_pairing_state == 'proposed') \
+      and config.spouse_handle == spouse:
+      mastodon_client = Mastodon( \
+        client_id = config.client_id, \
+        client_secret = config.client_secret, \
+        access_token = config.access_token, \
+        api_base_url = 'https://' + config.instance)
+      status = NabMastodond.send_dm(mastodon_client, config.spouse_handle, 'divorce')
+      config.spouse_pairing_date = None
+      config.spouse_pairing_state = None
+      config.spouse_handle = None
+      config.save()
+      NabMastodond.signal_daemon()
+    context = {'config': config}
+    return render(request, SettingsView.template_name, context=context)

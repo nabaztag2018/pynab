@@ -1,3 +1,4 @@
+{% load mastodon_tags %}
 <div class="card" id="nabmastodond-settings">
   <div class="card-header">
     <h5 class="card-title">Mastodon</h5>
@@ -5,13 +6,216 @@
   <div class="card-body">
     {% if config.access_token %}
       {% if config.username %}
-        <div class="clearfix">
+        <div class="clearfix mb-3">
           <img width="80" height="80" src="{{ config.avatar }}" class="float-left rounded-circle mr-2"/>
           <div class="float-left ml-2">
             <h4>{% if config.display_name %}{{ config.display_name }}{% else %}{{ config.username }}{% endif %}</h4>
-            <h5 class="text-muted"><a href="https://{{ config.instance }}/@{{ config.username }}" target="_blank" class="text-muted">{{ config.username }}@{{ config.instance }}</h5>
+            <h5 class="text-muted"><a href="https://{{ config.instance }}/@{{ config.username }}" target="_blank" class="text-muted">{{ config.username }}@{{ config.instance }}</a></h5>
           </div>
         </div>
+          {% if config.spouse_pairing_state == None %}
+            <p>You can propose another Nabaztag registered on Mastodon with the button below. They will receive the proposal and will be able to accept it.</p>
+            {% csrf_token %}
+            <form class="propose-form">
+              <div class="input-group input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Kindred soul</span>
+                </div>
+                <input name="spouse" type="text" class="form-control" placeholder="friend@botsin.space" aria-label="Friend address" value="">
+                <div class="input-group-append">
+                  <button type="submit" class="btn btn-primary propose-button">Propose</button>
+                </div>
+              </div>
+            </form>
+            <script type="text/javascript">
+            $(function() {
+              var form = $('#nabmastodond-settings form.propose-form');
+              form.on('submit', function() {
+                var proposeBtn = form.find("button.propose-button");
+                proposeBtn.addClass('disabled');
+                $.ajax({
+                  url: "{% url 'nabmastodond.wedding' %}",
+                  beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                  },
+                  contentType: 'application/json',
+                  data: JSON.stringify({"spouse": form.find("input[name='spouse']").val()}),
+                  method: "PUT",
+                  success: function (data) {
+                    $("#nabmastodond-settings").replaceWith(data);
+                  },
+                  error: function (data) {
+                    proposeBtn.removeClass('disabled');
+                    var message = "An unknown error occurred trying to send proposal";
+                    if (data.message) {
+                      message = "An error occurred trying to send proposal: " + data.message;
+                    }
+                    $.bootstrapGrowl(message, {type: 'danger', allow_dismiss: true});
+                  }
+                })
+                return false;
+              });
+            });
+            </script>
+          {% elif config.spouse_pairing_state == 'proposed' %}
+            {% csrf_token %}
+            <div class="modal fade cancel-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="nabmastodond-cancel-title" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="nabmastodon-cancel-title">Really cancel proposal to <a href="{{ config.spouse_handle|to_profile_url }}" target="_blank">{{ config.spouse_handle }}</a>?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-danger cancel-proposal-button">Really cancel</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p>You sent a proposal to your friend <a href="{{ config.spouse_handle|to_profile_url }}" target="_blank">{{ config.spouse_handle }}</a>. They have yet to accept it.</p>
+            <input name="state" type="hidden" value="proposed" />
+            <div class="input-group input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Kindred soul</span>
+              </div>
+              <input name="instance" type="text" class="form-control" aria-label="Friend address" value="{{ config.spouse_handle }}" disabled>
+              <div class="input-group-append">
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#nabmastodond-settings .cancel-confirmation-modal">Cancel proposal</button>
+              </div>
+            </div>
+            <script type="text/javascript">
+            $(function() {
+              var cancelBtn = $('#nabmastodond-settings button.cancel-proposal-button');
+              cancelBtn.on('click', function() {
+                cancelBtn.addClass('disabled');
+                $.ajax({
+                  url: "{% url 'nabmastodond.wedding' %}",
+                  beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                  },
+                  contentType: 'application/json',
+                  data: JSON.stringify({"spouse": "{{ config.spouse_handle }}"}),
+                  method: "DELETE",
+                  success: function (data) {
+                    $('.modal.divorce-confirmation-modal').on('hidden.bs.modal', function (e) {
+                      $('.modal.divorce-confirmation-modal').modal('dispose');
+                      $("#nabmastodond-settings").replaceWith(data);
+                    });
+                    $('.modal.divorce-confirmation-modal').modal('hide');
+                  },
+                  error: function (data) {
+                    cancelBtn.removeClass('disabled');
+                    $('.modal.divorce-confirmation-modal').modal('hide');
+                    var message = "An unknown error occurred trying to cancel proposal";
+                    if (data.message) {
+                      message = "An error occurred trying to cancel proposal: " + data.message;
+                    }
+                    $.bootstrapGrowl(message, {type: 'danger', allow_dismiss: true});
+                  }
+                })
+                return false;
+              });
+            });
+            </script>
+          {% elif config.spouse_pairing_state == 'waiting_approval' %}
+            {% csrf_token %}
+            <p>You received a proposal from <a href="{{ config.spouse_handle|to_profile_url }}" target="_blank">{{ config.spouse_handle }}</a>. Do you want to accept it?</p>
+            <button type="button" class="btn btn-primary accept-button">Accept</button>
+            <button type="button" class="btn btn-danger reject-button">Reject</button>
+            <script type="text/javascript">
+            $(function() {
+              var acceptBtn = $('#nabmastodond-settings button.accept-button');
+              var rejectBtn = $('#nabmastodond-settings button.reject-button');
+              function accept(doAccept) {
+                acceptBtn.addClass('disabled');
+                rejectBtn.addClass('disabled');
+                $.ajax({
+                  url: "{% url 'nabmastodond.wedding' %}",
+                  beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                  },
+                  data: {"accept": doAccept + "", "spouse": "{{ config.spouse_handle }}"},
+                  method: "POST",
+                  success: function (data) {
+                    $("#nabmastodond-settings").replaceWith(data);
+                  },
+                  error: function (data) {
+                    acceptBtn.removeClass('disabled');
+                    rejectBtn.removeClass('disabled');
+                    var message = "An unknown error occurred responding to proposal";
+                    if (data.message) {
+                      message = "An error occurred responding to proposal: " + data.message;
+                    }
+                    $.bootstrapGrowl(message, {type: 'danger', allow_dismiss: true});
+                  }
+                })
+                return false;
+              }
+              acceptBtn.on('click', function() {
+                return accept(true);
+              })
+              rejectBtn.on('click', function() {
+                return accept(false);
+              })
+            });
+            </script>
+          {% elif config.spouse_pairing_state == 'married' %}
+            {% csrf_token %}
+            <div class="modal fade divorce-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="nabmastodond-divorce-title" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="nabmastodon-divorce-title">Really divorce from <a href="{{ config.spouse_handle|to_profile_url }}" target="_blank">{{ config.spouse_handle }}</a>?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-outline-danger divorce-button">Divorce</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p>This nabaztag is married to <a href="{{ config.spouse_handle|to_profile_url }}" target="_blank">{{ config.spouse_handle }}</a>. Married Nabaztags have a special ear-based relationship.</p>
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#nabmastodond-settings .divorce-confirmation-modal">Divorce</button>
+            <script type="text/javascript">
+            $(function() {
+              var divorceBtn = $('#nabmastodond-settings button.divorce-button');
+              divorceBtn.on('click', function() {
+                divorceBtn.addClass('disabled');
+                $.ajax({
+                  url: "{% url 'nabmastodond.wedding' %}",
+                  beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                  },
+                  contentType: 'application/json',
+                  data: JSON.stringify({"spouse": "{{ config.spouse_handle }}"}),
+                  method: "DELETE",
+                  success: function (data) {
+                    $('.modal.divorce-confirmation-modal').on('hidden.bs.modal', function (e) {
+                      $('.modal.divorce-confirmation-modal').modal('dispose');
+                      $("#nabmastodond-settings").replaceWith(data);
+                    });
+                    $('.modal.divorce-confirmation-modal').modal('hide');
+                  },
+                  error: function (data) {
+                    divorceBtn.removeClass('disabled');
+                    $('.modal.divorce-confirmation-modal').modal('hide');
+                    var message = "An unknown error occurred trying to divorce";
+                    if (data.message) {
+                      message = "An error occurred trying to divorce: " + data.message;
+                    }
+                    $.bootstrapGrowl(message, {type: 'danger', allow_dismiss: true});
+                  }
+                })
+                return false;
+              });
+            });
+            </script>
+        {% endif %}
       {% else %}
         <p>Fetching account data...</p>
         <div class="progress">
@@ -102,58 +306,58 @@
   <div class="card-footer">
     <div class="row mb-2">
       {% if config.access_token %}
-      {% csrf_token %}
-      <div class="modal fade disconnect-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="nabmastodond-disconnect-title" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="nabmastodon-disconnect-title">Disconnect from Mastodon?</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-              <button type="button" class="btn btn-outline-danger disconnect-button">Disconnect</button>
+        {% csrf_token %}
+        <div class="modal fade disconnect-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="nabmastodond-disconnect-title" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="nabmastodon-disconnect-title">Disconnect from Mastodon?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-outline-danger disconnect-button">Disconnect</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="col-12">
-        <button type="button" class="btn btn-outline-danger ml-2 float-right" data-toggle="modal" data-target="#nabmastodond-settings .disconnect-confirmation-modal">Disconnect</button>
-      </div>
-      <script type="text/javascript">
-      $(function() {
-        var disconnectBtn = $('#nabmastodond-settings button.disconnect-button');
-        disconnectBtn.on('click', function() {
-          disconnectBtn.addClass('disabled');
-          $.ajax({
-            url: "{% url 'nabmastodond.connect' %}",
-            beforeSend: function (xhr, settings) {
-              xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
-            },
-            method: "DELETE",
-            success: function (data) {
-              $('.modal.disconnect-confirmation-modal').on('hidden.bs.modal', function (e) {
-                $('.modal.disconnect-confirmation-modal').modal('dispose');
-                $("#nabmastodond-settings").replaceWith(data);
-              });
-              $('.modal.disconnect-confirmation-modal').modal('hide');
-            },
-            error: function (data) {
-              disconnectBtn.removeClass('disabled');
-              $('.modal.disconnect-confirmation-modal').modal('hide');
-              var message = "An unknown error occurred trying to disconnect";
-              if (data.message) {
-                message = "An error occurred trying to disconnect: " + data.message;
+        <div class="col-12">
+          <button type="button" class="btn btn-outline-danger ml-2 float-right" data-toggle="modal" data-target="#nabmastodond-settings .disconnect-confirmation-modal">Disconnect</button>
+        </div>
+        <script type="text/javascript">
+        $(function() {
+          var disconnectBtn = $('#nabmastodond-settings button.disconnect-button');
+          disconnectBtn.on('click', function() {
+            disconnectBtn.addClass('disabled');
+            $.ajax({
+              url: "{% url 'nabmastodond.connect' %}",
+              beforeSend: function (xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+              },
+              method: "DELETE",
+              success: function (data) {
+                $('.modal.disconnect-confirmation-modal').on('hidden.bs.modal', function (e) {
+                  $('.modal.disconnect-confirmation-modal').modal('dispose');
+                  $("#nabmastodond-settings").replaceWith(data);
+                });
+                $('.modal.disconnect-confirmation-modal').modal('hide');
+              },
+              error: function (data) {
+                disconnectBtn.removeClass('disabled');
+                $('.modal.disconnect-confirmation-modal').modal('hide');
+                var message = "An unknown error occurred trying to disconnect";
+                if (data.message) {
+                  message = "An error occurred trying to disconnect: " + data.message;
+                }
+                $.bootstrapGrowl(message, {type: 'danger', allow_dismiss: true});
               }
-              $.bootstrapGrowl(message, {type: 'danger', allow_dismiss: true});
-            }
-          })
-          return false;
+            })
+            return false;
+          });
         });
-      });
-      </script>
+        </script>
       {% endif %}
     </div>
   </div>

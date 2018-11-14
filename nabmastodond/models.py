@@ -2,7 +2,7 @@ from django.db import models
 from django.core import validators
 from nabcommon import singleton_model
 
-class Config(singleton_model.SingletonModel):
+class Config(singleton_model.UncachableSingletonModel):
   instance = models.TextField(default='botsin.space')
   client_id = models.TextField(null=True)
   client_secret = models.TextField(null=True)
@@ -16,7 +16,7 @@ class Config(singleton_model.SingletonModel):
   spouse_pairing_date = models.DateTimeField(null=True)
   spouse_left_ear_position = models.IntegerField(null=True)
   spouse_right_ear_position = models.IntegerField(null=True)
-  last_processed_status_id = models.IntegerField(null=True)
+  last_processed_status_id = models.BigIntegerField(null=True)
   last_processed_status_date = models.DateTimeField(null=True)
 
   class Meta:
