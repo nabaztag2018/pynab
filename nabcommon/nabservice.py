@@ -53,10 +53,10 @@ class NabService(ABC):
         line = await self.reader.readline()
         if line != b'' and line != b'\r\n':
           try:
-            packet = json.loads(line)
+            packet = json.loads(line.decode('utf8'))
             await self.process_nabd_packet(packet)
           except json.decoder.JSONDecodeError as e:
-            print(f'Invalid JSON packet from nabd: {line}\n{str(e)}')
+            print('Invalid JSON packet from nabd: {line}\n{e}'.format(line=line, e=e))
     except KeyboardInterrupt:
       pass
     finally:
@@ -82,7 +82,7 @@ class NabService(ABC):
   @classmethod
   def signal_daemon(cls):
     service_name = cls.__name__.lower()
-    pidfilepath = f'/var/run/{service_name}.pid'
+    pidfilepath = '/var/run/{service_name}.pid'.format(service_name=service_name)
     try:
       with open(pidfilepath, 'r') as f:
         pidstr = f.read()
@@ -96,10 +96,10 @@ class NabService(ABC):
   @classmethod
   def main(cls, argv):
     service_name = cls.__name__.lower()
-    pidfilepath = f'/var/run/{service_name}.pid'
-    usage = f'{service_name} [options]\n' \
+    pidfilepath = '/var/run/{service_name}.pid'.format(service_name=service_name)
+    usage = '{service_name} [options]\n'.format(service_name=service_name) \
      + ' -h                   display this message\n' \
-     + f' --pidfile=<pidfile>  define pidfile (default = {pidfilepath})\n'
+     + ' --pidfile=<pidfile>  define pidfile (default = {pidfilepath})\n'.format(pidfilepath=pidfilepath)
     try:
       opts, args = getopt.getopt(argv,"h",["pidfile="])
     except getopt.GetoptError:
@@ -117,8 +117,8 @@ class NabService(ABC):
         service = cls()
         service.run()
     except AlreadyLocked:
-      print(f'{service_name} already running? (pid={pidfile.read_pid()})')
+      print('{service_name} already running? (pid={pid})'.format(service_name=service_name, pid=pidfile.read_pid()))
       exit(1)
     except LockFailed:
-      print(f'Cannot write pid file to {pidfilepath}, please fix permissions')
+      print('Cannot write pid file to {pidfilepath}, please fix permissions'.format(pidfilepath=pidfilepath))
       exit(1)

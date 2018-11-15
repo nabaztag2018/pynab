@@ -53,7 +53,7 @@ class TestNabclockd(unittest.TestCase):
     while not reader.at_eof():
       line = await reader.readline()
       if line != b'':
-        packet = json.loads(line)
+        packet = json.loads(line.decode('utf8'))
         self.wakeup_handler_packet = packet
         break
 

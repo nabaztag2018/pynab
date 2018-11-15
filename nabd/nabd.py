@@ -112,7 +112,7 @@ class Nabd:
           self.interactive_service_writer = item[1]
           break
         else:
-          raise RuntimeError(f'Unexpected packet {item[0]}')
+          raise RuntimeError('Unexpected packet {packet}'.format(packet=item[0]))
 
   async def transition_to_idle(self):
     """
@@ -240,7 +240,7 @@ class Nabd:
         line = await reader.readline()
         if line != b'' and line != b'\r\n':
           try:
-            packet = json.loads(line)
+            packet = json.loads(line.decode('utf8'))
             await self.process_packet(packet, writer)
           except UnicodeDecodeError as e:
             self.write_packet({'type':'response','status':'error','class':'UnicodeDecodeError','message':str(e)}, writer)
@@ -281,7 +281,10 @@ class Nabd:
       pass
     finally:
       self.loop.run_until_complete(self.stop_idle_worker())
-      tasks = asyncio.all_tasks(self.loop)
+      if sys.version_info >= (3,7):
+        tasks = asyncio.all_tasks(self.loop)
+      else:
+        tasks = asyncio.Task.all_tasks(self.loop)
       for t in [t for t in tasks if not (t.done() or t.cancelled())]:
         self.loop.run_until_complete(t)    # give canceled tasks the last chance to run
       server = server_task.result()
@@ -299,10 +302,10 @@ class Nabd:
   def main(argv):
     pidfilepath = "/var/run/nabd.pid"
     nabiocls = NabIOVirtual
-    usage = f'nabd [options]\n' \
+    usage = 'nabd [options]\n' \
      + ' -h                   display this message\n' \
-     + f' --pidfile=<pidfile>  define pidfile (default = {pidfilepath})\n' \
-     + f' --nabio=nabio_class  define nabio implementation (default = {nabiocls.__module__}.{nabiocls.__name__})'
+     + ' --pidfile=<pidfile>  define pidfile (default = {pidfilepath})\n'.format(pidfilepath=pidfilepath) \
+     + ' --nabio=nabio_class  define nabio implementation (default = {module}.{name})'.format(module=nabiocls.__module__, name=nabiocls.__name__)
     try:
       opts, args = getopt.getopt(argv,"h",["pidfile=","nabio="])
     except getopt.GetoptError:
@@ -323,10 +326,10 @@ class Nabd:
         nabd = Nabd(nabio)
         nabd.run()
     except AlreadyLocked:
-      print(f'nabd already running? (pid={pidfile.read_pid()})')
+      print('nabd already running? (pid={pid})'.format(pid=pidfile.read_pid()))
       exit(1)
     except LockFailed:
-      print(f'Cannot write pid file to {pidfilepath}, please fix permissions')
+      print('Cannot write pid file to {pidfilepath}, please fix permissions'.format(pidfilepath=pidfilepath))
       exit(1)
 
 if __name__ == '__main__':

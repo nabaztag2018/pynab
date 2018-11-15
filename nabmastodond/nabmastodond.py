@@ -74,7 +74,7 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
         self.do_process_status(mastodon_client, status)
       return (status_id, status_date)
     except KeyError as e:
-      print(f'Unexpected status from mastodon, missing slot {e}\n{status}')
+      print('Unexpected status from mastodon, missing slot {e}\n{status}'.format(status=status))
       return (None, None)
 
   def do_process_status(self, mastodon_client, status):
@@ -217,7 +217,7 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
       self.writer.write(packet.encode('utf8'))
 
   def send_ears(self, left_ear, right_ear):
-      packet = f'{{"type":"ears","left":{left_ear},"right":{right_ear}}}\r\n'
+      packet = '{{"type":"ears","left":{left_ear},"right":{right_ear}}}\r\n'.format(left_ear=left_ear, right_ear=right_ear)
       self.writer.write(packet.encode('utf8'))
 
   @staticmethod
@@ -255,7 +255,7 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
           self.config.access_token = None
           self.config.save()
         except MastodonError as e:
-          print(f'Unexpected mastodon error: {e}')
+          print('Unexpected mastodon error: {e}'.format(e=e))
           self.loop.call_later(NabMastodond.RETRY_DELAY, self.setup_streaming)
       if self.mastodon_client != None and self.mastodon_stream_handle == None:
         self.mastodon_stream_handle = self.mastodon_client.stream_user(self, run_async=True, reconnect_async=True)
@@ -288,7 +288,10 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
       self.running = False  # signal to exit
       self.writer.close()
       self.close_streaming()
-      tasks = asyncio.all_tasks(self.loop)
+      if sys.version_info >= (3,7):
+        tasks = asyncio.all_tasks(self.loop)
+      else:
+        tasks = asyncio.Task.all_tasks(self.loop)
       for t in [t for t in tasks if not (t.done() or t.cancelled())]:
         self.loop.run_until_complete(t)    # give canceled tasks the last chance to run
       self.loop.close()

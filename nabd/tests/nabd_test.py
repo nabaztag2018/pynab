@@ -59,7 +59,7 @@ class TestNabd(unittest.TestCase):
     s = self.service_socket()
     try:
       packet = s.readline()
-      packet_j = json.loads(packet)
+      packet_j = json.loads(packet.decode('utf8'))
       self.assertEqual(packet_j['type'], 'state')
       self.assertEqual(packet_j['state'], 'idle')
     finally:
@@ -73,30 +73,30 @@ class TestNabd(unittest.TestCase):
       packet = s2.readline() # state packet
       s1.write(b'{"type":"sleep","request_id":"test_id"}\r\n')
       packet = s1.readline() # response packet
-      packet_j = json.loads(packet)
+      packet_j = json.loads(packet.decode('utf8'))
       self.assertEqual(packet_j['type'], 'response')
       self.assertEqual(packet_j['request_id'], 'test_id')
       self.assertEqual(packet_j['status'], 'ok')
       packet = s1.readline() # new state packet
-      packet_j = json.loads(packet)
+      packet_j = json.loads(packet.decode('utf8'))
       self.assertEqual(packet_j['type'], 'state')
       self.assertEqual(packet_j['state'], 'asleep')
       packet = s2.readline() # new state packet
-      packet_j = json.loads(packet)
+      packet_j = json.loads(packet.decode('utf8'))
       self.assertEqual(packet_j['type'], 'state')
       self.assertEqual(packet_j['state'], 'asleep')
       s1.write(b'{"type":"wakeup","request_id":"wakeup_request"}\r\n')
       packet = s1.readline() # response packet
-      packet_j = json.loads(packet)
+      packet_j = json.loads(packet.decode('utf8'))
       self.assertEqual(packet_j['type'], 'response')
       self.assertEqual(packet_j['request_id'], 'wakeup_request')
       self.assertEqual(packet_j['status'], 'ok')
       packet = s1.readline() # new state packet
-      packet_j = json.loads(packet)
+      packet_j = json.loads(packet.decode('utf8'))
       self.assertEqual(packet_j['type'], 'state')
       self.assertEqual(packet_j['state'], 'idle')
       packet = s2.readline() # new state packet
-      packet_j = json.loads(packet)
+      packet_j = json.loads(packet.decode('utf8'))
       self.assertEqual(packet_j['type'], 'state')
       self.assertEqual(packet_j['state'], 'idle')
     finally:
@@ -109,7 +109,7 @@ class TestNabd(unittest.TestCase):
       packet = s1.readline() # state packet
       s1.write(b'{"type":"info","request_id":"test_id"}\r\n')
       packet = s1.readline() # response packet
-      packet_j = json.loads(packet)
+      packet_j = json.loads(packet.decode('utf8'))
       self.assertEqual(packet_j['type'], 'response')
       self.assertEqual(packet_j['request_id'], 'test_id')
       self.assertEqual(packet_j['status'], 'error')
@@ -125,7 +125,7 @@ class TestNabd(unittest.TestCase):
       # [25 {3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 0 0 0 0 0 0 0 0 0}] // soleil
       s1.write(b'{"type":"info","info_id":"weather","request_id":"test_id","animation":{"tempo":25,"colors":[{"left":"ffff00","center":"ffff00","right":"ffff00"},{"left":"ffff00","center":"ffff00","right":"ffff00"},{"left":"ffff00","center":"ffff00","right":"ffff00"},{"left":"ffff00","center":"ffff00","right":"ffff00"},{"left":"ffff00","center":"ffff00","right":"ffff00"},{"left":"000000","center":"000000","right":"000000"},{"left":"000000","center":"000000","right":"000000"},{"left":"000000","center":"000000","right":"000000"}]}}\r\n')
       packet = s1.readline() # response packet
-      packet_j = json.loads(packet)
+      packet_j = json.loads(packet.decode('utf8'))
       self.assertEqual(packet_j['type'], 'response')
       self.assertEqual(packet_j['request_id'], 'test_id')
       self.assertEqual(packet_j['status'], 'ok')
@@ -135,7 +135,7 @@ class TestNabd(unittest.TestCase):
       # [25 {3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 0 0 0 0 0 0 0 0 0}] // soleil
       s1.write(b'{"type":"info","info_id":"weather","request_id":"clear_id"}\r\n')
       packet = s1.readline() # response packet
-      packet_j = json.loads(packet)
+      packet_j = json.loads(packet.decode('utf8'))
       self.assertEqual(packet_j['type'], 'response')
       self.assertEqual(packet_j['request_id'], 'clear_id')
       self.assertEqual(packet_j['status'], 'ok')
@@ -150,20 +150,20 @@ class TestNabd(unittest.TestCase):
       packet = s1.readline() # state packet
       s1.write(b'{"type":"command","request_id":"test_id","sequence":{"audio":["weather/fr/signature.mp3","weather/fr/today.mp3","weather/fr/sky/0.mp3","weather/fr/temp/42.mp3","weather/fr/temp/degree.mp3","weather/fr/temp/signature.mp3"],"choregraphy":"streaming"}}\r\n')
       packet = s1.readline() # new state packet
-      packet_j = json.loads(packet)
+      packet_j = json.loads(packet.decode('utf8'))
       self.assertEqual(packet_j['type'], 'state')
       self.assertEqual(packet_j['state'], 'playing')
       s1.settimeout(15.0)
       packet = s1.readline() # response packet
       s1.settimeout(5.0)
-      packet_j = json.loads(packet)
+      packet_j = json.loads(packet.decode('utf8'))
       self.assertEqual(packet_j['type'], 'response')
       self.assertEqual(packet_j['request_id'], 'test_id')
       self.assertEqual(packet_j['status'], 'ok')
       last_sequence = self.nabio.played_sequences.pop()
       self.assertEqual(last_sequence, {'audio':['weather/fr/signature.mp3','weather/fr/today.mp3','weather/fr/sky/0.mp3','weather/fr/temp/42.mp3','weather/fr/temp/degree.mp3','weather/fr/temp/signature.mp3'],'choregraphy':'streaming'})
       packet = s1.readline() # new state packet
-      packet_j = json.loads(packet)
+      packet_j = json.loads(packet.decode('utf8'))
       self.assertEqual(packet_j['type'], 'state')
       self.assertEqual(packet_j['state'], 'idle')
     finally:

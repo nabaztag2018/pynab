@@ -57,7 +57,7 @@ class ConnectView(View):
         config.redirect_uri = redirect_uri
         reset_access_token(config)
       except MastodonError as e:
-        return HttpResponse('Unknown error', content=f'{{"status":"error","code":"MastodonError","message":"{e}"}}', mimetype='application/json', status=500)
+        return HttpResponse('Unknown error', content='{{"status":"error","code":"MastodonError","message":"{e}"}}'.format(e=e), mimetype='application/json', status=500)
     # Start OAuth process
     mastodon_client = Mastodon(client_id = config.client_id, client_secret = config.client_secret, api_base_url = 'https://' + config.instance)
     request_url = mastodon_client.auth_request_url(redirect_uris = redirect_uri)
@@ -102,9 +102,9 @@ class LoginView(View):
         reset_access_token(config)
         config.save()
         NabMastodond.signal_daemon()
-        return HttpResponse('Unauthorized', content=f'{{"status":"error","result":"unauthorized","message":"{e}"}}', mimetype='application/json', status=401)
+        return HttpResponse('Unauthorized', content='{{"status":"error","result":"unauthorized","message":"{e}"}}'.format(e=e), mimetype='application/json', status=401)
       except MastodonError as e:
-        return HttpResponse('Unknown error', content=f'{{"status":"error","message":"{e}"}}', mimetype='application/json', status=500)
+        return HttpResponse('Unknown error', content='{{"status":"error","message":"{e}"}}'.format(e=e), mimetype='application/json', status=500)
     else:
       return HttpResponse('Not found', content='{"status":"error","result":"not_found"}', mimetype='application/json', status=404)
 
@@ -131,7 +131,7 @@ class WeddingView(View):
         client_secret = config.client_secret, \
         access_token = config.access_token, \
         api_base_url = 'https://' + config.instance)
-      params = json.loads(request.body)
+      params = json.loads(request.body.decode('utf8'))
       spouse = params['spouse']
       status = NabMastodond.send_dm(mastodon_client, spouse, 'proposal')
       config.spouse_pairing_date = status.created_at
@@ -166,7 +166,7 @@ class WeddingView(View):
 
   def delete(self, request, *args, **kwargs):
     config = Config.load()
-    params = json.loads(request.body)
+    params = json.loads(request.body.decode('utf8'))
     spouse = params['spouse']
     if (config.spouse_pairing_state == 'married' or config.spouse_pairing_state == 'proposed') \
       and config.spouse_handle == spouse:

@@ -130,7 +130,7 @@ class TestMastodond(TestMastodondBase):
     while not reader.at_eof():
       line = await reader.readline()
       if line != b'':
-        packet = json.loads(line)
+        packet = json.loads(line.decode('utf8'))
         self.connect_with_ears_handler_packets.append(packet)
 
   def test_connect_with_ears(self):
@@ -177,7 +177,7 @@ class TestMastodondPairingProtocol(TestMastodondBase, MockMastodonClient):
     while not reader.at_eof():
       line = await reader.readline()
       if line != b'':
-        packet = json.loads(line)
+        packet = json.loads(line.decode('utf8'))
         self.protocol_handler_packets.append(packet)
 
 @pytest.mark.django_db
@@ -821,7 +821,7 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
     while not reader.at_eof():
       line = await reader.readline()
       if line != b'':
-        packet = json.loads(line)
+        packet = json.loads(line.decode('utf8'))
         self.ears_handler_packets.append(packet)
 
   def test_married(self):
