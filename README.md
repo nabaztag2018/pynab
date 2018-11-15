@@ -65,11 +65,9 @@ python manage.py runserver
 
 Démarrer nabd et les services avec :
 ```
-python -m nabd.nabd
-```
-...
-```
-python -m nabclockd.nabclockd
+python -m nabd.nabd &
+python -m nabmastodond.nabmastodond &
+python -m nabclockd.nabclockd &
 ```
 
 (les mettre dans systemd ?)
