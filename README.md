@@ -2,22 +2,57 @@
 
 [![Build Status](https://travis-ci.org/nabaztag2018/pynab.svg?branch=master)](https://travis-ci.org/nabaztag2018/pynab)
 
-# Installation
+# Installation sur Raspbian
 
-1. Installer PostgreSQL ainsi que les paquets Python requis
+0. S'assurer que le raspbian est bien à jour
 
 ```
-virtualenv-3.7 venv
+sudo rpi-update
+sudo apt update
+sudo apt upgrade
+```
+
+1. Installer PostgreSQL et les paquets requis
+
+```
+sudo apt-get install postgresql git python3
+git clone https://github.com/nabaztag2018/pynab.git
+cd pynab
+pyvenv-3.5 venv
 source venv/bin/activate
-# source venv/bin/activate.csh avec (t)csh
 pip install -r requirements.txt
 ```
 
-2. Créer une base PostgreSQL pynab avec comme utilisateur pynab.
+2. Configurer l'accès à PostgreSQL en local sans mot de passe en modifiant ```/etc/postgresql/9.6/main/pg_hba.conf```
 
 ```
-psql -U postgres -c "CREATE USER pynab"
-psql -U postgres -c "CREATE DATABASE pynab OWNER=pynab"
+local   all             all                                     peer
+```
+
+en
+
+```
+local   all             all                                     trust
+```
+
+puis redémarrer PostgreSQL.
+
+```
+sudo service postgresql restart
+```
+
+(ou bien modifier le fichier settings.py dans pynab/nabweb/)
+
+3. Créer une base PostgreSQL pynab avec comme utilisateur pynab.
+
+```
+sudo -u postgres psql -U postgres -c "CREATE USER pynab"
+sudo -u postgres psql -U postgres -c "CREATE DATABASE pynab OWNER=pynab"
+```
+
+4. Lancer les tests
+```
+pytest
 ```
 
 # Démarrage
