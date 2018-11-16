@@ -52,6 +52,7 @@ sudo -u postgres psql -U postgres -c "CREATE DATABASE pynab OWNER=pynab"
 
 4. Lancer les tests
 ```
+sudo -u postgres psql -U postgres -c "ALTER ROLE pynab CREATEDB"
 pytest
 ```
 
@@ -71,15 +72,6 @@ python -m nabclockd.nabclockd &
 ```
 
 (les mettre dans systemd ?)
-
-# Tests
-
-Les tests sont exécutés avec pytest.
-Il faut permettre à l'utilisateur PostgreSQL pynab de créer des bases de données.
-
-```
-psql -U postgres -c "ALTER ROLE pynab CREATEDB"
-```
 
 # Architecture
 
