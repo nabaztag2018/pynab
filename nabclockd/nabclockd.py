@@ -1,7 +1,9 @@
-import sys, asyncio, json, datetime, sys
+import sys, asyncio, json, datetime
 from nabcommon import nabservice
 
-class NabClockd(nabservice.NabService,asyncio.Protocol):
+class NabClockd(nabservice.NabService):
+  DAEMON_PIDFILE = '/var/run/nabclockd.pid'
+
   def __init__(self):
     super().__init__()
     from . import models

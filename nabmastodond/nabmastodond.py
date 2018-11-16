@@ -1,8 +1,10 @@
-import sys, asyncio, json, datetime, sys, re
+import sys, asyncio, json, re
 from nabcommon import nabservice
 from mastodon import Mastodon, StreamListener, MastodonError
 
 class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
+  DAEMON_PIDFILE = '/var/run/nabmastodond.pid'
+
   RETRY_DELAY = 15 * 60 # Retry to reconnect every 15 minutes.
   NABPAIRING_MESSAGE_RE = 'NabPairing (?P<cmd>Proposal|Acceptation|Rejection|Divorce|Ears (?P<left>[0-9]+) (?P<right>[0-9]+)) - (?:<a href=")?https://github.com/nabaztag2018/pynab'
   PROTOCOL_MESSAGES = { \

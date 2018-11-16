@@ -4,7 +4,6 @@ from .models import Config
 from .nabclockd import NabClockd
 
 class SettingsView(TemplateView):
-  DAEMON_PIDFILE = '/var/run/nabclockd.pid'
   template_name = "nabclockd/settings.html"
 
   def get_context_data(self, **kwargs):

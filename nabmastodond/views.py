@@ -24,7 +24,6 @@ def reset_access_token(config):
   config.save()
 
 class SettingsView(TemplateView):
-  DAEMON_PIDFILE = '/var/run/nabmastodond.pid'
   template_name = "nabmastodond/settings.html"
 
   def get_context_data(self, **kwargs):
