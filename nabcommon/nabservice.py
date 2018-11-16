@@ -43,7 +43,6 @@ class NabService(ABC):
     """
     pass
 
-  @abstractmethod
   async def process_nabd_packet(self, packet):
     pass
 
