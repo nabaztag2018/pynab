@@ -180,7 +180,7 @@ class ChoreographyInterpreter:
       if sleep_delta > 0:
         await asyncio.sleep(sleep_delta)
       index = index + 2
-      if index >= len(chor):
+      if index > len(chor):
         # taichi.chor ends with a wait
         break
       opcode = chor[index - 1]
