@@ -39,7 +39,7 @@ class TestNabd(unittest.TestCase):
 
   def tearDown(self):
     self.nabd.stop()
-    self.nabd_thread.join(3)
+    self.nabd_thread.join(5)
 
   def test_init(self):
     self.assertEqual(self.nabio.left_ear, 0)
