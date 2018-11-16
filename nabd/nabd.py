@@ -247,7 +247,10 @@ class Nabd:
           except json.decoder.JSONDecodeError as e:
             self.write_packet({'type':'response','status':'error','class':'JSONDecodeError','message':str(e)}, writer)
       writer.close()
-      await writer.wait_closed()
+      try:
+        await writer.wait_closed()
+      except AttributeError:
+        pass # unimplemented on Python 3.5
     except ConnectionResetError:
       pass
     finally:
