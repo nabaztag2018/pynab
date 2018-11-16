@@ -4,6 +4,8 @@ from nabd.choreography import ChoreographyInterpreter
 
 class TestChoreographyInterpreter(unittest.TestCase):
   def setUp(self):
+    self.loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(self.loop)
     self.leds = LedsMock()
     self.ears = EarsMock()
     self.sound = SoundMock()
@@ -11,54 +13,48 @@ class TestChoreographyInterpreter(unittest.TestCase):
 
   def test_set_led_color(self):
     chor = base64.b16decode("0007020304050607")
-    loop = asyncio.get_event_loop()
-    task = loop.create_task(self.ci.play_binary(chor))
-    loop.run_until_complete(task)
+    task = self.loop.create_task(self.ci.play_binary(chor))
+    self.loop.run_until_complete(task)
     self.assertEqual(self.leds.called_list, ['set1(2,3,4,5)'])
     self.assertEqual(self.ears.called_list, [])
     self.assertEqual(self.sound.called_list, [])
 
   def test_set_motor(self):
     chor = base64.b16decode("0008010300")
-    loop = asyncio.get_event_loop()
-    task = loop.create_task(self.ci.play_binary(chor))
-    loop.run_until_complete(task)
+    task = self.loop.create_task(self.ci.play_binary(chor))
+    self.loop.run_until_complete(task)
     self.assertEqual(self.leds.called_list, [])
     self.assertEqual(self.ears.called_list, ['go(1,3,0)'])
     self.assertEqual(self.sound.called_list, [])
 
   def test_set_leds_color(self):
     chor = base64.b16decode("0009020304")
-    loop = asyncio.get_event_loop()
-    task = loop.create_task(self.ci.play_binary(chor))
-    loop.run_until_complete(task)
+    task = self.loop.create_task(self.ci.play_binary(chor))
+    self.loop.run_until_complete(task)
     self.assertEqual(self.leds.called_list, ['setall(2,3,4)'])
     self.assertEqual(self.ears.called_list, [])
     self.assertEqual(self.sound.called_list, [])
 
   def test_set_led_off(self):
     chor = base64.b16decode("000A02")
-    loop = asyncio.get_event_loop()
-    task = loop.create_task(self.ci.play_binary(chor))
-    loop.run_until_complete(task)
+    task = self.loop.create_task(self.ci.play_binary(chor))
+    self.loop.run_until_complete(task)
     self.assertEqual(self.leds.called_list, ['set1(2,0,0,0)'])
     self.assertEqual(self.ears.called_list, [])
     self.assertEqual(self.sound.called_list, [])
 
   def test_set_led_palette(self):
     chor = base64.b16decode("000E0203")
-    loop = asyncio.get_event_loop()
-    task = loop.create_task(self.ci.play_binary(chor))
-    loop.run_until_complete(task)
+    task = self.loop.create_task(self.ci.play_binary(chor))
+    self.loop.run_until_complete(task)
     self.assertEqual(self.leds.called_list, ['set1(2,0,0,0)'])
     self.assertEqual(self.ears.called_list, [])
     self.assertEqual(self.sound.called_list, [])
 
   def test_randmidi(self):
     chor = base64.b16decode("0010")
-    loop = asyncio.get_event_loop()
-    task = loop.create_task(self.ci.play_binary(chor))
-    loop.run_until_complete(task)
+    task = self.loop.create_task(self.ci.play_binary(chor))
+    self.loop.run_until_complete(task)
     self.assertEqual(self.leds.called_list, [])
     self.assertEqual(self.ears.called_list, [])
     self.assertEqual(len(self.sound.called_list), 1)
@@ -67,27 +63,24 @@ class TestChoreographyInterpreter(unittest.TestCase):
 
   def test_avance(self):
     chor = base64.b16decode("00110102")
-    loop = asyncio.get_event_loop()
-    task = loop.create_task(self.ci.play_binary(chor))
-    loop.run_until_complete(task)
+    task = self.loop.create_task(self.ci.play_binary(chor))
+    self.loop.run_until_complete(task)
     self.assertEqual(self.leds.called_list, [])
     self.assertEqual(self.ears.called_list, ['move(1,2,0)'])
     self.assertEqual(self.sound.called_list, [])
 
   def test_setmotordir(self):
     chor = base64.b16decode("0014010100110102")
-    loop = asyncio.get_event_loop()
-    task = loop.create_task(self.ci.play_binary(chor))
-    loop.run_until_complete(task)
+    task = self.loop.create_task(self.ci.play_binary(chor))
+    self.loop.run_until_complete(task)
     self.assertEqual(self.leds.called_list, [])
     self.assertEqual(self.ears.called_list, ['move(1,-2,1)'])
     self.assertEqual(self.sound.called_list, [])
 
   def test_ifne(self):
     chor = base64.b16decode("0012000000000A02")
-    loop = asyncio.get_event_loop()
-    task = loop.create_task(self.ci.play_binary(chor))
-    loop.run_until_complete(task)
+    task = self.loop.create_task(self.ci.play_binary(chor))
+    self.loop.run_until_complete(task)
     self.assertEqual(self.leds.called_list, ['set1(2,0,0,0)'])
     self.assertEqual(self.ears.called_list, [])
     self.assertEqual(self.sound.called_list, [])
@@ -100,9 +93,8 @@ class TestChoreographyInterpreter(unittest.TestCase):
       "070100000000000107040000FF000002" +
       "070400000000000107040000FF000002" +
       "0A04")
-    loop = asyncio.get_event_loop()
-    task = loop.create_task(self.ci.play_binary(chor))
-    loop.run_until_complete(task)
+    task = self.loop.create_task(self.ci.play_binary(chor))
+    self.loop.run_until_complete(task)
     self.assertEqual(self.leds.called_list, [
       'set1(3,0,0,255)',
       'set1(2,0,0,255)',
