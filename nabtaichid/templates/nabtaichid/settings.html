@@ -1,0 +1,79 @@
+<div class="card" id="nabtaichid-settings">
+  <form action="/nabtaichid/settings">
+    {% csrf_token %}
+    <div class="card-header">
+      <h5 class="card-title">Taichi</h5>
+    </div>
+    <div class="card-body">
+      <div class="form-group row">
+        <label for="taichiSelect" class="col-6 col-form-label">Taichi Frequency</label>
+        <div class="col-6">
+          <select name="taichi_frequency" id="taichiSelect">
+            <option value="120"{% if config.taichi_frequency == 50 %} selected{% endif %}>Somewhat...</option>
+            <option value="30"{% if config.taichi_frequency == 125 %} selected{% endif %}>A lot...</option>
+            <option value="10"{% if config.taichi_frequency == 250 %} selected{% endif %}>Like crazy...</option>
+            <option value="0"{% if config.taichi_frequency == 0 %} selected{% endif %}>Not at all</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="offset-6 col-6">
+          <button type="button" class="btn btn-primary now-button">Practice Taichi now!</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="row mb-2">
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary disabled ml-2 float-right save-button">Save</button>
+          <button type="reset" class="btn btn-outline-primary disabled ml-2 float-right reset-button">Reset</button>
+        </div>
+      </div>
+    </div>
+  </form>
+  <script type="text/javascript">
+  $(function() {
+    var form = $('#nabtaichid-settings form');
+    var saveBtn = form.find('button.save-button');
+    var resetBtn = form.find('button.reset-button');
+    var nowBtn = form.find('button.now-button');
+    var url = form.attr('action');
+    form.find('select').on('change', function() {
+      saveBtn.removeClass('disabled');
+      resetBtn.removeClass('disabled');
+    });
+    form.on('submit', function() {
+      var formdata = form.serialize();
+      $.ajax({
+        url: url,
+        method: "POST",
+        data: formdata,
+        success: function (data) {
+          $("#nabtaichid-settings").replaceWith(data);
+        }
+      });
+      return false;
+    });
+    resetBtn.on("click", function() {
+      $.get(url, function(data) {
+        $("#nabtaichid-settings").replaceWith(data);
+      });
+    });
+    nowBtn.on("click", function() {
+      var formdata = form.serialize();
+      nowBtn.addClass('disabled');
+      $.ajax({
+        url: url,
+        beforeSend: function (xhr, settings) {
+          xhr.setRequestHeader("X-CSRFToken", form.find('input[name="csrfmiddlewaretoken"]').val());
+        },
+        method: "PUT",
+        success: function (data) {
+          nowBtn.removeClass('disabled');
+        }
+      });
+      return false;
+    });
+  });
+  </script>
+</div>

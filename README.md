@@ -69,6 +69,7 @@ Démarrer nabd et les services avec :
 python -m nabd.nabd &
 python -m nabmastodond.nabmastodond &
 python -m nabclockd.nabclockd &
+python -m nabtaichid.nabtaichid &
 ```
 
 (les mettre dans systemd ?)
