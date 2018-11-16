@@ -4,3 +4,8 @@ psycopg2-binary
 pytest-django
 lockfile
 Mastodon.py
+Mpg123
+gunicorn
+RPi.GPIO; sys_platform == 'linux'
+rpi_ws281x; sys_platform == 'linux'
+pyalsaaudio; sys_platform == 'linux'

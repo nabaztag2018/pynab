@@ -1,5 +1,6 @@
 import unittest, threading, time, asyncio, socket, json, io, pytest
-from nabd import nabd, nabio_mock
+from nabd import nabd
+from mock import NabIOMock
 
 class SocketIO(io.RawIOBase):
   """ Use RawIOBase for buffering lines """
@@ -28,7 +29,7 @@ class TestNabd(unittest.TestCase):
     nabd_loop.close()
 
   def setUp(self):
-    self.nabio = nabio_mock.NabIOMock()
+    self.nabio = NabIOMock()
     self.nabd_cv = threading.Condition()
     with self.nabd_cv:
       self.nabd_thread = threading.Thread(target = self.nabd_thread_loop, args = [self])

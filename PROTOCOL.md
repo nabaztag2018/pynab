@@ -66,13 +66,21 @@ Le slot `"expiration"` est optionnel et indique la date d'expiration de la comma
 
 Le slot `"sequence"` est requis et `sequence` est une liste d'éléments du type :
 
-`{"audio":audio_list,"choregraphy":choregraphy}`
+`{"audio":audio_list,"choreography":choreography}`
 
-Les slots `"audio"` et `"choregraphy"` sont optionnels.
+Les slots `"audio"` et `"choreography"` sont optionnels.
 
-`audio_list` est une liste de sons à jouer sous la forme de chemins vers des fichiers mp3 ou des URLs pour du streaming.
+`audio_list` est une liste de sons à jouer.
 
-`choregraphy` est ou bien le nom d'une chorégraphie prédéfinie ("streaming") ou bien une définition dans un langage de chorégraphie TBD. La chorégraphie est jouée pendant la lecture des différents fichiers audios de la liste.
+Chaque son peut être :
+- un chemin vers un fichier son dans les ressources sounds tel que `"nabmastodon/communion.wav"`. Le fichier est cherché dans les répertoires `sounds` des différentes applications. Comme pour Django, le préfixe sert de namespace.
+- une chaîne à lire sous la forme `"tts:<langue>,<texte>"` pour la synthèse vocale (pas encore codé).
+
+`choreography` peut être :
+- un chemin vers un fichier chorégraphie tel que `"nabtaichid/taichi.chor"`. Le fichier est cherché dans les répertoires `choreographies` des différentes applications.
+- `"urn:streaming"` pour la chorégraphie de streaming (pas encore codée).
+
+La chorégraphie est jouée pendant la lecture des différents fichiers audios de la liste.
 On peut avoir une même chorégraphie pendant 3 fichiers audios (signature, message, signature), ou des chorégraphies différentes par fichier audio.
 
 Le slot `"cancelable"` est optionnel. Par défaut, la commande sera annulée par un click sur le bouton. Si `cancelable` est `false`, la commande n'est pas annulée par le bouton (le service doit gérer le bouton).

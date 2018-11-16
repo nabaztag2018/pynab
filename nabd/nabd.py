@@ -264,19 +264,24 @@ class Nabd:
   def ears_callback(self, left_ear, right_ear):
     pass
 
+  async def setup_ears(self):
+    await self.nabio.setup_ears(0, 0)
+
   def run(self):
     self.idle_setup()
     self.loop = asyncio.get_event_loop()
     self.nabio.bind_button_event(self.loop, self.button_callback)
     self.nabio.bind_ears_event(self.loop, self.ears_callback)
+    setup_ears_task = self.loop.create_task(self.setup_ears())
     idle_task = self.loop.create_task(self.idle_worker_loop())
     server_task = self.loop.create_task(asyncio.start_server(self.service_loop, 'localhost', Nabd.PORT_NUMBER))
     try:
       self.loop.run_forever()
-      if idle_task.done():
-        idle_ex = idle_task.exception()
-        if idle_ex:
-          raise idle_ex
+      for t in [setup_ears_task, idle_task, server_task]:
+        if t.done():
+          t_ex = idle_task.exception()
+          if t_ex:
+            raise t_ex
     except KeyboardInterrupt:
       pass
     finally:
@@ -301,7 +306,11 @@ class Nabd:
   @staticmethod
   def main(argv):
     pidfilepath = "/var/run/nabd.pid"
-    nabiocls = NabIOVirtual
+    if sys.platform == 'linux':
+      from .nabio_hw import NabIOHW
+      nabiocls = NabIOHW
+    else:
+      nabiocls = NabIOVirtual
     usage = 'nabd [options]\n' \
      + ' -h                   display this message\n' \
      + ' --pidfile=<pidfile>  define pidfile (default = {pidfilepath})\n'.format(pidfilepath=pidfilepath) \

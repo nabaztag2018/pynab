@@ -1,0 +1,118 @@
+import unittest, asyncio, base64, re
+from mock import EarsMock, LedsMock, SoundMock
+from nabd.choreography import ChoreographyInterpreter
+
+class TestChoreographyInterpreter(unittest.TestCase):
+  def setUp(self):
+    self.leds = LedsMock()
+    self.ears = EarsMock()
+    self.sound = SoundMock()
+    self.ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
+
+  def test_set_led_color(self):
+    chor = base64.b16decode("0007020304050607")
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(self.ci.play_binary(chor))
+    loop.run_until_complete(task)
+    self.assertEqual(self.leds.called_list, ['set1(2,3,4,5)'])
+    self.assertEqual(self.ears.called_list, [])
+    self.assertEqual(self.sound.called_list, [])
+
+  def test_set_motor(self):
+    chor = base64.b16decode("0008010300")
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(self.ci.play_binary(chor))
+    loop.run_until_complete(task)
+    self.assertEqual(self.leds.called_list, [])
+    self.assertEqual(self.ears.called_list, ['go(1,3,0)'])
+    self.assertEqual(self.sound.called_list, [])
+
+  def test_set_leds_color(self):
+    chor = base64.b16decode("0009020304")
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(self.ci.play_binary(chor))
+    loop.run_until_complete(task)
+    self.assertEqual(self.leds.called_list, ['setall(2,3,4)'])
+    self.assertEqual(self.ears.called_list, [])
+    self.assertEqual(self.sound.called_list, [])
+
+  def test_set_led_off(self):
+    chor = base64.b16decode("000A02")
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(self.ci.play_binary(chor))
+    loop.run_until_complete(task)
+    self.assertEqual(self.leds.called_list, ['set1(2,0,0,0)'])
+    self.assertEqual(self.ears.called_list, [])
+    self.assertEqual(self.sound.called_list, [])
+
+  def test_set_led_palette(self):
+    chor = base64.b16decode("000E0203")
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(self.ci.play_binary(chor))
+    loop.run_until_complete(task)
+    self.assertEqual(self.leds.called_list, ['set1(2,0,0,0)'])
+    self.assertEqual(self.ears.called_list, [])
+    self.assertEqual(self.sound.called_list, [])
+
+  def test_randmidi(self):
+    chor = base64.b16decode("0010")
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(self.ci.play_binary(chor))
+    loop.run_until_complete(task)
+    self.assertEqual(self.leds.called_list, [])
+    self.assertEqual(self.ears.called_list, [])
+    self.assertEqual(len(self.sound.called_list), 1)
+    soundcall = self.sound.called_list[0]
+    self.assertTrue(re.match(r'start\(.+\)', soundcall))
+
+  def test_avance(self):
+    chor = base64.b16decode("00110102")
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(self.ci.play_binary(chor))
+    loop.run_until_complete(task)
+    self.assertEqual(self.leds.called_list, [])
+    self.assertEqual(self.ears.called_list, ['move(1,2,0)'])
+    self.assertEqual(self.sound.called_list, [])
+
+  def test_setmotordir(self):
+    chor = base64.b16decode("0014010100110102")
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(self.ci.play_binary(chor))
+    loop.run_until_complete(task)
+    self.assertEqual(self.leds.called_list, [])
+    self.assertEqual(self.ears.called_list, ['move(1,-2,1)'])
+    self.assertEqual(self.sound.called_list, [])
+
+  def test_ifne(self):
+    chor = base64.b16decode("0012000000000A02")
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(self.ci.play_binary(chor))
+    loop.run_until_complete(task)
+    self.assertEqual(self.leds.called_list, ['set1(2,0,0,0)'])
+    self.assertEqual(self.ears.called_list, [])
+    self.assertEqual(self.sound.called_list, [])
+
+  def test_rfidok(self):
+    chor = base64.b16decode(
+      "0101010100010E0007030000FF000000" +
+      "07020000FF00000007010000FF000001" +
+      "07030000000000000702000000000000" +
+      "070100000000000107040000FF000002" +
+      "070400000000000107040000FF000002" +
+      "0A04")
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(self.ci.play_binary(chor))
+    loop.run_until_complete(task)
+    self.assertEqual(self.leds.called_list, [
+      'set1(3,0,0,255)',
+      'set1(2,0,0,255)',
+      'set1(1,0,0,255)',
+      'set1(3,0,0,0)',
+      'set1(2,0,0,0)',
+      'set1(1,0,0,0)',
+      'set1(4,0,0,255)',
+      'set1(4,0,0,0)',
+      'set1(4,0,0,255)',
+      'set1(4,0,0,0)'])
+    self.assertEqual(self.ears.called_list, [])
+    self.assertEqual(self.sound.called_list, [])
