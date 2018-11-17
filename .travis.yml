@@ -1,5 +1,5 @@
 before_install:
-  - sudo apt-get install -y libasound2-dev
+  - sudo apt-get install -y libasound2-dev libmpg123
 language: python
 python:
   - 3.5
