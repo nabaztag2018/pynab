@@ -4,6 +4,9 @@ from . import nabio
 class NabIOVirtual(nabio.NabIO):
   """ Virtual implementation for testing purposes """
 
+  async def setup_ears(self, left_ear, right_ear):
+    pass
+
   def set_ears(self, left_ear, right_ear):
     print('set_ears left_ear={left_ear}, right_ear={right_ear}'.format(left_ear=left_ear, right_ear=right_ear))
 
