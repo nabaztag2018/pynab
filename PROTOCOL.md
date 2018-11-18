@@ -139,9 +139,15 @@ Dans le mode `"interactif"`, le service prend la main sur le lapin et reçoit le
 
 Émetteur: nabd
 
-Signifie aux services que les oreilles ont été bougées. Envoyé après calcul des positions (?). Est envoyé aux services qui demandent ce type d'événements (mode idle/interactif).
-
+Signifie aux services que les oreilles ont été bougées.
+En mode `"idle"`, nabd calcule la position en lançant une détection et envoie aux services (pour le mariage d'oreilles).
+Le paquet a alors cette forme :
 - `{"type":"ears_event","left":ear_left,"right":ear_right}`
+
+En mode `"interactif"`, nabd envoie le fait que l'oreille a bougé.
+
+Le paquet a alors cette forme :
+- `{"type":"ears_event","ear": ear}`
 
 ## Paquets `button_event`
 

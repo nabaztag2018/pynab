@@ -7,8 +7,12 @@ class NabIOVirtual(nabio.NabIO):
   async def setup_ears(self, left_ear, right_ear):
     pass
 
-  def set_ears(self, left_ear, right_ear):
-    print('set_ears left_ear={left_ear}, right_ear={right_ear}'.format(left_ear=left_ear, right_ear=right_ear))
+  async def move_ears(self, left_ear, right_ear):
+    print('move_ears left_ear={left_ear}, right_ear={right_ear}'.format(left_ear=left_ear, right_ear=right_ear))
+
+  async def detect_ears_positions(self):
+    return (0, 0)
+
 
   def set_leds(self, left, center, right, nose, bottom):
     print('set_leds left={left}, center={center}, right={right}, nose={nose}, bottom={bottom}'.format(left=left, center=center, right=right, nose=nose, bottom=bottom))

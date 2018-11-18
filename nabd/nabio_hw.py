@@ -18,12 +18,17 @@ class NabIOHW(NabIO):
 
   async def setup_ears(self, left_ear, right_ear):
     await self.ears.reset_ears()
-    t1 = self.ears.go(Ears.LEFT_EAR, left_ear, 0)
-    t2 = self.ears.go(Ears.RIGHT_EAR, right_ear, 1)
-    await asyncio.wait([t1, t2])
+    await self.ears.go(Ears.LEFT_EAR, left_ear, Ears.FORWARD_DIRECTION)
+    await self.ears.go(Ears.RIGHT_EAR, right_ear, Ears.FORWARD_DIRECTION)
+    await self.ears.wait_while_running()
 
-  def set_ears(self, left_ear, right_ear):
-    print('set_ears left_ear={left_ear}, right_ear={right_ear}'.format(left_ear=left_ear, right_ear=right_ear))
+  async def move_ears(self, left_ear, right_ear):
+    await self.ears.go(Ears.LEFT_EAR, left_ear, Ears.FORWARD_DIRECTION)
+    await self.ears.go(Ears.RIGHT_EAR, right_ear, Ears.FORWARD_DIRECTION)
+    await self.ears.wait_while_running()
+
+  async def detect_ears_positions(self):
+    return await self.ears.detect_positions()
 
   def set_leds(self, left, center, right, nose, bottom):
     print('set_leds left={left}, center={center}, right={right}, nose={nose}, bottom={bottom}'.format(left=left, center=center, right=right, nose=nose, bottom=bottom))
@@ -32,7 +37,7 @@ class NabIOHW(NabIO):
     self.button_event_cb = {'callback': callback, 'loop': loop}
 
   def bind_ears_event(self, loop, callback):
-    self.ears_event_cb = {'callback': callback, 'loop': loop}
+    self.ears.on_move(loop, callback)
 
   async def play_info(self, tempo, colors):
     print('play_info tempo={tempo}, colors={colors}'.format(tempo=tempo, colors=colors))

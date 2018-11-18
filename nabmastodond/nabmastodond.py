@@ -207,7 +207,10 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
     Play pairing protocol message
     """
     # TODO: choregraphies per message & tts for sender_name
-    packet = '{"type":"command","sequence":[{"audio":[],"choregraphy":"streaming"}]}\r\n'
+    if message == 'ears':
+      packet = '{"type":"command","sequence":[{"audio":["nabmastodond/communion.wav"]}]}\r\n'
+    else:
+      packet = '{"type":"command","sequence":[{"audio":[]}]}\r\n'
     self.writer.write(packet.encode('utf8'))
 
   def send_start_listening_to_ears(self):
@@ -266,8 +269,9 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
         self.process_timeline(self.mastodon_client, timeline)
 
   async def process_nabd_packet(self, packet):
-    if packet['type'] == 'ears' and self.config.spouse_pairing_state == 'married':
+    if packet['type'] == 'ears_event' and self.config.spouse_pairing_state == 'married':
       if self.mastodon_client:
+        self.send_ears(packet['left'], packet['right'])
         self.play_message('ears', self.config.spouse_handle)
         self.config.spouse_left_ear_position = packet['left']
         self.config.spouse_right_ear_position = packet['right']

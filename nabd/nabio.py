@@ -5,20 +5,35 @@ from .choreography import ChoreographyInterpreter
 class NabIO(object, metaclass=abc.ABCMeta):
   """ Interface for I/O interactions with a nabaztag """
 
+  @abc.abstractmethod
   async def setup_ears(self, left_ear, right_ear):
     """
-    Init ears and setup them to the initial position.
+    Init ears and move them to the initial position.
     """
     raise NotImplementedError( 'Should have implemented' )
 
-  def set_ears(self, left_ear, right_ear):
-    """ Set the position of ears (left & right) """
+  @abc.abstractmethod
+  async def move_ears(self, left_ear, right_ear):
+    """
+    Move ears to a given position and return only when they reached this
+    position.
+    """
     raise NotImplementedError( 'Should have implemented' )
 
+  @abc.abstractmethod
+  async def detect_ears_positions(self):
+    """
+    Detect ears positions and return the position before the detection.
+    A second call will return the current position.
+    """
+    raise NotImplementedError( 'Should have implemented' )
+
+  @abc.abstractmethod
   def set_leds(self, left, center, right, nose, bottom):
     """ Set the leds. None means to turn them off. """
     raise NotImplementedError( 'Should have implemented' )
 
+  @abc.abstractmethod
   def bind_button_event(self, loop, callback):
     """
     Define the callback for button events.
@@ -32,15 +47,17 @@ class NabIO(object, metaclass=abc.ABCMeta):
     """
     raise NotImplementedError( 'Should have implemented' )
 
+  @abc.abstractmethod
   def bind_ears_event(self, loop, callback):
     """
     Define the callback for ears events.
-    callback is cb(left_ear, right_ear) with left_ear and right_ear being the positions.
+    callback is cb(ear) ear being the ear moved.
 
     Make sure the callback is called on the provided event loop, with loop.call_soon_threadsafe
     """
     raise NotImplementedError( 'Should have implemented' )
 
+  @abc.abstractmethod
   async def play_info(self, tempo, colors):
     """
     Play an info animation.
@@ -79,6 +96,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
       preloaded_sequence.append(seq_item)
     return preloaded_sequence
 
+  @abc.abstractmethod
   def cancel(self):
     """
     Cancel currently running sequence or info animation.

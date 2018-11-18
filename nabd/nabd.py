@@ -9,6 +9,7 @@ class Nabd:
   INFO_TIMEOUT = 15.0
   SLEEP_EAR_POSITION = 8
   INIT_EAR_POSITION = 0
+  EAR_MOVEMENT_TIMEOUT = 0.5
 
   def __init__(self, nabio):
     self.nabio = nabio
@@ -18,18 +19,21 @@ class Nabd:
     self.ears = {'left': Nabd.INIT_EAR_POSITION, 'right': Nabd.INIT_EAR_POSITION}
     self.info = {}                      # Info persists across service connections.
     self.state = 'idle'                 # 'asleep'/'idle'/'interative'/'playing'
-    self.service_writers = []           # List of writers, i.e. connected services.
+    self.service_writers = {}           # Dictionary of writers, i.e. connected services
+                                        # For each writer, value is the list of registered events
     self.interactive_service_writer = None
+    self.interactive_service_events = [] # Events registered in interactive mode
     self.running = True
     self.loop = None
+    self._ears_moved_task = None
 
-  def idle_setup(self):
-    self.nabio.set_ears(self.ears['left'], self.ears['right'])
+  async def idle_setup(self):
     self.nabio.set_leds(None, None, None, None, None)
+    await self.nabio.move_ears(self.ears['left'], self.ears['right'])
 
-  def sleep_setup(self):
-    self.nabio.set_ears(Nabd.SLEEP_EAR_POSITION, Nabd.SLEEP_EAR_POSITION)
+  async def sleep_setup(self):
     self.nabio.set_leds(None, None, None, None, None)
+    await self.nabio.move_ears(Nabd.SLEEP_EAR_POSITION, Nabd.SLEEP_EAR_POSITION)
 
   async def idle_worker_loop(self):
     try:
@@ -78,17 +82,17 @@ class Nabd:
       if 'expiration_date' in item[0] and item[0]['expiration_date'] < datetime.now():
         self.write_response_packet(item[0], {'status':'expired'}, item[1])
         if len(self.idle_queue) == 0:
-          self.set_state('idle')
+          await self.set_state('idle')
           break
         else:
           item = self.idle_queue.popleft()
       else:
         if item[0]['type'] == 'command':
-          self.set_state('playing')
+          await self.set_state('playing')
           await self.perform_command(item[0])
           self.write_response_packet(item[0], {'status':'ok'}, item[1])
           if len(self.idle_queue) == 0:
-            self.set_state('idle')
+            await self.set_state('idle')
             break
           else:
             item = self.idle_queue.popleft()
@@ -103,13 +107,16 @@ class Nabd:
             self.idle_queue.append(item)
           else:
             self.write_response_packet(item[0], {'status':'ok'}, item[1])
-            self.set_state('asleep')
-            self.sleep_setup()
+            await self.set_state('asleep')
             break
         elif item[0]['type'] == 'mode' and item[0]['mode'] == 'interactive':
           self.write_response_packet(item[0], {'status':'ok'}, item[1])
-          self.set_state('interactive')
+          await self.set_state('interactive')
           self.interactive_service_writer = item[1]
+          if 'events' in item[0]:
+            self.interactive_service_events = item[0]['events']
+          else:
+            self.interactive_service_events = ['ears', 'button']
           break
         else:
           raise RuntimeError('Unexpected packet {packet}'.format(packet=item[0]))
@@ -120,15 +127,17 @@ class Nabd:
     """
     async with self.idle_cv:
       if len(self.idle_queue) == 0:
-        self.set_state('idle')
+        await self.set_state('idle')
       else:
         item = self.idle_queue.popleft()
         self.process_idle_item(item)
 
-  def set_state(self, new_state):
+  async def set_state(self, new_state):
     if new_state != self.state:
       if new_state == 'idle':
-        self.idle_setup()
+        await self.idle_setup()
+      if new_state == 'asleep':
+        await self.sleep_setup()
       self.state = new_state
       self.broadcast_state()
 
@@ -151,12 +160,12 @@ class Nabd:
   async def process_ears_packet(self, packet, writer):
     """ Process an ears packet """
     if 'left' in packet:
-      ears['left'] = packet['left']
+      self.ears['left'] = packet['left']
     if 'right' in packet:
-      ears['right'] = packet['right']
-    self.write_response_packet(packet, {'status':'ok'}, writer)
+      self.ears['right'] = packet['right']
     if self.state == "idle":
-      self.nabio.set_ears(ears['left'], ears['right'])
+      await self.nabio.move_ears(self.ears['left'], self.ears['right'])
+    self.write_response_packet(packet, {'status':'ok'}, writer)
 
   async def process_command_packet(self, packet, writer):
     """ Process a command packet """
@@ -193,7 +202,21 @@ class Nabd:
 
   async def process_mode_packet(self, packet, writer):
     """ Process a mode packet """
-    self.write_response_packet(packet, {'status':'error','class':'Unimplemented','message':'unimplemented'}, writer)
+    if 'mode' in packet and packet['mode'] == 'interactive':
+      async with self.idle_cv:
+        self.idle_queue.append((packet, writer))
+        self.idle_cv.notify()
+    elif 'mode' in packet and packet['mode'] == 'idle':
+      if 'events' in packet:
+        self.service_writers[writer] = packet['events']
+      else:
+        self.service_writers[writer] = []
+      if writer == self.interactive_service_writer:
+        # exit interactive mode.
+        self.exit_interactive()
+      self.write_response_packet(packet, {'status':'ok'}, writer)
+    else:
+      self.write_response_packet(packet, {'status':'error','class':'UnknownPacket','message':'Unknown or malformed mode packet'}, writer)
 
   async def process_packet(self, packet, writer):
     """ Process a packet from a service """
@@ -217,6 +240,11 @@ class Nabd:
   def write_packet(self, response, writer):
     writer.write((json.dumps(response) + '\r\n').encode('utf8'))
 
+  def broadcast_event(self, event_type, response):
+    for sw, events in self.service_writers.items():
+      if event_type in events:
+        self.write_packet(response, sw)
+
   def write_response_packet(self, original_packet, template, writer):
     response_packet = template
     if 'request_id' in original_packet:
@@ -234,7 +262,7 @@ class Nabd:
   # Handle service through TCP/IP protocol
   async def service_loop(self, reader, writer):
     self.write_state_packet(writer)
-    self.service_writers.append(writer)
+    self.service_writers[writer] = []
     try:
       while not reader.at_eof():
         line = await reader.readline()
@@ -256,7 +284,7 @@ class Nabd:
     finally:
       if self.interactive_service_writer == writer:
         self.exit_interactive()
-      self.service_writers.remove(writer)
+      del self.service_writers[writer]
 
   async def perform_command(self, packet):
     await self.nabio.play_sequence(packet['sequence'])
@@ -264,18 +292,40 @@ class Nabd:
   def button_callback(self, button_event):
     pass
 
-  def ears_callback(self, left_ear, right_ear):
-    pass
+  def ears_callback(self, ear):
+    if self.interactive_service_writer:
+      # Cancel any previously registered timer
+      if self._ears_moved_task:
+        self._ears_moved_task.cancel()
+      # Tell services
+      if ear == Ears.LEFT_EAR:
+        ear_str = 'left'
+      else:
+        ear_str = 'right'
+      self.write_packet({'type':'ear_event', 'ear':ear_str})
+    else:
+      # Wait a little bit for user to continue moving the ears
+      # Then we'll run a detection and tell services if we're not sleeping.
+      if self._ears_moved_task:
+        self._ears_moved_task.cancel()
+      self._ears_moved_task = asyncio.ensure_future(self._ears_moved())
 
-  async def setup_ears(self):
-    await self.nabio.setup_ears(0, 0)
+  async def _ears_moved(self):
+    await asyncio.sleep(Nabd.EAR_MOVEMENT_TIMEOUT)
+    if self.interactive_service_writer == None:
+      (left, right) = await self.nabio.detect_ears_positions()
+      if self.state != 'asleep':
+        self.broadcast_event('ears', {'type':'ears_event', 'left': left, 'right': right})
+
+  async def setup(self):
+    self.nabio.set_leds(None, None, None, None, None)
+    await self.nabio.setup_ears(self.ears['left'], self.ears['right'])
 
   def run(self):
-    self.idle_setup()
     self.loop = asyncio.get_event_loop()
     self.nabio.bind_button_event(self.loop, self.button_callback)
     self.nabio.bind_ears_event(self.loop, self.ears_callback)
-    setup_ears_task = self.loop.create_task(self.setup_ears())
+    setup_task = self.loop.create_task(self.setup())
     idle_task = self.loop.create_task(self.idle_worker_loop())
     server_task = self.loop.create_task(asyncio.start_server(self.service_loop, 'localhost', Nabd.PORT_NUMBER))
     try:

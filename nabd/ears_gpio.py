@@ -3,13 +3,19 @@ from threading import Condition
 import asyncio
 import time
 import sys
+import atexit
 from concurrent.futures import ThreadPoolExecutor
 
 from .ears import Ears
 
+@atexit.register
+def cleanup_gpio():
+  GPIO.cleanup()
+
 class EarsGPIO(Ears):
   ENCODERS_CHANNELS = [24, 23]
   MOTOR_CHANNELS = [[12, 11], [10, 9]]
+  ENABLE_CHANNELS = [5, 6]
   HOLES = Ears.STEPS
 
   def __init__(self):
@@ -33,36 +39,55 @@ class EarsGPIO(Ears):
       for channel in pairs:
         GPIO.setup(channel, GPIO.OUT)
         GPIO.output(channel, GPIO.LOW)
+    for channel in EarsGPIO.ENABLE_CHANNELS:
+      GPIO.setup(channel, GPIO.OUT)
+      GPIO.output(channel, GPIO.HIGH)
 
   def _encoder_cb(self, channel):
+    """
+    Callback from GPIO.
+    Thread: Rpi.GPIO event thread
+    """
     if channel == EarsGPIO.ENCODERS_CHANNELS[0]:
       ear = 0
     elif channel == EarsGPIO.ENCODERS_CHANNELS[1]:
       ear = 1
     with self.encoder_cv:
-      self.positions[ear] = (self.positions[ear] + self.directions[ear]) % EarsGPIO.HOLES
-      if self.targets[ear] == None: # reset mode
-        self.encoder_cv.notify()
+      direction = self.directions[ear]
+      if direction == 0:
+        self.positions[ear] = None
+        (loop, callback) = self.callback
+        loop.call_soon_threadsafe(lambda ear=ear: callback(ear))
       else:
-        if self.positions[ear] == self.targets[ear]:
-          self._stop_motor(ear)
+        self.positions[ear] = (self.positions[ear] + direction) % EarsGPIO.HOLES
+        if self.targets[ear] == None: # reset mode
           self.encoder_cv.notify()
-        elif self.positions[ear] == (self.targets[ear] % EarsGPIO.HOLES):
-          if self.targets[ear] >= EarsGPIO.HOLES:
-            self.targets[ear] = self.targets[ear] - EarsGPIO.HOLES
-          elif self.targets[ear] < 0:
-            self.targets[ear] = self.targets[ear] + EarsGPIO.HOLES
+        else:
+          if self.positions[ear] == self.targets[ear]:
+            self._stop_motor(ear)
+            self.encoder_cv.notify()
+          elif self.positions[ear] == (self.targets[ear] % EarsGPIO.HOLES):
+            if self.targets[ear] >= EarsGPIO.HOLES:
+              self.targets[ear] = self.targets[ear] - EarsGPIO.HOLES
+            elif self.targets[ear] < 0:
+              self.targets[ear] = self.targets[ear] + EarsGPIO.HOLES
 
   def _stop_motor(self, ear):
+    """
+    Stop motor by changing the channels GPIOs.
+    Thread: RPi.GPIO event
+    """
     for channel in EarsGPIO.MOTOR_CHANNELS[ear]:
       GPIO.output(channel, GPIO.LOW)
     self.running[ear] = False
+    self.directions[ear] = 0
 
   def _start_motor(self, ear, direction):
     """
     Start motor for given ear.
     ear = 0 or 1
     direction = 1 or -1
+    Threads: main loop or executor
     """
     dir_ix = int((1 - direction) / 2)
     GPIO.output(EarsGPIO.MOTOR_CHANNELS[ear][1 - dir_ix], GPIO.LOW)
@@ -70,15 +95,32 @@ class EarsGPIO(Ears):
     self.running[ear] = True
     self.directions[ear] = direction
 
+  def on_move(self, loop, callback):
+    self.callback = (loop, callback)
+
   async def reset_ears(self):
     async with self.lock:
       await asyncio.get_event_loop().run_in_executor(self.executor, self._do_reset_ears)
 
   def _do_reset_ears(self):
-    self.positions = [0, 0]
-    self.targets = [None, None] # do not stop from encoders
-    self._start_motor(0, 1)
-    self._start_motor(1, 1)
+    """
+    Reset ears by running a detection and ignoring the result.
+    Thread: executor
+    """
+    self.positions = [None, None]
+    self._run_detection()
+
+  def _run_detection(self):
+    """
+    Run detection of any ear in unknown position.
+    Thread: executor
+    """
+    result = self.positions.copy()
+    for ear in [0, 1]:
+      if self.positions[ear] == None:
+        self.positions[ear] = 0
+        self.targets[ear] = None
+        self._start_motor(ear, 1)
     start = time.time()
     previous_risings = [start, start]
     overrun = [0, 0]
@@ -106,8 +148,12 @@ class EarsGPIO(Ears):
               if delta > 0.4:
                 # At missing hole
                 self.targets[ear] = (self.positions[ear] + self.directions[ear]) % EarsGPIO.HOLES
+    for ear in [0, 1]:
+      if result[ear] == None:
+        result[ear] = EarsGPIO.HOLES - self.positions[ear]
     self.positions = overrun.copy()
     self.targets = overrun.copy()
+    return result
 
   async def move(self, motor, delta, direction):
     await self.go(motor, self.targets[motor] + delta, direction)
@@ -116,9 +162,22 @@ class EarsGPIO(Ears):
     await asyncio.get_event_loop().run_in_executor(self.executor, self._do_wait_while_running)
 
   def _do_wait_while_running(self):
+    """
+    Wait until motors are no longer running, using a condition variable.
+    Thread: executor
+    """
     with self.encoder_cv:
       while self.running[0] or self.running[1]:
         self.encoder_cv.wait()
+
+  async def detect_positions(self):
+    """
+    Get the position of the ears, running a detection if required.
+    """
+    async with self.lock:
+      if self.positions[0] == None or self.positions[1] == None:
+        return await asyncio.get_event_loop().run_in_executor(self.executor, self._run_detection)
+      return (self.positions[0], self.positions[1])
 
   async def go(self, ear, position, direction):
     """
@@ -128,6 +187,9 @@ class EarsGPIO(Ears):
     For example, 17 means to position the ear at 0 after at least a complete turn.
     """
     async with self.lock:
+      # Return ears to a known state
+      if self.positions[0] == None or self.positions[1] == None:
+        await asyncio.get_event_loop().run_in_executor(self.executor, self._run_detection)
       self.targets[ear] = position
       if direction:
         dir = -1  # backward
