@@ -5,7 +5,10 @@ from pathlib import Path
 class Resources(object):
   @staticmethod
   def find(type, filename):
-    if Path(filename).is_absolute():
+    path0 = Path(filename)
+    if path0.is_absolute():
+      if path0.is_file():
+        return path0 # Already found
       raise ValueError('find_resource expects a relative path, got {path}'.format(path = filename))
     if "/" in type:
       raise ValueError('find_resource expects a directory name for type, got {type}'.format(type = type))

@@ -11,10 +11,18 @@ class Sound(object, metaclass=abc.ABCMeta):
       return file.as_posix()
     return None
 
-  async def play_list(self, filenames):
-    self.stop()
-    for filename in filenames:
-      self.start(filename)
+  async def play_list(self, filenames, preloaded = False):
+    preloaded_list = []
+    if preloaded:
+      preloaded_list = filenames
+    else:
+      for filename in filenames:
+        preloaded_file = self.preload(filename)
+        if preloaded_file != None:
+          preloaded_list.append(preloaded_file)
+    await self.stop()
+    for filename in preloaded_list:
+      await self.start_preloaded(filename)
       await self.wait_until_done()
 
   async def start(self, audio_resource):

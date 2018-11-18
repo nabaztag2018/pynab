@@ -55,7 +55,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
     preloaded = await self.preload(sequence)
     for seq_item in preloaded:
       if 'audio' in seq_item:
-        audio_task_list = [self.sound.play_list(seq_item['audio'])]
+        audio_task_list = [self.sound.play_list(seq_item['audio'], True)]
       else:
         audio_task_list = []
       if 'choreography' in seq_item:
