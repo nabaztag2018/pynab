@@ -28,7 +28,7 @@ class NabIOVirtual(nabio.NabIO):
     await asyncio.sleep(1)
 
   async def play_sequence(self, sequence):
-    print('play_sequence sequence={sequence}'.foramt(sequence=sequence))
+    print('play_sequence sequence={sequence}'.format(sequence=sequence))
     await asyncio.sleep(10)
 
   def cancel(self):
