@@ -1,4 +1,4 @@
-import asyncio, os, json, getopt, signal
+import asyncio, os, json, getopt, signal, datetime, sys
 from abc import ABC, abstractmethod
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
@@ -121,3 +121,113 @@ class NabService(ABC):
     except LockFailed:
       print('Cannot write pid file to {pidfilepath}, please fix permissions'.format(pidfilepath=pidfilepath))
       exit(1)
+
+class NabRandomService(NabService, ABC):
+  """
+  Common class for Tai Chi and Surprise.
+  Next performance time is defined in database.
+  Reload configuration on USR1 signal.
+  """
+  def __init__(self):
+    super().__init__()
+    (self.next, self.frequency) = self.get_config()
+    self.saved_frequency = self.frequency
+    self.loop_cv = asyncio.Condition()
+
+  @abstractmethod
+  def get_config(self):
+    """
+    Return a tuple (frequency, next) from configuration.
+    """
+    pass
+
+  @abstractmethod
+  def update_next(self, next):
+    """
+    Write new next date to database.
+    """
+    pass
+
+  @abstractmethod
+  def perform(self, expiration):
+    """
+    Perform the random action.
+    """
+    pass
+
+  @abstractmethod
+  def compute_random_delta(self, frequency):
+    """
+    Return the delta (in seconds) with the next event based on frequency
+    """
+    pass
+
+  async def reload_config(self):
+    from django.core.cache import cache
+    cache.clear()
+    (self.next, self.frequency) = self.get_config()
+    async with self.loop_cv:
+      self.loop_cv.notify()
+
+  async def service_loop(self):
+    try:
+      async with self.loop_cv:
+        while self.running:
+          try:
+            now = datetime.datetime.now(datetime.timezone.utc)
+            next = self.next
+            if next != None and next <= now:
+              self.perform(next + datetime.timedelta(minutes=1))
+              next = None
+            if self.saved_frequency != self.frequency or next == None:
+              next = self.compute_next(self.frequency)
+            if next != self.next:
+              self.next = next
+              self.update_next(next)
+            self.saved_frequency = self.frequency
+            if next == None:
+              sleep_amount = None
+            else:
+              sleep_amount = (next - now).total_seconds()
+            await asyncio.wait_for(self.loop_cv.wait(), sleep_amount)
+          except asyncio.TimeoutError:
+            pass
+    except KeyboardInterrupt:
+      pass
+    finally:
+      if self.running:
+        asyncio.get_event_loop().stop()
+
+  def compute_next(self, frequency):
+    if frequency == 0:
+      return None
+    now = datetime.datetime.now(datetime.timezone.utc)
+    next_delta = self.compute_random_delta(frequency)
+    return now + datetime.timedelta(seconds = next_delta)
+
+  async def stop_service_loop(self):
+    async with self.loop_cv:
+      self.running = False  # signal to exit
+      self.loop_cv.notify()
+
+  def run(self):
+    super().connect()
+    service_task = self.loop.create_task(self.service_loop())
+    try:
+      self.loop.run_forever()
+      if service_task.done():
+        ex = service_task.exception()
+        if ex:
+          raise ex
+    except KeyboardInterrupt:
+      pass
+    finally:
+      self.writer.close()
+      self.loop.run_until_complete(self.stop_service_loop())
+      if sys.version_info >= (3,7):
+        tasks = asyncio.all_tasks(self.loop)
+      else:
+        tasks = asyncio.Task.all_tasks(self.loop)
+      for t in [t for t in tasks if not (t.done() or t.cancelled())]:
+        self.loop.run_until_complete(t)    # give canceled tasks the last chance to run
+      self.loop.close()
