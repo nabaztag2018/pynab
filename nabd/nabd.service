@@ -1,0 +1,16 @@
+[Unit]
+Description=Nabaztag main daemon
+After=postgresql.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+WorkingDirectory=/home/pi/pynab
+ExecStart=/home/pi/pynab/venv/bin/python -m nabd.nabd
+PIDFile=/var/run/nabd.pid
+
+[Install]
+WantedBy=multi-user.target

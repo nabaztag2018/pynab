@@ -15,64 +15,21 @@ sudo apt upgrade
 1. Installer PostgreSQL et les paquets requis
 
 ```
-sudo apt-get install postgresql git python3
+sudo apt-get install postgresql git python3 python3-venv gettext nginx
+```
+
+2. Récupérer le code
+
+```
 git clone https://github.com/nabaztag2018/pynab.git
 cd pynab
-pyvenv-3.5 venv
-source venv/bin/activate
-pip install -r requirements.txt
 ```
 
-2. Configurer l'accès à PostgreSQL en local sans mot de passe en modifiant ```/etc/postgresql/9.6/main/pg_hba.conf```
+3. Lancer le script d'installation qui fait le reste, notamment l'installation et le démarrage des services via systemd.
 
 ```
-local   all             all                                     peer
+bash install.sh
 ```
-
-en
-
-```
-local   all             all                                     trust
-```
-
-puis redémarrer PostgreSQL.
-
-```
-sudo service postgresql restart
-```
-
-(ou bien modifier le fichier settings.py dans pynab/nabweb/)
-
-3. Créer une base PostgreSQL pynab avec comme utilisateur pynab.
-
-```
-sudo -u postgres psql -U postgres -c "CREATE USER pynab"
-sudo -u postgres psql -U postgres -c "CREATE DATABASE pynab OWNER=pynab"
-```
-
-4. Lancer les tests
-```
-sudo -u postgres psql -U postgres -c "ALTER ROLE pynab CREATEDB"
-pytest
-```
-
-# Démarrage
-
-Configurer la base de données et démarrer le serveur :
-```
-python manage.py migrate
-python manage.py runserver
-```
-
-Démarrer nabd et les services avec :
-```
-python -m nabd.nabd &
-python -m nabmastodond.nabmastodond &
-python -m nabclockd.nabclockd &
-python -m nabtaichid.nabtaichid &
-```
-
-(les mettre dans systemd ?)
 
 # Architecture
 

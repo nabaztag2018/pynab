@@ -1,0 +1,16 @@
+[Unit]
+Description=Nabaztag surprise daemon
+After=nabd.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+WorkingDirectory=/home/pi/pynab
+ExecStart=/home/pi/pynab/venv/bin/python -m nabsurprised.nabsurprised
+PIDFile=/var/run/nabsurprised.pid
+
+[Install]
+WantedBy=multi-user.target
