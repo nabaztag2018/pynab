@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('nabclockd/', include('nabclockd.urls')),
     path('nabmastodond/', include('nabmastodond.urls')),
+    path('nabsurprised/', include('nabsurprised.urls')),
     path('nabtaichid/', include('nabtaichid.urls')),
     path('', NabWebView.as_view()),
 ]
