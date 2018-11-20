@@ -10,9 +10,9 @@
         <label for="taichiSelect" class="col-6 col-form-label">{% trans "Tai chi Frequency" %}</label>
         <div class="col-6">
           <select name="taichi_frequency" id="taichiSelect">
-            <option value="120"{% if config.taichi_frequency == 50 %} selected{% endif %}>{% trans "Somewhat..." context "Tai chi frequency" %}</option>
-            <option value="30"{% if config.taichi_frequency == 125 %} selected{% endif %}>{% trans "A lot..." context "Tai chi frequency" %}</option>
-            <option value="10"{% if config.taichi_frequency == 250 %} selected{% endif %}>{% trans "Like crazy..." context "Tai chi frequency" %}</option>
+            <option value="50"{% if config.taichi_frequency == 50 %} selected{% endif %}>{% trans "Somewhat..." context "Tai chi frequency" %}</option>
+            <option value="125"{% if config.taichi_frequency == 125 %} selected{% endif %}>{% trans "A lot..." context "Tai chi frequency" %}</option>
+            <option value="250"{% if config.taichi_frequency == 250 %} selected{% endif %}>{% trans "Like crazy..." context "Tai chi frequency" %}</option>
             <option value="0"{% if config.taichi_frequency == 0 %} selected{% endif %}>{% trans "Not at all" context "Tai chi frequency" %}</option>
           </select>
         </div>
