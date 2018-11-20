@@ -78,17 +78,24 @@ class SoundAlsa(Sound):
         rate, channels, encoding = mp3.get_format()
         width = mp3.get_width_by_encoding(encoding)
         self._setup_device(device, channels, rate, width)
-        chunksize = None
-        for chunk in mp3.iter_frames():
-          if chunksize == None:
-            chunksize = len(chunk)
-            periodsize = int(chunksize / width / channels)
-            device.setperiodsize(periodsize)
-          if len(chunk) < chunksize:
-            chunk = chunk + bytearray(chunksize - len(chunk))
-          device.write(chunk)
+        periodsize = int(rate / 10) # 1/10th of second
+        device.setperiodsize(periodsize)
+        target_chunk_size = periodsize * width * channels
+        chunk = bytearray(0)
+        for frames in mp3.iter_frames():
+          if len(chunk) + len(frames) < target_chunk_size:
+            chunk = chunk + frames
+          else:
+            remaining = target_chunk_size - len(chunk)
+            chunk = chunk + frames[:remaining]
+            device.write(chunk)
+            chunk = frames[remaining:]
           if not self.currently_playing:
             break
+        if len(chunk) > 0:
+          remaining = target_chunk_size - len(chunk)
+          chunk = chunk + bytearray(remaining)
+          device.write(chunk)
     finally:
       self.currently_playing = False
       device.close()
