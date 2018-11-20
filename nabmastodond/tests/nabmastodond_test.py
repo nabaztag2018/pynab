@@ -849,7 +849,7 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
     self.assertEqual(len(self.ears_handler_packets), 3)
     self.assertEqual(self.ears_handler_packets[0]['type'], 'mode')
     self.assertEqual(self.ears_handler_packets[1]['type'], 'ears')
-    self.assertEqual(self.ears_handler_packets[2]['type'], 'ears')
+    self.assertEqual(self.ears_handler_packets[2]['type'], 'command')
 
   def test_not_married(self):
     config = models.Config.load()
