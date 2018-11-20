@@ -26,8 +26,8 @@ class NabClockd(nabservice.NabService):
   def chime(self, hour):
     now = datetime.datetime.now()
     expiration = now + datetime.timedelta(minutes=3)
-    # TODO : audio sequence for hour.
-    packet = '{"type":"command","sequence":[{"audio":[],"choregraphy":"streaming"}],"expiration":"' + expiration.isoformat() + '"}\r\n'
+    # TODO: randomly play a message from all/
+    packet = '{"type":"message","signature":[{"audio":["nabclockd/signature.mp3"]}],"body":[{"audio":["nabclockd/' + str(hour) + '/*.mp3"]}],"expiration":"' + expiration.isoformat() + '"}\r\n'
     self.writer.write(packet.encode('utf8'))
 
   def clock_response(self, now):
