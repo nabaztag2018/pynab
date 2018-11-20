@@ -117,6 +117,15 @@ class Nabd:
             break
           else:
             item = self.idle_queue.popleft()
+        if item[0]['type'] == 'message':
+          await self.set_state('playing')
+          await self.perform_message(item[0])
+          self.write_response_packet(item[0], {'status':'ok'}, item[1])
+          if len(self.idle_queue) == 0:
+            await self.set_state('idle')
+            break
+          else:
+            item = self.idle_queue.popleft()
         elif item[0]['type'] == 'sleep':
           # Check idle_queue doesn't only include 'sleep' items.
           has_non_sleep = False
@@ -202,6 +211,20 @@ class Nabd:
     else:
       self.write_response_packet(packet, {'status':'error','class':'MalformedPacket','message':'Missing required sequence slot'}, writer)
 
+  async def process_message_packet(self, packet, writer):
+    """ Process a message packet """
+    if 'body' in packet:
+      if self.interactive_service_writer == writer:
+        # interactive => play command immediately
+        await self.perform_message(packet)
+        self.write_response_packet(item[0], {'status':'ok'}, item[1])
+      else:
+        async with self.idle_cv:
+          self.idle_queue.append((packet, writer))
+          self.idle_cv.notify()
+    else:
+      self.write_response_packet(packet, {'status':'error','class':'MalformedPacket','message':'Missing required body slot'}, writer)
+
   async def process_cancel_packet(self, packet, writer):
     """ Process a cancel packet """
     self.write_response_packet(packet, {'status':'error','class':'Unimplemented','message':'unimplemented'}, writer)
@@ -246,6 +269,7 @@ class Nabd:
         'info': self.process_info_packet,
         'ears': self.process_ears_packet,
         'command': self.process_command_packet,
+        'message': self.process_message_packet,
         'cancel': self.process_cancel_packet,
         'wakeup': self.process_wakeup_packet,
         'sleep': self.process_sleep_packet,
@@ -309,6 +333,12 @@ class Nabd:
 
   async def perform_command(self, packet):
     await self.nabio.play_sequence(packet['sequence'])
+
+  async def perform_message(self, packet):
+    signature = {}
+    if 'signature' in packet:
+      signature = packet['signature']
+    await self.nabio.play_message(signature, packet['body'])
 
   def button_callback(self, button_event):
     pass

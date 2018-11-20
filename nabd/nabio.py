@@ -68,8 +68,24 @@ class NabIO(object, metaclass=abc.ABCMeta):
     """
     raise NotImplementedError( 'Should have implemented' )
 
+  async def play_message(self, signature, body):
+    """
+    Play a message, i.e. a signature, a body and a signature.
+    """
+    preloaded_sig = await self._preload([signature])
+    preloaded_body = await self._preload(body)
+    await self._play_preloaded(preloaded_sig)
+    await self._play_preloaded(preloaded_body)
+    await self._play_preloaded(preloaded_sig)
+
   async def play_sequence(self, sequence):
-    preloaded = await self.preload(sequence)
+    """
+    Play a simple sequence
+    """
+    preloaded = await self._preload(sequence)
+    await self._play_preloaded(preloaded)
+
+  async def _play_preloaded(self, preloaded):
     for seq_item in preloaded:
       if 'audio' in seq_item:
         audio_task_list = [self.sound.play_list(seq_item['audio'], True)]
@@ -83,12 +99,17 @@ class NabIO(object, metaclass=abc.ABCMeta):
       if audio_task_list + choeography_task_list != []:
         await asyncio.wait(audio_task_list + choeography_task_list)
 
-  async def preload(self, sequence):
+  async def _preload(self, sequence):
     preloaded_sequence = []
     for seq_item in sequence:
       if 'audio' in seq_item:
         preloaded_audio_list = []
-        for res in seq_item['audio']:
+        if isinstance(seq_item['audio'], str):
+          print('Warning: audio should be a list of resources (sequence item: {seq_item})'.format(seq_item=seq_item))
+          audio_list = [seq_item['audio']]
+        else:
+          audio_list = seq_item['audio']
+        for res in audio_list:
           f = await self.sound.preload(res)
           if f != None:
             preloaded_audio_list.append(f)

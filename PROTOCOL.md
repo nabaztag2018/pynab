@@ -73,15 +73,46 @@ Les slots `"audio"` et `"choreography"` sont optionnels.
 `audio_list` est une liste de sons à jouer.
 
 Chaque son peut être :
-- un chemin vers un fichier son dans les ressources sounds tel que `"nabmastodon/communion.wav"`. Le fichier est cherché dans les répertoires `sounds` des différentes applications. Comme pour Django, le préfixe sert de namespace.
+
+- une liste de ressources, séparées par des ";", la première trouvée est celle qui sera jouée.
+Chaque ressource est un chemin vers un son tel que `"nabmastodon/communion.wav"`. L'algorithme essaie d'abord dans le sous-répertoire de chaque application correspondant à la langue actuelle du lapin (`"sounds/fr_FR"`) puis dans le répertoire `"sounds"`, les applications dans l'ordre de `"settings.py"`. Si la ressource termine par `"*"` ou `"*.suffixe"`, le son est choisi au hasard dans les éléments du répertoire correspondant.
+
 - une chaîne à lire sous la forme `"tts:<langue>,<texte>"` pour la synthèse vocale (pas encore codé).
 
 `choreography` peut être :
-- un chemin vers un fichier chorégraphie tel que `"nabtaichid/taichi.chor"`. Le fichier est cherché dans les répertoires `choreographies` des différentes applications.
+- une liste de ressources vers les chorégraphies sur le même mécanisme que les sons, dans les répertoires `choreographies` des différentes applications.
 - `"urn:streaming"` pour la chorégraphie de streaming (pas encore codée).
 
 La chorégraphie est jouée pendant la lecture des différents fichiers audios de la liste.
-On peut avoir une même chorégraphie pendant 3 fichiers audios (signature, message, signature), ou des chorégraphies différentes par fichier audio.
+
+Le slot `"cancelable"` est optionnel. Par défaut, la commande sera annulée par un click sur le bouton. Si `cancelable` est `false`, la commande n'est pas annulée par le bouton (le service doit gérer le bouton).
+
+## Paquets `message`
+
+Messages à faire diffuser par le lapin.
+
+Émetteurs: services
+
+- `{"type":"message","request_id":request_id,"signature":signature,"body":body,"cancelable":cancelable}`
+
+Le slot `"request_id"` est optionnel et est retourné dans la réponse.
+
+Le slot `"expiration"` est optionnel et indique la date d'expiration de la commande. La commande est jouée quand le lapin est disponible (pas endormi, pas en train de faire autre chose) et si la date d'expiration n'est pas atteinte.
+
+Le slot `"signature"` est optionnel et est du type :
+
+`{"audio":audio_list,"choreography":choreography}`
+
+Le slot `"body"` est requis et est une liste d'éléments du type :
+
+`{"audio":audio_list,"choreography":choreography}`
+
+Les slots `"audio"` et `"choreography"` sont optionnels.
+
+`audio_list` est une liste de sons à jouer, comme pour les paquets `"command"`.
+`choregraphy` est une chorégraphie, comme pour les paquets `"command"`.
+
+La signature est jouée en premier, suivi du corps du message, puis la signature est rejouée.
 
 Le slot `"cancelable"` est optionnel. Par défaut, la commande sera annulée par un click sur le bouton. Si `cancelable` est `false`, la commande n'est pas annulée par le bouton (le service doit gérer le bouton).
 

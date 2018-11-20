@@ -9,9 +9,10 @@ class Sound(object, metaclass=abc.ABCMeta):
     file = Resources.find('sounds', audio_resource)
     if file != None:
       return file.as_posix()
+    print('Warning : could not find resource {r}'.format(r = audio_resource))
     return None
 
-  async def play_list(self, filenames, preloaded = False):
+  async def play_list(self, filenames, preloaded):
     preloaded_list = []
     if preloaded:
       preloaded_list = filenames
