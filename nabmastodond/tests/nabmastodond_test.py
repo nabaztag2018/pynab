@@ -846,11 +846,10 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
     self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
     self.assertTrue('(NabPairing Ears 4 6 - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
     self.assertTrue('botsin.space/@tester' in self.posted_statuses[0]['content'])
-    self.assertEqual(len(self.ears_handler_packets), 4)
+    self.assertEqual(len(self.ears_handler_packets), 3)
     self.assertEqual(self.ears_handler_packets[0]['type'], 'mode')
     self.assertEqual(self.ears_handler_packets[1]['type'], 'ears')
     self.assertEqual(self.ears_handler_packets[2]['type'], 'ears')
-    self.assertEqual(self.ears_handler_packets[3]['type'], 'command')
 
   def test_not_married(self):
     config = models.Config.load()

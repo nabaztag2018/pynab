@@ -17,10 +17,7 @@ class NabIOHW(NabIO):
     self.sound = SoundAlsa()
 
   async def setup_ears(self, left_ear, right_ear):
-    await self.ears.reset_ears()
-    await self.ears.go(Ears.LEFT_EAR, left_ear, Ears.FORWARD_DIRECTION)
-    await self.ears.go(Ears.RIGHT_EAR, right_ear, Ears.FORWARD_DIRECTION)
-    await self.ears.wait_while_running()
+    await self.ears.reset_ears(left_ear, right_ear)
 
   async def move_ears(self, left_ear, right_ear):
     await self.ears.go(Ears.LEFT_EAR, left_ear, Ears.FORWARD_DIRECTION)

@@ -271,7 +271,6 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
   async def process_nabd_packet(self, packet):
     if packet['type'] == 'ears_event' and self.config.spouse_pairing_state == 'married':
       if self.mastodon_client:
-        self.send_ears(packet['left'], packet['right'])
         self.play_message('ears', self.config.spouse_handle)
         self.config.spouse_left_ear_position = packet['left']
         self.config.spouse_right_ear_position = packet['right']

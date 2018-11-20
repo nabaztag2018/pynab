@@ -20,7 +20,7 @@ class Ears(object, metaclass=abc.ABCMeta):
     raise NotImplementedError( 'Should have implemented' )
 
   @abc.abstractmethod
-  async def reset_ears(self):
+  async def reset_ears(self, target_left, target_right):
     """ Reset the ears to a known position """
     raise NotImplementedError( 'Should have implemented' )
 
@@ -33,7 +33,7 @@ class Ears(object, metaclass=abc.ABCMeta):
   async def detect_positions(self):
     """
     Get the positions of the ears after the user moved any.
-    Run a detection, any user-moved ear is then reset to position 0.
+    Perform a complete turn of user-moved ears to detect their positions.
     """
     raise NotImplementedError( 'Should have implemented' )
 

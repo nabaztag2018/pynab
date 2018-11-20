@@ -314,6 +314,8 @@ class Nabd:
     await asyncio.sleep(Nabd.EAR_MOVEMENT_TIMEOUT)
     if self.interactive_service_writer == None:
       (left, right) = await self.nabio.detect_ears_positions()
+      self.ears[0] = left
+      self.ears[1] = right
       if self.state != 'asleep':
         self.broadcast_event('ears', {'type':'ears_event', 'left': left, 'right': right})
 
@@ -330,7 +332,7 @@ class Nabd:
     server_task = self.loop.create_task(asyncio.start_server(self.service_loop, 'localhost', Nabd.PORT_NUMBER))
     try:
       self.loop.run_forever()
-      for t in [setup_ears_task, idle_task, server_task]:
+      for t in [setup_task, idle_task, server_task]:
         if t.done():
           t_ex = idle_task.exception()
           if t_ex:

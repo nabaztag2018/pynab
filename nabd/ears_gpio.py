@@ -18,6 +18,9 @@ class EarsGPIO(Ears):
   ENABLE_CHANNELS = [5, 6]
   HOLES = Ears.STEPS
 
+  FORWARD_INCREMENT = 1
+  BACKWARD_INCREMENT = -1
+
   def __init__(self):
     self.running = [False, False]
     self.targets = [0, 0]
@@ -98,32 +101,30 @@ class EarsGPIO(Ears):
   def on_move(self, loop, callback):
     self.callback = (loop, callback)
 
-  async def reset_ears(self):
+  async def reset_ears(self, target_left, target_right):
     async with self.lock:
-      await asyncio.get_event_loop().run_in_executor(self.executor, self._do_reset_ears)
+      await asyncio.get_event_loop().run_in_executor(self.executor, self._do_reset_ears, target_left, target_right)
 
-  def _do_reset_ears(self):
+  def _do_reset_ears(self, target_left, target_right):
     """
     Reset ears by running a detection and ignoring the result.
     Thread: executor
     """
     self.positions = [None, None]
-    self._run_detection()
+    self._run_detection(target_left, target_right)
 
-  def _run_detection(self):
+  def _run_detection(self, target_left, target_right):
     """
     Run detection of any ear in unknown position.
     Thread: executor
     """
-    result = self.positions.copy()
     for ear in [0, 1]:
       if self.positions[ear] == None:
         self.positions[ear] = 0
         self.targets[ear] = None
-        self._start_motor(ear, 1)
+        self._start_motor(ear, EarsGPIO.FORWARD_INCREMENT)
     start = time.time()
     previous_risings = [start, start]
-    overrun = [0, 0]
     with self.encoder_cv:
       current_positions = self.positions.copy()
       while self.running[0] or self.running[1]:
@@ -135,8 +136,13 @@ class EarsGPIO(Ears):
               delta = now - previous_risings[ear]
               if delta > 0.4:
                 # passed the missing hole
-                self.targets[ear] = (self.positions[ear] + self.directions[ear]) % EarsGPIO.HOLES
-                overrun[ear] = self.directions[ear]
+                if target_left != None and ear == Ears.LEFT_EAR:
+                  self.targets[ear] = target_left
+                elif target_right != None and ear == Ears.RIGHT_EAR:
+                  self.targets[ear] = target_right
+                else:
+                  self.targets[ear] = (self.directions[ear] - self.positions[ear]) % EarsGPIO.HOLES
+                self.positions[ear] = self.directions[ear]
               current_positions[ear] = self.positions[ear]
               previous_risings[ear] = now
         else:
@@ -147,13 +153,14 @@ class EarsGPIO(Ears):
               delta = now - previous_risings[ear]
               if delta > 0.4:
                 # At missing hole
-                self.targets[ear] = (self.positions[ear] + self.directions[ear]) % EarsGPIO.HOLES
-    for ear in [0, 1]:
-      if result[ear] == None:
-        result[ear] = EarsGPIO.HOLES - self.positions[ear]
-    self.positions = overrun.copy()
-    self.targets = overrun.copy()
-    return result
+                if target_left != None and ear == Ears.LEFT_EAR:
+                  self.targets[ear] = target_left
+                elif target_right != None and ear == Ears.RIGHT_EAR:
+                  self.targets[ear] = target_right
+                else:
+                  self.targets[ear] = (- self.positions[ear]) % EarsGPIO.HOLES
+                self.positions[ear] = 0
+    return self.positions.copy()
 
   async def move(self, motor, delta, direction):
     await self.go(motor, self.targets[motor] + delta, direction)
@@ -176,7 +183,7 @@ class EarsGPIO(Ears):
     """
     async with self.lock:
       if self.positions[0] == None or self.positions[1] == None:
-        return await asyncio.get_event_loop().run_in_executor(self.executor, self._run_detection)
+        return await asyncio.get_event_loop().run_in_executor(self.executor, self._run_detection, None, None)
       return (self.positions[0], self.positions[1])
 
   async def go(self, ear, position, direction):
@@ -189,12 +196,12 @@ class EarsGPIO(Ears):
     async with self.lock:
       # Return ears to a known state
       if self.positions[0] == None or self.positions[1] == None:
-        await asyncio.get_event_loop().run_in_executor(self.executor, self._run_detection)
+        await asyncio.get_event_loop().run_in_executor(self.executor, self._run_detection, 0, 0)
       self.targets[ear] = position
       if direction:
-        dir = -1  # backward
+        dir = EarsGPIO.BACKWARD_INCREMENT
       else:
-        dir = 1   # forward
+        dir = EarsGPIO.FORWARD_INCREMENT
       if self.positions[ear] == self.targets[ear] % EarsGPIO.HOLES:
         if self.targets[ear] >= EarsGPIO.HOLES:
           self.targets[ear] = self.targets[ear] - EarsGPIO.HOLES
