@@ -1,4 +1,4 @@
-import asyncio, json, datetime, collections, sys, getopt
+import asyncio, json, datetime, collections, sys, getopt, os
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
 from pydoc import locate
@@ -340,8 +340,15 @@ class Nabd:
       signature = packet['signature']
     await self.nabio.play_message(signature, packet['body'])
 
-  def button_callback(self, button_event):
-    pass
+  def button_callback(self, button_event, event_time):
+    if button_event == 'long_down':
+      asyncio.ensure_future(self._shutdown())
+    else:
+      self.broadcast_event('button', {'type':'button_event', 'event': button_event, 'time': event_time})
+
+  async def _shutdown(self):
+    await self.sleep_setup()
+    os.system('/sbin/halt')
 
   def ears_callback(self, ear):
     if self.interactive_service_writer:

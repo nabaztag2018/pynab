@@ -5,11 +5,11 @@ import time
 import sys
 import atexit
 from concurrent.futures import ThreadPoolExecutor
-
 from .ears import Ears
 
 @atexit.register
 def cleanup_gpio():
+  GPIO.setwarnings(False)
   GPIO.cleanup()
 
 class EarsGPIO(Ears):

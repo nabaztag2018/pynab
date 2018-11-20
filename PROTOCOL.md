@@ -192,7 +192,8 @@ Le slot `"event"` peut être:
 - `"down"`
 - `"up"`
 - `"click"`
-- `"doubleclick"`
+- `"double_click"`
+- `"click_and_hold"`
 
 ## Paquets `response`
 

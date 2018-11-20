@@ -2,6 +2,8 @@ import asyncio
 from .nabio import NabIO
 from .ears import Ears
 from .ears_gpio import EarsGPIO
+from .button import Button
+from .button_gpio import ButtonGPIO
 from .leds_neopixel import LedsNeoPixel
 from .sound_alsa import SoundAlsa
 
@@ -15,6 +17,7 @@ class NabIOHW(NabIO):
     self.leds = LedsNeoPixel()
     self.ears = EarsGPIO()
     self.sound = SoundAlsa()
+    self.button = ButtonGPIO()
 
   async def setup_ears(self, left_ear, right_ear):
     await self.ears.reset_ears(left_ear, right_ear)
@@ -31,7 +34,7 @@ class NabIOHW(NabIO):
     print('set_leds left={left}, center={center}, right={right}, nose={nose}, bottom={bottom}'.format(left=left, center=center, right=right, nose=nose, bottom=bottom))
 
   def bind_button_event(self, loop, callback):
-    self.button_event_cb = {'callback': callback, 'loop': loop}
+    self.button.on_event(loop, callback)
 
   def bind_ears_event(self, loop, callback):
     self.ears.on_move(loop, callback)

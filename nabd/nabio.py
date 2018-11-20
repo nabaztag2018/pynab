@@ -37,11 +37,12 @@ class NabIO(object, metaclass=abc.ABCMeta):
   def bind_button_event(self, loop, callback):
     """
     Define the callback for button events.
-    callback is cb(event_type) with event_type being:
+    callback is cb(event_type, time) with event_type being:
     - 'down'
     - 'up'
-    - 'click'
-    - 'doubleclick'
+    - 'long_down'
+    - 'double_click'
+    - 'click_and_hold'
 
     Make sure the callback is called on the provided event loop, with loop.call_soon_threadsafe
     """
