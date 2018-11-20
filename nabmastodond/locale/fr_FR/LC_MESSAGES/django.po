@@ -26,7 +26,7 @@ msgid ""
 "You can propose another Nabaztag registered on Mastodon with the button "
 "below. They will receive the proposal and will be able to accept it."
 msgstr ""
-"Vous pouvez envoyer une demande de mariage à un autre Nabaztag enregistré "
+"Vous pouvez envoyer une demande de communion à un autre Nabaztag enregistré "
 "sur Mastodon avec le bouton ci-dessous. Il/elle recevra la demande et pourra "
 "l'accepter."
 
@@ -61,7 +61,7 @@ msgid ""
 "Really cancel proposal to <a href=\"%(config.spouse_handle|to_profile_url)s"
 "\" target=\"_blank\">%(config.spouse_handle)s</a>?"
 msgstr ""
-"Souhaitez-vous réellement annuler votre demande de mariage à <a href="
+"Souhaitez-vous réellement annuler votre demande de communion à <a href="
 "\"%(config.spouse_handle|to_profile_url)s\" target=\"_blank\">"
 "%(config.spouse_handle)s</a> ?"
 
@@ -76,7 +76,7 @@ msgid ""
 "\"%(config.spouse_handle|to_profile_url)s\" target=\"_blank\">"
 "%(config.spouse_handle)s</a>. They have yet to accept it."
 msgstr ""
-"Vous avez envoyé une demande de mariage à votre ami(e) <a href="
+"Vous avez envoyé une demande de communion à votre ami(e) <a href="
 "\"%(config.spouse_handle|to_profile_url)s\" target=\"_blank\">"
 "%(config.spouse_handle)s</a>. Il/elle doit encore l'accepter."
 
@@ -147,16 +147,16 @@ msgid ""
 "special ear-based relationship."
 msgstr ""
 "Ce Nabaztag est marié à <a href=\"%(config.spouse_handle|to_profile_url)s\" "
-"target=\"_blank\">%(config.spouse_handle)s</a>. Les Nabaztag marriés ont une "
+"target=\"_blank\">%(config.spouse_handle)s</a>. Les Nabaztag en communion ont une "
 "relation spéciale au niveau des oreilles."
 
 #: templates/nabmastodond/settings.html:208
 msgid "An unknown error occurred trying to divorce"
-msgstr "Une erreur inconnue est survenue en tenant de divorcer"
+msgstr "Une erreur inconnue est survenue en tenant de supprimer la communion"
 
 #: templates/nabmastodond/settings.html:210
 msgid "An error occurred trying to divorce: "
-msgstr "Une erreur est survenue en tentant de divorcer : "
+msgstr "Une erreur est survenue en tentant de supprimer la communion : "
 
 #: templates/nabmastodond/settings.html:221
 msgid "Fetching account data..."
