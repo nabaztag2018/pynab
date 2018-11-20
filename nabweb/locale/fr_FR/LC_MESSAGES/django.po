@@ -1,0 +1,50 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-11-19 20:44+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: settings.py:123
+msgid "U.S. English"
+msgstr "Anglais des États-Unis"
+
+#: templates/nabweb/index.html:11 templates/nabweb/index.html:21
+msgid "Nabaztag configuration"
+msgstr "Configuration du Nabaztag"
+
+#: templates/nabweb/index.html:27
+msgid "Home"
+msgstr "Accueil"
+
+#: templates/nabweb/index.html:27
+msgid "(current)"
+msgstr "(actif)"
+
+#: templates/nabweb/index.html:38
+msgid "Language"
+msgstr "Langue"
+
+#: templates/nabweb/index.html:41
+msgid ""
+"The language is used by services with recorded sounds. U.S. English and British "
+"English are based on distinct voices."
+msgstr ""
+"La langue est utilisée par les services avec des sons enregistrés. "
+"Typiquement, l'américain et le britannique utilisent des voix différentes"
+
+#: templates/nabweb/index.html:57
+msgid "Reset"
+msgstr "Annuler"

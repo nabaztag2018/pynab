@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="fr">
   <head>
@@ -7,7 +8,7 @@
     <link rel="stylesheet" href="{% static "nabweb/css/bootstrap.min.css" %}">
     <link rel="stylesheet/less" type="text/css" href="{% static "nabweb/css/bootstrap-button-toggle.less" %}">
     <link rel="stylesheet" type="text/css" href="{% static "nabweb/css/bootstrap4-clockpicker.min.css" %}">
-    <title>Nabaztag configuration</title>
+    <title>{% trans "Nabaztag configuration" %}</title>
     <script src="{% static "nabweb/js/jquery-3.3.1.min.js" %}"></script>
     <script src="{% static "nabweb/js/popper.min.js" %}"></script>
     <script src="{% static "nabweb/js/bootstrap.min.js" %}"></script>
@@ -17,23 +18,69 @@
   </head>
   <body>
     <header class="navbar navbar-expand-lg navbar-light bg-light">
-      <span class="navbar-brand mb-0 h1">Nabaztag configuration</span>
+      <span class="navbar-brand mb-0 h1">{% trans "Nabaztag configuration" %}</span>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="#">{% trans "Home" %} <span class="sr-only">{% trans "(current)" %}</span></a>
         </ul>
       </div>
     </header>
     <div class="container-fluid mt-3">
       <div class="row">
-        <div class="settings col-md-6 mb-3" data-url="/nabclockd/settings"></div>
+        <div class="local-settings col-md-6 mb-3">
+          <div class="card" id="language-settings">
+            <form method="post" action="/">
+              {% csrf_token %}
+              <div class="card-header">
+                <h5 class="card-title">{% trans "Language" %}</h5>
+              </div>
+              <div class="card-body">
+                <p>{% trans "The language is used by services with recorded sounds. U.S. English and British English are based on distinct voices." %}</p>
+                <div class="form-group row">
+                  <label for="localeSel" class="col-6 col-form-label">{% trans "Language" %}</label>
+                  <div class="col-6">
+                    <select name="locale" id="localeSel">
+                      {% for locale, name in locales %}
+                      <option value="{{ locale }}">{{ name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <div class="row mb-2">
+                  <div class="col-12">
+                    <button type="submit" class="btn btn-primary disabled ml-2 float-right save-button">{% trans "Save" %}</button>
+                    <button type="reset" class="btn btn-outline-primary disabled ml-2 float-right reset-button">{% trans "Reset" %}</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <script type="text/javascript">
+            $(function() {
+              var form = $('#language-settings form');
+              var saveBtn = form.find('button.save-button');
+              var resetBtn = form.find('button.reset-button');
+              var url = form.attr('action');
+              form.find('select').on('change', function() {
+                saveBtn.removeClass('disabled');
+                resetBtn.removeClass('disabled');
+              });
+            });
+            </script>
+          </div>
+        </div>
         <div class="settings col-md-6 mb-3" data-url="/nabmastodond/settings"></div>
       </div>
       <div class="row">
+        <div class="settings col-md-6 mb-3" data-url="/nabclockd/settings"></div>
         <div class="settings col-md-6 mb-3" data-url="/nabtaichid/settings"></div>
+      </div>
+      <div class="row">
+        <div class="settings col-md-6 mb-3" data-url="/nabsurprised/settings"></div>
       </div>
     </div>
     <script type="text/javascript">

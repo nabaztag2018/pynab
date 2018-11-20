@@ -3,6 +3,8 @@ from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
 from pydoc import locate
 from .nabio_virtual import NabIOVirtual
+from django.conf import settings
+from django.apps import apps
 
 class Nabd:
   PORT_NUMBER = 10543
@@ -12,6 +14,25 @@ class Nabd:
   EAR_MOVEMENT_TIMEOUT = 0.5
 
   def __init__(self, nabio):
+    if not settings.configured:
+      conf = {
+        'INSTALLED_APPS': [
+          type(self).__name__.lower()
+        ],
+        'USE_TZ': True,
+        'DATABASES': {
+          'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'pynab',
+            'USER': 'pynab',
+            'PASSWORD': '',
+            'HOST': '',
+            'PORT': '',
+          }
+        }
+      }
+      settings.configure(**conf)
+      apps.populate(settings.INSTALLED_APPS)
     self.nabio = nabio
     self.idle_cv = asyncio.Condition()
     self.idle_queue = collections.deque()

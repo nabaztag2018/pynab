@@ -1,0 +1,58 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-11-19 21:35+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/nabtaichid/settings.html:6
+msgid "Tai chi"
+msgstr "Tai chi"
+
+#: templates/nabtaichid/settings.html:10
+msgid "Tai chi Frequency"
+msgstr "Fréquence du Tai chi"
+
+#: templates/nabtaichid/settings.html:13
+msgctxt "Tai chi frequency"
+msgid "Somewhat..."
+msgstr "Un peu..."
+
+#: templates/nabtaichid/settings.html:14
+msgctxt "Tai chi frequency"
+msgid "A lot..."
+msgstr "Beaucoup..."
+
+#: templates/nabtaichid/settings.html:15
+msgctxt "Tai chi frequency"
+msgid "Like crazy..."
+msgstr "Passionnément"
+
+#: templates/nabtaichid/settings.html:16
+msgctxt "Tai chi frequency"
+msgid "Not at all"
+msgstr "Pas du tout"
+
+#: templates/nabtaichid/settings.html:22
+msgid "Practice Tai chi now!"
+msgstr "C'est l'heure du Tai chi !"
+
+#: templates/nabtaichid/settings.html:29
+msgid "Save"
+msgstr "Enregistrer"
+
+#: templates/nabtaichid/settings.html:30
+msgid "Reset"
+msgstr "Annuler"

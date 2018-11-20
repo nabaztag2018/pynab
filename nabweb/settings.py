@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+from django.utils.translation import ugettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'nabd',
     'nabclockd',
     'nabmastodond',
     'nabtaichid',
@@ -46,6 +48,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -112,6 +115,19 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+
+# Available languages for modules.
+# Locales are inferred from this list.
+LANGUAGES = [
+  ('fr-fr', _('French')),
+  ('de-de', _('German')),
+  ('en-us', _('U.S. English')),
+  ('en-gb', _('British English')),
+  ('it-it', _('Italian')),
+  ('es-es', _('Spanish')),
+  ('ja-jp', _('Japanese')),
+  ('pt-br', _('Brazilian Portuguese')),
+]
 
 TIME_ZONE = 'UTC'
 

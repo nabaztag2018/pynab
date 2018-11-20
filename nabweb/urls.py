@@ -15,12 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from . import views
+from .views import NabWebView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('nabclockd/', include('nabclockd.urls')),
     path('nabmastodond/', include('nabmastodond.urls')),
     path('nabtaichid/', include('nabtaichid.urls')),
-    path('', views.index, name='index'),
+    path('', NabWebView.as_view()),
 ]

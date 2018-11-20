@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView
 from .models import Config
 from .nabclockd import NabClockd
+from django.utils import translation
 
 class SettingsView(TemplateView):
   template_name = "nabclockd/settings.html"
