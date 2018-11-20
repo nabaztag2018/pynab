@@ -4,6 +4,7 @@ import sys
 import pytest
 
 @pytest.mark.skipif(sys.platform != 'linux', reason="Alsa is only available on Linux")
+@pytest.mark.django_db
 class TestSound(unittest.TestCase):
   def setUp(self):
     from nabd.sound_alsa import SoundAlsa
