@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
-if [ "`uname -s -m`" != 'Linux armv6l' ]; then
-  echo "Installation only planned on Raspberry Pi Zero, will cowardly exit"
-  uname -s -m
-#  exit 1
+if [ "$1" == "travis-chroot" ]; then
+  echo "Hello Travis"
+else
+  if [ "`uname -s -m`" != 'Linux armv6l' ]; then
+    echo "Installation only planned on Raspberry Pi Zero, will cowardly exit"
+    exit 1
+  fi
 fi
 
 if [ $USER == "root" ]; then
@@ -35,7 +38,12 @@ if [ $trust -ne 1 ]; then
     echo "Failed to configure PostgreSQL"
     exit 1
   fi
-  sudo systemctl restart postgresql
+  if [ "$1" == "travis-chroot" ]; then
+    cluster=`echo /etc/postgresql/*/main/pg_hba.conf  | sed -E 's|/etc/postgresql/(.+)/(.+)/pg_hba.conf|\1-\2|g'`
+    sudo /usr/bin/pg_ctlcluster postgresql@${cluster} --skip-systemctl-redirect ${cluster} start
+  else
+    sudo systemctl restart postgresql
+  fi
 fi
 
 if [ ! -e '/etc/nginx/sites-enabled/pynab' ]; then
@@ -44,7 +52,9 @@ if [ ! -e '/etc/nginx/sites-enabled/pynab' ]; then
     sudo rm /etc/nginx/sites-enabled/default
   fi
   sudo cp nabweb/nginx-site.conf /etc/nginx/sites-enabled/pynab
-  sudo systemctl restart nginx
+  if [ "$1" != "travis-chroot" ]; then
+    sudo systemctl restart nginx
+  fi
 fi
 
 psql -U pynab -c '' 2>/dev/null || {
@@ -63,5 +73,7 @@ for service_file in */*.service ; do
   sudo mv /tmp/${name} /lib/systemd/system/${name}
   sudo chown root /lib/systemd/system/${name}
   sudo systemctl enable ${name}
-  sudo systemctl restart ${name}
+  if [ "$1" != "travis-chroot" ]; then
+    sudo systemctl restart ${name}
+  fi
 done
