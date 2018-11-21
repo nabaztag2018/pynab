@@ -1,0 +1,12 @@
+#!/bin/bash
+set -uo pipefail
+trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
+IFS=$'\n\t'
+
+sudo apt update
+sudo apt dist-upgrade -y
+sudo apt-get install -y postgresql git python3 python3-venv gettext nginx
+cd /home/pi
+sudo -u pi git clone -b images https://github.com/nabaztag2018/pynab.git
+cd pynab
+sudo -u pi /bin/bash install.sh

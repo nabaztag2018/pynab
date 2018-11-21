@@ -2,7 +2,8 @@
 
 if [ "`uname -s -m`" != 'Linux armv6l' ]; then
   echo "Installation only planned on Raspberry Pi Zero, will cowardly exit"
-  exit 1
+  uname -s -m
+#  exit 1
 fi
 
 if [ $USER == "root" ]; then
