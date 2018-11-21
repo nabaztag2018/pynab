@@ -13,13 +13,12 @@ addons:
     - zip
 script:
 - sudo bash ./create-image
-- xz -v -z pynab.img -c > pynab.img.xz
 - zip -v pynab.img.zip pynab.img
 deploy:
   provider: releases
   api_key:
     secure: AbFpsqbFtNIuDUsM6GfuwsSoJU8Y1dk4P+GU0MoacCw6WEERzftHzqEcPKSHRiLaIAsS5pnrhSWWbl8GCzu6WvAkSIAVfau+iCAQGWNy4BJV0UVwbCmpYU7VF/lbKtOEHAmUyGCvjtAUZxn2XzgXZ+OWdEFvBYIkFq75fmZXO4awxrXv7IiGgDOcjpsz4U5pbfb8cCnwRuSacp5qChYehAZh3T6uYhx2xjksPZCkQNtFNtp422wJmi4APsQ8TIwYz2ODEP9Pf5/W1/C6LrCl1ZYTT3kdMSgIVyyTfnc3TLVl1y04LuOdj2JEKSgOL+l8KDm7o/RDTedQk+3ZjMOY2Ut7bOOJfsL3XZsimiMDRaF0E5oPic/NUNDDvYD/VmTLcxb6ABzZJIlhRXtZpY1PbeJ7crRE5G09cQd7TGaUXCbmT+RlXj49JLXFTVIQDjY70V0M//iBNCRBSQ9xbO5z7BnrXx/95XQtROsI2ENODYDl6OW2TLu2zqsF1Qd+2+5eFxg/G8IrmnId6ecEo0sO6b8EJ3z82rAJBuYpEC5sYrJYo7Uc4PhBwiO+AGAlkZU7sJ+fgcRGuovDNaPd9pTp/pHpMQdA/VdAAh+WWQNRYIWRyMtbwbUYCrEOAx8/zQUXYxVexxGpnSDUENLcO7gYFq4FtQ0gK+aJNZY9cM4NNZE=
-  file: pynab.img
+  file: pynab.img.zip
   on:
     repo: nabaztag2018/pynab
     branch: images
