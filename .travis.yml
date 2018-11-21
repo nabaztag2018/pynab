@@ -13,8 +13,8 @@ addons:
     - zip
 script:
 - sudo bash ./create-image
-- xz -z pynab.img -c > pynab.img.xz
-- zip pynab.img.zip pynab.img
+- xz -v -z pynab.img -c > pynab.img.xz
+- zip -v pynab.img.zip pynab.img
 deploy:
   provider: releases
   api_key:

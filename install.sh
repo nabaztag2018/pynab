@@ -39,8 +39,9 @@ if [ $trust -ne 1 ]; then
     exit 1
   fi
   if [ "$1" == "travis-chroot" ]; then
-    cluster=`echo /etc/postgresql/*/main/pg_hba.conf  | sed -E 's|/etc/postgresql/(.+)/(.+)/pg_hba.conf|\1-\2|g'`
-    sudo /usr/bin/pg_ctlcluster postgresql@${cluster} --skip-systemctl-redirect ${cluster} start
+    cluster_version=`echo /etc/postgresql/*/main/pg_hba.conf  | sed -E 's|/etc/postgresql/(.+)/(.+)/pg_hba.conf|\1|g'`
+    cluster_name=`echo /etc/postgresql/*/main/pg_hba.conf  | sed -E 's|/etc/postgresql/(.+)/(.+)/pg_hba.conf|\2|g'`
+    sudo -u postgres /usr/lib/postgresql/${cluster_version}/bin/pg_ctl start -D /etc/postgresql/${cluster_version}/${cluster_name}/
   else
     sudo systemctl restart postgresql
   fi
@@ -66,6 +67,10 @@ psql -U pynab -c '' 2>/dev/null || {
 
 venv/bin/python manage.py migrate
 venv/bin/django-admin compilemessages
+
+if [ "$1" == "travis-chroot" ]; then
+  sudo -u postgres /usr/lib/postgresql/${cluster_version}/bin/pg_ctl stop -D /etc/postgresql/${cluster_version}/${cluster_name}/
+fi
 
 for service_file in */*.service ; do
   name=`basename ${service_file}`
