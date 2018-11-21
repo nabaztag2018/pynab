@@ -79,10 +79,10 @@ mount "${bootdev}" "${mount}/boot"
 install -Dm755 "${script}" "${mount}/tmp/${script}"
 
 # Prep the chroot
-#mount --bind /proc "${mount}/proc"
-#mount --bind /sys "${mount}/sys"
-#mount --bind /dev "${mount}/dev"
-#mount --bind /dev/pts "${mount}/dev/pts"
+mount --bind /proc "${mount}/proc"
+mount --bind /sys "${mount}/sys"
+mount --bind /dev "${mount}/dev"
+mount --bind /dev/pts "${mount}/dev/pts"
 
 cp /etc/resolv.conf "${mount}/etc/resolv.conf"
 cp /usr/bin/qemu-arm-static "${mount}/usr/bin"
@@ -90,7 +90,7 @@ cp "${mount}/etc/ld.so.preload" "${mount}/etc/_ld.so.preload"
 echo "" > "${mount}/etc/ld.so.preload"
 
 # Run the installation script as if we would be inside the Raspberry Pi
-systemd-nspawn -D "${mount}" "/tmp/${script}"
+chroot "${mount}" "/tmp/${script}"
 
 # Put back the old ld.so.preload script.
 mv "${mount}/etc/_ld.so.preload" "${mount}/etc/ld.so.preload"
