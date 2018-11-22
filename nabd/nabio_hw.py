@@ -32,12 +32,12 @@ class NabIOHW(NabIO):
     return await self.ears.detect_positions()
 
   def set_leds(self, nose, left, center, right, bottom):
-    for led in [nose, left, center, right, bottom]:
+    for (led_ix, led) in [(Leds.LED_NOSE, nose), (Leds.LED_LEFT, left), (Leds.LED_CENTER, center), (Leds.LED_RIGHT, right), (Leds.LED_BOTTOM, bottom)]:
       if led == None:
         (r, g, b) = (0, 0, 0)
       else:
         (r, g, b) = led
-      self.leds.set1(led, r, g, b)
+      self.leds.set1(led_ix, r, g, b)
 
   def bind_button_event(self, loop, callback):
     self.button.on_event(loop, callback)

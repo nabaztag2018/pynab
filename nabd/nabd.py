@@ -377,15 +377,11 @@ class Nabd:
       if self.state != 'asleep':
         self.broadcast_event('ears', {'type':'ears_event', 'left': left, 'right': right})
 
-  async def setup(self):
-    self.nabio.set_leds(None, None, None, None, None)
-    await self.nabio.setup_ears(self.ears['left'], self.ears['right'])
-
   def run(self):
     self.loop = asyncio.get_event_loop()
     self.nabio.bind_button_event(self.loop, self.button_callback)
     self.nabio.bind_ears_event(self.loop, self.ears_callback)
-    setup_task = self.loop.create_task(self.setup())
+    setup_task = self.loop.create_task(self.idle_setup())
     idle_task = self.loop.create_task(self.idle_worker_loop())
     server_task = self.loop.create_task(asyncio.start_server(self.service_loop, 'localhost', Nabd.PORT_NUMBER))
     try:
