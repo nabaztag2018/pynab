@@ -26,7 +26,7 @@ class NabIOMock(NabIO):
     self.called_list.append('detect_ears_positions()')
     return (self.left_ear, self.right_ear)
 
-  def set_leds(self, left, center, right, nose, bottom):
+  def set_leds(self, nose, left, center, right, bottom):
     self.left_led = left
     self.center_led = center
     self.right_led = right

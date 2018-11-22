@@ -14,7 +14,7 @@ class NabIOVirtual(nabio.NabIO):
     return (0, 0)
 
 
-  def set_leds(self, left, center, right, nose, bottom):
+  def set_leds(self, nose, left, center, right, bottom):
     print('set_leds left={left}, center={center}, right={right}, nose={nose}, bottom={bottom}'.format(left=left, center=center, right=right, nose=nose, bottom=bottom))
 
   def bind_button_event(self, loop, callback):
