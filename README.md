@@ -23,35 +23,28 @@ sudo apt update
 sudo apt upgrade
 ```
 
-1. Installer PostgreSQL et les paquets requis
+1. Configurer la carte son et redémarrer.
+
+https://support.hifiberry.com/hc/en-us/articles/205377651-Configuring-Linux-4-x-or-higher
+
+2. Installer PostgreSQL et les paquets requis
 
 ```
-sudo apt-get install postgresql git python3 python3-venv gettext nginx
+sudo apt-get install postgresql git python3 python3-venv gettext nginx libffi openssl libmpg123-dev
 ```
 
-2. Récupérer le code
+3. Récupérer le code
 
 ```
 git clone https://github.com/nabaztag2018/pynab.git
 cd pynab
 ```
 
-3. Lancer le script d'installation qui fait le reste, notamment l'installation et le démarrage des services via systemd.
+4. Lancer le script d'installation qui fait le reste, notamment l'installation et le démarrage des services via systemd.
 
 ```
 bash install.sh
 ```
-
-4. Configuration supplémentaire pour le son.
-
-https://support.hifiberry.com/hc/en-us/articles/205377651-Configuring-Linux-4-x-or-higher
-
-et installer mplayer
-
-```
-sudo apt-get install mplayer
-```
-
 
 # Architecture
 
