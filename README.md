@@ -2,6 +2,11 @@
 
 [![Build Status](https://travis-ci.org/nabaztag2018/pynab.svg?branch=master)](https://travis-ci.org/nabaztag2018/pynab)
 
+
+# Carte Maker Faire2018
+
+Ce noyau nécessite une carte spécifique réalisée pour Maker Faire 2018 qui connecte le raspberry Pi Zero et le Hat HifiBerry (miniAmp) avec les interfaces du Nabaztag (leds, HP, moteur, encodeur). 
+
 # Images
 
 Les [releases](https://github.com/nabaztag2018/pynab/releases) sont des images de Raspbian Stretch Lite 2018-11-13 avec pynab pré-installé. Elles ont les mêmes réglages que [Raspbian](https://www.raspberrypi.org/downloads/raspbian/).
@@ -36,6 +41,17 @@ cd pynab
 ```
 bash install.sh
 ```
+
+4. Configuration supplémentaire pour le son.
+
+https://support.hifiberry.com/hc/en-us/articles/205377651-Configuring-Linux-4-x-or-higher
+
+et installer mplayer
+
+```
+sudo apt-get install mplayer
+```
+
 
 # Architecture
 
