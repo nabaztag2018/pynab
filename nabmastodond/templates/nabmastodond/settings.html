@@ -64,7 +64,7 @@
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title" id="nabmastodon-cancel-title">{% blocktrans %}Really cancel proposal to <a href="{{ config.spouse_handle|to_profile_url }}" target="_blank">{{ config.spouse_handle }}</a>?{% endblocktrans %}</h5>
+                    <h5 class="modal-title" id="nabmastodon-cancel-title">{% blocktrans with spouse_handle=config.spouse_handle profile_url=config.spouse_handle|to_profile_url %}Really cancel proposal to <a href="{{ profile_url }}" target="_blank">{{ spouse_handle }}</a>?{% endblocktrans %}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
@@ -75,7 +75,7 @@
                 </div>
               </div>
             </div>
-            <p>{% blocktrans %}You sent a proposal to your friend <a href="{{ config.spouse_handle|to_profile_url }}" target="_blank">{{ config.spouse_handle }}</a>. They have yet to accept it.{% endblocktrans %}</p>
+            <p>{% blocktrans with spouse_handle=config.spouse_handle profile_url=config.spouse_handle|to_profile_url %}You sent a proposal to your friend <a href="{{ profile_url }}" target="_blank">{{ spouse_handle }}</a>. They have yet to accept it.{% endblocktrans %}</p>
             <input name="state" type="hidden" value="proposed" />
             <div class="input-group input-group mb-3">
               <div class="input-group-prepend">
@@ -122,7 +122,7 @@
             </script>
           {% elif config.spouse_pairing_state == 'waiting_approval' %}
             {% csrf_token %}
-            <p>{% blocktrans %}You received a proposal from <a href="{{ config.spouse_handle|to_profile_url }}" target="_blank">{{ config.spouse_handle }}</a>. Do you want to accept it?{% endblocktrans %}</p>
+            <p>{% blocktrans with spouse_handle=config.spouse_handle profile_url=config.spouse_handle|to_profile_url %}You received a proposal from <a href="{{ profile_url }}" target="_blank">{{ spouse_handle }}</a>. Do you want to accept it?{% endblocktrans %}</p>
             <button type="button" class="btn btn-primary accept-button">{% trans "Accept" %}</button>
             <button type="button" class="btn btn-danger reject-button">{% trans "Reject" %}</button>
             <script type="text/javascript">
@@ -168,7 +168,7 @@
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title" id="nabmastodon-divorce-title">{% blocktrans %}Really divorce from <a href="{{ config.spouse_handle|to_profile_url }}" target="_blank">{{ config.spouse_handle }}</a>?{% endblocktrans %}</h5>
+                    <h5 class="modal-title" id="nabmastodon-divorce-title">{% blocktrans with spouse_handle=config.spouse_handle profile_url=config.spouse_handle|to_profile_url %}Really divorce from <a href="{{ profile_url }}" target="_blank">{{ spouse_handle }}</a>?{% endblocktrans %}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
@@ -180,7 +180,7 @@
                 </div>
               </div>
             </div>
-            <p>{% blocktrans %}This Nabaztag is married to <a href="{{ config.spouse_handle|to_profile_url }}" target="_blank">{{ config.spouse_handle }}</a>. Married Nabaztags have a special ear-based relationship.{% endblocktrans %}</p>
+            <p>{% blocktrans with spouse_handle=config.spouse_handle profile_url=config.spouse_handle|to_profile_url %}This Nabaztag is married to <a href="{{ profile_url }}" target="_blank">{{ spouse_handle }}</a>. Married Nabaztags have a special ear-based relationship.{% endblocktrans %}</p>
             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#nabmastodond-settings .divorce-confirmation-modal">{% trans "Divorce" %}</button>
             <script type="text/javascript">
             $(function() {
