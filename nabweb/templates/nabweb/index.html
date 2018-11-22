@@ -24,7 +24,11 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <a class="nav-link" href="#">{% trans "Home" %} <span class="sr-only">{% trans "(current)" %}</span></a>
+          <li><a class="nav-link" href="#">{% trans "Home" %} <span class="sr-only">{% trans "(current)" %}</span></a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a class="nav-link pull-right" href="https://github.com/nabaztag2018/pynab" target="_blank" aria-label="GitHub"><img src="{% static "nabweb/images/GitHub-Mark-32px.png" %}" title="GitHub" width="20" height="20" /></a></li>
+          <li><a class="nav-link pull-right upgrade-link disabled" href="#">Upgrade <span class="badge badge-info"></span></a></li>
         </ul>
       </div>
     </header>
@@ -83,6 +87,21 @@
         <div class="settings col-md-6 mb-3" data-url="/nabsurprised/settings"></div>
       </div>
     </div>
+    <div class="modal fade upgrade-modal" tabindex="-1" role="dialog" aria-labelledby="update-modal-title" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="update-modal-title">{% trans "Upgrading" %}</h5>
+          </div>
+          <div class="modal-body">
+            <p>{% trans "Please wait while upgrading pynab..." %}</p>
+            <div class="progress">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="text/javascript">
       $(function() {
         $("div.settings").each(function(index, element) {
@@ -90,6 +109,79 @@
           $.get(url, function(data) {
             $(element).html(data);
           });
+        });
+        var upgradeBtn = $("a.upgrade-link");
+        var upgradeBadge = upgradeBtn.find('span.badge');
+        function doTestUpgrade(old) {
+          $.ajax({
+            url: "{% url 'nabweb.upgrade' %}",
+            beforeSend: function (xhr, settings) {
+              xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+            },
+            contentType: 'application/json',
+            method: "GET",
+            success: function (data) {
+              if (data.head == old) {
+                setTimeout(function() { doTestUpgrade(old); }, 3000);
+              } else {
+                window.location.reload();
+              }
+            },
+            error: function (data) {
+              setTimeout(function() { doTestUpgrade(old); }, 3000);
+            }
+          });
+        }
+        function do_upgrade() {
+          $.ajax({
+            url: "{% url 'nabweb.upgrade' %}",
+            beforeSend: function (xhr, settings) {
+              xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+            },
+            contentType: 'application/json',
+            method: "POST",
+            success: function (data) {
+              $('.modal.upgrade-modal').modal('show');
+              setTimeout(function() { doTestUpgrade(data.old); }, 3000);
+            },
+            error: function (data) {
+              var message = "{% trans "An unknown error occurred trying to upgrade" %}";
+              if (data.message) {
+                message = "{% trans "An error occurred trying to upgrade: " %}" + data.message;
+              }
+              $.bootstrapGrowl(message, {type: 'danger', allow_dismiss: true});
+            }
+          });
+        }
+        $.ajax({
+          url: "{% url 'nabweb.upgrade' %}",
+          beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+          },
+          contentType: 'application/json',
+          method: "GET",
+          success: function (data) {
+            if (data.status == 'ok') {
+              if (data.commit_count > 0) {
+                upgradeBtn.removeClass('disabled');
+                upgradeBadge.attr('title', data.head);
+                upgradeBadge.text(data.commit_count);
+                upgradeBtn.on('click', function() { do_upgrade(); return false; });
+              } else {
+                upgradeBtn.attr('title', data.head);
+              }
+            } else {
+              upgradeBadge.text('!');
+              upgradeBadge.removeClass('badge-info');
+              upgradeBadge.addClass('badge-danger');
+              upgradeBtn.attr('title', data.message);
+            }
+          },
+          error: function (data) {
+            upgradeBadge.text('!');
+            upgradeBadge.removeClass('badge-info');
+            upgradeBadge.addClass('badge-danger');
+          }
         });
       });
     </script>

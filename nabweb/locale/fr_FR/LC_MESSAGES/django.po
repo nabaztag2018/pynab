@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-19 20:44+0100\n"
+"POT-Creation-Date: 2018-11-22 22:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,8 +18,36 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: settings.py:123
+msgid "French"
+msgstr "Français"
+
+#: settings.py:124
+msgid "German"
+msgstr "Allemand"
+
+#: settings.py:125
 msgid "U.S. English"
 msgstr "Anglais des États-Unis"
+
+#: settings.py:126
+msgid "British English"
+msgstr "Anglais britannique"
+
+#: settings.py:127
+msgid "Italian"
+msgstr "Italien"
+
+#: settings.py:128
+msgid "Spanish"
+msgstr "Espagnol"
+
+#: settings.py:129
+msgid "Japanese"
+msgstr "Japonais"
+
+#: settings.py:130
+msgid "Brazilian Portuguese"
+msgstr "Portugais brésilien"
 
 #: templates/nabweb/index.html:11 templates/nabweb/index.html:21
 msgid "Nabaztag configuration"
@@ -33,18 +61,38 @@ msgstr "Accueil"
 msgid "(current)"
 msgstr "(actif)"
 
-#: templates/nabweb/index.html:38
+#: templates/nabweb/index.html:42 templates/nabweb/index.html:47
 msgid "Language"
 msgstr "Langue"
 
-#: templates/nabweb/index.html:41
+#: templates/nabweb/index.html:45
 msgid ""
-"The language is used by services with recorded sounds. U.S. English and British "
-"English are based on distinct voices."
+"The language is used by services with recorded sounds. U.S. English and "
+"British English are based on distinct voices."
 msgstr ""
 "La langue est utilisée par les services avec des sons enregistrés. "
 "Typiquement, l'américain et le britannique utilisent des voix différentes"
 
-#: templates/nabweb/index.html:57
+#: templates/nabweb/index.html:60
+msgid "Save"
+msgstr "Enregistrer"
+
+#: templates/nabweb/index.html:61
 msgid "Reset"
 msgstr "Annuler"
+
+#: templates/nabweb/index.html:94
+msgid "Upgrading"
+msgstr "Mise à jour"
+
+#: templates/nabweb/index.html:97
+msgid "Please wait while upgrading pynab..."
+msgstr "Veuillez patienter pendant la mise à jour de pynab"
+
+#: templates/nabweb/index.html:148
+msgid "An unknown error occurred trying to upgrade"
+msgstr "Une erreur inconnue est survenue en essayant de mettre à jour pynab"
+
+#: templates/nabweb/index.html:150
+msgid "An error occurred trying to upgrade: "
+msgstr "Une erreur est survenue en essayant de mettre à jour pynab : "

@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+set -xuo pipefail
+trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
+IFS=$'\n\t'
+
 if [ "$1" != "travis-chroot" -a "`uname -s -m`" != 'Linux armv6l' ]; then
   echo "Installation only planned on Raspberry Pi Zero, will cowardly exit"
   exit 1
@@ -11,11 +15,6 @@ fi
 
 cd `dirname "$0"`
 root_dir=`pwd`
-
-if [ "$1" == "--upgrade" ]; then
-  echo "Upgrading code"
-  git pull
-fi
 
 if [ ! -d "venv" ]; then
   echo "Creating Python 3 virtual environment"
@@ -63,6 +62,11 @@ psql -U pynab -c '' 2>/dev/null || {
 
 venv/bin/python manage.py migrate
 venv/bin/django-admin compilemessages
+
+if [ "$1" == "--test" ]; then
+  echo "Running tests"
+  sudo venv/bin/pytest
+fi
 
 if [ "$1" == "travis-chroot" ]; then
   sudo -u postgres /usr/lib/postgresql/${cluster_version}/bin/pg_ctl stop -D /etc/postgresql/${cluster_version}/${cluster_name}/

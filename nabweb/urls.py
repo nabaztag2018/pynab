@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from .views import NabWebView
+from .views import NabWebView, NabWebUpgradeView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,4 +24,5 @@ urlpatterns = [
     path('nabsurprised/', include('nabsurprised.urls')),
     path('nabtaichid/', include('nabtaichid.urls')),
     path('', NabWebView.as_view()),
+    path('upgrade', NabWebUpgradeView.as_view(), name='nabweb.upgrade'),
 ]
