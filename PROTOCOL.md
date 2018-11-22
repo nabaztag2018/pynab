@@ -81,9 +81,12 @@ Chaque ressource est un chemin vers un son tel que `"nabmastodon/communion.wav"`
 
 `choreography` peut être :
 - une liste de ressources vers les chorégraphies sur le même mécanisme que les sons, dans les répertoires `choreographies` des différentes applications.
-- `"urn:streaming"` pour la chorégraphie de streaming (pas encore codée).
+- `"urn:x-chor:streaming"` pour la chorégraphie de streaming avec palette aléatoire.
+- `"urn:x-chor:streaming:N"` pour la chorégraphie de streaming avec palette N.
 
-La chorégraphie est jouée pendant la lecture des différents fichiers audios de la liste.
+La chorégraphie est jouée pendant la lecture des différents fichiers audios de la liste et est interrompue à la fin de l'audio.
+Si aucun son n'est joué, la chorégraphie est jouée jusqu'au bout.
+Si la même chorégraphie est indiquée pour les différentes séquences, elle n'est pas interrompue.
 
 Le slot `"cancelable"` est optionnel. Par défaut, la commande sera annulée par un click sur le bouton. Si `cancelable` est `false`, la commande n'est pas annulée par le bouton (le service doit gérer le bouton).
 
@@ -110,7 +113,7 @@ Le slot `"body"` est requis et est une liste d'éléments du type :
 Les slots `"audio"` et `"choreography"` sont optionnels.
 
 `audio_list` est une liste de sons à jouer, comme pour les paquets `"command"`.
-`choregraphy` est une chorégraphie, comme pour les paquets `"command"`.
+`choreography` est une chorégraphie, comme pour les paquets `"command"`. Cependant, si la chorégraphie n'est pas précisée, alors c'est la chorégraphie de streaming qui est utilisée.
 
 La signature est jouée en premier, suivi du corps du message, puis la signature est rejouée.
 

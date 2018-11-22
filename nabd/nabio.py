@@ -75,30 +75,39 @@ class NabIO(object, metaclass=abc.ABCMeta):
     """
     preloaded_sig = await self._preload([signature])
     preloaded_body = await self._preload(body)
-    await self._play_preloaded(preloaded_sig)
-    await self._play_preloaded(preloaded_body)
-    await self._play_preloaded(preloaded_sig)
+    ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
+    await self._play_preloaded(ci, preloaded_sig, ChoreographyInterpreter.STREAMING_URN)
+    await self._play_preloaded(ci, preloaded_body, ChoreographyInterpreter.STREAMING_URN)
+    await self._play_preloaded(ci, preloaded_sig, ChoreographyInterpreter.STREAMING_URN)
+    await ci.stop()
 
   async def play_sequence(self, sequence):
     """
     Play a simple sequence
     """
     preloaded = await self._preload(sequence)
-    await self._play_preloaded(preloaded)
+    ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
+    played_audio = await self._play_preloaded(ci, preloaded, None)
+    if played_audio:
+      await ci.stop()
+    else:
+      await ci.wait_until_complete()
 
-  async def _play_preloaded(self, preloaded):
+  async def _play_preloaded(self, ci, preloaded, default_chor):
     for seq_item in preloaded:
-      if 'audio' in seq_item:
-        audio_task_list = [self.sound.play_list(seq_item['audio'], True)]
-      else:
-        audio_task_list = []
       if 'choreography' in seq_item:
-        ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
-        choeography_task_list = [ci.play(seq_item['choreography'])]
+        chor = seq_item['choreography']
       else:
-        choeography_task_list = []
-      if audio_task_list + choeography_task_list != []:
-        await asyncio.wait(audio_task_list + choeography_task_list)
+        chor = default_chor
+      if chor != None:
+        ci.start(chor)
+      else:
+        ci.stop()
+      if 'audio' in seq_item:
+        await self.sound.play_list(seq_item['audio'], True)
+        return True
+      else:
+        return False
 
   async def _preload(self, sequence):
     preloaded_sequence = []

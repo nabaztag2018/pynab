@@ -1,4 +1,4 @@
-import unittest, asyncio, base64, re
+import unittest, asyncio, base64, re, pytest
 from mock import EarsMock, LedsMock, SoundMock
 from nabd.choreography import ChoreographyInterpreter
 
@@ -108,3 +108,33 @@ class TestChoreographyInterpreter(unittest.TestCase):
       'set1(4,0,0,0)'])
     self.assertEqual(self.ears.called_list, [])
     self.assertEqual(self.sound.called_list, [])
+
+@pytest.mark.django_db
+class TestStreamingChoregraphy(unittest.TestCase):
+  def setUp(self):
+    self.loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(self.loop)
+    self.leds = LedsMock()
+    self.ears = EarsMock()
+    self.sound = SoundMock()
+    self.ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
+
+  def test_streaming(self):
+    self.ci.start(ChoreographyInterpreter.STREAMING_URN)
+    task = self.loop.create_task(asyncio.sleep(1))
+    self.loop.run_until_complete(task)
+    self.assertEqual(self.sound.called_list, [])
+    self.assertTrue(len(self.leds.called_list) > 0)
+    self.assertTrue(len(self.ears.called_list) > 0)
+    task = self.loop.create_task(self.ci.stop())
+    self.loop.run_until_complete(task)
+
+  def test_streaming_n(self):
+    self.ci.start(ChoreographyInterpreter.STREAMING_URN + ':3')
+    task = self.loop.create_task(asyncio.sleep(1))
+    self.loop.run_until_complete(task)
+    self.assertEqual(self.sound.called_list, [])
+    self.assertTrue(len(self.leds.called_list) > 0)
+    self.assertTrue(len(self.ears.called_list) > 0)
+    task = self.loop.create_task(self.ci.stop())
+    self.loop.run_until_complete(task)

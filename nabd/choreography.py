@@ -1,5 +1,7 @@
 import random, time, asyncio
 from .resources import Resources
+from .ears import Ears
+from contextlib import suppress
 
 class ChoreographyInterpreter:
   def __init__(self, leds, ears, sound):
@@ -7,6 +9,10 @@ class ChoreographyInterpreter:
     self.leds = leds
     self.ears = ears
     self.sound = sound
+    self.running_task = None
+    self.running_ref = None
+
+  STREAMING_URN = 'urn:x-chor:streaming'
 
   # from nominal.010120_as3.mtl
   MTL_OPCODE_HANDLDERS = [
@@ -31,6 +37,30 @@ class ChoreographyInterpreter:
     'ifne',             # only used for taichi
     'attend',
     'setmotordir',      # v16
+  ]
+
+  STREAMING_OPCODE_HANDLERS = [
+    'nop',
+    'nop_1',            # frame_duration is ignored
+    'undefined',
+    'undefined',
+    'undefined',
+    'undefined',
+    'undefined',        # 'set_color', but commented
+    'set_led_color',
+    'undefined',
+    'undefined',        # v16
+    'set_led_off',      # v17
+    'undefined',
+    'undefined',
+    'undefined',
+    'set_led_palette_streaming',
+    'undefined',        # 'set_palette', but commented
+    'undefined',
+    'undefined',
+    'undefined',        # only used for taichi
+    'undefined',
+    'undefined',        # v16
   ]
 
   # from Nabaztag_wait.vasm
@@ -80,10 +110,25 @@ class ChoreographyInterpreter:
 	  'choreographies/3notesF5C6G5.mp3'
   ]
 
-  OPCODE_HANDLERS = {'mtl': MTL_OPCODE_HANDLDERS, 'vasm': VASM_OPCODE_HANDLERS}
+  STREAMING_CHOREGRAPHIES = 'nabd/streaming/*.chor'
+
+  PALETTES = [
+	[(255, 12, 0), (0, 255, 31), (255, 242, 0), (0, 3, 255), (255, 242, 0), (0, 255, 31), (255, 12, 0), (0, 0, 0)], # acidulée
+	[(95, 0, 255), (127, 0, 255), (146, 0, 255), (191, 0, 255), (223, 0, 255), (255, 0, 223), (255, 0, 146), (0, 0, 0)], # violet
+	[(255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (0, 0, 0)], # lumiere
+	[(254, 128, 2), (243, 68, 2), (216, 6, 7), (200, 4, 13), (170, 0, 24), (218, 5, 96), (207, 6, 138), (0, 0, 0)], # emotion
+	[(20, 155, 18), (255, 0, 0), (252, 243, 5), (20, 155, 18), (252, 243, 5), (255, 0, 0), (20, 155, 18), (0, 0, 0)], # oriental
+	[(252, 238, 71), (206, 59, 69), (85, 68, 212), (78, 167, 82), (243, 75, 153), (151, 71, 196), (255, 255, 255), (0, 0, 0)], # pastel
+	[(204, 255, 102), (204, 255, 0), (153, 255, 0), (51, 204, 0), (0, 153, 51), (0, 136, 0), (0, 102, 51), (0, 0, 0)], # nature
+  ]
+
+  OPCODE_HANDLERS = {'mtl': MTL_OPCODE_HANDLDERS, 'vasm': VASM_OPCODE_HANDLERS, 'streaming': STREAMING_OPCODE_HANDLERS}
 
   async def nop(self, index, chor):
     return index
+
+  async def nop_1(self, index, chor):
+    return index + 1
 
   async def frame_duration(self, index, chor):
     self.timescale = chor[index]
@@ -123,6 +168,14 @@ class ChoreographyInterpreter:
     self.leds.set1(led, r, g, b)
     return index + 2
 
+  async def set_led_palette_streaming(self, index, chor):
+    led = chor[index]
+    col_ix = chor[index + 1] & 3
+    palette_ix = self.chorst_palettecolors[col_ix]
+    (r, g, b) = self.current_palette[palette_ix]
+    self.leds.set1(led, r, g, b)
+    return index + 2
+
   async def randmidi(self, index, chor):
     await self.sound.start(random.choice(ChoreographyInterpreter.MIDI_LIST))
     return index
@@ -155,16 +208,16 @@ class ChoreographyInterpreter:
     self.taichi_directions[motor] = dir
     return index + 2
 
-  async def play_binary(self, chor, opcodes='mtl'):
+  async def play_binary(self, chor, opcodes='mtl', timescale=0):
     if chor[0] == 1 and chor[1] == 1 and chor[2] == 1 and chor[3] == 1:
       # Consider this is the header
-      await self.do_play_binary(4, chor, opcodes)
+      await self.do_play_binary(4, chor, opcodes, timescale)
     else:
-      await self.do_play_binary(0, chor, opcodes)
+      await self.do_play_binary(0, chor, opcodes, timescale)
 
-  async def do_play_binary(self, start_index, chor, opcodes):
+  async def do_play_binary(self, start_index, chor, opcodes, timescale):
     index = start_index
-    self.timescale = 0
+    self.timescale = timescale
     # These are apparently for taichi (only ?)
     self.taichi_random = int(random.randint(0, 255) * 30 >> 8)
     self.taichi_directions = [0, 0]
@@ -197,8 +250,63 @@ class ChoreographyInterpreter:
         return
       index = await handler(index, chor)
 
+  async def play_streaming(self, ref):
+    ref0 = ref[len(ChoreographyInterpreter.STREAMING_URN):]
+    if ref0 == '':
+      self.current_palette_is_random = True
+    else:
+      self.current_palette_is_random = False
+      self.current_palette = ChoreographyInterpreter.PALETTES[int(ref0[1:]) & 7]
+    chorst_oreille_chance = None
+    while True:
+      if chorst_oreille_chance == None:
+        chorst_oreille_chance = 0
+        left, right = random.choice([(0, 10), (10, 0)])
+        await self.ears.go(Ears.LEFT_EAR, left, Ears.FORWARD_DIRECTION)
+        await self.ears.go(Ears.RIGHT_EAR, right, Ears.FORWARD_DIRECTION)
+      else:
+        if random.randint(0, chorst_oreille_chance) == 0:
+          pos = random.choice([0, 5, 10, 14])
+          await self.ears.go(Ears.LEFT_EAR, pos, Ears.FORWARD_DIRECTION)
+          pos = random.choice([0, 5, 10, 14])
+          await self.ears.go(Ears.RIGHT_EAR, pos, Ears.FORWARD_DIRECTION)
+          chorst_oreille_chance = (chorst_oreille_chance + 1) % 4
+      file = Resources.find('choreographies', ChoreographyInterpreter.STREAMING_CHOREGRAPHIES)
+      chor = file.read_bytes()
+      chorst_tempo = 160 + random.randint(0, 90)
+      chorst_loops = 3 + random.randint(0, 17)
+      if self.current_palette_is_random:
+        self.current_palette = random.choice(ChoreographyInterpreter.PALETTES)
+      self.chorst_palettecolors = [random.randint(0, 7), random.randint(0, 7), random.randint(0, 7)]
+      for ix in range(chorst_loops):
+        await self.play_binary(chor, 'streaming', chorst_tempo)
+
+  def start(self, ref):
+    if self.running_task:
+      if ref != self.running_ref:
+        self.running_task.cancel()
+    self.running_task = asyncio.ensure_future(self.play(ref))
+    self.running_ref = ref
+
+  async def stop(self):
+    if self.running_task:
+      self.running_task.cancel()
+      with suppress(asyncio.CancelledError):
+        await self.running_task
+      self.running_task = None
+      self.running_ref = None
+
+  async def wait_until_complete(self):
+    if self.running_task:
+      await self.running_task
+    self.running_task = None
+    self.running_ref = None
+
   async def play(self, ref):
-    # Assume a resource for now.
-    file = Resources.find('choreographies', ref)
-    chor = file.read_bytes()
-    await self.play_binary(chor)
+    if ref.startswith(ChoreographyInterpreter.STREAMING_URN):
+      await self.play_streaming(ref)
+    else:
+      # Assume a resource for now.
+      file = Resources.find('choreographies', ref)
+      chor = file.read_bytes()
+      await self.play_binary(chor)
