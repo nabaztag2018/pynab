@@ -1,5 +1,6 @@
 import asyncio
 from .nabio import NabIO
+from .leds import Leds
 from .ears import Ears
 from .ears_gpio import EarsGPIO
 from .button import Button
@@ -30,8 +31,13 @@ class NabIOHW(NabIO):
   async def detect_ears_positions(self):
     return await self.ears.detect_positions()
 
-  def set_leds(self, left, center, right, nose, bottom):
-    print('set_leds left={left}, center={center}, right={right}, nose={nose}, bottom={bottom}'.format(left=left, center=center, right=right, nose=nose, bottom=bottom))
+  def set_leds(self, nose, left, center, right, bottom):
+    for led in [nose, left, center, right, bottom]:
+      if led == None:
+        (r, g, b) = (0, 0, 0)
+      else:
+        (r, g, b) = led
+      self.leds.set1(led, r, g, b)
 
   def bind_button_event(self, loop, callback):
     self.button.on_event(loop, callback)
