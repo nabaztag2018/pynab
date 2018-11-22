@@ -2,9 +2,15 @@
 
 [![Build Status](https://travis-ci.org/nabaztag2018/pynab.svg?branch=master)](https://travis-ci.org/nabaztag2018/pynab)
 
+# Images
+
+Les [releases](/nabaztag2018/pynab/releases) sont des images de Raspbian Stretch Lite 2018-11-13 avec pynab pré-installé. Elles ont les mêmes réglages que [Raspbian](https://www.raspberrypi.org/downloads/raspbian/).
+
 # Installation sur Raspbian
 
 0. S'assurer que le raspbian est bien à jour
+
+De fait, il faut une Raspbian pas trop ancienne, sinon toutes les dépendances ne seront pas bien installées.
 
 ```
 sudo rpi-update
