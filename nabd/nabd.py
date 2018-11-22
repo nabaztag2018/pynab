@@ -49,7 +49,7 @@ class Nabd:
     self._ears_moved_task = None
 
   async def idle_setup(self):
-    self.nabio.set_leds(None, None, None, None, None)
+    self.nabio.set_leds((0,0,255), None, None, None, (255,128,0))
     await self.nabio.move_ears(self.ears['left'], self.ears['right'])
 
   async def sleep_setup(self):

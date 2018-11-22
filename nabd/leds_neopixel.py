@@ -23,7 +23,7 @@ class LedsNeoPixel(Leds):
     self.strip.begin()
 
   def set1(self, led, red, green, blue):
-    self.strip.setPixelColor(led-1, Color(red, green, blue))
+    self.strip.setPixelColor(led, Color(red, green, blue))
     self.strip.show()
 
   def setall(self, red, green, blue):

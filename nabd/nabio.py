@@ -29,7 +29,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
     raise NotImplementedError( 'Should have implemented' )
 
   @abc.abstractmethod
-  def set_leds(self, left, center, right, nose, bottom):
+  def set_leds(self, nose, left, center, right, bottom):
     """ Set the leds. None means to turn them off. """
     raise NotImplementedError( 'Should have implemented' )
 

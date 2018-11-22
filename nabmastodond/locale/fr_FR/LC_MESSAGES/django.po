@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-19 21:28+0100\n"
+"POT-Creation-Date: 2018-11-22 00:17+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -56,29 +56,26 @@ msgid "An error occurred trying to send proposal: "
 msgstr "Une erreur est survenue en essayant d'envoyer votre demande : "
 
 #: templates/nabmastodond/settings.html:67
-#, python-format
 msgid ""
-"Really cancel proposal to <a href=\"%(config.spouse_handle|to_profile_url)s"
-"\" target=\"_blank\">%(config.spouse_handle)s</a>?"
+"Really cancel proposal to <a href=\"%(profile_url)s\" target=\"_blank\">"
+"%(spouse_handle)s</a>?"
 msgstr ""
 "Souhaitez-vous réellement annuler votre demande de communion à <a href="
-"\"%(config.spouse_handle|to_profile_url)s\" target=\"_blank\">"
-"%(config.spouse_handle)s</a> ?"
+"\"%(profile_url)s\" target=\"_blank\">"
+"%(spouse_handle)s</a> ?"
 
 #: templates/nabmastodond/settings.html:73
 msgid "Really cancel"
 msgstr "Annuler la demande"
 
 #: templates/nabmastodond/settings.html:78
-#, python-format
 msgid ""
-"You sent a proposal to your friend <a href="
-"\"%(config.spouse_handle|to_profile_url)s\" target=\"_blank\">"
-"%(config.spouse_handle)s</a>. They have yet to accept it."
+"You sent a proposal to your friend <a href=\"%(profile_url)s\" target="
+"\"_blank\">%(spouse_handle)s</a>. They have yet to accept it."
 msgstr ""
 "Vous avez envoyé une demande de communion à votre ami(e) <a href="
-"\"%(config.spouse_handle|to_profile_url)s\" target=\"_blank\">"
-"%(config.spouse_handle)s</a>. Il/elle doit encore l'accepter."
+"\"%(profile_url)s\" target=\"_blank\">"
+"%(spouse_handle)s</a>. Il/elle doit encore l'accepter."
 
 #: templates/nabmastodond/settings.html:86
 msgid "Cancel proposal"
@@ -93,15 +90,13 @@ msgid "An error occurred trying to cancel proposal: "
 msgstr "Une erreur est survenue en tentant d'annuler la demande : "
 
 #: templates/nabmastodond/settings.html:125
-#, python-format
 msgid ""
-"You received a proposal from <a href="
-"\"%(config.spouse_handle|to_profile_url)s\" target=\"_blank\">"
-"%(config.spouse_handle)s</a>. Do you want to accept it?"
+"You received a proposal from <a href=\"%(profile_url)s\" target=\"_blank\">"
+"%(spouse_handle)s</a>. Do you want to accept it?"
 msgstr ""
-"Vous avez reçu une demande de mariage de <a href="
-"\"%(config.spouse_handle|to_profile_url)s\" target=\"_blank\">"
-"%(config.spouse_handle)s</a>. Souhaitez-vous l'accepter ?"
+"Vous avez reçu une demande de communion de <a href="
+"\"%(profile_url)s\" target=\"_blank\">"
+"%(spouse_handle)s</a>. Souhaitez-vous l'accepter ?"
 
 #: templates/nabmastodond/settings.html:126
 msgid "Accept"
@@ -120,14 +115,13 @@ msgid "An error occurred responding to proposal: "
 msgstr "Une erreur est survenue en répondant à cette demande : "
 
 #: templates/nabmastodond/settings.html:171
-#, python-format
 msgid ""
-"Really divorce from <a href=\"%(config.spouse_handle|to_profile_url)s\" "
-"target=\"_blank\">%(config.spouse_handle)s</a>?"
+"Really divorce from <a href=\"%(profile_url)s\" target=\"_blank\">"
+"%(spouse_handle)s</a>?"
 msgstr ""
 "Souhaitez-vous réellement divorcer de <a href="
-"\"%(config.spouse_handle|to_profile_url)s\" target=\"_blank\">"
-"%(config.spouse_handle)s</a> ?"
+"\"%(profile_url)s\" target=\"_blank\">"
+"%(spouse_handle)s</a> ?"
 
 #: templates/nabmastodond/settings.html:177
 #: templates/nabmastodond/settings.html:321
@@ -140,15 +134,14 @@ msgid "Divorce"
 msgstr "Divorcer"
 
 #: templates/nabmastodond/settings.html:183
-#, python-format
 msgid ""
-"This Nabaztag is married to <a href=\"%(config.spouse_handle|to_profile_url)s"
-"\" target=\"_blank\">%(config.spouse_handle)s</a>. Married Nabaztags have a "
-"special ear-based relationship."
+"This Nabaztag is married to <a href=\"%(profile_url)s\" target=\"_blank\">"
+"%(spouse_handle)s</a>. Married Nabaztags have a special ear-based "
+"relationship."
 msgstr ""
-"Ce Nabaztag est marié à <a href=\"%(config.spouse_handle|to_profile_url)s\" "
-"target=\"_blank\">%(config.spouse_handle)s</a>. Les Nabaztag en communion ont une "
-"relation spéciale au niveau des oreilles."
+"Ce Nabaztag est en communion avec <a href=\"%(profile_url)s\" "
+"target=\"_blank\">%(spouse_handle)s</a>. Les Nabaztag en communion "
+"ont une relation spéciale au niveau des oreilles."
 
 #: templates/nabmastodond/settings.html:208
 msgid "An unknown error occurred trying to divorce"

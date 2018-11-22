@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
 
-if [ "$1" == "travis-chroot" ]; then
-  echo "Hello Travis"
-else
-  if [ "`uname -s -m`" != 'Linux armv6l' ]; then
-    echo "Installation only planned on Raspberry Pi Zero, will cowardly exit"
-    exit 1
-  fi
+if [ "$1" != "travis-chroot" -a "`uname -s -m`" != 'Linux armv6l' ]; then
+  echo "Installation only planned on Raspberry Pi Zero, will cowardly exit"
+  exit 1
 fi
 
 if [ $USER == "root" ]; then
