@@ -388,7 +388,7 @@ class Nabd:
       self.loop.run_forever()
       for t in [setup_task, idle_task, server_task]:
         if t.done():
-          t_ex = idle_task.exception()
+          t_ex = t.exception()
           if t_ex:
             raise t_ex
     except KeyboardInterrupt:
