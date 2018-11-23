@@ -48,7 +48,7 @@ class NabService(ABC):
 
   async def client_loop(self):
     try:
-      while self.running:
+      while self.running and not self.reader.at_eof():
         line = await self.reader.readline()
         if line != b'' and line != b'\r\n':
           try:
@@ -56,6 +56,9 @@ class NabService(ABC):
             await self.process_nabd_packet(packet)
           except json.decoder.JSONDecodeError as e:
             print('Invalid JSON packet from nabd: {line}\n{e}'.format(line=line, e=e))
+      self.writer.close()
+      if sys.version_info >= (3,7):
+        await self.writer.wait_closed()
     except KeyboardInterrupt:
       pass
     finally:

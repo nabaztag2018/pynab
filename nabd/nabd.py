@@ -320,10 +320,8 @@ class Nabd:
           except json.decoder.JSONDecodeError as e:
             self.write_packet({'type':'response','status':'error','class':'JSONDecodeError','message':str(e)}, writer)
       writer.close()
-      try:
+      if sys.version_info >= (3,7):
         await writer.wait_closed()
-      except AttributeError:
-        pass # unimplemented on Python 3.5
     except ConnectionResetError:
       pass
     finally:
@@ -395,6 +393,10 @@ class Nabd:
       pass
     finally:
       self.loop.run_until_complete(self.stop_idle_worker())
+      for writer in self.service_writers.copy():
+        writer.close()
+        if sys.version_info >= (3,7):
+          self.loop.run_until_complete(writer.wait_closed())
       if sys.version_info >= (3,7):
         tasks = asyncio.all_tasks(self.loop)
       else:
@@ -403,9 +405,6 @@ class Nabd:
         self.loop.run_until_complete(t)    # give canceled tasks the last chance to run
       server = server_task.result()
       server.close()
-      for writer in self.service_writers:
-        writer.close()
-        self.loop.run_until_complete(writer.wait_closed())
       self.loop.close()
 
   def stop(self):
