@@ -160,7 +160,7 @@ class Nabd:
         await self.set_state('idle')
       else:
         item = self.idle_queue.popleft()
-        self.process_idle_item(item)
+        await self.process_idle_item(item)
 
   async def set_state(self, new_state):
     if new_state != self.state:

@@ -86,6 +86,8 @@ class NabClockd(nabservice.NabService):
   async def process_nabd_packet(self, packet):
     if 'type' in packet and packet['type'] == 'state' and 'state' in packet:
       self.asleep = packet['state'] == 'asleep'
+      async with self.loop_cv:
+        self.loop_cv.notify()
 
   async def stop_clock_loop(self):
     async with self.loop_cv:
