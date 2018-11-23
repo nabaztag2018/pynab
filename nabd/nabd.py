@@ -257,7 +257,7 @@ class Nabd:
         self.service_writers[writer] = []
       if writer == self.interactive_service_writer:
         # exit interactive mode.
-        self.exit_interactive()
+        await self.exit_interactive()
       self.write_response_packet(packet, {'status':'ok'}, writer)
     else:
       self.write_response_packet(packet, {'status':'error','class':'UnknownPacket','message':'Unknown or malformed mode packet'}, writer)
@@ -326,7 +326,7 @@ class Nabd:
       pass
     finally:
       if self.interactive_service_writer == writer:
-        self.exit_interactive()
+        await self.exit_interactive()
       del self.service_writers[writer]
 
   async def perform_command(self, packet):
