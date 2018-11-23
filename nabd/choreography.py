@@ -281,12 +281,14 @@ class ChoreographyInterpreter:
       for ix in range(chorst_loops):
         await self.play_binary(chor, 'streaming', chorst_tempo)
 
-  def start(self, ref):
-    if self.running_task:
-      if ref != self.running_ref:
+  async def start(self, ref):
+    if ref != self.running_ref:
+      if self.running_task:
         self.running_task.cancel()
-    self.running_task = asyncio.ensure_future(self.play(ref))
-    self.running_ref = ref
+        with suppress(asyncio.CancelledError):
+          await self.running_task
+      self.running_task = asyncio.ensure_future(self.play(ref))
+      self.running_ref = ref
 
   async def stop(self):
     if self.running_task:

@@ -100,9 +100,9 @@ class NabIO(object, metaclass=abc.ABCMeta):
       else:
         chor = default_chor
       if chor != None:
-        ci.start(chor)
+        await ci.start(chor)
       else:
-        ci.stop()
+        await ci.stop()
       if 'audio' in seq_item:
         await self.sound.play_list(seq_item['audio'], True)
         return True

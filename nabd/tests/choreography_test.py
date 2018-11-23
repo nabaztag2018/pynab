@@ -120,7 +120,8 @@ class TestStreamingChoregraphy(unittest.TestCase):
     self.ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
 
   def test_streaming(self):
-    self.ci.start(ChoreographyInterpreter.STREAMING_URN)
+    task = self.loop.create_task(self.ci.start(ChoreographyInterpreter.STREAMING_URN))
+    self.loop.run_until_complete(task)
     task = self.loop.create_task(asyncio.sleep(1))
     self.loop.run_until_complete(task)
     self.assertEqual(self.sound.called_list, [])
@@ -130,7 +131,8 @@ class TestStreamingChoregraphy(unittest.TestCase):
     self.loop.run_until_complete(task)
 
   def test_streaming_n(self):
-    self.ci.start(ChoreographyInterpreter.STREAMING_URN + ':3')
+    task = self.loop.create_task(self.ci.start(ChoreographyInterpreter.STREAMING_URN + ':3'))
+    self.loop.run_until_complete(task)
     task = self.loop.create_task(asyncio.sleep(1))
     self.loop.run_until_complete(task)
     self.assertEqual(self.sound.called_list, [])
