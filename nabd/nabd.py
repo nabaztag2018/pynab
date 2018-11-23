@@ -193,7 +193,7 @@ class Nabd:
       self.ears['left'] = packet['left']
     if 'right' in packet:
       self.ears['right'] = packet['right']
-    if self.state == "idle":
+    if self.state == 'idle':
       await self.nabio.move_ears(self.ears['left'], self.ears['right'])
     self.write_response_packet(packet, {'status':'ok'}, writer)
 
@@ -370,8 +370,8 @@ class Nabd:
     await asyncio.sleep(Nabd.EAR_MOVEMENT_TIMEOUT)
     if self.interactive_service_writer == None:
       (left, right) = await self.nabio.detect_ears_positions()
-      self.ears[0] = left
-      self.ears[1] = right
+      self.ears['left'] = left
+      self.ears['right'] = right
       if self.state != 'asleep':
         self.broadcast_event('ears', {'type':'ears_event', 'left': left, 'right': right})
 
