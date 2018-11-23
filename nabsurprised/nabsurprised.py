@@ -19,7 +19,7 @@ class NabSurprised(NabRandomService):
 
   def perform(self, expiration):
     print('performing surprise !')
-    packet = '{"type":"message","signature":{"audio":"nabsurprised/respirations/*.mp3"},"body":[{"audio":["nabsurprised/*.mp3"]}],"expiration":"' + expiration.isoformat() + '"}\r\n'
+    packet = '{"type":"message","signature":{"audio":["nabsurprised/respirations/*.mp3"]},"body":[{"audio":["nabsurprised/*.mp3"]}],"expiration":"' + expiration.isoformat() + '"}\r\n'
     self.writer.write(packet.encode('utf8'))
 
   def compute_random_delta(self, frequency):
