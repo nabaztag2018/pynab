@@ -203,7 +203,7 @@ class Nabd:
       if self.interactive_service_writer == writer:
         # interactive => play command immediately
         await self.perform_command(packet)
-        self.write_response_packet(item[0], {'status':'ok'}, item[1])
+        self.write_response_packet(packet, {'status':'ok'}, writer)
       else:
         async with self.idle_cv:
           self.idle_queue.append((packet, writer))
@@ -217,7 +217,7 @@ class Nabd:
       if self.interactive_service_writer == writer:
         # interactive => play command immediately
         await self.perform_message(packet)
-        self.write_response_packet(item[0], {'status':'ok'}, item[1])
+        self.write_response_packet(packet, {'status':'ok'}, writer)
       else:
         async with self.idle_cv:
           self.idle_queue.append((packet, writer))
