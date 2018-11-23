@@ -46,10 +46,10 @@ case $version in
       )
     done
 
+    sudo systemctl start nabd
     sudo systemctl start nabsurprised
     sudo systemctl start nabtaichid
     sudo systemctl start nabclockd
     sudo systemctl start nabmastodond
-    sudo systemctl start nabd
     sudo systemctl restart nabweb
 esac
