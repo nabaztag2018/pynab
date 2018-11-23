@@ -129,6 +129,16 @@ class TestStreamingChoregraphy(unittest.TestCase):
     self.assertTrue(len(self.ears.called_list) > 0)
     task = self.loop.create_task(self.ci.stop())
     self.loop.run_until_complete(task)
+    # Check at least some leds were on.
+    color_leds = 0
+    off_leds = 0
+    for ledi in self.leds.called_list:
+      if ledi.endswith('0,0,0)'):
+        off_leds=off_leds+1
+      else:
+        color_leds=color_leds+1
+    self.assertTrue(color_leds > 0)
+    self.assertTrue(off_leds > 0)
 
   def test_streaming_n(self):
     task = self.loop.create_task(self.ci.start(ChoreographyInterpreter.STREAMING_URN + ':3'))

@@ -5,12 +5,16 @@ from contextlib import suppress
 
 class ChoreographyInterpreter:
   def __init__(self, leds, ears, sound):
-    self.timescale = 0
     self.leds = leds
     self.ears = ears
     self.sound = sound
     self.running_task = None
     self.running_ref = None
+    self.timescale = 0
+    # Random is for ifne, only used in taichi.
+    self.taichi_random = int(random.randint(0, 255) * 30 >> 8)
+    self.taichi_directions = [0, 0]
+    self.current_palette = [(0, 0, 0) for x in range(8)]
 
   STREAMING_URN = 'urn:x-chor:streaming'
 
@@ -218,10 +222,6 @@ class ChoreographyInterpreter:
   async def do_play_binary(self, start_index, chor, opcodes, timescale):
     index = start_index
     self.timescale = timescale
-    # These are apparently for taichi (only ?)
-    self.taichi_random = int(random.randint(0, 255) * 30 >> 8)
-    self.taichi_directions = [0, 0]
-    self.current_palette = [(0, 0, 0) for x in range(8)]
 
     next_time = time.time()
     opcode_handlers = ChoreographyInterpreter.OPCODE_HANDLERS[opcodes]
