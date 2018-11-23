@@ -26,7 +26,7 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
     return models.Config.load()
 
   async def reload_config(self):
-    self.setup_streaming()
+    self.setup_streaming(True)
 
   def close_streaming(self):
     if self.mastodon_stream_handle:
@@ -107,7 +107,7 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
         config.spouse_handle = sender
         config.spouse_pairing_state = 'waiting_approval'
         config.spouse_pairing_date = message_date
-        self.play_message('proposal', sender_name)
+        self.play_message('proposal_received', sender_name)
       elif type == 'acceptation' or type == 'ears':
         NabMastodond.send_dm(mastodon_client, sender, 'divorce')
       # else ignore message
@@ -116,25 +116,25 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
         config.spouse_handle = None
         config.spouse_pairing_state = None
         config.spouse_pairing_date = message_date
-        self.play_message('rejection', sender_name)
+        self.play_message('proposal_refused', sender_name)
       elif matching and type == 'divorce':
         config.spouse_handle = None
         config.spouse_pairing_state = None
         config.spouse_pairing_date = message_date
-        self.play_message('rejection', sender_name)
+        self.play_message('proposal_refused', sender_name)
       elif matching and type == 'acceptation':
         config.spouse_handle = sender
         config.spouse_pairing_state = 'married'
         config.spouse_pairing_date = message_date
         self.send_start_listening_to_ears()
-        self.play_message('wedding', sender_name)
+        self.play_message('proposal_accepted', sender_name)
       elif matching and type == 'proposal':
         NabMastodond.send_dm(mastodon_client, sender, 'acceptation')
         config.spouse_handle = sender
         config.spouse_pairing_state = 'married'
         config.spouse_pairing_date = message_date
         self.send_start_listening_to_ears()
-        self.play_message('wedding', sender_name)
+        self.play_message('proposal_accepted', sender_name)
       elif not matching and (type == 'acceptation' or type == 'ears'):
         NabMastodond.send_dm(mastodon_client, sender, 'divorce')
       elif not matching and type == 'proposal':
@@ -149,7 +149,7 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
         config.spouse_handle = None
         config.spouse_pairing_state = None
         config.spouse_pairing_date = message_date
-        self.play_message('divorce', sender_name)
+        self.play_message('pairing_cancelled', sender_name)
       elif matching and type == 'acceptation':
         NabMastodond.send_dm(mastodon_client, sender, 'divorce')
         config.spouse_handle = None
@@ -160,7 +160,7 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
           NabMastodond.send_dm(mastodon_client, config.spouse_handle, 'rejection')
           config.spouse_handle = sender
         config.spouse_pairing_date = message_date
-        self.play_message('proposal', sender_name)
+        self.play_message('proposal_received', sender_name)
       elif matching and type == 'acceptation':
         NabMastodond.send_dm(mastodon_client, sender, 'divorce')
       elif not matching and (type == 'acceptation' or type == 'ears'):
@@ -172,13 +172,13 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
         config.spouse_pairing_state = None
         config.spouse_pairing_date = message_date
         self.send_stop_listening_to_ears()
-        self.play_message('divorce', sender_name)
+        self.play_message('pairing_cancelled', sender_name)
       elif matching and type == 'divorce':
         config.spouse_handle = None
         config.spouse_pairing_state = None
         config.spouse_pairing_date = message_date
         self.send_stop_listening_to_ears()
-        self.play_message('divorce', sender_name)
+        self.play_message('pairing_cancelled', sender_name)
       elif matching and type == 'acceptation':
         config.spouse_pairing_date = message_date
       elif matching and type == 'proposal':
@@ -200,11 +200,18 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
     """
     Play pairing protocol message
     """
-    # TODO: choregraphies per message & tts for sender_name
     if message == 'ears':
       packet = '{"type":"command","sequence":[{"audio":["nabmastodond/communion.wav"]}]}\r\n'
-    else:
-      packet = '{"type":"command","sequence":[{"audio":[]}]}\r\n'
+    elif message == 'proposal_received':
+      packet = '{"type":"message","signature":{"audio":["nabmastodond/respirations/*.mp3"]},"body":[{"audio":["nabmastodond/proposal_received.mp3"]}]}\r\n'
+    elif message == 'proposal_refused':
+      packet = '{"type":"message","signature":{"audio":["nabmastodond/respirations/*.mp3"]},"body":[{"audio":["nabmastodond/proposal_refused.mp3"]}]}\r\n'
+    elif message == 'proposal_accepted':
+      packet = '{"type":"message","signature":{"audio":["nabmastodond/respirations/*.mp3"]},"body":[{"audio":["nabmastodond/proposal_accepted.mp3"]}]}\r\n'
+    elif message == 'pairing_cancelled':
+      packet = '{"type":"message","signature":{"audio":["nabmastodond/respirations/*.mp3"]},"body":[{"audio":["nabmastodond/pairing_cancelled.mp3"]}]}\r\n'
+    elif message == 'setup':
+      packet = '{"type":"message","signature":{"audio":["nabmastodond/respirations/*.mp3"]},"body":[{"audio":["nabmastodond/setup.mp3"]}]}\r\n'
     self.writer.write(packet.encode('utf8'))
 
   def send_start_listening_to_ears(self):
@@ -236,8 +243,9 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
       return m.group('cmd').lower(), None
     return None, None
 
-  def setup_streaming(self):
+  def setup_streaming(self, reloading=False):
     config = self.__config()
+    setup = reloading and self.mastodon_client == None and config.spouse_handle == None
     if config.access_token == None:
       self.close_streaming()
     else:
@@ -250,6 +258,8 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
             access_token = config.access_token,
             api_base_url = 'https://' + config.instance)
           self.current_access_token = config.access_token
+          if setup:
+            self.play_message('setup', config.spouse_handle)
         except MastodonUnauthorizedError:
           self.current_access_token = None
           config.access_token = None

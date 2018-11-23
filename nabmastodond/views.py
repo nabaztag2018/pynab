@@ -65,6 +65,7 @@ class ConnectView(View):
   def delete(self, request, *args, **kwargs):
     config = Config.load()
     reset_access_token(config)
+    NabMastodond.signal_daemon()
     context = {'config': config}
     return render(request, SettingsView.template_name, context=context)
 

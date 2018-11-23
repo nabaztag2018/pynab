@@ -210,7 +210,7 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
     self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
     self.assertEqual(self.posted_statuses, [])
     self.assertEqual(len(self.protocol_handler_packets), 1)
-    self.assertEqual(self.protocol_handler_packets[0]['type'], 'command')
+    self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
 
   # Free -> Free
 
@@ -299,7 +299,7 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
     self.assertEqual(self.posted_statuses, [])
     self.assertEqual(len(self.protocol_handler_packets), 1)
-    self.assertEqual(self.protocol_handler_packets[0]['type'], 'command')
+    self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
 
   def test_process_matching_divorce(self):
     service = nabmastodond.NabMastodond()
@@ -313,7 +313,7 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
     self.assertEqual(self.posted_statuses, [])
     self.assertEqual(len(self.protocol_handler_packets), 1)
-    self.assertEqual(self.protocol_handler_packets[0]['type'], 'command')
+    self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
 
   # Proposed -> Married
 
@@ -332,7 +332,7 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
     self.assertEqual(self.protocol_handler_packets[0]['mode'], 'idle')
     self.assertEqual(self.protocol_handler_packets[0]['events'], ['ears'])
-    self.assertEqual(self.protocol_handler_packets[1]['type'], 'command')
+    self.assertEqual(self.protocol_handler_packets[1]['type'], 'message')
 
   def test_process_matching_proposal(self):
     service = nabmastodond.NabMastodond()
@@ -352,7 +352,7 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
     self.assertEqual(self.protocol_handler_packets[0]['mode'], 'idle')
     self.assertEqual(self.protocol_handler_packets[0]['events'], ['ears'])
-    self.assertEqual(self.protocol_handler_packets[1]['type'], 'command')
+    self.assertEqual(self.protocol_handler_packets[1]['type'], 'message')
 
   # Proposed -> Proposed
 
@@ -469,7 +469,7 @@ class TestMastodondPairingProtocolWaitingApproval(TestMastodondPairingProtocol):
     self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
     self.assertEqual(self.posted_statuses, [])
     self.assertEqual(len(self.protocol_handler_packets), 1)
-    self.assertEqual(self.protocol_handler_packets[0]['type'], 'command')
+    self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
 
   def test_process_matching_rejection(self):
     service = nabmastodond.NabMastodond()
@@ -514,7 +514,7 @@ class TestMastodondPairingProtocolWaitingApproval(TestMastodondPairingProtocol):
     self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
     self.assertEqual(self.posted_statuses, [])
     self.assertEqual(len(self.protocol_handler_packets), 1)
-    self.assertEqual(self.protocol_handler_packets[0]['type'], 'command')
+    self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
 
   def test_process_nonmatching_proposal(self):
     service = nabmastodond.NabMastodond()
@@ -530,7 +530,7 @@ class TestMastodondPairingProtocolWaitingApproval(TestMastodondPairingProtocol):
     self.assertTrue('(NabPairing Rejection - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
     self.assertTrue('botsin.space/@tester' in self.posted_statuses[0]['content'])
     self.assertEqual(len(self.protocol_handler_packets), 1)
-    self.assertEqual(self.protocol_handler_packets[0]['type'], 'command')
+    self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
 
   def test_process_nonmatching_divorce(self):
     service = nabmastodond.NabMastodond()
@@ -636,7 +636,7 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
     self.assertEqual(self.protocol_handler_packets[1]['type'], 'mode')
     self.assertEqual(self.protocol_handler_packets[1]['mode'], 'idle')
     self.assertEqual(self.protocol_handler_packets[1]['events'], [])
-    self.assertEqual(self.protocol_handler_packets[2]['type'], 'command')
+    self.assertEqual(self.protocol_handler_packets[2]['type'], 'message')
 
   def test_process_matching_rejection(self):
     service = nabmastodond.NabMastodond()
@@ -656,7 +656,7 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
     self.assertEqual(self.protocol_handler_packets[1]['type'], 'mode')
     self.assertEqual(self.protocol_handler_packets[1]['mode'], 'idle')
     self.assertEqual(self.protocol_handler_packets[1]['events'], [])
-    self.assertEqual(self.protocol_handler_packets[2]['type'], 'command')
+    self.assertEqual(self.protocol_handler_packets[2]['type'], 'message')
 
   # Married -> Married
 
