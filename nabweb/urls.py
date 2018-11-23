@@ -19,6 +19,7 @@ from .views import NabWebView, NabWebUpgradeView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('nab8balld/', include('nab8balld.urls')),
     path('nabclockd/', include('nabclockd.urls')),
     path('nabmastodond/', include('nabmastodond.urls')),
     path('nabsurprised/', include('nabsurprised.urls')),

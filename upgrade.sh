@@ -17,6 +17,7 @@ fi
 
 case $version in
   "old")
+    sudo systemctl stop nab8balld
     sudo systemctl stop nabsurprised
     sudo systemctl stop nabtaichid
     sudo systemctl stop nabclockd
@@ -51,5 +52,6 @@ case $version in
     sudo systemctl start nabtaichid
     sudo systemctl start nabclockd
     sudo systemctl start nabmastodond
+    sudo systemctl start nab8balld
     sudo systemctl restart nabweb
 esac

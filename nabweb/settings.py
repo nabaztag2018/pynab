@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'nabd',
+    'nab8balld',
     'nabclockd',
     'nabmastodond',
     'nabsurprised',
