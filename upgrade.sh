@@ -47,14 +47,17 @@ case $version in
       )
     done
 
-    # new services
-    sudo systemctl enable nab8balld
-
     sudo systemctl start nabd
-    sudo systemctl start nabsurprised
-    sudo systemctl start nabtaichid
-    sudo systemctl start nabclockd
-    sudo systemctl start nabmastodond
-    sudo systemctl start nab8balld
-    sudo systemctl restart nabweb
+
+    # copy service files
+    for service_file in */*.service ; do
+      name=`basename ${service_file}`
+      sudo sed -e "s|/home/pi/pynab|${root_dir}|g" < ${service_file} > /tmp/${name}
+      sudo mv /tmp/${name} /lib/systemd/system/${name}
+      sudo chown root /lib/systemd/system/${name}
+      sudo systemctl enable ${name}
+      if [ "${name}" != "nabd" -a "${name}" != "nabweb" ]; then
+        sudo systemctl start ${name}
+      fi
+    done
 esac
