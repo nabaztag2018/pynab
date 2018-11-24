@@ -47,6 +47,6 @@ sudo apt update
 sudo apt dist-upgrade -y
 sudo apt-get install -y postgresql git python3 python3-venv gettext nginx libmpg123-dev
 cd /home/pi
-sudo -u pi git clone -b releases https://github.com/nabaztag2018/pynab.git
+sudo -u pi git clone -b release https://github.com/nabaztag2018/pynab.git
 cd pynab
 sudo -u pi /bin/bash install.sh travis-chroot
