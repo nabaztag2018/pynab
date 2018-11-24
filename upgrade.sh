@@ -47,6 +47,9 @@ case $version in
       )
     done
 
+    # new services
+    sudo systemctl enable nab8balld
+
     sudo systemctl start nabd
     sudo systemctl start nabsurprised
     sudo systemctl start nabtaichid
