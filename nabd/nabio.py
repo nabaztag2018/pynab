@@ -34,6 +34,11 @@ class NabIO(object, metaclass=abc.ABCMeta):
     raise NotImplementedError( 'Should have implemented' )
 
   @abc.abstractmethod
+  def pulse(self, led, color):
+    """ Set a led to pulse. """
+    raise NotImplementedError( 'Should have implemented' )
+
+  @abc.abstractmethod
   def bind_button_event(self, loop, callback):
     """
     Define the callback for button events.

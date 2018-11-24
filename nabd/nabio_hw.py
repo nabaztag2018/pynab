@@ -39,6 +39,10 @@ class NabIOHW(NabIO):
         (r, g, b) = led
       self.leds.set1(led_ix, r, g, b)
 
+  def pulse(self, led_ix, color):
+    (r, g, b) = color
+    self.leds.pulse(led_ix, r, g, b)
+
   def bind_button_event(self, loop, callback):
     self.button.on_event(loop, callback)
 

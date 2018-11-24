@@ -47,8 +47,8 @@ class TestNabd(unittest.TestCase):
     self.assertEqual(self.nabio.left_led, None)
     self.assertEqual(self.nabio.center_led, None)
     self.assertEqual(self.nabio.right_led, None)
-    self.assertEqual(self.nabio.bottom_led, (255,128,0))
-    self.assertEqual(self.nabio.nose_led, (0,0,255))
+    self.assertEqual(self.nabio.bottom_led, 'pulse((255, 0, 255))')
+    self.assertEqual(self.nabio.nose_led, None)
 
   def service_socket(self):
     s = socket.socket()

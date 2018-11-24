@@ -33,6 +33,18 @@ class NabIOMock(NabIO):
     self.nose_led = nose
     self.bottom_led = bottom
 
+  def pulse(self, led, color):
+    if led == Leds.LED_NOSE:
+      self.nose_led = 'pulse({c})'.format(c=color)
+    elif led == Leds.LED_LEFT:
+      self.left_led = 'pulse({c})'.format(c=color)
+    elif led == Leds.LED_CENTER:
+      self.left_center = 'pulse({c})'.format(c=color)
+    elif led == Leds.LED_RIGHT:
+      self.left_right = 'pulse({c})'.format(c=color)
+    elif led == Leds.LED_BOTTOM:
+      self.bottom_led = 'pulse({c})'.format(c=color)
+
   def bind_button_event(self, loop, callback):
     self.button_event_cb = {'callback': callback, 'loop': loop}
 
@@ -96,6 +108,9 @@ class LedsMock(Leds):
 
   def set1(self, led, red, green, blue):
     self.called_list.append('set1({led},{red},{green},{blue})'.format(led=led, red=red, green=green, blue=blue))
+
+  def pulse(self, led, red, green, blue):
+    self.called_list.append('pulse({led},{red},{green},{blue})'.format(led=led, red=red, green=green, blue=blue))
 
   def setall(self, red, green, blue):
     self.called_list.append('setall({red},{green},{blue})'.format(red=red, green=green, blue=blue))

@@ -3,6 +3,7 @@ from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
 from pydoc import locate
 from .nabio_virtual import NabIOVirtual
+from .leds import Leds
 from django.conf import settings
 from django.apps import apps
 
@@ -49,7 +50,8 @@ class Nabd:
     self._ears_moved_task = None
 
   async def idle_setup(self):
-    self.nabio.set_leds((0,0,255), None, None, None, (255,128,0))
+    self.nabio.set_leds(None, None, None, None, None)
+    self.nabio.pulse(Leds.LED_BOTTOM, (255, 0, 255))
     await self.nabio.move_ears(self.ears['left'], self.ears['right'])
 
   async def sleep_setup(self):
