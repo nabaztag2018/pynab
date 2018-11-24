@@ -31,8 +31,8 @@ class TestLeds(unittest.TestCase):
 
   def test_pulse(self):
     self.leds.pulse(0, 10, 20, 30)
-    time.sleep(4.4)
-    self.assertEqual(self.leds.calls, [
+    time.sleep(8)
+    self.assertEqual(self.leds.calls[:44], [
         ('do_set', 0, 0, 0, 0), 'do_show',
         ('do_set', 0, 1, 2, 3), 'do_show',
         ('do_set', 0, 2, 4, 6), 'do_show',
