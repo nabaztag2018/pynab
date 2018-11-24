@@ -1,0 +1,52 @@
+#!/bin/bash
+set -uo pipefail
+trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
+IFS=$'\n\t'
+
+# Source for this script:
+# https://github.com/kr15h/travis-raspbian-image
+# https://disconnected.systems/blog/custom-rpi-image-with-github-travis/
+
+GPU_MEM=16
+
+# Replace /boot/cmdline.txt since it contains root device mapping to a PARTUUID that 
+# changed during parted resize. We try to disable the autoresize here as well.
+echo "Replace /boot/cmdline.txt"
+echo "dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet" > "${mount}/boot/cmdline.txt"
+cat "${mount}/boot/cmdline.txt"
+
+# Replace /etc/fstab since the non existing PARTUUID has to be changed here as well.
+echo "Replace /etc/fstab"
+echo "proc            /proc           proc    defaults          0       0" > "${mount}/etc/fstab"
+echo "/dev/mmcblk0p1  /boot           vfat    defaults          0       2" >> "${mount}/etc/fstab"
+echo "/dev/mmcblk0p2  /               ext4    defaults,noatime  0       1" >> "${mount}/etc/fstab"
+cat "${mount}/etc/fstab"
+
+echo "Setting gpu_mem."
+if grep -q "gpu_mem" /boot/config.txt
+then
+    sed -i "s/gpu_mem.*/gpu_mem=${GPU_MEM}/" /boot/config.txt
+else
+    echo "gpu_mem=${GPU_MEM}" >> /boot/config.txt
+fi
+cat /boot/config.txt | grep "gpu_mem"
+
+echo "Disabling onboard sound."
+if grep -q "dtparam=audio=on" /boot/config.txt
+then
+    sed -i "s/dtparam=audio=on/#dtparam=audio=on/" /boot/config.txt
+fi
+cat /boot/config.txt | grep "dtparam=audio=on"
+
+echo "Enabling DAC."
+echo "dtoverlay=hifiberry-dac" >> /boot/config.txt
+cat /boot/config.txt | grep "dtoverlay=hifiberry-dac"
+
+echo "Installing required packages"
+sudo apt update
+sudo apt dist-upgrade -y
+sudo apt-get install -y postgresql git python3 python3-venv gettext nginx libmpg123-dev
+cd /home/pi
+sudo -u pi git clone -b releases https://github.com/nabaztag2018/pynab.git
+cd pynab
+sudo -u pi /bin/bash install.sh travis-chroot
