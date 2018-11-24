@@ -24,11 +24,11 @@ fi
 echo "Installing PyPi requirements"
 venv/bin/pip install -r requirements.txt
 
-trust=`sudo grep local /etc/postgresql/*/main/pg_hba.conf | grep -cE '^local +all +all +trust'`
+trust=`sudo grep local /etc/postgresql/*/main/pg_hba.conf | grep -cE '^local +all +all +trust' || echo -n ''`
 if [ $trust -ne 1 ]; then
   echo "Configuring PostgreSQL for trusted access"
   sudo sed -i.orig -E -e 's|^(local +all +all +)peer$|\1trust|' /etc/postgresql/*/main/pg_hba.conf
-  trust=`sudo grep local /etc/postgresql/*/main/pg_hba.conf | grep -cE '^local +all +all +trust'`
+  trust=`sudo grep local /etc/postgresql/*/main/pg_hba.conf | grep -cE '^local +all +all +trust' || echo -n ''`
   if [ $trust -ne 1 ]; then
     echo "Failed to configure PostgreSQL"
     exit 1
