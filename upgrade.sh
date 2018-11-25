@@ -17,12 +17,12 @@ fi
 
 case $version in
   "old")
-    sudo systemctl stop nab8balld
-    sudo systemctl stop nabsurprised
-    sudo systemctl stop nabtaichid
-    sudo systemctl stop nabclockd
-    sudo systemctl stop nabmastodond
-    sudo systemctl stop nabd
+    sudo systemctl stop nab8balld || echo -n ""
+    sudo systemctl stop nabsurprised || echo -n ""
+    sudo systemctl stop nabtaichid || echo -n ""
+    sudo systemctl stop nabclockd || echo -n ""
+    sudo systemctl stop nabmastodond || echo -n ""
+    sudo systemctl stop nabd || echo -n ""
   
     cd ${root_dir}
     if [[ $EUID -ne ${ownerid} ]]; then
