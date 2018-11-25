@@ -17,11 +17,13 @@ fi
 
 case $version in
   "old")
-    sudo systemctl stop nab8balld || echo -n ""
-    sudo systemctl stop nabsurprised || echo -n ""
-    sudo systemctl stop nabtaichid || echo -n ""
-    sudo systemctl stop nabclockd || echo -n ""
-    sudo systemctl stop nabmastodond || echo -n ""
+    # stop services using service files.
+    for service_file in */*.service ; do
+      name=`basename ${service_file}`
+      if [ "${name}" != "nabd" -a "${name}" != "nabweb" ]; then
+        sudo systemctl stop ${name} || echo -n ""
+      fi
+    done
     sudo systemctl stop nabd || echo -n ""
   
     cd ${root_dir}
