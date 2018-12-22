@@ -134,6 +134,8 @@ class WeddingView(View):
       params = json.loads(request.body.decode('utf8'))
       spouse = params['spouse']
       status = NabMastodond.send_dm(mastodon_client, spouse, 'proposal')
+      if '@' not in spouse:
+        spouse = spouse + '@' + config.instance
       config.spouse_pairing_date = status.created_at
       config.spouse_pairing_state = 'proposed'
       config.spouse_handle = spouse
