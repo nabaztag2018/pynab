@@ -40,7 +40,7 @@ class Nabd:
     # Current position of ears in idle mode
     self.ears = {'left': Nabd.INIT_EAR_POSITION, 'right': Nabd.INIT_EAR_POSITION}
     self.info = {}                      # Info persists across service connections.
-    self.state = 'idle'                 # 'asleep'/'idle'/'interative'/'playing'
+    self.state = 'idle'                 # 'asleep'/'idle'/'interactive'/'playing'
     self.service_writers = {}           # Dictionary of writers, i.e. connected services
                                         # For each writer, value is the list of registered events
     self.interactive_service_writer = None
