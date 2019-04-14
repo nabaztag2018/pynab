@@ -47,8 +47,8 @@
                   <label for="localeSel" class="col-6 col-form-label">{% trans "Language" %}</label>
                   <div class="col-6">
                     <select name="locale" id="localeSel">
-                      {% for locale, name in locales %}
-                      <option value="{{ locale }}">{{ name }}</option>
+                      {% for locale, name, selected in locales %}
+                      <option value="{{ locale }}" {% if selected %}selected{% endif %}>{{ name }}</option>
                       {% endfor %}
                     </select>
                   </div>
