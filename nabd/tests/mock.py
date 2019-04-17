@@ -6,6 +6,9 @@ from nabd.sound import Sound
 
 class NabIOMock(NabIO):
   def __init__(self):
+    self.leds = LedsMock()
+    self.ears = EarsMock()
+    self.sound = SoundMock()
     self.played_infos = []
     self.played_sequences = []
     self.called_list = []
@@ -57,7 +60,7 @@ class NabIOMock(NabIO):
 
   async def play_sequence(self, sequence):
     self.played_sequences.append(sequence)
-    await asyncio.sleep(10)
+    await asyncio.sleep(3)
 
   def cancel(self):
     pass

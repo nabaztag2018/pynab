@@ -119,7 +119,7 @@ class Nabd:
             break
           else:
             item = self.idle_queue.popleft()
-        if item[0]['type'] == 'message':
+        elif item[0]['type'] == 'message':
           await self.set_state('playing')
           await self.perform_message(item[0])
           self.write_response_packet(item[0], {'status':'ok'}, item[1])

@@ -104,6 +104,66 @@ class TestNabd(unittest.TestCase):
       s1.close()
       s2.close()
 
+  def test_sleep_message_wakeup(self):
+    s1 = self.service_socket()
+    s2 = self.service_socket()
+    try:
+      packet = s1.readline() # state packet
+      packet = s2.readline() # state packet
+      s1.write(b'{"type":"sleep","request_id":"test_id"}\r\n')
+      packet = s1.readline() # response packet
+      packet_j = json.loads(packet.decode('utf8'))
+      self.assertEqual(packet_j['type'], 'response')
+      self.assertEqual(packet_j['request_id'], 'test_id')
+      self.assertEqual(packet_j['status'], 'ok')
+      packet = s1.readline() # new state packet
+      packet_j = json.loads(packet.decode('utf8'))
+      self.assertEqual(packet_j['type'], 'state')
+      self.assertEqual(packet_j['state'], 'asleep')
+      packet = s2.readline() # new state packet
+      packet_j = json.loads(packet.decode('utf8'))
+      self.assertEqual(packet_j['type'], 'state')
+      self.assertEqual(packet_j['state'], 'asleep')
+      s2.write(b'{"type":"command","request_id":"command_request_1","sequence":[]}\r\n')
+      s2.write(b'{"type":"command","request_id":"command_request_2","sequence":[]}\r\n')
+      s1.write(b'{"type":"wakeup","request_id":"wakeup_request"}\r\n')
+      packet = s1.readline() # response packet
+      packet_j = json.loads(packet.decode('utf8'))
+      self.assertEqual(packet_j['type'], 'response')
+      self.assertEqual(packet_j['request_id'], 'wakeup_request')
+      self.assertEqual(packet_j['status'], 'ok')
+      packet = s1.readline() # new state packet
+      packet_j = json.loads(packet.decode('utf8'))
+      self.assertEqual(packet_j['type'], 'state')
+      self.assertEqual(packet_j['state'], 'playing')
+      packet = s2.readline() # new state packet
+      packet_j = json.loads(packet.decode('utf8'))
+      self.assertEqual(packet_j['type'], 'state')
+      self.assertEqual(packet_j['state'], 'playing')
+      time.sleep(3) # give time to play sequence
+      packet = s2.readline() # response packet
+      packet_j = json.loads(packet.decode('utf8'))
+      self.assertEqual(packet_j['type'], 'response')
+      self.assertEqual(packet_j['request_id'], 'command_request_1')
+      self.assertEqual(packet_j['status'], 'ok')
+      time.sleep(3) # give time to play sequence
+      packet = s2.readline() # response packet
+      packet_j = json.loads(packet.decode('utf8'))
+      self.assertEqual(packet_j['type'], 'response')
+      self.assertEqual(packet_j['request_id'], 'command_request_2')
+      self.assertEqual(packet_j['status'], 'ok')
+      packet = s1.readline() # new state packet
+      packet_j = json.loads(packet.decode('utf8'))
+      self.assertEqual(packet_j['type'], 'state')
+      self.assertEqual(packet_j['state'], 'idle')
+      packet = s2.readline() # new state packet
+      packet_j = json.loads(packet.decode('utf8'))
+      self.assertEqual(packet_j['type'], 'state')
+      self.assertEqual(packet_j['state'], 'idle')
+    finally:
+      s1.close()
+      s2.close()
+
   def test_info_id_required(self):
     s1 = self.service_socket()
     try:
