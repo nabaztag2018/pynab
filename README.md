@@ -32,7 +32,7 @@ https://support.hifiberry.com/hc/en-us/articles/205377651-Configuring-Linux-4-x-
 2. Installer PostgreSQL et les paquets requis
 
 ```
-sudo apt-get install postgresql git python3 python3-venv gettext nginx libffi openssl libmpg123-dev
+sudo apt-get install postgresql libpq-dev git python3 python3-venv gettext nginx openssl libssl-dev libffi-dev libmpg123-dev
 ```
 
 3. Récupérer le code
