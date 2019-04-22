@@ -6,6 +6,7 @@ lockfile
 Mastodon.py
 Mpg123
 gunicorn
+-e git://github.com/pguyot/meteofrance-py.git#egg=meteofrance
 RPi.GPIO; sys_platform == 'linux' and 'arm' in platform_machine
 rpi_ws281x; sys_platform == 'linux' and 'arm' in platform_machine
 pyalsaaudio; sys_platform == 'linux'

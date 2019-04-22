@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'nabmastodond',
     'nabsurprised',
     'nabtaichid',
+    'nabweatherd',
     'nabweb',
 ]
 

@@ -57,4 +57,5 @@ Cf le document [PROTOCOL.md](PROTOCOL.md)
 - nabsurprised : daemon pour le service surprises
 - nabtaichid : daemon pour le service taichi
 - nabmastodond : daemon pour le service mastodon
+- nabweatherd : daemon pour le service météo
 - nabweb : interface web pour la configuration
