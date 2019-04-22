@@ -24,50 +24,14 @@ class SingletonModel(models.Model):
   class Meta:
     abstract = True
 
-  def set_cache(self):
-    cache.set(self.__class__.cache_key(), self)
-
   def save(self, *args, **kwargs):
     self.pk = 1
     super(SingletonModel, self).save(*args, **kwargs)
-    self.set_cache()
 
   def delete(self, *args, **kwargs):
     pass
 
   @classmethod
-  def cache_key(cls):
-    return cls.__module__ + '.' + cls.__name__
-
-  @classmethod
-  def load(cls):
-    if cache.get(cls.cache_key()) is None:
-      obj, created = cls.objects.get_or_create(pk=1)
-      if not created:
-        obj.set_cache()
-    return cache.get(cls.cache_key())
-
-  @classmethod
-  def reset_cache(cls):
-    """ Reset cache, used for tests """
-    cache.delete(cls.cache_key())
-
-class UncachableSingletonModel(SingletonModel):
-  class Meta:
-    abstract = True
-
-  def set_cache(self):
-    pass
-
-  def save(self, *args, **kwargs):
-    self.pk = 1
-    super(SingletonModel, self).save(*args, **kwargs)
-
-  @classmethod
   def load(cls):
     obj, created = cls.objects.get_or_create(pk=1)
     return obj
-
-  @classmethod
-  def reset_cache(cls):
-    pass

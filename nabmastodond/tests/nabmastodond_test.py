@@ -27,7 +27,6 @@ class MockMastodonClient:
 @pytest.mark.django_db
 class TestMastodonLogic(unittest.TestCase, MockMastodonClient):
   def setUp(self):
-    models.Config.reset_cache()
     self.posted_statuses = []
 
   def test_process_status(self):
@@ -107,7 +106,6 @@ class TestMastodondBase(unittest.TestCase):
     self.mock_nabd_thread = threading.Thread(target = self.mock_nabd_thread_entry_point, args = [self])
     self.mock_nabd_thread.start()
     self.posted_statuses = []
-    models.Config.reset_cache()
     time.sleep(1)
 
   def tearDown(self):
@@ -169,7 +167,6 @@ class TestMastodondPairingProtocol(TestMastodondBase, MockMastodonClient):
   def setUp(self):
     super().setUp()
     self.posted_statuses = []
-    models.Config.reset_cache()
     self.mock_connection_handler = self.protocol_handler
     self.protocol_handler_packets = []
     self.protocol_handler_called = 0
@@ -820,7 +817,6 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
   def setUp(self):
     super().setUp()
     self.posted_statuses = []
-    models.Config.reset_cache()
     self.mock_connection_handler = self.ears_handler
     self.ears_handler_packets = []
     self.ears_handler_called = 0

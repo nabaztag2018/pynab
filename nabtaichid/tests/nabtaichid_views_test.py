@@ -4,7 +4,6 @@ import datetime
 
 class TestView(TestCase):
   def setUp(self):
-    Config.reset_cache()
     Config.load()
 
   def test_get_settings(self):
