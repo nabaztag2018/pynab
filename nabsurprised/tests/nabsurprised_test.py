@@ -16,7 +16,7 @@ class TestNabSurprised(unittest.TestCase):
     writer = MockWriter()
     service.writer = writer
     expiration = datetime.datetime(2018,11,1,0,0,0)
-    service.perform(expiration)
+    service.perform(expiration, None)
     self.assertEqual(len(writer.written), 1)
     packet = writer.written[0]
     packet_json = json.loads(packet.decode('utf8'))

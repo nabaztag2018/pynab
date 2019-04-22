@@ -10,14 +10,14 @@ class NabSurprised(NabRandomService):
     print('loading surprise config, next = {next}'.format(next = config.next_surprise))
     return (config.next_surprise, config.surprise_frequency)
 
-  def update_next(self, next):
+  def update_next(self, next_date, next_args):
     from . import models
     config = models.Config.load()
     print('updating surprise config, next = {next}'.format(next = next))
-    config.next_surprise = next
+    config.next_surprise = next_date
     config.save()
 
-  def perform(self, expiration):
+  def perform(self, expiration, args):
     print('performing surprise !')
     packet = '{"type":"message","signature":{"audio":["nabsurprised/respirations/*.mp3"]},"body":[{"audio":["nabsurprised/*.mp3"]}],"expiration":"' + expiration.isoformat() + '"}\r\n'
     self.writer.write(packet.encode('utf8'))

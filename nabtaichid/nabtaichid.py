@@ -9,13 +9,13 @@ class NabTaichid(NabRandomService):
     config = models.Config.load()
     return (config.next_taichi, config.taichi_frequency)
 
-  def update_next(self, next):
+  def update_next(self, next_date, next_args):
     from . import models
     config = models.Config.load()
-    config.next_taichi = next
+    config.next_taichi = next_date
     config.save()
 
-  def perform(self, expiration):
+  def perform(self, expiration, args):
     packet = '{"type":"command","sequence":[{"choreography":"nabtaichid/taichi.chor"}],"expiration":"' + expiration.isoformat() + '"}\r\n'
     self.writer.write(packet.encode('utf8'))
 
