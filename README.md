@@ -36,7 +36,7 @@ http://wiki.seeedstudio.com/ReSpeaker_2_Mics_Pi_HAT/
 2. Installer PostgreSQL et les paquets requis
 
 ```
-sudo apt-get install postgresql libpq-dev git python3 python3-venv gettext nginx openssl libssl-dev libffi-dev libmpg123-dev pulseaudio libpulse-dev
+sudo apt-get install postgresql libpq-dev git python3 python3-venv gettext nginx openssl libssl-dev libffi-dev libmpg123-dev pulseaudio libpulse-dev libalsaplayer-dev
 ```
 
 3. Installer la version précompilée de kaldi pour Pi Zero
@@ -48,18 +48,36 @@ wget https://github.com/pguyot/kaldi/releases/download/v5.4.1/kaldi-c3260f2-linu
 cd / && sudo tar xvf /home/pi/kaldi-c3260f2-linux_armv6l-vfp.tgz
 ```
 
-4. Récupérer le code
+4. Augmenter la taille du swap à 512 Mo
+
+(nécessaire pour compiler l'interface de kaldi pour Python)
+
+```
+sudo vi /etc/dphys-swapfile
+sudo /etc/init.d/dphys-swapfile restart
+```
+
+5. Récupérer le code
 
 ```
 git clone https://github.com/nabaztag2018/pynab.git
 cd pynab
 ```
 
-5. Lancer le script d'installation qui fait le reste, notamment l'installation et le démarrage des services via systemd.
+6. Lancer le script d'installation qui fait le reste, notamment l'installation et le démarrage des services via systemd.
 
 ```
 bash install.sh
 ```
+
+# Mise à jour
+
+A priori, cela fonctionne via l'interface.
+Si nécessaire, il est possible de le faire en ligne de commande avec :
+```
+cd pynab
+bash upgrade.sh
+``` 
 
 # Architecture
 
