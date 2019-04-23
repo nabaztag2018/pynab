@@ -37,6 +37,7 @@ case $version in
     ;;
   "new")
     cd ${root_dir}
+    venv/bin/pip install -r requirements
     venv/bin/python manage.py migrate
     for module in nab*/locale; do
       (
