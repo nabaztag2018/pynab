@@ -5,15 +5,17 @@
 
 # Carte Maker Faire2018
 
-Ce noyau nécessite une carte spécifique réalisée pour Maker Faire 2018 qui connecte le raspberry Pi Zero et le Hat HifiBerry (miniAmp) avec les interfaces du Nabaztag (leds, HP, moteur, encodeur). 
+Ce noyau est conçu pour deux cartes :
+- la carte spécifique réalisée pour Maker Faire 2018 qui connecte le raspberry Pi Zero et le Hat HifiBerry (miniAmp) avec les interfaces du Nabaztag (leds, HP, moteur, encodeur).
+- la nouvelle carte (v2)
 
-Les schémas et fichiers de fabrication sont dans le repository "hardware".
+Les schémas et fichiers de fabrication de la v1 sont dans le repository "hardware".
 
 # Images
 
 Les [releases](https://github.com/nabaztag2018/pynab/releases) sont des images de Raspbian Stretch Lite 2018-11-13 avec pynab pré-installé. Elles ont les mêmes réglages que [Raspbian](https://www.raspberrypi.org/downloads/raspbian/).
 
-# Installation sur Raspbian
+# Installation sur Raspbian (pour développeurs !)
 
 0. S'assurer que le raspbian est bien à jour
 
@@ -36,7 +38,7 @@ http://wiki.seeedstudio.com/ReSpeaker_2_Mics_Pi_HAT/
 2. Installer PostgreSQL et les paquets requis
 
 ```
-sudo apt-get install postgresql libpq-dev git python3 python3-venv gettext nginx openssl libssl-dev libffi-dev libmpg123-dev pulseaudio libpulse-dev libalsaplayer-dev
+sudo apt-get install postgresql libpq-dev git python3 python3-venv gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev
 ```
 
 3. Installer la version précompilée de kaldi pour Pi Zero
@@ -48,23 +50,14 @@ wget https://github.com/pguyot/kaldi/releases/download/v5.4.1/kaldi-c3260f2-linu
 cd / && sudo tar xvf /home/pi/kaldi-c3260f2-linux_armv6l-vfp.tgz
 ```
 
-4. Augmenter la taille du swap à 512 Mo
-
-(nécessaire pour compiler l'interface de kaldi pour Python)
-
-```
-sudo vi /etc/dphys-swapfile
-sudo /etc/init.d/dphys-swapfile restart
-```
-
-5. Récupérer le code
+4. Récupérer le code
 
 ```
 git clone https://github.com/nabaztag2018/pynab.git
 cd pynab
 ```
 
-6. Lancer le script d'installation qui fait le reste, notamment l'installation et le démarrage des services via systemd.
+5. Lancer le script d'installation qui fait le reste, notamment l'installation et le démarrage des services via systemd.
 
 ```
 bash install.sh
