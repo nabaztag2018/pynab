@@ -56,7 +56,10 @@ class NabIOMock(NabIO):
 
   async def play_info(self, condvar, tempo, colors):
     self.played_infos.append({'tempo':tempo, 'colors': colors})
-    await asyncio.sleep(1)
+    try:
+      await asyncio.wait_for(condvar.wait(), NabIO.INFO_LOOP_LENGTH)
+    except asyncio.TimeoutError:
+      pass
 
   async def play_sequence(self, sequence):
     self.played_sequences.append(sequence)

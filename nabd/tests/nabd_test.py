@@ -190,7 +190,7 @@ class TestNabd(unittest.TestCase):
       self.assertEqual(packet_j['type'], 'response')
       self.assertEqual(packet_j['request_id'], 'test_id')
       self.assertEqual(packet_j['status'], 'ok')
-      time.sleep(1) # give time to play info
+      time.sleep(10) # give time to play info once
       last_info = self.nabio.played_infos.pop()
       self.assertEqual(last_info, {'tempo':25,'colors':[{'left':'ffff00','center':'ffff00','right':'ffff00'},{'left':'ffff00','center':'ffff00','right':'ffff00'},{'left':'ffff00','center':'ffff00','right':'ffff00'},{'left':'ffff00','center':'ffff00','right':'ffff00'},{'left':'ffff00','center':'ffff00','right':'ffff00'},{'left':'000000','center':'000000','right':'000000'},{'left':'000000','center':'000000','right':'000000'},{'left':'000000','center':'000000','right':'000000'}]})
       # [25 {3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 0 0 0 0 0 0 0 0 0}] // soleil
@@ -200,7 +200,7 @@ class TestNabd(unittest.TestCase):
       self.assertEqual(packet_j['type'], 'response')
       self.assertEqual(packet_j['request_id'], 'clear_id')
       self.assertEqual(packet_j['status'], 'ok')
-      time.sleep(1) # give time to play info
+      time.sleep(20) # make sure info is not played
       self.assertEqual(self.nabio.played_infos, [])
     finally:
       s1.close()
