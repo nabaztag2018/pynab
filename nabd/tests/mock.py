@@ -54,7 +54,7 @@ class NabIOMock(NabIO):
   def bind_ears_event(self, loop, callback):
     self.ears_event_cb = {'callback': callback, 'loop': loop}
 
-  async def play_info(self, tempo, colors):
+  async def play_info(self, condvar, tempo, colors):
     self.played_infos.append({'tempo':tempo, 'colors': colors})
     await asyncio.sleep(1)
 
