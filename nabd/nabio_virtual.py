@@ -23,9 +23,12 @@ class NabIOVirtual(nabio.NabIO):
   def bind_ears_event(self, loop, callback):
     self.ears_event_cb = {'callback': callback, 'loop': loop}
 
-  async def play_info(self, tempo, colors):
+  async def play_info(self, condvar, tempo, colors):
     print('play_info tempo={tempo}, colors={colors}'.format(tempo=tempo, colors=colors))
-    await asyncio.sleep(1)
+    try:
+      await asyncio.wait_for(self.idle_cv.wait(), NabIO.INFO_LOOP_LENGTH)
+    except asyncio.TimeoutError:
+      pass
 
   async def play_sequence(self, sequence):
     print('play_sequence sequence={sequence}'.format(sequence=sequence))

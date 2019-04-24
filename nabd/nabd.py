@@ -9,7 +9,6 @@ from django.apps import apps
 
 class Nabd:
   PORT_NUMBER = 10543
-  INFO_TIMEOUT = 15.0
   SLEEP_EAR_POSITION = 8
   INIT_EAR_POSITION = 0
   EAR_MOVEMENT_TIMEOUT = 0.5
@@ -67,15 +66,11 @@ class Nabd:
             item = self.idle_queue.popleft()
             await self.process_idle_item(item)
           else:
-            try:
-              if self.state == 'idle':
-                for key, value in self.info.items():
-                  await self.nabio.play_info(value['tempo'], value['colors'])
-                await asyncio.wait_for(self.idle_cv.wait(), Nabd.INFO_TIMEOUT)
-              else:
-                await self.idle_cv.wait()
-            except asyncio.TimeoutError:
-              pass
+            if self.state == 'idle' and len(self.info.items()) > 0:
+              for key, value in self.info.items():
+                await self.nabio.play_info(self.idle_cv, value['tempo'], value['colors'])
+            else:
+              await self.idle_cv.wait()
     except KeyboardInterrupt:
       pass
     finally:
