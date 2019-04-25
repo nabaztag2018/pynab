@@ -18,7 +18,7 @@ class Sound(object, metaclass=abc.ABCMeta):
       preloaded_list = filenames
     else:
       for filename in filenames:
-        preloaded_file = self.preload(filename)
+        preloaded_file = await self.preload(filename)
         if preloaded_file != None:
           preloaded_list.append(preloaded_file)
     await self.stop()

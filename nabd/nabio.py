@@ -77,6 +77,18 @@ class NabIO(object, metaclass=abc.ABCMeta):
     """
     raise NotImplementedError( 'Should have implemented' )
 
+  async def start_acquisition(self, acquisition_cb):
+    """
+    Play listen sound and start acquisition, calling callback with sound samples.
+    """
+    await self.sound.play_list(["asr/listen.mp3"], False)
+
+  async def end_acquisition(self, acquisition_cb):
+    """
+    Play acquired sound and call callback with finalize.
+    """
+    await self.sound.play_list(["asr/acquired.mp3"], False)
+
   async def play_message(self, signature, body):
     """
     Play a message, i.e. a signature, a body and a signature.

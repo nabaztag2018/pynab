@@ -39,7 +39,7 @@ class Nabd:
     # Current position of ears in idle mode
     self.ears = {'left': Nabd.INIT_EAR_POSITION, 'right': Nabd.INIT_EAR_POSITION}
     self.info = {}                      # Info persists across service connections.
-    self.state = 'idle'                 # 'asleep'/'idle'/'interactive'/'playing'
+    self.state = 'idle'                 # 'asleep'/'idle'/'interactive'/'playing'/'recording'
     self.service_writers = {}           # Dictionary of writers, i.e. connected services
                                         # For each writer, value is the list of registered events
     self.interactive_service_writer = None
@@ -336,7 +336,13 @@ class Nabd:
     await self.nabio.play_message(signature, packet['body'])
 
   def button_callback(self, button_event, event_time):
-    if button_event == 'long_down':
+    if button_event == 'hold' and self.state == 'idle':
+      asyncio.ensure_future(self.set_state('recording'))
+      asyncio.ensure_future(self.nabio.start_acquisition(None))
+    if button_event == 'up' and self.state == 'recording':
+      asyncio.ensure_future(self.nabio.end_acquisition(None))
+      asyncio.ensure_future(self.set_state('idle'))
+    elif button_event == 'triple_click':
       asyncio.ensure_future(self._shutdown())
     else:
       self.broadcast_event('button', {'type':'button_event', 'event': button_event, 'time': event_time})
