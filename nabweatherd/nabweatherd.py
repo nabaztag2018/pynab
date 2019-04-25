@@ -302,7 +302,9 @@ class NabWeatherd(NabRecurrentService):
 
   def compute_next(self, scheduled_messages):
     # next is the earliest of an info within one hour and the next scheduled message.
-    return None
+    now = datetime.datetime.now(datetime.timezone.utc)
+    next_hour = now + datetime.timedelta(seconds = 3600)
+    return (next_hour, "info")
     
   def perform(self, expiration, type):
     from . import models
