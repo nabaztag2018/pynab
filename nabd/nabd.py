@@ -4,8 +4,12 @@ from lockfile import AlreadyLocked, LockFailed
 from pydoc import locate
 from .nabio_virtual import NabIOVirtual
 from .leds import Leds
+from .asr import ASR
+from .nlu import NLU
 from django.conf import settings
 from django.apps import apps
+
+import time
 
 class Nabd:
   PORT_NUMBER = 10543
@@ -47,6 +51,8 @@ class Nabd:
     self.running = True
     self.loop = None
     self._ears_moved_task = None
+    self.asr = ASR('en_US')
+    self.nlu = NLU('en_US')
 
   async def idle_setup(self):
     self.nabio.set_leds(None, None, None, None, None)
@@ -337,15 +343,29 @@ class Nabd:
 
   def button_callback(self, button_event, event_time):
     if button_event == 'hold' and self.state == 'idle':
-      asyncio.ensure_future(self.set_state('recording'))
-      asyncio.ensure_future(self.nabio.start_acquisition(None))
+      asyncio.ensure_future(self.start_asr())
     if button_event == 'up' and self.state == 'recording':
-      asyncio.ensure_future(self.nabio.end_acquisition(None))
-      asyncio.ensure_future(self.set_state('idle'))
+      asyncio.ensure_future(self.stop_asr())
     elif button_event == 'triple_click':
       asyncio.ensure_future(self._shutdown())
     else:
       self.broadcast_event('button', {'type':'button_event', 'event': button_event, 'time': event_time})
+
+  async def start_asr(self):
+    await self.set_state('recording')
+    await self.nabio.start_acquisition(self.asr.decode_chunk)
+
+  async def stop_asr(self):
+    await self.nabio.end_acquisition()
+    now = time.time()
+    str = await self.asr.get_decoded_string(True)
+    response = await self.nlu.interpret(str)
+    if response == None:
+      # Did not understand
+      await self.nabio.asr_failed()
+    else:
+      self.broadcast_event('asr', {'type':'asr_event', 'nlu': response, 'time': now})
+    await self.set_state('idle')
 
   async def _shutdown(self):
     await self.sleep_setup()

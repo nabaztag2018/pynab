@@ -84,7 +84,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
     await self.sound.play_list(["asr/listen.mp3"], False)
     await self.sound.start_recording(acquisition_cb)
 
-  async def end_acquisition(self, acquisition_cb):
+  async def end_acquisition(self):
     """
     Play acquired sound and call callback with finalize.
     """
