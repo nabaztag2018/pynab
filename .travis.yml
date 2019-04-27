@@ -1,6 +1,7 @@
 before_install:
-  - sudo apt-get install -y libasound2-dev libmpg123-dev libatlas-dev
+  - sudo apt-get install -y libasound2-dev libmpg123-dev libatlas-base-dev
   - sudo sh install_kaldi.sh
+  - pip install cython
 language: python
 python:
   - 3.5
@@ -12,4 +13,3 @@ services:
   - postgresql
 before_script:
   - psql -U postgres -d postgres -c "CREATE USER pynab; ALTER ROLE pynab CREATEDB;"
-  - pip install cython
