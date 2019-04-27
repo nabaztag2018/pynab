@@ -25,6 +25,7 @@ class ButtonGPIO(Button):
     self.button_sequence = 0
     self.button_timer = None
     self.button_sequence_lock = Lock()
+    self.button_state = 'up'
     GPIO.setwarnings(True)
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(ButtonGPIO.BUTTON_CHANNEL, GPIO.IN)
@@ -53,7 +54,8 @@ class ButtonGPIO(Button):
       self.button_timer.cancel()
       self.button_timer = None
     (loop, callback) = self.callback
-    if GPIO.input(ButtonGPIO.BUTTON_CHANNEL) == ButtonGPIO.UP_VALUE:
+    if GPIO.input(ButtonGPIO.BUTTON_CHANNEL) == ButtonGPIO.UP_VALUE and self.button_state == 'down':
+      self.button_state = 'up'
       loop.call_soon_threadsafe(lambda now=now: callback('up', now))
       with self.button_sequence_lock:
         if self.button_sequence == 5:
@@ -69,7 +71,8 @@ class ButtonGPIO(Button):
           self.button_sequence = 2
           self.button_timer = Timer(ButtonGPIO.DOUBLE_CLICK_TIMEOUT, self._click_cb)
           self.button_timer.start()
-    else:
+    elif GPIO.input(ButtonGPIO.BUTTON_CHANNEL) == ButtonGPIO.DOWN_VALUE and self.button_state == 'up':
+      self.button_state = 'down'
       loop.call_soon_threadsafe(lambda now=now: callback('down', now))
       with self.button_sequence_lock:
         if self.button_sequence == 0:
