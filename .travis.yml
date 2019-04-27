@@ -1,5 +1,6 @@
 before_install:
   - sudo apt-get install -y libasound2-dev libmpg123-dev
+  - sudo sh install_kaldi.sh
 language: python
 python:
   - 3.5
