@@ -82,12 +82,20 @@ class NabIO(object, metaclass=abc.ABCMeta):
     Play listen sound and start acquisition, calling callback with sound samples.
     """
     await self.sound.play_list(["asr/listen.mp3"], False)
+    await self.sound.start_recording(acquisition_cb)
 
   async def end_acquisition(self, acquisition_cb):
     """
     Play acquired sound and call callback with finalize.
     """
+    await self.sound.stop_recording()
     await self.sound.play_list(["asr/acquired.mp3"], False)
+
+  async def asr_failed(self):
+    """
+    Feedback when ASR or NLU failed.
+    """
+    await self.sound.play_list(["asr/failed/*.mp3"], False)
 
   async def play_message(self, signature, body):
     """
