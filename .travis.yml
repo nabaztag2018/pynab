@@ -1,5 +1,5 @@
 before_install:
-  - sudo apt-get install -y libasound2-dev libmpg123-dev libatlas-base-dev cuda-cudart-10-0
+  - sudo apt-get install -y libasound2-dev libmpg123-dev libatlas-base-dev
   - sudo sh install_kaldi.sh
   - pip install cython
 language: python
