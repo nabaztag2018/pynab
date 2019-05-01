@@ -10,7 +10,6 @@ case `uname` in
     case `uname -m` in
       "x86_64")
         wget -q -O - "https://github.com/pguyot/kaldi/releases/download/v5.4.1/kaldi-c3260f2-linux_x86_64-vfp.tar.xz" | sudo tar xJ -C /
-        wget -q -O - "https://raw.githubusercontent.com/pguyot/kaldi/master/tools/extras/install_mkl.sh" | sudo bash -
         sudo ldconfig
         ;;
       "armv6l")
