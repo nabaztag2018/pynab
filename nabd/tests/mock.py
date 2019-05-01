@@ -125,11 +125,11 @@ class SoundMock(Sound):
   def __init__(self):
     self.called_list = []
 
-  async def start(self, filename):
+  async def start_playing(self, filename):
     self.called_list.append('start({filename})'.format(filename=filename))
 
   async def wait_until_done(self):
     self.called_list.append('wait_until_done()')
 
-  async def stop(self):
+  async def stop_playing(self):
     self.called_list.append('stop()')
