@@ -20,7 +20,7 @@ case $version in
     # stop services using service files.
     for service_file in */*.service ; do
       name=`basename ${service_file}`
-      if [ "${name}" != "nabd" -a "${name}" != "nabweb" ]; then
+      if [ "${name}" != "nabd.service" -a "${name}" != "nabweb.service" ]; then
         sudo systemctl stop ${name} || echo -n ""
       fi
     done
