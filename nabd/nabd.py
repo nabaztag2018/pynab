@@ -51,8 +51,11 @@ class Nabd:
     self.running = True
     self.loop = None
     self._ears_moved_task = None
-    self.asr = ASR('en_US')
-    self.nlu = NLU('en_US')
+    Nabd.leds_boot(self.nabio, 2)
+    self.asr = ASR('fr_FR')
+    Nabd.leds_boot(self.nabio, 3)
+    self.nlu = NLU('fr_FR')
+    Nabd.leds_boot(self.nabio, 4)
 
   async def idle_setup(self):
     self.nabio.set_leds(None, None, None, None, None)
@@ -435,6 +438,21 @@ class Nabd:
       self.loop.call_soon_threadsafe(lambda : self.loop.stop())
 
   @staticmethod
+  def leds_boot(nabio, step):
+    """
+    Animation to indicate boot progress.
+    Useful as loading ASR/NLU model takes some time.
+    """
+    if step == 1:
+      nabio.set_leds((0, 255, 0), (255, 128, 0), (255, 128, 0), (255, 128, 0), (255, 128, 0))
+    if step == 2:
+      nabio.set_leds((0, 255, 0), (0, 255, 0), (255, 128, 0), (255, 128, 0), (255, 128, 0))
+    if step == 3:
+      nabio.set_leds((0, 255, 0), (0, 255, 0), (0, 255, 0), (255, 128, 0), (255, 128, 0))
+    if step == 4:
+      nabio.set_leds((0, 255, 0), (0, 255, 0), (0, 255, 0), (0, 255, 0), (255, 128, 0))
+
+  @staticmethod
   def main(argv):
     pidfilepath = "/var/run/nabd.pid"
     if sys.platform == 'linux':
@@ -463,6 +481,7 @@ class Nabd:
     try:
       with pidfile:
         nabio = nabiocls()
+        Nabd.leds_boot(nabio, 1)
         nabd = Nabd(nabio)
         nabd.run()
     except AlreadyLocked:
