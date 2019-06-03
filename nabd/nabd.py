@@ -11,6 +11,7 @@ from django.apps import apps
 from nabcommon.nabservice import NabService
 
 import time
+import traceback
 
 class Nabd:
   SLEEP_EAR_POSITION = 8
@@ -67,6 +68,10 @@ class Nabd:
     await self.nabio.move_ears(Nabd.SLEEP_EAR_POSITION, Nabd.SLEEP_EAR_POSITION)
 
   async def idle_worker_loop(self):
+    """
+    Idle worker loop is responsible for playing enqueued messages and displaying
+    info items.
+    """
     try:
       async with self.idle_cv:
         while self.running:
@@ -82,6 +87,8 @@ class Nabd:
               await self.idle_cv.wait()
     except KeyboardInterrupt:
       pass
+    except Exception:
+      print(traceback.format_exc())
     finally:
       if self.running:
         self.loop.stop()
@@ -188,6 +195,7 @@ class Nabd:
       else:
         del self.info[packet['info_id']]
       self.write_response_packet(packet, {'status':'ok'}, writer)
+      # Signal idle loop to make sure we display updated info
       async with self.idle_cv:
         self.idle_cv.notify()
     else:
@@ -330,6 +338,8 @@ class Nabd:
         await writer.wait_closed()
     except ConnectionResetError:
       pass
+    except Exception:
+      print(traceback.format_exc())
     finally:
       if self.interactive_service_writer == writer:
         await self.exit_interactive()
@@ -420,6 +430,8 @@ class Nabd:
             raise t_ex
     except KeyboardInterrupt:
       pass
+    except Exception:
+      print(traceback.format_exc())
     finally:
       self.loop.run_until_complete(self.stop_idle_worker())
       for writer in self.service_writers.copy():
