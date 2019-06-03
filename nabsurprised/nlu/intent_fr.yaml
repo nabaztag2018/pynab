@@ -9,3 +9,8 @@ utterances:
   - raconte un truc
   - raconte-moi un truc
 
+---
+type: intent
+name: carot
+utterances:
+  - carotte

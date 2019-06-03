@@ -5,3 +5,9 @@ utterances:
   - tell me a joke
   - make me laugh
   - i love your humor
+
+---
+type: intent
+name: carot
+utterances:
+  - carot
