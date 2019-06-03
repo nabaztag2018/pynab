@@ -70,6 +70,11 @@ class NabIOHW(NabIO):
     try:
       await asyncio.wait_for(condvar.wait(), ms / 1000)
     except asyncio.TimeoutError:
+      # asyncio condition bug with Python < 3.7
+      # https://bugs.python.org/issue32751
+      # https://bugs.python.org/issue33638
+      if sys.version_info < (3,7):
+        await asyncio.sleep(0) # tentative workaround
       timeout = True
     return timeout
 
