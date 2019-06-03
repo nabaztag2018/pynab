@@ -1,14 +1,16 @@
-import asyncio, os, json, getopt, signal, datetime, sys
+import asyncio, os, json, getopt, signal, datetime, sys, time
 from abc import ABC, abstractmethod
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
 from django.conf import settings
 from django.apps import apps
-from nabd import nabd
 
 class NabService(ABC):
+  PORT_NUMBER = 10543
+
   def __init__(self):
     if not settings.configured:
+      from django.apps.config import AppConfig
       conf = {
         'INSTALLED_APPS': [
           type(self).__name__.lower()
@@ -65,17 +67,25 @@ class NabService(ABC):
       if self.running:
         self.loop.stop()
 
+  MAX_RETRY = 10
+
   def connect(self):
     self.loop = asyncio.get_event_loop()
-    connection = asyncio.open_connection(host="127.0.0.1", port=nabd.Nabd.PORT_NUMBER)
+    self._do_connect(NabService.MAX_RETRY)
+    self.loop.create_task(self.client_loop())
+
+  def _do_connect(self, retry_count):
+    connection = asyncio.open_connection(host="127.0.0.1", port=NabService.PORT_NUMBER)
     try:
       (reader, writer) = self.loop.run_until_complete(connection)
+      self.reader = reader
+      self.writer = writer
     except ConnectionRefusedError:
-      print('Could not connect to server. Is nabd running?')
-      exit(1)
-    self.reader = reader
-    self.writer = writer
-    self.loop.create_task(self.client_loop())
+      if retry_count == 0:
+        print('Could not connect to server. Is nabd running?')
+        exit(1)
+      time.sleep(1)
+      self._do_connect(retry_count - 1)
 
   @abstractmethod
   def run(self):

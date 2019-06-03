@@ -8,11 +8,11 @@ from .asr import ASR
 from .nlu import NLU
 from django.conf import settings
 from django.apps import apps
+from nabcommon.nabservice import NabService
 
 import time
 
 class Nabd:
-  PORT_NUMBER = 10543
   SLEEP_EAR_POSITION = 8
   INIT_EAR_POSITION = 0
   EAR_MOVEMENT_TIMEOUT = 0.5
@@ -404,7 +404,7 @@ class Nabd:
     self.nabio.bind_ears_event(self.loop, self.ears_callback)
     setup_task = self.loop.create_task(self.idle_setup())
     idle_task = self.loop.create_task(self.idle_worker_loop())
-    server_task = self.loop.create_task(asyncio.start_server(self.service_loop, 'localhost', Nabd.PORT_NUMBER))
+    server_task = self.loop.create_task(asyncio.start_server(self.service_loop, 'localhost', NabService.PORT_NUMBER))
     try:
       self.loop.run_forever()
       for t in [setup_task, idle_task, server_task]:
