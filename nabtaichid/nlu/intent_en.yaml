@@ -1,0 +1,6 @@
+---
+type: intent
+name: taichi
+utterances:
+  - tai chi time
+  - please practice your tai chi

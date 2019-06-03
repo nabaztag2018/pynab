@@ -9,19 +9,19 @@ class ASR:
   Class handling automatic speech recognition.
   """
   MODELS = {
-    'en_US': '/opt/kaldi/model/kaldi-generic-en-tdnn_250-r20190227'
+    'fr_FR': '/opt/kaldi/model/kaldi-nabaztag-fr-r20190518'
   }
-  DEFAULT_LANGUAGE = 'en_US'
+  DEFAULT_LOCALE = 'fr_FR'
   
-  def __init__(self, language):
+  def __init__(self, locale):
     self.executor = ThreadPoolExecutor(max_workers=1)
-    self.executor.submit(lambda l=language: self._load_model(l))
+    self._load_model(locale)
 
-  def _load_model(self, language):
-    if language in ASR.MODELS:
-      path = ASR.MODELS[language]
+  def _load_model(self, locale):
+    if locale in ASR.MODELS:
+      path = ASR.MODELS[locale]
     else:
-      path = ASR.MODELS[ASR.DEFAULT_LANGUAGE]
+      path = ASR.MODELS[ASR.DEFAULT_LOCALE]
     self.model = KaldiNNet3OnlineModel(path)
     self.decoder = KaldiNNet3OnlineDecoder(self.model)
 
@@ -29,9 +29,12 @@ class ASR:
     self.executor.submit(lambda s=samples, f=finalize: self._decode_chunk(s, f))
 
   def _decode_chunk(self, frames, finalize):
-    nframes = len(frames) / 2
-    samples = struct.unpack_from('<%dh' % nframes, frames)
-    self.decoder.decode(16000, np.array(samples, dtype=np.float32), finalize)
+    try:
+      nframes = len(frames) / 2
+      samples = struct.unpack_from('<%dh' % nframes, frames)
+      self.decoder.decode(16000, np.array(samples, dtype=np.float32), finalize)
+    except Exception:
+      print(traceback.format_exc())
 
   async def get_decoded_string(self, sync):
     if sync:
@@ -43,6 +46,8 @@ class ASR:
       return s
 
   def _get_decoded_string(self):
-    s, l = self.decoder.get_decoded_string()
-    print("_get_decoded_string s = %s, l = %f" % (s, l))
-    return s
+    try:
+      s, l = self.decoder.get_decoded_string()
+      return s
+    except Exception:
+      print(traceback.format_exc())

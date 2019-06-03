@@ -1,4 +1,4 @@
-import sys, asyncio, random
+import sys, asyncio, datetime, random
 from nabcommon.nabservice import NabRandomService
 
 class NabSurprised(NabRandomService):
@@ -19,6 +19,10 @@ class NabSurprised(NabRandomService):
 
   def compute_random_delta(self, frequency):
     return (256 - frequency) * 60 * (random.uniform(0, 255) + 64) / 128
+
+  async def process_nabd_packet(self, packet):
+    if packet['type'] == 'asr_event' and packet['nlu']['intent'] == 'surprise':
+      self.perform(datetime.datetime.now(datetime.timezone.utc), None)
 
 if __name__ == '__main__':
   NabSurprised.main(sys.argv[1:])

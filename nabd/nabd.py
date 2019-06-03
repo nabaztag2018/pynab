@@ -260,7 +260,7 @@ class Nabd:
       if 'events' in packet:
         self.service_writers[writer] = packet['events']
       else:
-        self.service_writers[writer] = []
+        self.service_writers[writer] = ['asr']
       if writer == self.interactive_service_writer:
         # exit interactive mode.
         await self.exit_interactive()
@@ -313,7 +313,7 @@ class Nabd:
   # Handle service through TCP/IP protocol
   async def service_loop(self, reader, writer):
     self.write_state_packet(writer)
-    self.service_writers[writer] = []
+    self.service_writers[writer] = ['asr']
     try:
       while not reader.at_eof():
         line = await reader.readline()
@@ -361,14 +361,17 @@ class Nabd:
   async def stop_asr(self):
     await self.nabio.end_acquisition()
     now = time.time()
-    str = await self.asr.get_decoded_string(True)
-    response = await self.nlu.interpret(str)
+    decoded_str = await self.asr.get_decoded_string(True)
+    # ASR model needs to be improved, log outcome.
+    print("asr => %s" % decoded_str)
+    response = await self.nlu.interpret(decoded_str)
+#   print("nlu => %s" % str(response))
+    await self.set_state('idle')
     if response == None:
       # Did not understand
       await self.nabio.asr_failed()
     else:
       self.broadcast_event('asr', {'type':'asr_event', 'nlu': response, 'time': now})
-    await self.set_state('idle')
 
   async def _shutdown(self):
     await self.sleep_setup()

@@ -1,0 +1,7 @@
+---
+type: intent
+name: surprise
+utterances:
+  - tell me a joke
+  - make me laugh
+  - i love your humor

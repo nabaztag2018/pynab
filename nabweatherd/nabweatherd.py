@@ -348,5 +348,10 @@ class NabWeatherd(NabRecurrentService):
       return NabWeatherd.WEATHER_CLASSES_ALIASES[weather_class]
     return self.normalize_weather_class(weather_class[:-1])
 
+  async def process_nabd_packet(self, packet):
+    if packet['type'] == 'asr_event' and packet['nlu']['intent'] == 'weather_forecast':
+      # todo : detect today/tomorrow
+      self.perform(datetime.datetime.now(datetime.timezone.utc), 'today')
+
 if __name__ == '__main__':
   NabWeatherd.main(sys.argv[1:])

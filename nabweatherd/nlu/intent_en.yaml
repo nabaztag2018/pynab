@@ -1,0 +1,11 @@
+---
+type: intent
+name: weather_forecast
+utterances:
+  - give me the weather forecast for [date:snips/datetime](tomorrow)
+  - what kind of weather should I expect [date:snips/datetime](today)
+  - will it be sunny [date:snips/datetime](this afternoon)
+  - will it snow [date:snips/datetime](today)
+  - what will be the weather [date:snips/datetime](tomorrow morning)
+  - tell me if it is going to rain [date:snips/datetime](this afternoon) please
+  - what's the weather like [date:snips/datetime](today)

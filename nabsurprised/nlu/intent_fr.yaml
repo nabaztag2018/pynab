@@ -1,0 +1,11 @@
+---
+type: intent
+name: surprise
+utterances:
+  - guili guili
+  - guili-guili
+  - chatouille
+  - fais-moi rire
+  - raconte un truc
+  - raconte-moi un truc
+

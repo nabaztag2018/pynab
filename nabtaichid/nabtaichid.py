@@ -22,5 +22,9 @@ class NabTaichid(NabRandomService):
   def compute_random_delta(self, frequency):
     return (256 - frequency) * 60 * (random.uniform(0, 255) + 64) / 128
 
+  async def process_nabd_packet(self, packet):
+    if packet['type'] == 'asr_event' and packet['nlu']['intent'] == 'taichi':
+      self.perform(datetime.datetime.now(datetime.timezone.utc), None)
+
 if __name__ == '__main__':
   NabTaichid.main(sys.argv[1:])

@@ -1,0 +1,8 @@
+---
+type: intent
+name: airquality_forecast
+utterances:
+  - give me an air quality bulletin
+  - what is the air quality [date:snips/datetime](right now)
+  - should i go outside [date:snips/datetime](today)
+  - what is [date:snips/datetime](today)'s air quality

@@ -104,7 +104,13 @@ if [ $v1card -eq 0 ]; then
   venv/bin/python -m snips_nlu generate-dataset fr */nlu/intent_fr.yaml > nabd/nlu/nlu_dataset_fr.json
 
   echo "Persisting snips engines"
+  if [ -d nabd/nlu/engine_en ]; then
+    rm -rf nabd/nlu/engine_en
+  fi
   venv/bin/snips-nlu train nabd/nlu/nlu_dataset_en.json nabd/nlu/engine_en
+  if [ -d nabd/nlu/engine_fr ]; then
+    rm -rf nabd/nlu/engine_fr
+  fi
   venv/bin/snips-nlu train nabd/nlu/nlu_dataset_fr.json nabd/nlu/engine_fr
 fi
 

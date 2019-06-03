@@ -1,0 +1,10 @@
+---
+type: intent
+name: airquality_forecast
+utterances:
+  - air
+  - donne-moi la qualité de l'air
+  - qualité de l'air
+  - quelle est la qualité de l'air [date:snips/datetime](aujourd'hui)
+  - est-ce que je peux aller dehors ou c'est trop pollué
+  - c'est pas un peu pollué [date:snips/datetime](aujourd'hui)
