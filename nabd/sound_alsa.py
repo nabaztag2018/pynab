@@ -4,29 +4,38 @@ import alsaaudio
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from .sound import Sound
+import traceback
 
 class SoundAlsa(Sound):
   def __init__(self):
-    self.device = SoundAlsa.select_device()
+    self.playback_device = SoundAlsa.select_device(False)
+    self.record_device = SoundAlsa.select_device(True)
     self.executor = ThreadPoolExecutor(max_workers=1)
     self.future = None
     self.currently_playing = False
     self.currently_recording = False
 
   @staticmethod
-  def select_device():
+  def select_device(record):
     """
     Automatically select a suitable ALSA device by trying to configure them.
     """
-    for device in alsaaudio.pcms():
+    if record:
+      list = alsaaudio.pcms(alsaaudio.PCM_CAPTURE)
+    else:
+      list = alsaaudio.pcms()
+    for device in list:
       if device != 'null':
-        if SoundAlsa.test_device(device):
+        if SoundAlsa.test_device(device, record):
           return device
-    print('No suitable ALSA device!')
+    if record:
+      print('No suitable ALSA device (v1 card?)')
+    else:
+      print('No suitable ALSA device!')
     return 'null'
 
   @staticmethod
-  def test_device(device):
+  def test_device(device, record):
     """
     Test an ALSA device, making sure it handles both stereo and mono and
     both 44.1KHz and 22.05KHz. On a typical RPI configuration, default with
@@ -34,17 +43,26 @@ class SoundAlsa(Sound):
     'sysdefault:CARD=sndrpihifiberry' instead.
     """
     try:
-      dev = alsaaudio.PCM(device=device)
-      if dev.setchannels(2) != 2:
-        return False
-      if dev.setchannels(1) != 1:
-        return False
-      if dev.setrate(44100) != 44100:
-        return False
-      if dev.setrate(22050) != 22050:
-        return False
+      if record:
+        dev = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, device=device)
+      else:
+        dev = alsaaudio.PCM(device=device)
       if dev.setformat(alsaaudio.PCM_FORMAT_S16_LE) != alsaaudio.PCM_FORMAT_S16_LE:
         return False
+      if record:
+        if dev.setchannels(1) != 1:
+          return False
+        if dev.setrate(16000) != 16000:
+          return False
+      else:
+        if dev.setchannels(2) != 2:
+          return False
+        if dev.setchannels(1) != 1:
+          return False
+        if dev.setrate(44100) != 44100:
+          return False
+        if dev.setrate(22050) != 22050:
+          return False
     except alsaaudio.ALSAAudioError:
       return False
     finally:
@@ -54,11 +72,11 @@ class SoundAlsa(Sound):
   async def start_playing_preloaded(self, filename):
     await self.stop_playing()
     self.currently_playing = True
-    self.future = asyncio.get_event_loop().run_in_executor(self.executor, lambda f=filename: self._do_start_playing(f))
+    self.future = asyncio.get_event_loop().run_in_executor(self.executor, lambda f=filename: self._play(f))
 
-  def _do_start_playing(self, filename):
+  def _play(self, filename):
     try:
-      device = alsaaudio.PCM(device=self.device)
+      device = alsaaudio.PCM(device=self.playback_device)
       if filename.endswith('.wav'):
         with wave.open(filename, 'rb') as f:
           channels = f.getnchannels()
@@ -132,11 +150,12 @@ class SoundAlsa(Sound):
   async def start_recording(self, stream_cb):
     await self.stop_playing()
     self.currently_recording = True
-    self.future = asyncio.get_event_loop().run_in_executor(self.executor, lambda cb=stream_cb: self._do_start_recording(cb))
+    self.future = asyncio.get_event_loop().run_in_executor(self.executor, lambda cb=stream_cb: self._record(cb))
 
-  def _do_start_recording(self, cb):
+  def _record(self, cb):
+    inp = None
     try:
-      inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, device=self.device)
+      inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, device='default')
       ch = inp.setchannels(1)
       rate = inp.setrate(16000)
       format = inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
@@ -148,9 +167,12 @@ class SoundAlsa(Sound):
           finalize = True
         if l or finalize:
           cb(data, finalize)
+    except Exception:
+      print(traceback.format_exc())
     finally:
-      self.currently_playing = False
-      inp.close()
+      self.currently_recording = False
+      if inp:
+        inp.close()
 
   async def stop_recording(self):
     if self.currently_recording:

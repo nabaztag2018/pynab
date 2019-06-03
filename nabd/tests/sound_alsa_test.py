@@ -2,10 +2,12 @@ import unittest
 import asyncio
 import sys
 import pytest
+import time
+import wave
 
 @pytest.mark.skipif(sys.platform != 'linux', reason="Alsa is only available on Linux")
 @pytest.mark.django_db
-class TestSound(unittest.TestCase):
+class TestPlaySound(unittest.TestCase):
   def setUp(self):
     from nabd.sound_alsa import SoundAlsa
     self.loop = asyncio.new_event_loop()
@@ -43,3 +45,35 @@ class TestSound(unittest.TestCase):
     self.loop.run_until_complete(start_task)
     wait_task = self.loop.create_task(self.sound.wait_until_done())
     self.loop.run_until_complete(wait_task)
+
+@pytest.mark.skipif(sys.platform != 'linux', reason="Alsa is only available on Linux")
+@pytest.mark.django_db
+class TestRecord(unittest.TestCase):
+  def setUp(self):
+    from nabd.sound_alsa import SoundAlsa
+    self.loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(self.loop)
+    self.sound = SoundAlsa()
+    self.recorded_raw = open('test_recording.raw', 'wb')
+
+  def tearDown(self):
+    self.recorded_raw.close()
+
+  def test_recording_playback(self):
+    import alsaaudio
+    start_task = self.loop.create_task(self.sound.start_playing('asr/listen.mp3'))
+    self.loop.run_until_complete(start_task)
+    wait_task = self.loop.create_task(self.sound.wait_until_done())
+    self.loop.run_until_complete(wait_task)
+    start_task = self.loop.create_task(self.sound.start_recording(self.record_cb))
+    self.loop.run_until_complete(start_task)
+    time.sleep(5)
+    stop_task = self.loop.create_task(self.sound.stop_recording())
+    self.loop.run_until_complete(stop_task)
+    start_task = self.loop.create_task(self.sound.start_playing('asr/acquired.mp3'))
+    self.loop.run_until_complete(start_task)
+    wait_task = self.loop.create_task(self.sound.wait_until_done())
+    self.loop.run_until_complete(wait_task)
+
+  def record_cb(self, data, finalize):
+    self.recorded_raw.write(data)
