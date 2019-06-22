@@ -1,4 +1,4 @@
-import asyncio, time
+import asyncio, time, sys
 from .nabio import NabIO
 from .leds import Leds
 from .ears import Ears
