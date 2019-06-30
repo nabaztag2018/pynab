@@ -14,7 +14,8 @@ class TestNLU(unittest.TestCase):
   def test_en(self):
     nlu = NLU('en_US')
     result = self.interpret(nlu, "i'm trying to think but nothing happens")
-    self.assertEqual(result, None)
+    self.assertEqual(result['intent'], 'surprise')
+#   self.assertEqual(result, None)
 
     result = self.interpret(nlu, "what's the weather like today")
     self.assertEqual(result['intent'], 'weather_forecast')
