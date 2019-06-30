@@ -8,7 +8,14 @@ python:
   - 3.7
 dist: xenial
 sudo: true
-script: pytest
+script:
+  - python -m snips_nlu download fr
+  - python -m snips_nlu download en
+  - python -m snips_nlu generate-dataset en */nlu/intent_en.yaml > nabd/nlu/nlu_dataset_en.json
+  - python -m snips_nlu generate-dataset fr */nlu/intent_fr.yaml > nabd/nlu/nlu_dataset_fr.json
+  - snips-nlu train nabd/nlu/nlu_dataset_en.json nabd/nlu/engine_en
+  - snips-nlu train nabd/nlu/nlu_dataset_fr.json nabd/nlu/engine_fr
+  - pytest
 services:
   - postgresql
 before_script:
