@@ -4,8 +4,6 @@ from lockfile import AlreadyLocked, LockFailed
 from pydoc import locate
 from .nabio_virtual import NabIOVirtual
 from .leds import Leds
-from .asr import ASR
-from .nlu import NLU
 from django.conf import settings
 from django.apps import apps
 from nabcommon.nabservice import NabService
@@ -53,10 +51,13 @@ class Nabd:
     self.loop = None
     self._ears_moved_task = None
     Nabd.leds_boot(self.nabio, 2)
-    self.asr = ASR('fr_FR')
-    Nabd.leds_boot(self.nabio, 3)
-    self.nlu = NLU('fr_FR')
-    Nabd.leds_boot(self.nabio, 4)
+    if self.nabio.has_sound_input():
+      from .asr import ASR
+      self.asr = ASR('fr_FR')
+      Nabd.leds_boot(self.nabio, 3)
+      from .nlu import NLU
+      self.nlu = NLU('fr_FR')
+      Nabd.leds_boot(self.nabio, 4)
 
   async def idle_setup(self):
     self.nabio.set_leds(None, None, None, None, None)

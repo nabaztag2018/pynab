@@ -74,6 +74,9 @@ class NabIOMock(NabIO):
   def ears(self, left, right):
     self.ears_event_cb.loop.call_soon_threadsafe(self.ears_event_cb.callback, left, right)
 
+  def has_sound_input(self):
+    return False
+
 class EarsMock(Ears):
   def __init__(self):
     self.called_list = []

@@ -97,3 +97,6 @@ class NabIOHW(NabIO):
 
   def cancel(self):
     pass
+
+  def has_sound_input(self):
+    return True
