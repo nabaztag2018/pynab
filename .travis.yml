@@ -11,10 +11,10 @@ sudo: true
 script:
   - python -m snips_nlu download fr
   - python -m snips_nlu download en
-  - python -m snips_nlu generate-dataset en pynab/*/nlu/intent_en.yaml > pynab/nabd/nlu/nlu_dataset_en.json
-  - python -m snips_nlu generate-dataset fr pynab/*/nlu/intent_fr.yaml > pynab/nabd/nlu/nlu_dataset_fr.json
-  - snips-nlu train pynab/nabd/nlu/nlu_dataset_en.json pynab/nabd/nlu/engine_en
-  - snips-nlu train pynab/nabd/nlu/nlu_dataset_fr.json pynab/nabd/nlu/engine_fr
+  - python -m snips_nlu generate-dataset en nabaztag2018/pynab/*/nlu/intent_en.yaml > nabaztag2018/pynab/nabd/nlu/nlu_dataset_en.json
+  - python -m snips_nlu generate-dataset fr nabaztag2018/pynab/*/nlu/intent_fr.yaml > nabaztag2018/pynab/nabd/nlu/nlu_dataset_fr.json
+  - snips-nlu train nabaztag2018/pynab/nabd/nlu/nlu_dataset_en.json nabaztag2018/pynab/nabd/nlu/engine_en
+  - snips-nlu train nabaztag2018/pynab/nabd/nlu/nlu_dataset_fr.json nabaztag2018/pynab/nabd/nlu/engine_fr
   - pytest
 services:
   - postgresql
