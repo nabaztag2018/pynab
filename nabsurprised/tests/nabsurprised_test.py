@@ -1,6 +1,5 @@
 import unittest, asyncio, threading, json, django, time, datetime, signal, pytest
 from nabsurprised.nabsurprised import NabSurprised
-from nabd import nabd
 
 class MockWriter(object):
   def __init__(self):

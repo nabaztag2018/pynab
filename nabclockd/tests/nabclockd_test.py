@@ -1,6 +1,6 @@
 import unittest, asyncio, threading, json, django, time, datetime, signal, pytest
 from nabclockd import nabclockd, models
-from nabd import nabd
+from nabcommon import nabservice
 
 @pytest.mark.django_db
 class TestNabclockd(unittest.TestCase):
@@ -12,7 +12,7 @@ class TestNabclockd(unittest.TestCase):
   def mock_nabd_thread_entry_point(self, kwargs):
     self.mock_nabd_loop = asyncio.new_event_loop()
     asyncio.set_event_loop(self.mock_nabd_loop)
-    server_task = self.mock_nabd_loop.create_task(asyncio.start_server(self.mock_nabd_service_handler, 'localhost', nabd.Nabd.PORT_NUMBER))
+    server_task = self.mock_nabd_loop.create_task(asyncio.start_server(self.mock_nabd_service_handler, 'localhost', nabservice.NabService.PORT_NUMBER))
     try:
       self.mock_nabd_loop.run_forever()
     finally:

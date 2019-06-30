@@ -1,7 +1,7 @@
 import unittest, asyncio, threading, json, django, time, datetime, signal, pytest, re
 from dateutil.tz import tzutc
 from nabmastodond import nabmastodond, models
-from nabd import nabd
+from nabcommon import nabservice
 
 class MockMastodonClient:
   def __init__(self):
@@ -90,7 +90,7 @@ class TestMastodondBase(unittest.TestCase):
   def mock_nabd_thread_entry_point(self, kwargs):
     self.mock_nabd_loop = asyncio.new_event_loop()
     asyncio.set_event_loop(self.mock_nabd_loop)
-    server_task = self.mock_nabd_loop.create_task(asyncio.start_server(self.mock_nabd_service_handler, 'localhost', nabd.Nabd.PORT_NUMBER))
+    server_task = self.mock_nabd_loop.create_task(asyncio.start_server(self.mock_nabd_service_handler, 'localhost', nabservice.NabService.PORT_NUMBER))
     try:
       self.mock_nabd_loop.run_forever()
     finally:
