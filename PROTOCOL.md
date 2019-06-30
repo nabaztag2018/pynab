@@ -165,9 +165,9 @@ Le slot `"events"`, optionnel, est une liste avec:
 - `"button"`
 - `"ears"`
 
-Pour le mode `"idle"`, si `"events"` n'est pas précisé, cela est équivalent à la liste vide : le service ne reçoit aucun événement. Si `"button"` ou `"ears" ` sont précisés, le service reçoit les événements correspondants lorsque le lapin est éveillé et n'est pas en mode interactif avec un autre service. Par défaut, le mode est `"idle"`, sans événements.
+Pour le mode `"idle"`, si `"events"` n'est pas précisé, cela est équivalent à la liste vide : le service ne reçoit aucun événement. Si `"button"` ou `"ears" ` sont précisés, le service reçoit les événements correspondants lorsque le lapin est éveillé et n'est pas en mode `"interactive"` avec un autre service. Par défaut, le mode est `"idle"`, sans événements.
 
-Dans le mode `"interactif"`, le service prend la main sur le lapin et reçoit les événéments précisés. Le lapin cesse d'afficher les infos. Un seul service peut être en mode interactif. Si non précisé, le service reçoit tous les événements. Les autres services ne reçoivent pas les événements, le lapin ne joue pas les commmandes et ne s'endort pas. Le mode interactif s'achève lorsque le service envoie un paquet `"mode"` avec le mode `"idle"` (ou lorsque la connexion est rompue).
+Dans le mode `"interactive"`, le service prend la main sur le lapin et reçoit les événéments précisés. Le lapin cesse d'afficher les infos. Un seul service peut être en mode interactif. Si non précisé, le service reçoit tous les événements. Les autres services ne reçoivent pas les événements, le lapin ne joue pas les commmandes et ne s'endort pas. Le mode interactif s'achève lorsque le service envoie un paquet `"mode"` avec le mode `"idle"` (ou lorsque la connexion est rompue).
 
 ## Paquets `ears_event`
 
@@ -178,7 +178,7 @@ En mode `"idle"`, nabd calcule la position en lançant une détection et envoie 
 Le paquet a alors cette forme :
 - `{"type":"ears_event","left":ear_left,"right":ear_right}`
 
-En mode `"interactif"`, nabd envoie le fait que l'oreille a bougé.
+En mode `"interactive"`, nabd envoie le fait que l'oreille a bougé.
 
 Le paquet a alors cette forme :
 - `{"type":"ears_event","ear": ear}`
@@ -187,7 +187,7 @@ Le paquet a alors cette forme :
 
 Émetteur: nabd
 
-Signifie aux services que le bouton a été appuyé. Est envoyé aux services qui demandent ce type d'événements (mode idle/interactif).
+Signifie aux services que le bouton a été appuyé. Est envoyé aux services qui demandent ce type d'événements (mode `"idle"`/`"interactive"`).
 
 - `{"type":"button_event","event":event}`
 
