@@ -9,12 +9,7 @@ python:
 dist: xenial
 sudo: true
 script:
-  - python -m snips_nlu download fr
-  - python -m snips_nlu download en
-  - python -m snips_nlu generate-dataset en /home/travis/build/nabaztag2018/pynab/*/nlu/intent_en.yaml > /home/travis/build/nabaztag2018/pynab/nabd/nlu/nlu_dataset_en.json
-  - python -m snips_nlu generate-dataset fr /home/travis/build/nabaztag2018/pynab/*/nlu/intent_fr.yaml > /home/travis/build/nabaztag2018/pynab/nabd/nlu/nlu_dataset_fr.json
-  - snips-nlu train /home/travis/build/nabaztag2018/pynab/nabd/nlu/nlu_dataset_en.json /home/travis/build/nabaztag2018/pynab/nabd/nlu/engine_en
-  - snips-nlu train /home/travis/build/nabaztag2018/pynab/nabd/nlu/nlu_dataset_fr.json /home/travis/build/nabaztag2018/pynab/nabd/nlu/engine_fr
+  - sh /home/travis/build/nabaztag2018/pynab/.travis_build_nlu_engines.sh
   - pytest
 services:
   - postgresql
