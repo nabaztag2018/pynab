@@ -4,9 +4,9 @@ set -xuo pipefail
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 IFS=$'\n\t'
 
-# v1 card : Paris Maker Faire 2018 card, only fits Nabaztag V1. You probably have a v2.
-# v2 card : fits Nabaztag V1 and Nabaztag V2. Features a microphone. Button is on GPIO 17.
-v1card=0
+# makerfaire2018: Paris Maker Faire 2018 card, only fits Nabaztag V1.
+# (default): Ulule 2019 card, fits Nabaztag V1 and Nabaztag V2. Features a microphone. Button is on GPIO 17.
+makerfaire2018=0
 
 # travis-chroot : we're building a release image on Travis CI
 travis_chroot=0
@@ -17,8 +17,8 @@ test=0
 # upgrade : this script is invoked from upgrade.sh, typically from the button in the web interface.
 upgrade=0
 
-if [ "${1:-}" == "--v1" ]; then
-  v1card=1
+if [ "${1:-}" == "--makerfaire2018" ]; then
+  makerfaire2018=1
   shift
 fi
 
@@ -28,9 +28,9 @@ elif [ "${1:-}" == "test" ]; then
   test=1
 elif [ "${1:-}" == "upgrade" ]; then
   upgrade=1
-  # auto-detect v1 card here.
+  # auto-detect maker faire card here.
   if [ `aplay -L | grep -c "hifiberry"` -gt 0 ]; then
-    v1card=1
+    makerfaire2018=1
   fi
 fi
 
@@ -47,26 +47,25 @@ fi
 cd `dirname "$0"`
 root_dir=`pwd`
 
-if [ $travis_chroot -eq 0 -a $v1card -eq 0 -a `aplay -L | grep -c "seeed2micvoicec"` -eq 0 ]; then
+if [ $travis_chroot -eq 0 -a $makerfaire2018 -eq 0 -a `aplay -L | grep -c "seeed2micvoicec"` -eq 0 ]; then
   if [ `aplay -L | grep -c "hifiberry"` -gt 0 ]; then
-    echo "Judging from the sound card, this looks likes a v1 card (Paris Maker Faire 2018)."
-    echo "Please double-check and restart this script with --v1"
+    echo "Judging from the sound card, this looks likes a Paris Maker Faire 2018 card."
+    echo "Please double-check and restart this script with --makerfaire2018"
   else
     echo "Please install and configure sound card driver http://wiki.seeedstudio.com/ReSpeaker_2_Mics_Pi_HAT/"
   fi
   exit 1
 fi
 
-if [ $v1card -eq 1 ]; then
+if [ $makerfaire2018 -eq 1 ]; then
   if [ `aplay -L | grep -c "hifiberry"` -eq 0 ]; then
     echo "Please install and configure sound card driver https://support.hifiberry.com/hc/en-us/articles/205377651-Configuring-Linux-4-x-or-higher"
     exit 1
   fi
-  sudo touch /etc/nabaztagtagtag_v1
 fi
 
-if [ $v1card -eq 0 ]; then
-  # v1 card has no mic, no need to install kaldi
+if [ $makerfaire2018 -eq 0 ]; then
+  # maker faire card has no mic, no need to install kaldi
   if [ ! -d "/opt/kaldi" ]; then
     echo "Installing precompiled kaldi into /opt"
     wget -O - -q https://github.com/pguyot/kaldi/releases/download/v5.4.1/kaldi-c3260f2-linux_armv6l-vfp.tar.xz | sudo tar xJ -C /
@@ -79,15 +78,20 @@ if [ $v1card -eq 0 ]; then
 fi
 
 if [ ! -d "venv" ]; then
-  echo "Creating Python 3 virtual environment"
-  pyvenv-3.5 venv
+  if ! [ -x "$(command -v python3.7)" ] ; then
+    echo "Please install Python 3.7 (you might need to upgrade your Raspbian distribution)"
+    exit 1
+  fi
+
+  echo "Creating Python 3.7 virtual environment"
+  python3.7 -m venv venv
 fi
 
 echo "Installing PyPi requirements"
 venv/bin/pip install -r requirements.txt
 
-if [ $v1card -eq 0 ]; then
-  # v1 card has no mic, no need to install snips
+if [ $makerfaire2018 -eq 0 ]; then
+  # maker faire card has no mic, no need to install snips
   if [ ! -d "venv/lib/python3.5/site-packages/snips_nlu_fr" ]; then
     echo "Downloading snips_nlu models for French"
     venv/bin/python -m snips_nlu download fr
