@@ -1,25 +1,26 @@
-# Noyau Nabaztag en Python pour Raspberry Pi pour Paris Maker Faire 2018
+# Nabaztag en Python pour Raspberry Pi
 
 [![Build Status](https://travis-ci.org/nabaztag2018/pynab.svg?branch=master)](https://travis-ci.org/nabaztag2018/pynab)
 
+# Cartes
 
-# Carte Maker Faire2018
+Ce système est conçu pour deux cartes :
+- Une carte réalisée pour Maker Faire 2018, qui ne fonctionne qu'avec les Nabaztag v1 (sans micro ni RFID).
+- Une nouvelle version de la carte, proposée via la campagne Ulule en mai 2019, qui fonctionne avec les Nabaztag v1 et v2 (les micros sont sur la carte, du coup les Nabaztag v1 bénéficient aussi de la reconnaissance vocale).
 
-Ce noyau est conçu pour deux cartes :
-- la carte spécifique réalisée pour Maker Faire 2018 qui connecte le raspberry Pi Zero et le Hat HifiBerry (miniAmp) avec les interfaces du Nabaztag (leds, HP, moteur, encodeur).
-- la nouvelle carte (v2)
-
-Les schémas et fichiers de fabrication de la v1 sont dans le repository "hardware".
+Les schémas et fichiers de fabrication de ces deux cartes sont dans le repository [hardware](https://github.com/nabaztag2018/hardware), respectivement [`RPI\_Nabaztag`](https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF) (2018) et [`pyNab\_v4.1`](https://github.com/nabaztag2018/hardware/blob/master/pyNab_V4.1_voice_reco.PDF) (2019).
 
 # Images
 
 Les [releases](https://github.com/nabaztag2018/pynab/releases) sont des images de Raspbian Stretch Lite 2018-11-13 avec pynab pré-installé. Elles ont les mêmes réglages que [Raspbian](https://www.raspberrypi.org/downloads/raspbian/).
 
+La release actuelle (0.2.0) ne fonctionne que sur les cartes 2018.
+
 # Installation sur Raspbian (pour développeurs !)
 
-0. S'assurer que le raspbian est bien à jour
+0. S'assurer que le système est bien à jour
 
-De fait, il faut une Raspbian pas trop ancienne, sinon toutes les dépendances ne seront pas bien installées.
+Le script d'installation requiert désormais une Raspbian avec buster, pour bénéficier de Python 3.7.
 Il est nécessaire que les headers depuis le paquet apt correspondent à la version du noyau.
 
 ```
@@ -29,16 +30,16 @@ sudo apt upgrade
 
 1. Configurer la carte son et redémarrer.
 
-v1 :
+Maker Faire 2018 :
 https://support.hifiberry.com/hc/en-us/articles/205377651-Configuring-Linux-4-x-or-higher
 
-v2 :
+Ulule 2019 :
 http://wiki.seeedstudio.com/ReSpeaker_2_Mics_Pi_HAT/
 
 2. Installer PostgreSQL et les paquets requis
 
 ```
-sudo apt-get install postgresql libpq-dev git python3 python3-venv gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev
+sudo apt-get install postgresql libpq-dev git python3 python3-venv gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libgfortran3
 ```
 
 3. Récupérer le code
@@ -54,9 +55,15 @@ cd pynab
 bash install.sh
 ```
 
+ou, pour les cartes Maker Faire 2018 :
+
+```
+bash install.sh --makerfaire2018
+```
+
 # Mise à jour
 
-A priori, cela fonctionne via l'interface.
+A priori, cela fonctionne via l'interface web.
 Si nécessaire, il est possible de le faire en ligne de commande avec :
 ```
 cd pynab
