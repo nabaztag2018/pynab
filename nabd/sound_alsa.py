@@ -43,6 +43,7 @@ class SoundAlsa(Sound):
     'sysdefault:CARD=sndrpihifiberry' instead.
     """
     try:
+      dev = None
       if record:
         dev = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, device=device)
       else:
@@ -66,7 +67,8 @@ class SoundAlsa(Sound):
     except alsaaudio.ALSAAudioError:
       return False
     finally:
-      dev.close()
+      if dev:
+        dev.close()
     return True
 
   async def start_playing_preloaded(self, filename):
