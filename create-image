@@ -19,8 +19,8 @@ fi
 image="pynab.img"
 mount="mnt"
 script="setup"
-rpi_zip="2018-11-13-raspbian-stretch-lite.zip"
-rpi_url="http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-11-15/${rpi_zip}"
+rpi_zip="2019-06-20-raspbian-buster-lite.zip"
+rpi_url="http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-06-24/${rpi_zip}"
 
 # Unmount drives and general cleanup on exit, the trap ensures this will always
 # run execpt in the most extream cases.
