@@ -1,4 +1,5 @@
 import wave
+import functools
 from mpg123 import Mpg123
 import alsaaudio
 import asyncio
@@ -26,12 +27,13 @@ class SoundAlsa(Sound):
 
   @staticmethod
   def sound_card():
-    sound_cards = alsaaudio.cards()
-    if sound_cards == []:
+    it = filter(functools.partial(str.__eq__, "seeed2micvoicec"), alsaaudio.cards())
+    sound_card = next(it, None)
+    if sound_card is None:
       raise RuntimeError('No sound card found by ALSA (are drivers missing?)')
-    if len(sound_cards) > 1:
+    if next(it, None) is not None:
       raise RuntimeError('More than one sound card was found')
-    return sound_cards[0]
+    return sound_card
 
   @staticmethod
   def select_device(record):
