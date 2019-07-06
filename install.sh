@@ -71,9 +71,11 @@ if [ $makerfaire2018 -eq 0 ]; then
     wget -O - -q https://github.com/pguyot/kaldi/releases/download/v5.4.1/kaldi-c3260f2-linux_armv6l-vfp.tar.xz | sudo tar xJ -C /
   fi
 
-  if [ ! -d "/opt/kaldi/model/kaldi-generic-en-tdnn_250-r20190227" ]; then
+  sudo mkdir -p "/opt/kaldi/model"
+
+  if [ ! -d "/opt/kaldi/model/kaldi-generic-en-tdnn_250-r20190609" ]; then
     echo "Installing kaldi model for English from Zamia Speech"
-    wget -O - -q https://goofy.zamia.org/zamia-speech/asr-models/kaldi-generic-en-tdnn_250-r20190227.tar.xz | sudo tar xJ -C /opt/kaldi/model/
+    wget -O - -q https://goofy.zamia.org/zamia-speech/asr-models/kaldi-generic-en-tdnn_250-r20190609.tar.xz | sudo tar xJ -C /opt/kaldi/model/
   fi
 
   if [ ! -d "/opt/kaldi/model/kaldi-nabaztag-fr-r20190518" ]; then
