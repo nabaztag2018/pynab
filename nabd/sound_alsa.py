@@ -4,16 +4,34 @@ import alsaaudio
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from .sound import Sound
+from .nabio import NabIO
 import traceback
 
 class SoundAlsa(Sound):
-  def __init__(self):
-    self.playback_device = SoundAlsa.select_device(False)
-    self.record_device = SoundAlsa.select_device(True)
+  def __init__(self, hw_model):
+    if hw_model == NabIO.MODEL_2018:
+      self.playback_device = SoundAlsa.select_device(False)
+      self.playback_mixer = None
+      self.record_device = 'null'
+      self.record_mixer = None
+    if hw_model == NabIO.MODEL_2019_TAG or hw_model == NabIO.MODEL_2019_TAGTAG:
+      self.playback_device = SoundAlsa.select_device(False)
+      self.playback_mixer = alsaaudio.Mixer(control='Playback', device=self.playback_device)
+      self.record_device = SoundAlsa.select_device(True)
+      self.record_mixer = alsaaudio.Mixer(control='Capture', device=self.record_device)
     self.executor = ThreadPoolExecutor(max_workers=1)
     self.future = None
     self.currently_playing = False
     self.currently_recording = False
+
+  @staticmethod
+  def sound_card():
+    sound_cards = alsaaudio.cards()
+    if sound_cards == []:
+      raise RuntimeError('No sound card found by ALSA (are drivers missing?)')
+    if len(sound_cards) > 1:
+      raise RuntimeError('More than one sound card was found')
+    return sound_cards[0]
 
   @staticmethod
   def select_device(record):
@@ -25,7 +43,7 @@ class SoundAlsa(Sound):
     else:
       list = alsaaudio.pcms()
     for device in list:
-      if device != 'null':
+      if device != 'null' and device != 'jack' and device != 'pulse':
         if SoundAlsa.test_device(device, record):
           return device
     if record:

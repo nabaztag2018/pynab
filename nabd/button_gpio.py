@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 from .button import Button
+from .nabio import NabIO
 import sys
 import atexit
 import time
@@ -11,7 +12,8 @@ def cleanup_gpio():
   GPIO.cleanup()
 
 class ButtonGPIO(Button):
-  BUTTON_CHANNEL = 2
+  BUTTON_CHANNEL_2018 = 2
+  BUTTON_CHANNEL_2019 = 17
   DOWN_VALUE = 0
   UP_VALUE = 1
 
@@ -20,7 +22,7 @@ class ButtonGPIO(Button):
   DOUBLE_CLICK_TIMEOUT = 0.15
   TRIPLE_CLICK_TIMEOUT = 0.15
 
-  def __init__(self):
+  def __init__(self, hw_model):
     self.callback = None
     self.button_sequence = 0
     self.button_timer = None
@@ -28,9 +30,13 @@ class ButtonGPIO(Button):
     self.button_state = 'up'
     GPIO.setwarnings(True)
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(ButtonGPIO.BUTTON_CHANNEL, GPIO.IN)
+    if hw_model == NabIO.MODEL_2018:
+      self.button_channel = ButtonGPIO.BUTTON_CHANNEL_2018
+    else:
+      self.button_channel = ButtonGPIO.BUTTON_CHANNEL_2019
+    GPIO.setup(self.button_channel, GPIO.IN)
     try:
-      GPIO.add_event_detect(ButtonGPIO.BUTTON_CHANNEL, GPIO.BOTH, callback=self._button_event)
+      GPIO.add_event_detect(self.button_channel, GPIO.BOTH, callback=self._button_event)
     except RuntimeError:
       print('Could not set edge detection (please reboot ?)')
       sys.exit(1)
@@ -54,7 +60,7 @@ class ButtonGPIO(Button):
       self.button_timer.cancel()
       self.button_timer = None
     (loop, callback) = self.callback
-    if GPIO.input(ButtonGPIO.BUTTON_CHANNEL) == ButtonGPIO.UP_VALUE and self.button_state == 'down':
+    if GPIO.input(self.button_channel) == ButtonGPIO.UP_VALUE and self.button_state == 'down':
       self.button_state = 'up'
       loop.call_soon_threadsafe(lambda now=now: callback('up', now))
       with self.button_sequence_lock:
@@ -71,7 +77,7 @@ class ButtonGPIO(Button):
           self.button_sequence = 2
           self.button_timer = Timer(ButtonGPIO.DOUBLE_CLICK_TIMEOUT, self._click_cb)
           self.button_timer.start()
-    elif GPIO.input(ButtonGPIO.BUTTON_CHANNEL) == ButtonGPIO.DOWN_VALUE and self.button_state == 'up':
+    elif GPIO.input(self.button_channel) == ButtonGPIO.DOWN_VALUE and self.button_state == 'up':
       self.button_state = 'down'
       loop.call_soon_threadsafe(lambda now=now: callback('down', now))
       with self.button_sequence_lock:

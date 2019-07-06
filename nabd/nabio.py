@@ -5,6 +5,10 @@ from .choreography import ChoreographyInterpreter
 class NabIO(object, metaclass=abc.ABCMeta):
   """ Interface for I/O interactions with a nabaztag """
 
+  MODEL_2018 = 1        # https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF
+  MODEL_2019_TAG = 2    # https://github.com/nabaztag2018/hardware/blob/master/pyNab_V4.1_voice_reco.PDF
+  MODEL_2019_TAGTAG = 3 # with RFID
+
   # Each info loop lasts 15 seconds
   INFO_LOOP_LENGTH = 15.0
 

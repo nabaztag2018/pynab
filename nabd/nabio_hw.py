@@ -15,10 +15,11 @@ class NabIOHW(NabIO):
 
   def __init__(self):
     super().__init__()
+    self.model = NabIOHW.detect_model()
     self.leds = LedsNeoPixel()
     self.ears = EarsGPIO()
-    self.sound = SoundAlsa()
-    self.button = ButtonGPIO()
+    self.sound = SoundAlsa(self.model)
+    self.button = ButtonGPIO(self.model)
 
   async def setup_ears(self, left_ear, right_ear):
     await self.ears.reset_ears(left_ear, right_ear)
@@ -99,4 +100,13 @@ class NabIOHW(NabIO):
     pass
 
   def has_sound_input(self):
-    return True
+    return self.model != NabIOHW.MODEL_2018
+
+  @staticmethod
+  def detect_model():
+    sound_card = SoundAlsa.sound_card()
+    if sound_card == 'seeed2micvoicec':
+      return NabIO.MODEL_2019_TAGTAG
+    if sound_card == 'sndrpihifiberry':
+      return NabIO.MODEL_2018
+    raise RuntimeError('Unknown sound card %s' % sound_card)

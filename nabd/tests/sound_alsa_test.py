@@ -10,9 +10,14 @@ import wave
 class TestPlaySound(unittest.TestCase):
   def setUp(self):
     from nabd.sound_alsa import SoundAlsa
+    from nabd.nabio import NabIO
     self.loop = asyncio.new_event_loop()
     asyncio.set_event_loop(self.loop)
-    self.sound = SoundAlsa()
+    if SoundAlsa.sound_card() == 'sndrpihifiberry':
+      model = NabIO.MODEL_2018
+    else:
+      model = NabIO.MODEL_2019_TAGTAG
+    self.sound = SoundAlsa(model)
 
   def test_mp3(self):
     start_task = self.loop.create_task(self.sound.start_playing('choreographies/3notesE5A5C6.mp3'))
@@ -51,9 +56,12 @@ class TestPlaySound(unittest.TestCase):
 class TestRecord(unittest.TestCase):
   def setUp(self):
     from nabd.sound_alsa import SoundAlsa
+    from nabd.nabio import NabIO
     self.loop = asyncio.new_event_loop()
     asyncio.set_event_loop(self.loop)
-    self.sound = SoundAlsa()
+    if SoundAlsa.sound_card() != 'seeed2micvoicec':
+      raise unittest.SkipTest("This is a 2018 card, with no sound input")
+    self.sound = SoundAlsa(NabIO.MODEL_2019_TAGTAG)
     self.recorded_raw = open('test_recording.raw', 'wb')
 
   def tearDown(self):

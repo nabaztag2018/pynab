@@ -2,7 +2,7 @@ import asyncio, json, datetime, collections, sys, getopt, os
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
 from pydoc import locate
-from .nabio_virtual import NabIOVirtual
+from .nabio_hw import NabIOHW
 from .leds import Leds
 from django.conf import settings
 from django.apps import apps
@@ -471,15 +471,9 @@ class Nabd:
   @staticmethod
   def main(argv):
     pidfilepath = "/var/run/nabd.pid"
-    if sys.platform == 'linux':
-      from .nabio_hw import NabIOHW
-      nabiocls = NabIOHW
-    else:
-      nabiocls = NabIOVirtual
     usage = 'nabd [options]\n' \
      + ' -h                   display this message\n' \
-     + ' --pidfile=<pidfile>  define pidfile (default = {pidfilepath})\n'.format(pidfilepath=pidfilepath) \
-     + ' --nabio=nabio_class  define nabio implementation (default = {module}.{name})'.format(module=nabiocls.__module__, name=nabiocls.__name__)
+     + ' --pidfile=<pidfile>  define pidfile (default = {pidfilepath})\n'.format(pidfilepath=pidfilepath)
     try:
       opts, args = getopt.getopt(argv,"h",["pidfile=","nabio="])
     except getopt.GetoptError:
@@ -491,12 +485,10 @@ class Nabd:
         exit(0)
       elif opt == '--pidfile':
         pidfilepath = arg
-      elif opt == '--nabio':
-        nabiocls = locate(arg)
     pidfile = PIDLockFile(pidfilepath, timeout=-1)
     try:
       with pidfile:
-        nabio = nabiocls()
+        nabio = NabIOHW()
         Nabd.leds_boot(nabio, 1)
         nabd = Nabd(nabio)
         nabd.run()
