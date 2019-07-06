@@ -14,6 +14,7 @@ addons:
 script:
 - sudo bash ./create-image
 - zip -v pynab.img.zip pynab.img
+install: echo
 deploy:
   provider: releases
   api_key:
