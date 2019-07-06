@@ -1,0 +1,14 @@
+---
+type: intent
+name: weather_forecast
+utterances:
+  - météo
+  - donne-moi la météo
+  - donne-moi les prévisions météos pour [date:snips/datetime](demain)
+  - quel temps fait-il [date:snips/datetime](aujourd'hui)
+  - est-ce qu'il fera beau [date:snips/datetime](cet après-midi)
+  - va-t-il neiger [date:snips/datetime](aujourd'hui')
+  - quelle sera la météo [date:snips/datetime](demain matin)
+  - dis-moi s'il va pleuvoir [date:snips/datetime](cet après-midi) s'il-te-plait
+  - est-ce qu'il va pleuvoir [date:snips/datetime](aujourd'hui)
+  - est-ce qu'il va faire chaud [date:snips/datetime](aujourd'hui)

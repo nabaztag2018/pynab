@@ -2,7 +2,7 @@ from django.db import models
 from django.core import validators
 from nabcommon import singleton_model
 
-class Config(singleton_model.UncachableSingletonModel):
+class Config(singleton_model.SingletonModel):
   instance = models.TextField(default='botsin.space')
   client_id = models.TextField(null=True)
   client_secret = models.TextField(null=True)

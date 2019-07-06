@@ -5,6 +5,13 @@ from .choreography import ChoreographyInterpreter
 class NabIO(object, metaclass=abc.ABCMeta):
   """ Interface for I/O interactions with a nabaztag """
 
+  MODEL_2018 = 1        # https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF
+  MODEL_2019_TAG = 2    # https://github.com/nabaztag2018/hardware/blob/master/pyNab_V4.1_voice_reco.PDF
+  MODEL_2019_TAGTAG = 3 # with RFID
+
+  # Each info loop lasts 15 seconds
+  INFO_LOOP_LENGTH = 15.0
+
   @abc.abstractmethod
   async def setup_ears(self, left_ear, right_ear):
     """
@@ -64,15 +71,35 @@ class NabIO(object, metaclass=abc.ABCMeta):
     raise NotImplementedError( 'Should have implemented' )
 
   @abc.abstractmethod
-  async def play_info(self, tempo, colors):
+  async def play_info(self, condvar, tempo, colors):
     """
     Play an info animation.
     tempo & colors are as described in the nabd protocol.
-    Run the animation once and returns.
+    Run the animation in loop for the complete info duration (15 seconds) or until condvar is notified
 
-    If 'left'/'center'/'right'/'bottom'/'nose' slots are absent, the light is off.
+    If 'left'/'center'/'right' slots are absent, the light is off.
     """
     raise NotImplementedError( 'Should have implemented' )
+
+  async def start_acquisition(self, acquisition_cb):
+    """
+    Play listen sound and start acquisition, calling callback with sound samples.
+    """
+    await self.sound.play_list(["asr/listen.mp3"], False)
+    await self.sound.start_recording(acquisition_cb)
+
+  async def end_acquisition(self):
+    """
+    Play acquired sound and call callback with finalize.
+    """
+    await self.sound.stop_recording()
+    await self.sound.play_list(["asr/acquired.mp3"], False)
+
+  async def asr_failed(self):
+    """
+    Feedback when ASR or NLU failed.
+    """
+    await self.sound.play_list(["asr/failed/*.mp3"], False)
 
   async def play_message(self, signature, body):
     """

@@ -1,0 +1,74 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-04-22 20:15+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/nabweatherd/settings.html:6
+msgid "Weather"
+msgstr "Météo"
+
+#: templates/nabweatherd/settings.html:10
+msgid "Location"
+msgstr "Ville"
+
+#: templates/nabweatherd/settings.html:12
+msgid "City, Zip code, Country"
+msgstr "Ville, code postal, pays"
+
+#: templates/nabweatherd/settings.html:16
+msgid "Unit"
+msgstr "Unité"
+
+#: templates/nabweatherd/settings.html:20
+msgid "Celsius"
+msgstr "Celsius"
+
+#: templates/nabweatherd/settings.html:21
+msgid "Farenheit"
+msgstr "Farenheit"
+
+#: templates/nabweatherd/settings.html:22
+msgid "Kelvin"
+msgstr "Kelvin"
+
+#: templates/nabweatherd/settings.html:27
+msgid "Forecast"
+msgstr "Prévision"
+
+#: templates/nabweatherd/settings.html:29
+msgid "Today"
+msgstr "Aujourd'hui"
+
+#: templates/nabweatherd/settings.html:30
+msgid "Tomorrow"
+msgstr "Demain"
+
+#: templates/nabweatherd/settings.html:37
+msgid "Save"
+msgstr "Enregistrer"
+
+#: templates/nabweatherd/settings.html:38
+msgid "Reset"
+msgstr "Annuler"
+
+#: templates/nabweatherd/settings.html:78
+msgid "Unknown server error"
+msgstr "Erreur inconnue du serveur"
+
+#: views.py:36
+msgid "Unknown location"
+msgstr "Ville inconnue"

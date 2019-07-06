@@ -32,3 +32,7 @@ msgstr "Heure de réveil"
 #: templates/nabclockd/settings.html:28
 msgid "Sleep time"
 msgstr "Heure du coucher"
+
+#: templates/nabclockd/settings.html:39
+msgid "Time zone"
+msgstr "Fuseau horaire"

@@ -1,0 +1,7 @@
+---
+type: intent
+name: taichi
+utterances:
+  - tai-chi
+  - c'est l'heure du tai-chi
+  - tu me referais le tai-chi

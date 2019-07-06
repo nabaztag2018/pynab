@@ -1,0 +1,10 @@
+---
+type: intent
+name: 8ball
+utterances:
+  - dis lapin
+  - dis nabaztag
+  - dis gourou
+  - dis-moi lapin
+  - dis-moi nabaztag
+  - dis-moi gourou

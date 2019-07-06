@@ -1,0 +1,16 @@
+[Unit]
+Description=Nabaztag weather daemon
+After=nabd.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+WorkingDirectory=/home/pi/pynab
+ExecStart=/home/pi/pynab/venv/bin/python -m nabweatherd.nabweatherd
+PIDFile=/var/run/nabweatherd.pid
+
+[Install]
+WantedBy=multi-user.target

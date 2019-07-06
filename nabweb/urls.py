@@ -24,6 +24,7 @@ urlpatterns = [
     path('nabmastodond/', include('nabmastodond.urls')),
     path('nabsurprised/', include('nabsurprised.urls')),
     path('nabtaichid/', include('nabtaichid.urls')),
+    path('nabweatherd/', include('nabweatherd.urls')),
     path('', NabWebView.as_view()),
     path('upgrade', NabWebUpgradeView.as_view(), name='nabweb.upgrade'),
 ]

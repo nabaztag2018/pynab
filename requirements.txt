@@ -1,3 +1,4 @@
+wheel
 pytest
 django
 psycopg2-binary
@@ -6,6 +7,21 @@ lockfile
 Mastodon.py
 Mpg123
 gunicorn
-RPi.GPIO; sys_platform == 'linux' and 'arm' in platform_machine
-rpi_ws281x; sys_platform == 'linux' and 'arm' in platform_machine
+https://github.com/pguyot/py-kaldi-asr/releases/download/v0.5.2/Cython-0.29.7-cp35-cp35m-linux_armv6l.whl; sys_platform == 'linux' and 'armv6l' in platform_machine and python_version == '3.5'
+https://github.com/pguyot/py-kaldi-asr/releases/download/v0.5.2/Cython-0.29.10-cp37-cp37m-linux_armv6l.whl; sys_platform == 'linux' and 'armv6l' in platform_machine and python_version == '3.7'
+https://github.com/pguyot/py-kaldi-asr/releases/download/v0.5.2/numpy-1.16.3-cp35-cp35m-linux_armv6l.whl; sys_platform == 'linux' and 'armv6l' in platform_machine and python_version == '3.5'
+https://github.com/pguyot/py-kaldi-asr/releases/download/v0.5.2/numpy-1.16.4-cp37-cp37m-linux_armv6l.whl; sys_platform == 'linux' and 'armv6l' in platform_machine and python_version == '3.7'
+https://github.com/pguyot/py-kaldi-asr/releases/download/v0.5.2/py_kaldi_asr-0.5.2-cp35-cp35m-linux_armv6l.whl; sys_platform == 'linux' and 'armv6l' in platform_machine and python_version == '3.5'
+https://github.com/pguyot/py-kaldi-asr/releases/download/v0.5.2/py_kaldi_asr-0.5.2-cp37-cp37m-linux_armv6l.whl; sys_platform == 'linux' and 'armv6l' in platform_machine and python_version == '3.7'
+https://github.com/pguyot/meteofrance-py/releases/download/v0.3.7%2B/meteofrance-0.3.7-py3-none-any.whl
+https://github.com/pguyot/snips-nlu-parsers/releases/download/v0.3.0_SNAPSHOT/snips_nlu_parsers-0.3.0_SNAPSHOT_-cp35-cp35m-linux_armv6l.whl; sys_platform == 'linux' and 'armv6l' in platform_machine and python_version == '3.5'
+https://github.com/pguyot/snips-nlu-parsers/releases/download/v0.3.0_SNAPSHOT/snips_nlu_parsers-0.3.0_SNAPSHOT_-cp37-cp37m-linux_armv6l.whl; sys_platform == 'linux' and 'armv6l' in platform_machine and python_version == '3.7'
+https://github.com/pguyot/snips-nlu-utils/releases/download/v0.10.0_SNAPSHOT/snips_nlu_utils-0.10.0_SNAPSHOT-cp35-cp35m-linux_armv6l.whl; sys_platform == 'linux' and 'armv6l' in platform_machine and python_version == '3.5'
+https://github.com/pguyot/snips-nlu-utils/releases/download/v0.10.0_SNAPSHOT/snips_nlu_utils-0.10.0_SNAPSHOT-cp37-cp37m-linux_armv6l.whl; sys_platform == 'linux' and 'armv6l' in platform_machine and python_version == '3.7'
+https://github.com/pguyot/snips-nlu/releases/download/0.19.7/snips_nlu-0.19.7-py3-none-any.whl; sys_platform == 'linux' and 'armv6l' in platform_machine
+snips_nlu; sys_platform != 'linux' or 'armv6l' not in platform_machine
+Cython; sys_platform != 'linux' or 'armv6l' not in platform_machine
+git+https://github.com/pguyot/py-kaldi-asr; sys_platform != 'linux' or 'armv6l' not in platform_machine
+RPi.GPIO; sys_platform == 'linux' and 'armv6l' in platform_machine
+rpi_ws281x; sys_platform == 'linux' and 'armv6l' in platform_machine
 pyalsaaudio; sys_platform == 'linux'

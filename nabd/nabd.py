@@ -2,14 +2,15 @@ import asyncio, json, datetime, collections, sys, getopt, os
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
 from pydoc import locate
-from .nabio_virtual import NabIOVirtual
 from .leds import Leds
 from django.conf import settings
 from django.apps import apps
+from nabcommon.nabservice import NabService
+
+import time
+import traceback
 
 class Nabd:
-  PORT_NUMBER = 10543
-  INFO_TIMEOUT = 15.0
   SLEEP_EAR_POSITION = 8
   INIT_EAR_POSITION = 0
   EAR_MOVEMENT_TIMEOUT = 0.5
@@ -40,7 +41,7 @@ class Nabd:
     # Current position of ears in idle mode
     self.ears = {'left': Nabd.INIT_EAR_POSITION, 'right': Nabd.INIT_EAR_POSITION}
     self.info = {}                      # Info persists across service connections.
-    self.state = 'idle'                 # 'asleep'/'idle'/'interative'/'playing'
+    self.state = 'idle'                 # 'asleep'/'idle'/'interactive'/'playing'/'recording'
     self.service_writers = {}           # Dictionary of writers, i.e. connected services
                                         # For each writer, value is the list of registered events
     self.interactive_service_writer = None
@@ -48,6 +49,14 @@ class Nabd:
     self.running = True
     self.loop = None
     self._ears_moved_task = None
+    Nabd.leds_boot(self.nabio, 2)
+    if self.nabio.has_sound_input():
+      from .asr import ASR
+      self.asr = ASR('fr_FR')
+      Nabd.leds_boot(self.nabio, 3)
+      from .nlu import NLU
+      self.nlu = NLU('fr_FR')
+      Nabd.leds_boot(self.nabio, 4)
 
   async def idle_setup(self):
     self.nabio.set_leds(None, None, None, None, None)
@@ -59,6 +68,10 @@ class Nabd:
     await self.nabio.move_ears(Nabd.SLEEP_EAR_POSITION, Nabd.SLEEP_EAR_POSITION)
 
   async def idle_worker_loop(self):
+    """
+    Idle worker loop is responsible for playing enqueued messages and displaying
+    info items.
+    """
     try:
       async with self.idle_cv:
         while self.running:
@@ -67,17 +80,15 @@ class Nabd:
             item = self.idle_queue.popleft()
             await self.process_idle_item(item)
           else:
-            try:
-              if self.state == 'idle':
-                for key, value in self.info.items():
-                  await self.nabio.play_info(value['tempo'], value['colors'])
-                await asyncio.wait_for(self.idle_cv.wait(), Nabd.INFO_TIMEOUT)
-              else:
-                await self.idle_cv.wait()
-            except asyncio.TimeoutError:
-              pass
+            if self.state == 'idle' and len(self.info.items()) > 0:
+              for key, value in self.info.items():
+                await self.nabio.play_info(self.idle_cv, value['tempo'], value['colors'])
+            else:
+              await self.idle_cv.wait()
     except KeyboardInterrupt:
       pass
+    except Exception:
+      print(traceback.format_exc())
     finally:
       if self.running:
         self.loop.stop()
@@ -119,7 +130,7 @@ class Nabd:
             break
           else:
             item = self.idle_queue.popleft()
-        if item[0]['type'] == 'message':
+        elif item[0]['type'] == 'message':
           await self.set_state('playing')
           await self.perform_message(item[0])
           self.write_response_packet(item[0], {'status':'ok'}, item[1])
@@ -184,6 +195,7 @@ class Nabd:
       else:
         del self.info[packet['info_id']]
       self.write_response_packet(packet, {'status':'ok'}, writer)
+      # Signal idle loop to make sure we display updated info
       async with self.idle_cv:
         self.idle_cv.notify()
     else:
@@ -256,7 +268,7 @@ class Nabd:
       if 'events' in packet:
         self.service_writers[writer] = packet['events']
       else:
-        self.service_writers[writer] = []
+        self.service_writers[writer] = ['asr']
       if writer == self.interactive_service_writer:
         # exit interactive mode.
         await self.exit_interactive()
@@ -309,7 +321,7 @@ class Nabd:
   # Handle service through TCP/IP protocol
   async def service_loop(self, reader, writer):
     self.write_state_packet(writer)
-    self.service_writers[writer] = []
+    self.service_writers[writer] = ['asr']
     try:
       while not reader.at_eof():
         line = await reader.readline()
@@ -326,6 +338,8 @@ class Nabd:
         await writer.wait_closed()
     except ConnectionResetError:
       pass
+    except Exception:
+      print(traceback.format_exc())
     finally:
       if self.interactive_service_writer == writer:
         await self.exit_interactive()
@@ -341,10 +355,33 @@ class Nabd:
     await self.nabio.play_message(signature, packet['body'])
 
   def button_callback(self, button_event, event_time):
-    if button_event == 'long_down':
+    if button_event == 'hold' and self.state == 'idle':
+      asyncio.ensure_future(self.start_asr())
+    if button_event == 'up' and self.state == 'recording':
+      asyncio.ensure_future(self.stop_asr())
+    elif button_event == 'triple_click':
       asyncio.ensure_future(self._shutdown())
     else:
       self.broadcast_event('button', {'type':'button_event', 'event': button_event, 'time': event_time})
+
+  async def start_asr(self):
+    await self.set_state('recording')
+    await self.nabio.start_acquisition(self.asr.decode_chunk)
+
+  async def stop_asr(self):
+    await self.nabio.end_acquisition()
+    now = time.time()
+    decoded_str = await self.asr.get_decoded_string(True)
+    # ASR model needs to be improved, log outcome.
+    print("asr => %s" % decoded_str)
+    response = await self.nlu.interpret(decoded_str)
+#   print("nlu => %s" % str(response))
+    await self.set_state('idle')
+    if response == None:
+      # Did not understand
+      await self.nabio.asr_failed()
+    else:
+      self.broadcast_event('asr', {'type':'asr_event', 'nlu': response, 'time': now})
 
   async def _shutdown(self):
     await self.sleep_setup()
@@ -383,7 +420,7 @@ class Nabd:
     self.nabio.bind_ears_event(self.loop, self.ears_callback)
     setup_task = self.loop.create_task(self.idle_setup())
     idle_task = self.loop.create_task(self.idle_worker_loop())
-    server_task = self.loop.create_task(asyncio.start_server(self.service_loop, 'localhost', Nabd.PORT_NUMBER))
+    server_task = self.loop.create_task(asyncio.start_server(self.service_loop, 'localhost', NabService.PORT_NUMBER))
     try:
       self.loop.run_forever()
       for t in [setup_task, idle_task, server_task]:
@@ -393,6 +430,8 @@ class Nabd:
             raise t_ex
     except KeyboardInterrupt:
       pass
+    except Exception:
+      print(traceback.format_exc())
     finally:
       self.loop.run_until_complete(self.stop_idle_worker())
       for writer in self.service_writers.copy():
@@ -414,17 +453,26 @@ class Nabd:
       self.loop.call_soon_threadsafe(lambda : self.loop.stop())
 
   @staticmethod
+  def leds_boot(nabio, step):
+    """
+    Animation to indicate boot progress.
+    Useful as loading ASR/NLU model takes some time.
+    """
+    if step == 1:
+      nabio.set_leds((0, 255, 0), (255, 128, 0), (255, 128, 0), (255, 128, 0), (255, 128, 0))
+    if step == 2:
+      nabio.set_leds((0, 255, 0), (0, 255, 0), (255, 128, 0), (255, 128, 0), (255, 128, 0))
+    if step == 3:
+      nabio.set_leds((0, 255, 0), (0, 255, 0), (0, 255, 0), (255, 128, 0), (255, 128, 0))
+    if step == 4:
+      nabio.set_leds((0, 255, 0), (0, 255, 0), (0, 255, 0), (0, 255, 0), (255, 128, 0))
+
+  @staticmethod
   def main(argv):
     pidfilepath = "/var/run/nabd.pid"
-    if sys.platform == 'linux':
-      from .nabio_hw import NabIOHW
-      nabiocls = NabIOHW
-    else:
-      nabiocls = NabIOVirtual
     usage = 'nabd [options]\n' \
      + ' -h                   display this message\n' \
-     + ' --pidfile=<pidfile>  define pidfile (default = {pidfilepath})\n'.format(pidfilepath=pidfilepath) \
-     + ' --nabio=nabio_class  define nabio implementation (default = {module}.{name})'.format(module=nabiocls.__module__, name=nabiocls.__name__)
+     + ' --pidfile=<pidfile>  define pidfile (default = {pidfilepath})\n'.format(pidfilepath=pidfilepath)
     try:
       opts, args = getopt.getopt(argv,"h",["pidfile=","nabio="])
     except getopt.GetoptError:
@@ -436,12 +484,12 @@ class Nabd:
         exit(0)
       elif opt == '--pidfile':
         pidfilepath = arg
-      elif opt == '--nabio':
-        nabiocls = locate(arg)
     pidfile = PIDLockFile(pidfilepath, timeout=-1)
     try:
       with pidfile:
-        nabio = nabiocls()
+        from .nabio_hw import NabIOHW
+        nabio = NabIOHW()
+        Nabd.leds_boot(nabio, 1)
         nabd = Nabd(nabio)
         nabd.run()
     except AlreadyLocked:

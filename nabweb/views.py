@@ -11,7 +11,8 @@ class NabWebView(View):
   template_name = 'nabweb/index.html'
 
   def get_locales(self):
-    return [(to_locale(lang), name) for (lang, name) in settings.LANGUAGES]
+    config = Config.load()
+    return [(to_locale(lang), name, to_locale(lang) == config.locale) for (lang, name) in settings.LANGUAGES]
 
   def get(self, request, *args, **kwargs):
     user_locale = Config.load().locale
@@ -25,6 +26,9 @@ class NabWebView(View):
     config = Config.load()
     config.locale = request.POST['locale']
     config.save()
+    user_language = to_language(config.locale)
+    translation.activate(user_language)
+    self.request.session[translation.LANGUAGE_SESSION_KEY] = user_language
     locales = self.get_locales()
     return render(request, NabWebView.template_name, context={'current_locale': config.locale, 'locales': locales})
 

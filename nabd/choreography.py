@@ -181,7 +181,7 @@ class ChoreographyInterpreter:
     return index + 2
 
   async def randmidi(self, index, chor):
-    await self.sound.start(random.choice(ChoreographyInterpreter.MIDI_LIST))
+    await self.sound.start_playing(random.choice(ChoreographyInterpreter.MIDI_LIST))
     return index
 
   async def avance(self, index, chor):

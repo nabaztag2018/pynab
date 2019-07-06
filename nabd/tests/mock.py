@@ -6,6 +6,9 @@ from nabd.sound import Sound
 
 class NabIOMock(NabIO):
   def __init__(self):
+    self.leds = LedsMock()
+    self.ears = EarsMock()
+    self.sound = SoundMock()
     self.played_infos = []
     self.played_sequences = []
     self.called_list = []
@@ -51,13 +54,16 @@ class NabIOMock(NabIO):
   def bind_ears_event(self, loop, callback):
     self.ears_event_cb = {'callback': callback, 'loop': loop}
 
-  async def play_info(self, tempo, colors):
+  async def play_info(self, condvar, tempo, colors):
     self.played_infos.append({'tempo':tempo, 'colors': colors})
-    await asyncio.sleep(1)
+    try:
+      await asyncio.wait_for(condvar.wait(), NabIO.INFO_LOOP_LENGTH)
+    except asyncio.TimeoutError:
+      pass
 
   async def play_sequence(self, sequence):
     self.played_sequences.append(sequence)
-    await asyncio.sleep(10)
+    await asyncio.sleep(3)
 
   def cancel(self):
     pass
@@ -67,6 +73,9 @@ class NabIOMock(NabIO):
 
   def ears(self, left, right):
     self.ears_event_cb.loop.call_soon_threadsafe(self.ears_event_cb.callback, left, right)
+
+  def has_sound_input(self):
+    return False
 
 class EarsMock(Ears):
   def __init__(self):
@@ -119,11 +128,11 @@ class SoundMock(Sound):
   def __init__(self):
     self.called_list = []
 
-  async def start(self, filename):
+  async def start_playing(self, filename):
     self.called_list.append('start({filename})'.format(filename=filename))
 
   async def wait_until_done(self):
     self.called_list.append('wait_until_done()')
 
-  async def stop(self):
+  async def stop_playing(self):
     self.called_list.append('stop()')

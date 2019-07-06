@@ -1,0 +1,108 @@
+{% load i18n %}
+<div class="card" id="nabweatherd-settings">
+  <form action="/nabweatherd/settings">
+    {% csrf_token %}
+    <div class="card-header">
+      <h5 class="card-title">{% trans "Weather" %}</h5>
+    </div>
+    <div class="card-body">
+      <div class="form-group row">
+        <label for="weatherLocationInput" class="col-6 col-form-label">{% trans "Location" %}</label>
+        <div class="col-6">
+          <input id="weatherLocationInput" name="location" type="text" class="form-control" placeholder="{% trans "City, Zip code, Country" %}" value="{{ config.location }}" />
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="weatherUnitSel" class="col-6 col-form-label">{% trans "Unit" %}</label>
+        {{ user_language }}
+        <div class="col-6">
+            <select name="unit" id="weatherUnitSel">
+            <option value="1" {% if config.unit == 1 %}selected{% endif %}{% if not celsius_available %} disabled{% endif %}>{% trans "Celsius" %}</option>
+            <option value="2" {% if config.unit == 2 %}selected{% endif %}{% if not farenheit_available %} disabled{% endif %}>{% trans "Farenheit" %}</option>
+            <option value="-273" disabled>{% trans "Kelvin" %}</option>
+            </select>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="weatherUnitSel" class="col-6 col-form-label">{% trans "Forecast" %}</label>
+        <div class="col-6">
+          <button type="button" class="btn btn-primary now-button" data-forecast-day='today'>{% trans "Today" %}</button>
+          <button type="button" class="btn btn-primary now-button" data-forecast-day='tomorrow'>{% trans "Tomorrow" %}</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="row mb-2">
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary disabled ml-2 float-right save-button">{% trans "Save" %}</button>
+          <button type="reset" class="btn btn-outline-primary disabled ml-2 float-right reset-button">{% trans "Reset" %}</button>
+        </div>
+      </div>
+    </div>
+  </form>
+  <script type="text/javascript">
+  $(function() {
+    var form = $('#nabweatherd-settings form');
+    var saveBtn = form.find('button.save-button');
+    var resetBtn = form.find('button.reset-button');
+    var url = form.attr('action');
+    form.find('button.btn-toggle').on('click', function() {
+      saveBtn.removeClass('disabled');
+      resetBtn.removeClass('disabled');
+    });
+    form.find('.clockpicker').clockpicker();
+    form.find('input').on('change', function() {
+      saveBtn.removeClass('disabled');
+      resetBtn.removeClass('disabled');
+    });
+    form.find('select').on('change', function() {
+      saveBtn.removeClass('disabled');
+      resetBtn.removeClass('disabled');
+    });
+    form.on('submit', function() {
+      var formdata = form.serialize();
+      $.ajax({
+        url: url,
+        method: "POST",
+        data: formdata,
+        success: function (data) {
+          $("#nabweatherd-settings").replaceWith(data);
+        },
+        error: function (jqXHR, statusText, errorThrown) {
+          form.find("#weatherLocationInput").removeClass('is-invalid');
+          form.find(".invalid-feedback").remove();
+          if (jqXHR.status == 406 && jqXHR.responseJSON.status == 'unknownLocationError') {
+            form.find("#weatherLocationInput").addClass('is-invalid');
+            $('<div class="invalid-feedback">' + jqXHR.responseJSON.message + '</div>').insertAfter(form.find("#weatherLocationInput"));
+          } else {
+            $.bootstrapGrowl("{% trans "Unknown server error" %}", {type: 'danger', allow_dismiss: true});
+          }
+        }
+      });
+      return false;
+    });
+    resetBtn.on("click", function() {
+      $.get(url, function(data) {
+        $("#nabweatherd-settings").replaceWith(data);
+      });
+    });
+    form.find('button.now-button').on("click", function() {
+      var btn = $(this);
+      btn.addClass('disabled');
+      type = btn.data('forecast-day');
+      $.ajax({
+        url: url,
+        beforeSend: function (xhr, settings) {
+          xhr.setRequestHeader("X-CSRFToken", form.find('input[name="csrfmiddlewaretoken"]').val());
+        },
+        data: {"type": type},
+        method: "PUT",
+        success: function (data) {
+          btn.removeClass('disabled');
+        }
+      });
+      return false;
+    });
+  });
+  </script>
+</div>
