@@ -22,7 +22,7 @@ class TestPlaySound(unittest.TestCase):
         else:
           raise unittest.SkipTest("No compatible sound card found")
     except RuntimeError as error:
-      raise unittest.SkipTest("Runtime error getting sound card %s", error.message)
+      raise unittest.SkipTest("Runtime error getting sound card %s" % str(error))
     self.sound = SoundAlsa(model)
 
   def test_mp3(self):
@@ -69,7 +69,7 @@ class TestRecord(unittest.TestCase):
       if SoundAlsa.sound_card() != 'seeed2micvoicec':
         raise unittest.SkipTest("Test should be run on a 2019 card only")
     except RuntimeError as error:
-      raise unittest.SkipTest("Runtime error getting sound card %s", error.message)
+      raise unittest.SkipTest("Runtime error getting sound card %s" % str(error))
     self.sound = SoundAlsa(NabIO.MODEL_2019_TAGTAG)
     self.recorded_raw = open('test_recording.raw', 'wb')
 
