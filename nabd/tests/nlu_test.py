@@ -14,7 +14,7 @@ class TestNLU(unittest.TestCase):
   def test_en(self):
     nlu = NLU('en_US')
     result = self.interpret(nlu, "i'm trying to think but nothing happens")
-    if sys.version >= 3.7:
+    if sys.version >= '3.7':
       self.assertEqual(result['intent'], 'surprise')
     else:
       self.assertEqual(result, None)
