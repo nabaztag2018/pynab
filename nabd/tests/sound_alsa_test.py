@@ -13,10 +13,16 @@ class TestPlaySound(unittest.TestCase):
     from nabd.nabio import NabIO
     self.loop = asyncio.new_event_loop()
     asyncio.set_event_loop(self.loop)
-    if SoundAlsa.sound_card() == 'sndrpihifiberry':
-      model = NabIO.MODEL_2018
-    else:
-      model = NabIO.MODEL_2019_TAGTAG
+    try:
+      if SoundAlsa.sound_card() == 'sndrpihifiberry':
+        model = NabIO.MODEL_2018
+      else:
+        if SoundAlsa.sound_card() == 'seeed2micvoicec':
+          model = NabIO.MODEL_2019_TAGTAG
+        else:
+          raise unittest.SkipTest("No compatible sound card found")
+    except RuntimeError as error:
+      raise unittest.SkipTest("Runtime error getting sound card %s" % str(error))
     self.sound = SoundAlsa(model)
 
   def test_mp3(self):
@@ -59,8 +65,11 @@ class TestRecord(unittest.TestCase):
     from nabd.nabio import NabIO
     self.loop = asyncio.new_event_loop()
     asyncio.set_event_loop(self.loop)
-    if SoundAlsa.sound_card() != 'seeed2micvoicec':
-      raise unittest.SkipTest("This is a 2018 card, with no sound input")
+    try:
+      if SoundAlsa.sound_card() != 'seeed2micvoicec':
+        raise unittest.SkipTest("Test should be run on a 2019 card only")
+    except RuntimeError as error:
+      raise unittest.SkipTest("Runtime error getting sound card %s" % str(error))
     self.sound = SoundAlsa(NabIO.MODEL_2019_TAGTAG)
     self.recorded_raw = open('test_recording.raw', 'wb')
 

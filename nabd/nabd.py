@@ -2,7 +2,6 @@ import asyncio, json, datetime, collections, sys, getopt, os
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
 from pydoc import locate
-from .nabio_hw import NabIOHW
 from .leds import Leds
 from django.conf import settings
 from django.apps import apps
@@ -488,6 +487,7 @@ class Nabd:
     pidfile = PIDLockFile(pidfilepath, timeout=-1)
     try:
       with pidfile:
+        from .nabio_hw import NabIOHW
         nabio = NabIOHW()
         Nabd.leds_boot(nabio, 1)
         nabd = Nabd(nabio)
