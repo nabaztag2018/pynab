@@ -109,14 +109,14 @@ class SoundAlsa(Sound):
         if dev.setformat(alsaaudio.PCM_FORMAT_S16_LE) != alsaaudio.PCM_FORMAT_S16_LE:
           return False
         if record:
-          if dev.setchannels(1) != 1:
+          if dev.setchannels(1) not in (1, 2,):  # Paul, not sure why mine always returns 2
             return False
           if dev.setrate(16000) != 16000:
             return False
         else:
           if dev.setchannels(2) != 2:
             return False
-          if dev.setchannels(1) not in (1, 2,):
+          if dev.setchannels(1) not in (1, 2,):  # Paul, not sure why mine always returns 2
             return False
           if dev.setrate(44100) != 44100:
             return False
@@ -243,5 +243,5 @@ class SoundAlsa(Sound):
   __SND_CARD_IDX_BY_NAME = {}
   """ Mapping of sound card indexes as understood by pyalsaaudio by the sound card name"""
 
-  __SND_CARD_EXTRACTOR = re.compile("^[^:]+:CARD=([^,]+),DEV=\d+$")
+  __SND_CARD_EXTRACTOR = re.compile("^hw:CARD=([^,]+),DEV=\d+$")
   """ Compiled regex extracting the name of the card found in the first group """
