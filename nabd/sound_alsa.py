@@ -1,25 +1,38 @@
-import wave
-import functools
-from mpg123 import Mpg123
-import alsaaudio
 import asyncio
+import collections
 from concurrent.futures import ThreadPoolExecutor
-from .sound import Sound
-from .nabio import NabIO
+import functools
+import re
+import six
 import traceback
+import wave
+
+import alsaaudio
+from mpg123 import Mpg123
+
+from .nabio import NabIO
+from .sound import Sound
+
 
 class SoundAlsa(Sound):
+
   def __init__(self, hw_model):
+
     if hw_model == NabIO.MODEL_2018:
-      self.playback_device = SoundAlsa.select_device(False)
+      self.playback_device, self.snd_card_idx, = SoundAlsa.select_device(False)
       self.playback_mixer = None
       self.record_device = 'null'
       self.record_mixer = None
     if hw_model == NabIO.MODEL_2019_TAG or hw_model == NabIO.MODEL_2019_TAGTAG:
-      self.playback_device = SoundAlsa.select_device(False)
-      self.playback_mixer = alsaaudio.Mixer(control='Playback', device=self.playback_device)
-      self.record_device = SoundAlsa.select_device(True)
-      self.record_mixer = alsaaudio.Mixer(control='Capture', device=self.record_device)
+      self.playback_device, self.snd_card_idx, = SoundAlsa.select_device(False)
+      self.playback_mixer = alsaaudio.Mixer(control='Playback', cardindex=self.snd_card_idx, device=self.playback_device)
+      self.record_device, snd_card_idx, = SoundAlsa.select_device(True)
+
+      if snd_card_idx != -1:
+        assert self.snd_card_idx == snd_card_idx or snd_card_idx == -1
+        self.record_mixer = alsaaudio.Mixer(control='Capture', cardindex=self.snd_card_idx, device=self.record_device)
+      else:
+        self.record_mixer = None
     self.executor = ThreadPoolExecutor(max_workers=1)
     self.future = None
     self.currently_playing = False
@@ -41,54 +54,80 @@ class SoundAlsa(Sound):
     Automatically select a suitable ALSA device by trying to configure them.
     """
     if record:
-      list = alsaaudio.pcms(alsaaudio.PCM_CAPTURE)
+      pcms_list = alsaaudio.pcms(alsaaudio.PCM_CAPTURE)
     else:
-      list = alsaaudio.pcms()
-    for device in list:
-      if device != 'null' and device != 'jack' and device != 'pulse':
-        if SoundAlsa.test_device(device, record):
-          return device
+      pcms_list = alsaaudio.pcms()
+
+    if not SoundAlsa.__SND_CARD_IDX_BY_NAME:
+      matchers = tuple(filter(None, map(SoundAlsa.__SND_CARD_EXTRACTOR.match, alsaaudio.pcms())))
+      snd_card_idx_by_name = collections.OrderedDict((m[1], None,) for m in matchers)
+      SoundAlsa.__SND_CARD_IDX_BY_NAME = {name:idx for idx, name, in  enumerate(six.iterkeys(snd_card_idx_by_name))}
+
+    matchers = tuple(filter(None, map(SoundAlsa.__SND_CARD_EXTRACTOR.match, pcms_list)))
+
+    for matcher in matchers:
+      device, snd_card_idx, = matcher[0], SoundAlsa.__SND_CARD_IDX_BY_NAME[matcher[1]]
+      if SoundAlsa.test_device(device, snd_card_idx, record):
+        return (device, snd_card_idx,)
     if record:
       print('No suitable ALSA device (v1 card?)')
     else:
       print('No suitable ALSA device!')
-    return 'null'
+    return ('null', -1,)
 
   @staticmethod
-  def test_device(device, record):
+  def test_device(device, snd_card_idx, record):
     """
-    Test an ALSA device, making sure it handles both stereo and mono and
-    both 44.1KHz and 22.05KHz. On a typical RPI configuration, default with
-    hifiberry card is not configured to do software-mono, so we'll use
-    'sysdefault:CARD=sndrpihifiberry' instead.
+      Test an ALSA device, making sure it handles both stereo and mono and
+      both 44.1KHz and 22.05KHz. On a typical RPI configuration, default with
+      hifiberry card is not configured to do software-mono, so we'll use
+      'sysdefault:CARD=sndrpihifiberry' instead.
+
+      @param device: name of the sound device
+      @type device: six.text_type
+      @param snd_card_idx: index of the sound card
+      @type snd_card_idx: int
+      @param record: C{True} if this method is looking for recording device. C{False} if the device should
+      only playback.
+      @type record: bool
     """
     try:
       dev = None
-      if record:
-        dev = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, device=device)
+
+      if record is False:
+        _ = alsaaudio.Mixer(control='Playback', cardindex=snd_card_idx, device=device)
       else:
-        dev = alsaaudio.PCM(device=device)
-      if dev.setformat(alsaaudio.PCM_FORMAT_S16_LE) != alsaaudio.PCM_FORMAT_S16_LE:
-        return False
+        assert record is True
+        _ = alsaaudio.Mixer(control='Capture', cardindex=snd_card_idx, device=device)
+
       if record:
-        if dev.setchannels(1) != 1:
-          return False
-        if dev.setrate(16000) != 16000:
-          return False
+        dev = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, cardindex=snd_card_idx, device=device)
       else:
-        if dev.setchannels(2) != 2:
+        dev = alsaaudio.PCM(device=device, cardindex=snd_card_idx,)
+
+      try:
+        if dev.setformat(alsaaudio.PCM_FORMAT_S16_LE) != alsaaudio.PCM_FORMAT_S16_LE:
           return False
-        if dev.setchannels(1) != 1:
-          return False
-        if dev.setrate(44100) != 44100:
-          return False
-        if dev.setrate(22050) != 22050:
-          return False
+        if record:
+          if dev.setchannels(1) != 1:
+            return False
+          if dev.setrate(16000) != 16000:
+            return False
+        else:
+          if dev.setchannels(2) != 2:
+            return False
+          if dev.setchannels(1) not in (1, 2,):
+            return False
+          if dev.setrate(44100) != 44100:
+            return False
+          if dev.setrate(22050) != 22050:
+            return False
+      finally:
+        dev.close()
+
     except alsaaudio.ALSAAudioError:
       return False
-    finally:
-      if dev:
-        dev.close()
+
     return True
 
   async def start_playing_preloaded(self, filename):
@@ -98,14 +137,14 @@ class SoundAlsa(Sound):
 
   def _play(self, filename):
     try:
-      device = alsaaudio.PCM(device=self.playback_device)
+      device = alsaaudio.PCM(device=self.playback_device, cardindex=self.snd_card_idx)
       if filename.endswith('.wav'):
         with wave.open(filename, 'rb') as f:
           channels = f.getnchannels()
           width = f.getsampwidth()
           rate = f.getframerate()
           self._setup_device(device, channels, rate, width)
-          periodsize = int(rate / 10) # 1/10th of second
+          periodsize = int(rate / 10)  # 1/10th of second
           device.setperiodsize(periodsize)
           data = f.readframes(periodsize)
           chunksize = periodsize * channels * width
@@ -119,7 +158,7 @@ class SoundAlsa(Sound):
         rate, channels, encoding = mp3.get_format()
         width = mp3.get_width_by_encoding(encoding)
         self._setup_device(device, channels, rate, width)
-        periodsize = int(rate / 10) # 1/10th of second
+        periodsize = int(rate / 10)  # 1/10th of second
         device.setperiodsize(periodsize)
         target_chunk_size = periodsize * width * channels
         chunk = bytearray(0)
@@ -177,11 +216,11 @@ class SoundAlsa(Sound):
   def _record(self, cb):
     inp = None
     try:
-      inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, device='default')
+      inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, device='default', cardindex=self.snd_card_idx)
       ch = inp.setchannels(1)
       rate = inp.setrate(16000)
       format = inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
-      inp.setperiodsize(1600)   # 100ms
+      inp.setperiodsize(1600)  # 100ms
       finalize = False
       while not finalize:
         l, data = inp.read()
@@ -200,3 +239,9 @@ class SoundAlsa(Sound):
     if self.currently_recording:
       self.currently_recording = False
     await self.wait_until_done()
+
+  __SND_CARD_IDX_BY_NAME = {}
+  """ Mapping of sound card indexes as understood by pyalsaaudio by the sound card name"""
+
+  __SND_CARD_EXTRACTOR = re.compile("^[^:]+:CARD=([^,]+),DEV=\d+$")
+  """ Compiled regex extracting the name of the card found in the first group """
