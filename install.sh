@@ -99,12 +99,12 @@ venv/bin/pip install -r requirements.txt
 
 if [ $makerfaire2018 -eq 0 ]; then
   # maker faire card has no mic, no need to install snips
-  if [ ! -d "venv/lib/python3.5/site-packages/snips_nlu_fr" ]; then
+  if [ ! -d "venv/lib/python3.7/site-packages/snips_nlu_fr" ]; then
     echo "Downloading snips_nlu models for French"
     venv/bin/python -m snips_nlu download fr
   fi
 
-  if [ ! -d "venv/lib/python3.5/site-packages/snips_nlu_en" ]; then
+  if [ ! -d "venv/lib/python3.7/site-packages/snips_nlu_en" ]; then
     echo "Downloading snips_nlu models for English"
     venv/bin/python -m snips_nlu download en
   fi

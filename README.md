@@ -39,7 +39,7 @@ http://wiki.seeedstudio.com/ReSpeaker_2_Mics_Pi_HAT/
 2. Installer PostgreSQL et les paquets requis
 
 ```
-sudo apt-get install postgresql libpq-dev git python3 python3-venv gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3
+sudo apt-get install postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3
 ```
 
 3. Récupérer le code
