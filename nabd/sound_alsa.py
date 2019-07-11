@@ -1,9 +1,5 @@
 import asyncio
-import collections
 from concurrent.futures import ThreadPoolExecutor
-import functools
-import re
-import six
 import traceback
 import wave
 
@@ -15,24 +11,26 @@ from .sound import Sound
 
 
 class SoundAlsa(Sound):
+  MODEL_2018_CARD_NAME = 'sndrpihifiberry'
+  MODEL_2019_CARD_NAME = 'seeed2micvoicec'
 
   def __init__(self, hw_model):
 
     if hw_model == NabIO.MODEL_2018:
-      self.playback_device, self.snd_card_idx, = SoundAlsa.select_device(False)
+      self.playback_device = 'plughw:CARD=' + SoundAlsa.MODEL_2018_CARD_NAME
       self.playback_mixer = None
       self.record_device = 'null'
       self.record_mixer = None
     if hw_model == NabIO.MODEL_2019_TAG or hw_model == NabIO.MODEL_2019_TAGTAG:
-      self.playback_device, self.snd_card_idx, = SoundAlsa.select_device(False)
-      self.playback_mixer = alsaaudio.Mixer(control='Playback', cardindex=self.snd_card_idx, device=self.playback_device)
-      self.record_device, snd_card_idx, = SoundAlsa.select_device(True)
-
-      if snd_card_idx != -1:
-        assert self.snd_card_idx == snd_card_idx or snd_card_idx == -1
-        self.record_mixer = alsaaudio.Mixer(control='Capture', cardindex=self.snd_card_idx, device=self.record_device)
-      else:
-        self.record_mixer = None
+      card_index = alsaaudio.cards().index(SoundAlsa.MODEL_2019_CARD_NAME)
+      self.playback_device = 'plughw:CARD=' + SoundAlsa.MODEL_2019_CARD_NAME
+      self.playback_mixer = alsaaudio.Mixer(control='Playback', cardindex=card_index)
+      self.record_device = self.playback_device
+      self.record_mixer = alsaaudio.Mixer(control='Capture', cardindex=card_index)
+    if not SoundAlsa.test_device(self.playback_device, False):
+      raise RuntimeError('Unable to configure sound card for playback')
+    if self.record_device != 'null' and not SoundAlsa.test_device(self.record_device, True):
+      raise RuntimeError('Unable to configure sound card for recording')
     self.executor = ThreadPoolExecutor(max_workers=1)
     self.future = None
     self.currently_playing = False
@@ -40,94 +38,55 @@ class SoundAlsa(Sound):
 
   @staticmethod
   def sound_card():
-    it = filter(functools.partial(str.__eq__, "seeed2micvoicec"), alsaaudio.cards())
-    sound_card = next(it, None)
-    if sound_card is None:
-      raise RuntimeError('No sound card found by ALSA (are drivers missing?)')
-    if next(it, None) is not None:
-      raise RuntimeError('More than one sound card was found')
-    return sound_card
+    for sound_card in alsaaudio.cards():
+    for sound_card in alsaaudio.cards():
+      if sound_card in [SoundAlsa.MODEL_2018_CARD_NAME, SoundAlsa.MODEL_2019_CARD_NAME]:
+        return sound_card
+    raise RuntimeError('Sound card not found by ALSA (are drivers missing?)')
 
   @staticmethod
-  def select_device(record):
+  def test_device(device, record):
     """
-    Automatically select a suitable ALSA device by trying to configure them.
-    """
-    if record:
-      pcms_list = alsaaudio.pcms(alsaaudio.PCM_CAPTURE)
-    else:
-      pcms_list = alsaaudio.pcms()
-
-    if not SoundAlsa.__SND_CARD_IDX_BY_NAME:
-      matchers = tuple(filter(None, map(SoundAlsa.__SND_CARD_EXTRACTOR.match, alsaaudio.pcms())))
-      snd_card_idx_by_name = collections.OrderedDict((m[1], None,) for m in matchers)
-      SoundAlsa.__SND_CARD_IDX_BY_NAME = {name:idx for idx, name, in  enumerate(six.iterkeys(snd_card_idx_by_name))}
-
-    matchers = tuple(filter(None, map(SoundAlsa.__SND_CARD_EXTRACTOR.match, pcms_list)))
-
-    for matcher in matchers:
-      device, snd_card_idx, = matcher[0], SoundAlsa.__SND_CARD_IDX_BY_NAME[matcher[1]]
-      if SoundAlsa.test_device(device, snd_card_idx, record):
-        return (device, snd_card_idx,)
-    if record:
-      print('No suitable ALSA device (v1 card?)')
-    else:
-      print('No suitable ALSA device!')
-    return ('null', -1,)
-
-  @staticmethod
-  def test_device(device, snd_card_idx, record):
-    """
-      Test an ALSA device, making sure it handles both stereo and mono and
-      both 44.1KHz and 22.05KHz. On a typical RPI configuration, default with
-      hifiberry card is not configured to do software-mono, so we'll use
-      'sysdefault:CARD=sndrpihifiberry' instead.
+      Test selected ALSA device, making sure it handles both stereo and mono and
+      both 44.1KHz and 22.05KHz on output, mono and 16 kHz on input.
+      On a typical RPI configuration, default with hifiberry card is not
+      configured to do software-mono, so we'll use plughw:CARD=sndrpihifiberry instead.
+      Likewise, on 2019 cards, hw:CARD=seeed2micvoicec is not able to run mono
+      sound.
 
       @param device: name of the sound device
       @type device: six.text_type
-      @param snd_card_idx: index of the sound card
-      @type snd_card_idx: int
       @param record: C{True} if this method is looking for recording device. C{False} if the device should
       only playback.
       @type record: bool
     """
     try:
       dev = None
-
-      if record is False:
-        _ = alsaaudio.Mixer(control='Playback', cardindex=snd_card_idx, device=device)
-      else:
-        assert record is True
-        _ = alsaaudio.Mixer(control='Capture', cardindex=snd_card_idx, device=device)
-
       if record:
-        dev = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, cardindex=snd_card_idx, device=device)
+        dev = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, device=device)
       else:
-        dev = alsaaudio.PCM(device=device, cardindex=snd_card_idx,)
-
-      try:
-        if dev.setformat(alsaaudio.PCM_FORMAT_S16_LE) != alsaaudio.PCM_FORMAT_S16_LE:
+        dev = alsaaudio.PCM(device=device)
+      if dev.setformat(alsaaudio.PCM_FORMAT_S16_LE) != alsaaudio.PCM_FORMAT_S16_LE:
+        return False
+      if record:
+        if dev.setchannels(1) != 1:
           return False
-        if record:
-          if dev.setchannels(1) not in (1, 2,):  # Paul, not sure why mine always returns 2
-            return False
-          if dev.setrate(16000) != 16000:
-            return False
-        else:
-          if dev.setchannels(2) != 2:
-            return False
-          if dev.setchannels(1) not in (1, 2,):  # Paul, not sure why mine always returns 2
-            return False
-          if dev.setrate(44100) != 44100:
-            return False
-          if dev.setrate(22050) != 22050:
-            return False
-      finally:
-        dev.close()
-
+        if dev.setrate(16000) != 16000:
+          return False
+      else:
+        if dev.setchannels(2) != 2:
+          return False
+        if dev.setchannels(1) != 1:
+          return False
+        if dev.setrate(44100) != 44100:
+          return False
+        if dev.setrate(22050) != 22050:
+          return False
     except alsaaudio.ALSAAudioError:
       return False
-
+    finally:
+      if dev:
+        dev.close()
     return True
 
   async def start_playing_preloaded(self, filename):
@@ -137,14 +96,14 @@ class SoundAlsa(Sound):
 
   def _play(self, filename):
     try:
-      device = alsaaudio.PCM(device=self.playback_device, cardindex=self.snd_card_idx)
+      device = alsaaudio.PCM(device=self.playback_device)
       if filename.endswith('.wav'):
         with wave.open(filename, 'rb') as f:
           channels = f.getnchannels()
           width = f.getsampwidth()
           rate = f.getframerate()
           self._setup_device(device, channels, rate, width)
-          periodsize = int(rate / 10)  # 1/10th of second
+          periodsize = int(rate / 10) # 1/10th of second
           device.setperiodsize(periodsize)
           data = f.readframes(periodsize)
           chunksize = periodsize * channels * width
@@ -158,7 +117,7 @@ class SoundAlsa(Sound):
         rate, channels, encoding = mp3.get_format()
         width = mp3.get_width_by_encoding(encoding)
         self._setup_device(device, channels, rate, width)
-        periodsize = int(rate / 10)  # 1/10th of second
+        periodsize = int(rate / 10) # 1/10th of second
         device.setperiodsize(periodsize)
         target_chunk_size = periodsize * width * channels
         chunk = bytearray(0)
@@ -204,7 +163,7 @@ class SoundAlsa(Sound):
     await self.wait_until_done()
 
   async def wait_until_done(self):
-    if self.future:
+    if self.future: 
       await self.future
     self.future = None
 
@@ -216,11 +175,11 @@ class SoundAlsa(Sound):
   def _record(self, cb):
     inp = None
     try:
-      inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, device='default', cardindex=self.snd_card_idx)
+      inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, device='default')
       ch = inp.setchannels(1)
       rate = inp.setrate(16000)
       format = inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
-      inp.setperiodsize(1600)  # 100ms
+      inp.setperiodsize(1600)   # 100ms
       finalize = False
       while not finalize:
         l, data = inp.read()
@@ -239,9 +198,3 @@ class SoundAlsa(Sound):
     if self.currently_recording:
       self.currently_recording = False
     await self.wait_until_done()
-
-  __SND_CARD_IDX_BY_NAME = {}
-  """ Mapping of sound card indexes as understood by pyalsaaudio by the sound card name"""
-
-  __SND_CARD_EXTRACTOR = re.compile("^hw:CARD=([^,]+),DEV=\d+$")
-  """ Compiled regex extracting the name of the card found in the first group """

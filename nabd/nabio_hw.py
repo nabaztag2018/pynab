@@ -105,8 +105,8 @@ class NabIOHW(NabIO):
   @staticmethod
   def detect_model():
     sound_card = SoundAlsa.sound_card()
-    if sound_card == 'seeed2micvoicec':
+    if sound_card == SoundAlsa.MODEL_2019_CARD_NAME:
       return NabIO.MODEL_2019_TAGTAG
-    if sound_card == 'sndrpihifiberry':
+    if sound_card == SoundAlsa.MODEL_2018_CARD_NAME:
       return NabIO.MODEL_2018
     raise RuntimeError('Unknown sound card %s' % sound_card)
