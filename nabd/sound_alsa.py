@@ -17,13 +17,13 @@ class SoundAlsa(Sound):
   def __init__(self, hw_model):
 
     if hw_model == NabIO.MODEL_2018:
-      self.playback_device = 'plughw:CARD=' + SoundAlsa.MODEL_2018_CARD_NAME
+      self.playback_device = f'plughw:CARD={SoundAlsa.MODEL_2018_CARD_NAME}'
       self.playback_mixer = None
       self.record_device = 'null'
       self.record_mixer = None
     if hw_model == NabIO.MODEL_2019_TAG or hw_model == NabIO.MODEL_2019_TAGTAG:
       card_index = alsaaudio.cards().index(SoundAlsa.MODEL_2019_CARD_NAME)
-      self.playback_device = 'plughw:CARD=' + SoundAlsa.MODEL_2019_CARD_NAME
+      self.playback_device = f'plughw:CARD={SoundAlsa.MODEL_2019_CARD_NAME}'
       self.playback_mixer = alsaaudio.Mixer(control='Playback', cardindex=card_index)
       self.record_device = self.playback_device
       self.record_mixer = alsaaudio.Mixer(control='Capture', cardindex=card_index)
@@ -38,7 +38,6 @@ class SoundAlsa(Sound):
 
   @staticmethod
   def sound_card():
-    for sound_card in alsaaudio.cards():
     for sound_card in alsaaudio.cards():
       if sound_card in [SoundAlsa.MODEL_2018_CARD_NAME, SoundAlsa.MODEL_2019_CARD_NAME]:
         return sound_card
@@ -103,7 +102,7 @@ class SoundAlsa(Sound):
           width = f.getsampwidth()
           rate = f.getframerate()
           self._setup_device(device, channels, rate, width)
-          periodsize = int(rate / 10) # 1/10th of second
+          periodsize = rate // 10  # 1/10th of second
           device.setperiodsize(periodsize)
           data = f.readframes(periodsize)
           chunksize = periodsize * channels * width
@@ -117,16 +116,16 @@ class SoundAlsa(Sound):
         rate, channels, encoding = mp3.get_format()
         width = mp3.get_width_by_encoding(encoding)
         self._setup_device(device, channels, rate, width)
-        periodsize = int(rate / 10) # 1/10th of second
+        periodsize = rate // 10  # 1/10th of second
         device.setperiodsize(periodsize)
         target_chunk_size = periodsize * width * channels
         chunk = bytearray(0)
         for frames in mp3.iter_frames():
           if len(chunk) + len(frames) < target_chunk_size:
-            chunk = chunk + frames
+            chunk += frames
           else:
             remaining = target_chunk_size - len(chunk)
-            chunk = chunk + frames[:remaining]
+            chunk += frames[:remaining]
             device.write(chunk)
             chunk = frames[remaining:]
           if not self.currently_playing:
@@ -163,7 +162,7 @@ class SoundAlsa(Sound):
     await self.wait_until_done()
 
   async def wait_until_done(self):
-    if self.future: 
+    if self.future:
       await self.future
     self.future = None
 
@@ -179,7 +178,7 @@ class SoundAlsa(Sound):
       ch = inp.setchannels(1)
       rate = inp.setrate(16000)
       format = inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
-      inp.setperiodsize(1600)   # 100ms
+      inp.setperiodsize(1600)  # 100ms
       finalize = False
       while not finalize:
         l, data = inp.read()
