@@ -1,4 +1,4 @@
-import asyncio, json, datetime, collections, sys, getopt, os
+import asyncio, json, datetime, collections, sys, getopt, os, socket
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
 from pydoc import locate
@@ -14,6 +14,8 @@ class Nabd:
   SLEEP_EAR_POSITION = 8
   INIT_EAR_POSITION = 0
   EAR_MOVEMENT_TIMEOUT = 0.5
+
+  SYSTEMD_ACTIVATED_FD = 3
 
   def __init__(self, nabio):
     if not settings.configured:
@@ -420,7 +422,10 @@ class Nabd:
     self.nabio.bind_ears_event(self.loop, self.ears_callback)
     setup_task = self.loop.create_task(self.idle_setup())
     idle_task = self.loop.create_task(self.idle_worker_loop())
-    server_task = self.loop.create_task(asyncio.start_server(self.service_loop, 'localhost', NabService.PORT_NUMBER))
+    if os.environ.get('LISTEN_PID', None) == str(os.getpid()):
+      server_task = self.loop.create_task(asyncio.start_server(self.service_loop, sock=socket.fromfd(Nabd.SYSTEMD_ACTIVATED_FD, socket.AF_INET, socket.SOCK_STREAM)))
+    else:
+      server_task = self.loop.create_task(asyncio.start_server(self.service_loop, 'localhost', NabService.PORT_NUMBER))
     try:
       self.loop.run_forever()
       for t in [setup_task, idle_task, server_task]:

@@ -183,7 +183,7 @@ if [ $travis_chroot -eq 1 ]; then
 fi
 
 # copy service files
-for service_file in */*.service ; do
+for service_file in nabd/nabd.socket */*.service ; do
   name=`basename ${service_file}`
   sudo sed -e "s|/home/pi/pynab|${root_dir}|g" < ${service_file} > /tmp/${name}
   sudo mv /tmp/${name} /lib/systemd/system/${name}
@@ -192,7 +192,8 @@ for service_file in */*.service ; do
 done
 
 if [ $travis_chroot -eq 0 ]; then
-  sudo systemctl start nabd
+  sudo systemctl start nabd.socket
+  sudo systemctl start nabd.service
 
   # start services
   for service_file in */*.service ; do
