@@ -99,6 +99,9 @@ class SoundAlsa(Sound):
           chunksize = periodsize * channels * width
           while data and self.currently_playing:
             if len(data) < chunksize:
+              # This (probably) is last iteration.
+              # ALSA device expects chunks of fixed period size
+              # Pad the sound with silence to complete chunk
               data = data + bytearray(chunksize - len(data))
             device.write(data)
             data = f.readframes(periodsize)
@@ -111,16 +114,19 @@ class SoundAlsa(Sound):
         device.setperiodsize(periodsize)
         target_chunk_size = periodsize * width * channels
         chunk = bytearray(0)
-        for frames in mp3.iter_frames():
-          if len(chunk) + len(frames) < target_chunk_size:
-            chunk = chunk + frames
+        for frame in mp3.iter_frames():
+          if len(chunk) + len(frame) < target_chunk_size:
+            # Chunk is still smaller than what ALSA device expects (0.1 sec)
+            chunk = chunk + frame
           else:
             remaining = target_chunk_size - len(chunk)
-            chunk = chunk + frames[:remaining]
+            chunk = chunk + frame[:remaining]
             device.write(chunk)
-            chunk = frames[remaining:]
+            chunk = frame[remaining:]
           if not self.currently_playing:
             break
+        # ALSA device expects chunks of fixed period size
+        # Pad the sound with silence to complete last chunk
         if len(chunk) > 0:
           remaining = target_chunk_size - len(chunk)
           chunk = chunk + bytearray(remaining)
