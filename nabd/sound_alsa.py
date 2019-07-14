@@ -85,13 +85,22 @@ class SoundAlsa(Sound):
           self._setup_device(device, channels, rate, width)
           periodsize = rate // 10 # 1/10th of second
           device.setperiodsize(periodsize)
+          target_chunk_size = periodsize * channels * width
+
+          chunk = io.BytesIO()
+          chunk_length = 0 # tracking chunk length is technically useless here but we do it for consistency
           data = f.readframes(periodsize)
-          chunksize = periodsize * channels * width
           while data and self.currently_playing:
-            if len(data) < chunksize:
-              data = data + bytearray(chunksize - len(data))
-            device.write(data)
+            chunk_length += chunk.write(data)
+
+            if chunk_length < target_chunk_size : # pad with nothing
+              chunk_length += chunk.write(bytearray(target_chunk_size - chunk_length))
+
+            device.write(chunk.getvalue())
+            chunk.seek(0)
+            chunk_length = 0
             data = f.readframes(periodsize)
+
       elif filename.endswith('.mp3'):
         mp3 = Mpg123(filename)
         rate, channels, encoding = mp3.get_format()
@@ -103,7 +112,7 @@ class SoundAlsa(Sound):
         chunk = io.BytesIO()
         chunk_length = 0
         for frames in mp3.iter_frames():
-          if chunk_length + len(frames) < target_chunk_size:
+          if (chunk_length + len(frames)) <= target_chunk_size:
             chunk_length += chunk.write(frames)
           else:
             frames_view = memoryview(frames)
