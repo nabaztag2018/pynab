@@ -95,6 +95,8 @@ if [ ! -d "venv" ]; then
 fi
 
 echo "Installing PyPi requirements"
+# Start with wheel which is required to compile some of the other requirements
+venv/bin/pip install wheel
 venv/bin/pip install -r requirements.txt
 
 if [ $makerfaire2018 -eq 0 ]; then
