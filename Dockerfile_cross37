@@ -1,0 +1,97 @@
+from balenalib/raspberry-pi-python:3.7-buster
+
+ENV PYTHONUNBUFFERED 1
+
+#Setup user
+ARG USER_NAME=pynab
+
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+RUN groupadd -g ${GROUP_ID} ${USER_NAME}
+RUN useradd -u ${USER_ID} -m ${USER_NAME} -g ${USER_NAME} -G dialout -s /bin/bash
+
+# Install project location
+RUN mkdir /home/${USER_NAME}/project
+
+WORKDIR /home/${USER_NAME}/project
+
+RUN [ "cross-build-start" ]
+
+RUN apt-get update && apt-get -y upgrade && \
+  apt-get install -y --no-install-recommends wget build-essential libpq-dev git python3.7 \
+  python3.7-venv python3.7-dev gettext openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3 \
+  #libblas3 liblapack3
+  liblapack-dev libblas-dev
+
+ADD pip.conf /etc/pip.conf
+
+WORKDIR /home/${USER_NAME}
+
+ENV VIRTUAL_ENV=/home/${USER_NAME}/venv
+
+RUN python3.7 -m venv $VIRTUAL_ENV
+
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN python3.7 -m pip install pip --upgrade
+
+# setup the project in the user's directory
+
+WORKDIR /home/${USER_NAME}/project
+
+ARG PROJECT_BASE
+
+## Install app
+
+# required for proper pip install docker caching
+ADD requirements.txt /home/${USER_NAME}/project
+
+RUN python3.7 -m pip install --no-cache-dir -r /home/${USER_NAME}/project/requirements.txt
+
+RUN [ "cross-build-end" ]
+
+## Install Kaldi
+
+RUN mkdir -p "/opt/kaldi/model"
+
+RUN wget -O - -q https://github.com/pguyot/kaldi/releases/download/v5.4.1/kaldi-c3260f2-linux_armv6l-vfp.tar.xz | sudo tar xJ -C /
+
+RUN wget -O - -q https://goofy.zamia.org/zamia-speech/asr-models/kaldi-generic-en-tdnn_250-r20190609.tar.xz | sudo tar xJ -C /opt/kaldi/model/
+
+RUN wget -O - -q https://github.com/pguyot/zamia-speech/releases/download/20190518/kaldi-nabaztag-fr-r20190518.tar.xz | sudo tar xJ -C /opt/kaldi/model
+
+
+RUN python3.7 -m snips_nlu download fr && \
+  python3.7 -m snips_nlu download en
+
+RUN apt-get install -y --no-install-recommends postgresql nginx
+
+COPY ${PROJECT_BASE}/.  /home/${USER_NAME}/project
+
+
+RUN cp nabweb/nginx-site.conf /etc/nginx/sites-enabled/pynab && \
+    systemctl restart nginx
+
+RUN psql -U postgres -c "CREATE USER pynab" && \
+    psql -U postgres -c "CREATE DATABASE pynab OWNER=pynab" && \
+    psql -U postgres -c "ALTER ROLE pynab CREATEDB"
+
+# Set permissions
+RUN chown -R ${USER_ID}:${GROUP_ID} /home/${USER_NAME}
+RUN chmod -R ug+rw /home/${USER_NAME}
+
+RUN mkdir -p nabd/nlu
+
+RUN python3.7 -m snips_nlu generate-dataset fr */nlu/intent_fr.yaml > nabd/nlu/nlu_dataset_fr.json && \
+    snips-nlu train nabd/nlu/nlu_dataset_fr.json nabd/nlu/engine_fr && \
+    python3.7 -m snips_nlu generate-dataset en */nlu/intent_en.yaml > nabd/nlu/nlu_dataset_en.json && \
+    snips-nlu train nabd/nlu/nlu_dataset_en.json nabd/nlu/engine_en
+
+## drop to USER
+
+USER ${USER_NAME}
+
+# promoting variable
+ENV USER_NAME ${USER_NAME}
+
+RUN python3 manage.py migrate
