@@ -128,7 +128,7 @@ class SoundAlsa(Sound):
     device.setchannels(channels)
     device.setrate(rate)
 
-    device.setformat[SoundAlsa.__PCM_FORMAT_BY_WIDTH[width]]
+    device.setformat(SoundAlsa.__PCM_FORMAT_BY_WIDTH[width])
 
   async def stop_playing(self):
     if self.currently_playing:
