@@ -44,8 +44,8 @@ class SoundAlsa(Sound):
     self.currently_playing = False
     self.currently_recording = False
 
-  @functools.lru_cache()
   @staticmethod
+  @functools.lru_cache()
   def sound_configuration():
     """
       Returns the (as a triplet) the card's index (zero based), raw card name and the device (playback or recording)
