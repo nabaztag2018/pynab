@@ -34,7 +34,7 @@ elif [ "${1:-}" == "upgrade" ]; then
   fi
 fi
 
-if [ $travis_chroot -eq 0 -a "`uname -s -m`" != 'Linux armv6l' ]; then
+if [ "`uname -s -m`" != 'Linux armv6l' ]; then
   echo "Installation only planned on Raspberry Pi Zero, will cowardly exit"
   exit 1
 fi
@@ -95,15 +95,7 @@ if [ ! -d "venv" ]; then
 fi
 
 echo "Installing PyPi requirements"
-if [ $travis_chroot -eq 1 ]; then
-  # Travis code is run with qemu which is configured for emulating an armv7l
-  # But we really want armv6l precompiled binaries in requirements.txt
-  sed -i.travis.bak -e "s|'armv6l'|'armv7l'|g" requirements.txt
-  venv/bin/pip install -r requirements.txt
-  mv requirements.txt.travis.bak requirements.txt
-else
-  venv/bin/pip install -r requirements.txt
-fi
+venv/bin/pip install -r requirements.txt
 
 if [ $makerfaire2018 -eq 0 ]; then
   # maker faire card has no mic, no need to install snips
