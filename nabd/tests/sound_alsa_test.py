@@ -1,23 +1,26 @@
-import unittest
 import asyncio
 import sys
-import pytest
 import time
+import unittest
 import wave
+
+import pytest
+
 
 @pytest.mark.skipif(sys.platform != 'linux', reason="Alsa is only available on Linux")
 @pytest.mark.django_db
 class TestPlaySound(unittest.TestCase):
+
   def setUp(self):
     from nabd.sound_alsa import SoundAlsa
     from nabd.nabio import NabIO
     self.loop = asyncio.new_event_loop()
     asyncio.set_event_loop(self.loop)
     try:
-      if SoundAlsa.sound_card() == 'sndrpihifiberry':
+      if SoundAlsa.sound_configuration()[1] == 'sndrpihifiberry':
         model = NabIO.MODEL_2018
       else:
-        if SoundAlsa.sound_card() == 'seeed2micvoicec':
+        if SoundAlsa.sound_configuration()[1] == 'seeed2micvoicec':
           model = NabIO.MODEL_2019_TAGTAG
         else:
           raise unittest.SkipTest("No compatible sound card found")
@@ -57,16 +60,18 @@ class TestPlaySound(unittest.TestCase):
     wait_task = self.loop.create_task(self.sound.wait_until_done())
     self.loop.run_until_complete(wait_task)
 
+
 @pytest.mark.skipif(sys.platform != 'linux', reason="Alsa is only available on Linux")
 @pytest.mark.django_db
 class TestRecord(unittest.TestCase):
+
   def setUp(self):
     from nabd.sound_alsa import SoundAlsa
     from nabd.nabio import NabIO
     self.loop = asyncio.new_event_loop()
     asyncio.set_event_loop(self.loop)
     try:
-      if SoundAlsa.sound_card() != 'seeed2micvoicec':
+      if SoundAlsa.sound_configuration()[1] != 'seeed2micvoicec':
         raise unittest.SkipTest("Test should be run on a 2019 card only")
     except RuntimeError as error:
       raise unittest.SkipTest("Runtime error getting sound card %s" % str(error))
