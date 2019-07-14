@@ -43,7 +43,7 @@ echo "dtoverlay=hifiberry-dac" >> /boot/config.txt
 cat /boot/config.txt | grep "dtoverlay=hifiberry-dac"
 
 echo "Installing required packages"
-sudo apt update
+sudo apt update -y
 sudo apt dist-upgrade -y
 sudo apt-get install -y postgresql libpq-dev git python3 python3-venv gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3
 cd /home/pi
