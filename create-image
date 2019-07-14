@@ -51,8 +51,8 @@ unzip -u "${rpi_zip}"
 
 mv "$(ls *.img | head -n 1)" "${image}"
 
-# Add 128M to the image size
-dd if=/dev/zero bs=1M count=128 >> "${image}"
+# Add 1G to the image size
+dd if=/dev/zero bs=1M count=1024 >> "${image}"
 
 # Configure loopback device to expand partition 2
 loopdev=$(losetup --find --show "${image}")
