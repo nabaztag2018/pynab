@@ -46,6 +46,14 @@ echo "Installing required packages"
 sudo apt update -y
 sudo apt dist-upgrade -y
 sudo apt-get install -y postgresql libpq-dev git python3 python3-venv gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3
+
+echo "Installing sound driver for Ulule 2019 cards"
+cd /home/pi
+sudo -u pi git clone https://github.com/respeaker/seeed-voicecard.git
+cd /home/pi/seeed-voicecard
+bash install.sh
+
+echo "Installing pynab release branch"
 cd /home/pi
 sudo -u pi git clone -b release https://github.com/nabaztag2018/pynab.git
 cd pynab
