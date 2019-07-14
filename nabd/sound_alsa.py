@@ -93,7 +93,10 @@ class SoundAlsa(Sound):
           while data and self.currently_playing:
             chunk_length += chunk.write(data)
 
-            if chunk_length < target_chunk_size : # pad with nothing
+            if chunk_length < target_chunk_size :
+              # This (probably) is last iteration.
+              # ALSA device expects chunks of fixed period size
+              # Pad the sound with silence to complete chunk
               chunk_length += chunk.write(bytearray(target_chunk_size - chunk_length))
 
             device.write(chunk.getvalue())
@@ -113,6 +116,7 @@ class SoundAlsa(Sound):
         chunk_length = 0
         for frames in mp3.iter_frames():
           if (chunk_length + len(frames)) <= target_chunk_size:
+            # Chunk is still smaller than what ALSA device expects (0.1 sec)
             chunk_length += chunk.write(frames)
           else:
             frames_view = memoryview(frames)
@@ -122,8 +126,12 @@ class SoundAlsa(Sound):
             chunk.seek(0)
             chunk_length = 0
             chunk_length += chunk.write(frames_view[remaining:])
+
           if not self.currently_playing:
             break
+
+        # ALSA device expects chunks of fixed period size
+        # Pad the sound with silence to complete last chunk
         if chunk_length > 0:
           remaining = target_chunk_size - chunk_length
           chunk.write(bytearray(remaining))

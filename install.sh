@@ -34,7 +34,7 @@ elif [ "${1:-}" == "upgrade" ]; then
   fi
 fi
 
-if [ $travis_chroot -eq 0 -a "`uname -s -m`" != 'Linux armv6l' ]; then
+if [ "`uname -s -m`" != 'Linux armv6l' ]; then
   echo "Installation only planned on Raspberry Pi Zero, will cowardly exit"
   exit 1
 fi
@@ -95,6 +95,8 @@ if [ ! -d "venv" ]; then
 fi
 
 echo "Installing PyPi requirements"
+# Start with wheel which is required to compile some of the other requirements
+venv/bin/pip install wheel
 venv/bin/pip install -r requirements.txt
 
 if [ $makerfaire2018 -eq 0 ]; then
