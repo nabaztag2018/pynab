@@ -8,17 +8,25 @@ from .nabio import NabIO
 import traceback
 
 class SoundAlsa(Sound):
+  MODEL_2018_CARD_NAME = 'sndrpihifiberry'
+  MODEL_2019_CARD_NAME = 'seeed2micvoicec'
+
   def __init__(self, hw_model):
     if hw_model == NabIO.MODEL_2018:
-      self.playback_device = SoundAlsa.select_device(False)
+      self.playback_device = 'plughw:CARD=' + SoundAlsa.MODEL_2018_CARD_NAME
       self.playback_mixer = None
       self.record_device = 'null'
       self.record_mixer = None
     if hw_model == NabIO.MODEL_2019_TAG or hw_model == NabIO.MODEL_2019_TAGTAG:
-      self.playback_device = SoundAlsa.select_device(False)
-      self.playback_mixer = alsaaudio.Mixer(control='Playback', device=self.playback_device)
-      self.record_device = SoundAlsa.select_device(True)
-      self.record_mixer = alsaaudio.Mixer(control='Capture', device=self.record_device)
+      card_index = alsaaudio.cards().index(SoundAlsa.MODEL_2019_CARD_NAME)
+      self.playback_device = 'plughw:CARD=' + SoundAlsa.MODEL_2019_CARD_NAME
+      self.playback_mixer = alsaaudio.Mixer(control='Playback', cardindex=card_index)
+      self.record_device = self.playback_device
+      self.record_mixer = alsaaudio.Mixer(control='Capture', cardindex=card_index)
+    if not SoundAlsa.test_device(self.playback_device, False):
+      raise RuntimeError('Unable to configure sound card for playback')
+    if self.record_device != 'null' and not SoundAlsa.test_device(self.record_device, True):
+      raise RuntimeError('Unable to configure sound card for recording')
     self.executor = ThreadPoolExecutor(max_workers=1)
     self.future = None
     self.currently_playing = False
@@ -27,38 +35,20 @@ class SoundAlsa(Sound):
   @staticmethod
   def sound_card():
     sound_cards = alsaaudio.cards()
-    if sound_cards == []:
-      raise RuntimeError('No sound card found by ALSA (are drivers missing?)')
-    if len(sound_cards) > 1:
-      raise RuntimeError('More than one sound card was found')
-    return sound_cards[0]
-
-  @staticmethod
-  def select_device(record):
-    """
-    Automatically select a suitable ALSA device by trying to configure them.
-    """
-    if record:
-      list = alsaaudio.pcms(alsaaudio.PCM_CAPTURE)
-    else:
-      list = alsaaudio.pcms()
-    for device in list:
-      if device != 'null' and device != 'jack' and device != 'pulse':
-        if SoundAlsa.test_device(device, record):
-          return device
-    if record:
-      print('No suitable ALSA device (v1 card?)')
-    else:
-      print('No suitable ALSA device!')
-    return 'null'
+    for sound_card in alsaaudio.cards():
+      if sound_card in [SoundAlsa.MODEL_2018_CARD_NAME, SoundAlsa.MODEL_2019_CARD_NAME]:
+        return sound_card
+    raise RuntimeError('Sound card not found by ALSA (are drivers missing?)')
 
   @staticmethod
   def test_device(device, record):
     """
-    Test an ALSA device, making sure it handles both stereo and mono and
-    both 44.1KHz and 22.05KHz. On a typical RPI configuration, default with
-    hifiberry card is not configured to do software-mono, so we'll use
-    'sysdefault:CARD=sndrpihifiberry' instead.
+    Test selected ALSA device, making sure it handles both stereo and mono and
+    both 44.1KHz and 22.05KHz on output, mono and 16 kHz on input.
+    On a typical RPI configuration, default with hifiberry card is not
+    configured to do software-mono, so we'll use plughw:CARD=sndrpihifiberry instead.
+    Likewise, on 2019 cards, hw:CARD=seeed2micvoicec is not able to run mono
+    sound.
     """
     try:
       dev = None

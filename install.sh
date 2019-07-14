@@ -99,12 +99,12 @@ venv/bin/pip install -r requirements.txt
 
 if [ $makerfaire2018 -eq 0 ]; then
   # maker faire card has no mic, no need to install snips
-  if [ ! -d "venv/lib/python3.5/site-packages/snips_nlu_fr" ]; then
+  if [ ! -d "venv/lib/python3.7/site-packages/snips_nlu_fr" ]; then
     echo "Downloading snips_nlu models for French"
     venv/bin/python -m snips_nlu download fr
   fi
 
-  if [ ! -d "venv/lib/python3.5/site-packages/snips_nlu_en" ]; then
+  if [ ! -d "venv/lib/python3.7/site-packages/snips_nlu_en" ]; then
     echo "Downloading snips_nlu models for English"
     venv/bin/python -m snips_nlu download en
   fi
@@ -183,7 +183,7 @@ if [ $travis_chroot -eq 1 ]; then
 fi
 
 # copy service files
-for service_file in */*.service ; do
+for service_file in nabd/nabd.socket */*.service ; do
   name=`basename ${service_file}`
   sudo sed -e "s|/home/pi/pynab|${root_dir}|g" < ${service_file} > /tmp/${name}
   sudo mv /tmp/${name} /lib/systemd/system/${name}
@@ -192,7 +192,8 @@ for service_file in */*.service ; do
 done
 
 if [ $travis_chroot -eq 0 ]; then
-  sudo systemctl start nabd
+  sudo systemctl start nabd.socket
+  sudo systemctl start nabd.service
 
   # start services
   for service_file in */*.service ; do
