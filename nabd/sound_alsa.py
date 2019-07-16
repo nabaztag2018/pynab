@@ -245,7 +245,6 @@ class SoundAlsa(Sound):
     1:alsaaudio.PCM_FORMAT_U8, # 8bit is unsigned in wav files
     # Otherwise we assume signed data, little endian
     2:alsaaudio.PCM_FORMAT_S16_LE,
-    3:alsaaudio.PCM_FORMAT_S24_3LE,
     4:alsaaudio.PCM_FORMAT_S32_LE,
     }
   """ Mapping between the PCM format and the width of a sound """
