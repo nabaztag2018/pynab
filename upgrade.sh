@@ -24,7 +24,8 @@ case $version in
         sudo systemctl stop ${name} || echo -n ""
       fi
     done
-    sudo systemctl stop nabd || echo -n ""
+    sudo systemctl stop nabd.socket || echo -n ""
+    sudo systemctl stop nabd.service || echo -n ""
   
     cd ${root_dir}
     if [[ $EUID -ne ${ownerid} ]]; then
