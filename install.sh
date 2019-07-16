@@ -69,6 +69,7 @@ if [ $makerfaire2018 -eq 0 ]; then
   if [ ! -d "/opt/kaldi" ]; then
     echo "Installing precompiled kaldi into /opt"
     wget -O - -q https://github.com/pguyot/kaldi/releases/download/v5.4.1/kaldi-c3260f2-linux_armv6l-vfp.tar.xz | sudo tar xJ -C /
+    sudo ldconfig
   fi
 
   sudo mkdir -p "/opt/kaldi/model"
