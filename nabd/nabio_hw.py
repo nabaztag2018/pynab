@@ -1,12 +1,14 @@
 import asyncio, time, sys
-from .nabio import NabIO
-from .leds import Leds
-from .ears import Ears
-from .ears_gpio import EarsGPIO
+
 from .button import Button
 from .button_gpio import ButtonGPIO
+from .ears import Ears
+from .ears_gpio import EarsGPIO
+from .leds import Leds
 from .leds_neopixel import LedsNeoPixel
+from .nabio import NabIO
 from .sound_alsa import SoundAlsa
+
 
 class NabIOHW(NabIO):
   """
@@ -74,7 +76,7 @@ class NabIOHW(NabIO):
       # asyncio condition bug with Python < 3.7
       # https://bugs.python.org/issue32751
       # https://bugs.python.org/issue33638
-      if sys.version_info < (3,7):
+      if sys.version_info < (3, 7):
         await asyncio.sleep(0) # tentative workaround
       timeout = True
     return timeout
@@ -87,8 +89,8 @@ class NabIOHW(NabIO):
       if color[led]:
         int_value = int(color[led], 16)
         values.append((int_value >> 16) & 0xFF) # r
-        values.append((int_value >> 8) & 0xFF)  # g
-        values.append(int_value & 0xFF)         # b
+        values.append((int_value >> 8) & 0xFF) # g
+        values.append(int_value & 0xFF) # b
       else:
         values.append(0)
         values.append(0)
@@ -104,9 +106,9 @@ class NabIOHW(NabIO):
 
   @staticmethod
   def detect_model():
-    sound_card = SoundAlsa.sound_card()
-    if sound_card == SoundAlsa.MODEL_2019_CARD_NAME:
+    _, sound_configuration, _, = SoundAlsa.sound_configuration()
+
+    if sound_configuration == SoundAlsa.MODEL_2019_CARD_NAME:
       return NabIO.MODEL_2019_TAGTAG
-    if sound_card == SoundAlsa.MODEL_2018_CARD_NAME:
+    if sound_configuration == SoundAlsa.MODEL_2018_CARD_NAME:
       return NabIO.MODEL_2018
-    raise RuntimeError('Unknown sound card %s' % sound_card)
