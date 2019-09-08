@@ -305,6 +305,7 @@ class Nabd:
     writer.write((json.dumps(response) + '\r\n').encode('utf8'))
 
   def broadcast_event(self, event_type, response):
+    logging.debug('broadcast event to services: {event_type}, {response}'.format(event_type=event_type, response=response))
     for sw, events in self.service_writers.items():
       if event_type in events:
         self.write_packet(response, sw)
