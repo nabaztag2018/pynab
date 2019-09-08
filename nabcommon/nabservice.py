@@ -4,6 +4,8 @@ from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
 from django.conf import settings
 from django.apps import apps
+import logging
+from nabcommon import nablogging
 
 class NabService(ABC):
   PORT_NUMBER = 10543
@@ -55,9 +57,10 @@ class NabService(ABC):
         if line != b'' and line != b'\r\n':
           try:
             packet = json.loads(line.decode('utf8'))
+            logging.debug('process nabd packet: {packet}'.format(packet=packet))
             await self.process_nabd_packet(packet)
           except json.decoder.JSONDecodeError as e:
-            print('Invalid JSON packet from nabd: {line}\n{e}'.format(line=line, e=e))
+            logging.error('Invalid JSON packet from nabd: {line}\n{e}'.format(line=line, e=e))
       self.writer.close()
       if sys.version_info >= (3,7):
         await self.writer.wait_closed()
@@ -83,6 +86,7 @@ class NabService(ABC):
     except ConnectionRefusedError:
       if retry_count == 0:
         print('Could not connect to server. Is nabd running?')
+        logging.critical('Could not connect to server. Is nabd running?')
         exit(1)
       time.sleep(1)
       self._do_connect(retry_count - 1)
@@ -108,6 +112,7 @@ class NabService(ABC):
   @classmethod
   def main(cls, argv):
     service_name = cls.__name__.lower()
+    nablogging.setup_logging(service_name)
     pidfilepath = '/var/run/{service_name}.pid'.format(service_name=service_name)
     usage = '{service_name} [options]\n'.format(service_name=service_name) \
      + ' -h                   display this message\n' \
@@ -129,10 +134,14 @@ class NabService(ABC):
         service = cls()
         service.run()
     except AlreadyLocked:
-      print('{service_name} already running? (pid={pid})'.format(service_name=service_name, pid=pidfile.read_pid()))
+      error_msg = '{service_name} already running? (pid={pid})'.format(service_name=service_name, pid=pidfile.read_pid())
+      print(error_msg)
+      logging.critical(error_msg)
       exit(1)
     except LockFailed:
-      print('Cannot write pid file to {pidfilepath}, please fix permissions'.format(pidfilepath=pidfilepath))
+      error_msg = 'Cannot write pid file to {pidfilepath}, please fix permissions'.format(pidfilepath=pidfilepath)
+      print(error_msg)
+      logging.critical(error_msg)
       exit(1)
 
 class NabRecurrentService(NabService, ABC):
@@ -179,6 +188,7 @@ class NabRecurrentService(NabService, ABC):
     pass
 
   async def reload_config(self):
+    logging.info('reloading configuration')
     from django.core.cache import cache
     cache.clear()
     self._get_config()
