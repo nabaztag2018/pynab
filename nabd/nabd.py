@@ -117,7 +117,7 @@ class Nabd:
     The lock is acquired when this function is called.
     """
     while True:
-      if 'expiration_date' in item[0] and item[0]['expiration_date'] < datetime.now():
+      if 'expiration' in item[0] and item[0]['expiration'] < datetime.now():
         self.write_response_packet(item[0], {'status':'expired'}, item[1])
         if len(self.idle_queue) == 0:
           await self.set_state('idle')
