@@ -2,6 +2,8 @@ import random, time, asyncio
 from .resources import Resources
 from .ears import Ears
 from contextlib import suppress
+import logging
+import traceback
 
 class ChoreographyInterpreter:
   def __init__(self, leds, ears, sound):
@@ -305,10 +307,15 @@ class ChoreographyInterpreter:
     self.running_ref = None
 
   async def play(self, ref):
-    if ref.startswith(ChoreographyInterpreter.STREAMING_URN):
-      await self.play_streaming(ref)
-    else:
-      # Assume a resource for now.
-      file = Resources.find('choreographies', ref)
-      chor = file.read_bytes()
-      await self.play_binary(chor)
+    try:
+      if ref.startswith(ChoreographyInterpreter.STREAMING_URN):
+        await self.play_streaming(ref)
+      else:
+        # Assume a resource for now.
+        file = Resources.find('choreographies', ref)
+        chor = file.read_bytes()
+        await self.play_binary(chor)
+    except asyncio.CancelledError:
+      raise
+    except Exception:
+      logging.info('Crash in choreography interpreter: {traceback}'.format(traceback=traceback.format_exc()))
