@@ -6,6 +6,7 @@ import sys
 import atexit
 from concurrent.futures import ThreadPoolExecutor
 from .ears import Ears
+import logging
 
 @atexit.register
 def cleanup_gpio():
@@ -51,6 +52,7 @@ class EarsGPIO(Ears):
     Callback from GPIO.
     Thread: Rpi.GPIO event thread
     """
+    logging.debug('encoder_cb, channel = {channel}'.format(channel =channel))
     if channel == EarsGPIO.ENCODERS_CHANNELS[0]:
       ear = 0
     elif channel == EarsGPIO.ENCODERS_CHANNELS[1]:
@@ -80,6 +82,7 @@ class EarsGPIO(Ears):
     Stop motor by changing the channels GPIOs.
     Thread: RPi.GPIO event
     """
+    logging.debug('stop_motor ear = {ear}'.format(ear=ear))
     for channel in EarsGPIO.MOTOR_CHANNELS[ear]:
       GPIO.output(channel, GPIO.LOW)
     self.running[ear] = False
@@ -92,6 +95,7 @@ class EarsGPIO(Ears):
     direction = 1 or -1
     Threads: main loop or executor
     """
+    logging.debug('start_motor ear = {ear}'.format(ear=ear))
     dir_ix = int((1 - direction) / 2)
     GPIO.output(EarsGPIO.MOTOR_CHANNELS[ear][1 - dir_ix], GPIO.LOW)
     GPIO.output(EarsGPIO.MOTOR_CHANNELS[ear][dir_ix], GPIO.HIGH)
