@@ -1,4 +1,5 @@
 import asyncio, json, datetime, collections, sys, getopt, os, socket
+import logging
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
 from pydoc import locate
@@ -280,6 +281,7 @@ class Nabd:
 
   async def process_packet(self, packet, writer):
     """ Process a packet from a service """
+    logging.debug('packet from service: {packet}'.format(packet=packet))
     if 'type' in packet:
       processors = {
         'info': self.process_info_packet,
@@ -375,9 +377,9 @@ class Nabd:
     now = time.time()
     decoded_str = await self.asr.get_decoded_string(True)
     # ASR model needs to be improved, log outcome.
-    print("asr => %s" % decoded_str)
+    logging.info('ASR string: {str}'.format(str=decoded_str))
     response = await self.nlu.interpret(decoded_str)
-#   print("nlu => %s" % str(response))
+    logging.debug('NUL response: {response}'.format(response=str(response)))
     await self.set_state('idle')
     if response == None:
       # Did not understand
@@ -505,4 +507,6 @@ class Nabd:
       exit(1)
 
 if __name__ == '__main__':
+  logging.basicConfig(format='%(levelname)s %(asctime)s %(message)s', filename='/var/log/nabd.log', level=logging.DEBUG)
+  logging.info('Nabd started')
   Nabd.main(sys.argv[1:])
