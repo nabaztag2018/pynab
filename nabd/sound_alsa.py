@@ -165,7 +165,7 @@ class SoundAlsa(Sound):
   def _record(self, cb):
     inp = None
     try:
-      inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, device='default')
+      inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, device=self.record_device)
       ch = inp.setchannels(1)
       rate = inp.setrate(16000)
       format = inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
