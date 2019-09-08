@@ -1,5 +1,6 @@
 import asyncio, json, datetime, collections, sys, getopt, os, socket
 import logging
+import logging.handlers
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
 from pydoc import locate
@@ -507,6 +508,11 @@ class Nabd:
       exit(1)
 
 if __name__ == '__main__':
-  logging.basicConfig(format='%(levelname)s %(asctime)s %(message)s', filename='/var/log/nabd.log', level=logging.DEBUG)
+  log_handler = logging.handlers.WatchedFileHandler('/var/log/nabd.log')
+  formatter = logging.Formatter('%(levelname)s %(asctime)s %(message)s')
+  log_handler.setFormatter(formatter)
+  logger = logging.getLogger()
+  logger.addHandler(log_handler)
+  logger.setLevel(logging.DEBUG)
   logging.info('Nabd started')
   Nabd.main(sys.argv[1:])
