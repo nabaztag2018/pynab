@@ -1,4 +1,5 @@
 import asyncio, json, datetime, collections, sys, getopt, os, socket
+import dateutil.parser
 import logging
 from nabcommon import nablogging
 from lockfile.pidlockfile import PIDLockFile
@@ -117,7 +118,7 @@ class Nabd:
     The lock is acquired when this function is called.
     """
     while True:
-      if 'expiration' in item[0] and item[0]['expiration'] < datetime.now():
+      if 'expiration' in item[0] and self.is_past(item[0]['expiration']):
         self.write_response_packet(item[0], {'status':'expired'}, item[1])
         if len(self.idle_queue) == 0:
           await self.set_state('idle')
@@ -167,6 +168,14 @@ class Nabd:
           break
         else:
           raise RuntimeError('Unexpected packet {packet}'.format(packet=item[0]))
+
+  def is_past(self, isodatestr):
+    # Python 3.7's fromisoformat only parses output of isoformat, not all valid ISO 8601 dates.
+    parsed = dateutil.parser.isoparse(isodatestr)
+    if parsed.tzinfo:
+      return parsed < datetime.datetime.now().astimezone()
+    else:
+      return parsed < datetime.datetime.now()
 
   async def transition_to_idle(self):
     """
