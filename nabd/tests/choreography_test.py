@@ -186,3 +186,18 @@ class TestStreamingChoregraphy(unittest.TestCase):
     self.assertTrue(len(self.ears.called_list) > 0)
     task = self.loop.create_task(self.ci.stop())
     self.loop.run_until_complete(task)
+
+  def test_streaming_chors(self):
+    for chor in range(1, 4):
+      self.sound.called_list = []
+      self.leds.called_list = []
+      self.ears.called_list = []
+      task = self.loop.create_task(self.ci.start("nabd/streaming/{chor}.chor".format(chor=chor)))
+      self.loop.run_until_complete(task)
+      task = self.loop.create_task(asyncio.sleep(4))
+      self.loop.run_until_complete(task)
+      self.assertEqual(self.sound.called_list, [])
+      self.assertTrue(len(self.leds.called_list) > 0)
+      self.assertEqual(self.ears.called_list, [])
+      task = self.loop.create_task(self.ci.stop())
+      self.loop.run_until_complete(task)
