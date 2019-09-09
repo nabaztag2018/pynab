@@ -14,6 +14,13 @@ class ChoreographyInterpreter:
     self.running_ref = None
     self.timescale = 0
     # Random is for ifne, only used in taichi.
+    # Generator based on original code yielding 0-29, not exactly uniformly.
+    # Original code:
+    # set chorrandom=((Iecholn rand&255)*30)>>8; // v16
+    #
+    # 0 has a probability of 9/256
+    # 1-28 have a probabilty of 8/256
+    # 29 has a probability of 7/256.
     self.taichi_random = int(random.randint(0, 255) * 30 >> 8)
     self.taichi_directions = [0, 0]
     self.current_palette = [(0, 0, 0) for x in range(8)]

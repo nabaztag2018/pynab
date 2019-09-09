@@ -110,6 +110,42 @@ class TestChoreographyInterpreter(unittest.TestCase):
     self.assertEqual(self.sound.called_list, [])
 
 @pytest.mark.django_db
+class TestTaichiChoreographies(unittest.TestCase):
+  def setUp(self):
+    self.loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(self.loop)
+    self.leds = LedsMock()
+    self.ears = EarsMock()
+    self.sound = SoundMock()
+    self.ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
+
+  def test_taichi(self):
+    for random in range(0, 29):
+      self.sound.called_list = []
+      self.leds.called_list = []
+      self.ears.called_list = []
+      self.ci.taichi_random = random
+      task = self.loop.create_task(self.ci.start("nabtaichid/taichi.chor"))
+      self.loop.run_until_complete(task)
+      task = self.loop.create_task(self.ci.wait_until_complete())
+      self.loop.run_until_complete(task)
+      self.assertTrue(len(self.sound.called_list) > 0)
+      self.assertTrue(len(self.leds.called_list) > 0)
+      self.assertTrue(len(self.ears.called_list) > 0)
+      task = self.loop.create_task(self.ci.stop())
+      self.loop.run_until_complete(task)
+      # Check at least some leds were on.
+      color_leds = 0
+      off_leds = 0
+      for ledi in self.leds.called_list:
+        if ledi.endswith('0,0,0)'):
+          off_leds=off_leds+1
+        else:
+          color_leds=color_leds+1
+      self.assertTrue(color_leds > 0)
+      self.assertTrue(off_leds > 0)
+
+@pytest.mark.django_db
 class TestStreamingChoregraphy(unittest.TestCase):
   def setUp(self):
     self.loop = asyncio.new_event_loop()
