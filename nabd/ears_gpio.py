@@ -178,7 +178,7 @@ class EarsGPIO(Ears):
     Returns before ear reached requested position.
     """
     async with self.lock:
-      await self.go(motor, self.targets[motor] + delta, direction)
+      await self._do_go(motor, self.targets[motor] + delta, direction)
 
   async def wait_while_running(self):
     """
