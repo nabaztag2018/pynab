@@ -268,7 +268,7 @@ class ChoreographyInterpreter:
       self.current_palette = ChoreographyInterpreter.PALETTES[int(ref0[1:]) & 7]
     chorst_oreille_chance = None
     while True:
-      if chorst_oreille_chance == None:
+      if chorst_oreille_chance is None:
         chorst_oreille_chance = 0
         left, right = random.choice([(0, 10), (10, 0)])
         await self.ears.go(Ears.LEFT_EAR, left, Ears.FORWARD_DIRECTION)

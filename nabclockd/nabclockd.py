@@ -47,7 +47,7 @@ class NabClockd(nabservice.NabService):
           response.append('sleep')
         else:
           response.append('wakeup')
-      if (should_sleep == None or should_sleep == False) and now.minute == 0 and self.config.chime_hour:
+      if (should_sleep is None or should_sleep == False) and now.minute == 0 and self.config.chime_hour:
         if self.last_chime != now.hour:
           response.append('chime')
       if now.minute > 5: # account for time drifts

@@ -11,7 +11,7 @@ class MockMastodonClient:
     """
     Callback as a mastodon_client
     """
-    if visibility == None:
+    if visibility is None:
       visibility = 'public'
     content = re.sub(r'@([^ @]+)@([^ @]+)', r'<span class="h-card"><a href="https://\2/@\1" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>\1</span></a></span>', status)
     status = {'id': len(self.posted_statuses) + 1, 'created_at': datetime.datetime.utcnow(), 'visibility':visibility, 'content': content}

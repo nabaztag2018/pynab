@@ -59,7 +59,7 @@ class ButtonGPIO(Button):
     if self.button_timer:
       self.button_timer.cancel()
       self.button_timer = None
-    if self.callback == None:
+    if self.callback is None:
       return
     (loop, callback) = self.callback
     if GPIO.input(self.button_channel) == ButtonGPIO.UP_VALUE and self.button_state == 'down':

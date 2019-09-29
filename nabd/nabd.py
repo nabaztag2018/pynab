@@ -392,7 +392,7 @@ class Nabd:
     response = await self.nlu.interpret(decoded_str)
     logging.debug('NUL response: {response}'.format(response=str(response)))
     await self.set_state('idle')
-    if response == None:
+    if response is None:
       # Did not understand
       await self.nabio.asr_failed()
     else:
@@ -422,7 +422,7 @@ class Nabd:
 
   async def _ears_moved(self):
     await asyncio.sleep(Nabd.EAR_MOVEMENT_TIMEOUT)
-    if self.interactive_service_writer == None:
+    if self.interactive_service_writer is None:
       (left, right) = await self.nabio.detect_ears_positions()
       self.ears['left'] = left
       self.ears['right'] = right

@@ -46,7 +46,7 @@ class NLU:
         return None
       # TODO : hardcode magic 8 ball ?
       parsed = self.nlu_engine.parse(string)
-      if parsed['intent']['intentName'] == None:
+      if parsed['intent']['intentName'] is None:
         return None
       result = {'intent': parsed['intent']['intentName']}
       for slot in parsed['slots']:

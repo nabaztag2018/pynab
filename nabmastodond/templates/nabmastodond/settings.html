@@ -14,7 +14,7 @@
             <h5 class="text-muted"><a href="https://{{ config.instance }}/@{{ config.username }}" target="_blank" class="text-muted">{{ config.username }}@{{ config.instance }}</a></h5>
           </div>
         </div>
-          {% if config.spouse_pairing_state == None %}
+          {% if config.spouse_pairing_state is None %}
             <p>{% trans "You can propose another Nabaztag registered on Mastodon with the button below. They will receive the proposal and will be able to accept it." %}</p>
             {% csrf_token %}
             <form class="propose-form">

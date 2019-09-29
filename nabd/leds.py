@@ -65,7 +65,7 @@ class LedsSoft(Leds, metaclass=abc.ABCMeta):
             if cmd == 'pulse':
               self.do_set(led, 0, 0, 0)
               show = True
-              if self.last_pulse == None:
+              if self.last_pulse is None:
                 self.last_pulse = time.time()
               color_incr = (r / LedsSoft.PULSING_STEPS, g / LedsSoft.PULSING_STEPS, b / LedsSoft.PULSING_STEPS)
               self.pulsing[led] = ((r, g, b), (0, 0, 0), 1, color_incr)

@@ -287,7 +287,7 @@ class NabWeatherd(NabRecurrentService):
     scheduled_messages = models.ScheduledMessage.objects.all()
     config = models.Config.load()
     # On boot or config update, update weather info
-    if self.location == None or self.location != config.location:
+    if self.location is None or self.location != config.location:
       self.location = config.location
       return (datetime.datetime.now(datetime.timezone.utc), "info", scheduled_messages)
     else:
@@ -308,11 +308,11 @@ class NabWeatherd(NabRecurrentService):
     
   def perform(self, expiration, type):
     from . import models
-    if self.location == None:
+    if self.location is None:
       packet = '{"type":"message","signature":{"audio":["nabweatherd/signature.mp3"]},"body":[{"audio":["nabweatherd/no-location-error.mp3]}],"expiration":"' + expiration.isoformat() + '"}\r\n'
       self.writer.write(packet.encode('utf8'))
     else:
-      if self.forecast_date == None or (datetime.datetime.now() - self.forecast_date).seconds >= 1800:
+      if self.forecast_date is None or (datetime.datetime.now() - self.forecast_date).seconds >= 1800:
         self.update_weather_forecast()
       # Always update info.
       (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[self.current_weather_class]

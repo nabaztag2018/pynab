@@ -207,9 +207,9 @@ class NabRecurrentService(NabService, ABC):
               self.perform(next_date + datetime.timedelta(minutes=1), next_args)
               next_date = None
               next_args = None
-            if self.saved_freq_config != self.freq_config or next_date == None:
+            if self.saved_freq_config != self.freq_config or next_date is None:
               next_tuple = self.compute_next(self.freq_config)
-              if next_tuple == None:
+              if next_tuple is None:
                 next_date = None
                 next_args = None
               else:
@@ -219,7 +219,7 @@ class NabRecurrentService(NabService, ABC):
               self.next_args = next_args
               self.update_next(next_date, next_args)
             self.saved_freq_config = self.freq_config
-            if next_date == None:
+            if next_date is None:
               sleep_amount = None
             else:
               sleep_amount = (next_date - now).total_seconds()
@@ -294,6 +294,6 @@ class NabRandomService(NabRecurrentService, ABC):
 
   def compute_next(self, frequency):
     next = self.do_compute_next(frequency)
-    if next == None:
+    if next is None:
       return None
     return (next, self.next_args)
