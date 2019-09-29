@@ -1,6 +1,5 @@
 import asyncio, time, sys
 
-from .button import Button
 from .button_gpio import ButtonGPIO
 from .ears import Ears
 from .ears_gpio import EarsGPIO

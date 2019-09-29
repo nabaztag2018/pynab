@@ -1,4 +1,3 @@
-import json
 from snips_nlu import SnipsNLUEngine
 from pathlib import Path
 from nabweb import settings
