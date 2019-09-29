@@ -411,7 +411,7 @@ class Nabd:
         ear_str = 'left'
       else:
         ear_str = 'right'
-      self.write_packet({'type':'ear_event', 'ear':ear_str})
+      self.write_packet({'type':'ear_event', 'ear':ear_str}, self.interactive_service_writer)
     else:
       # Wait a little bit for user to continue moving the ears
       # Then we'll run a detection and tell services if we're not sleeping.
