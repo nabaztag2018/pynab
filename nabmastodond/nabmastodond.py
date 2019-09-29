@@ -80,7 +80,7 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
         self.do_process_status(config, mastodon_client, status)
       return (status_id, status_date)
     except KeyError as e:
-      print('Unexpected status from mastodon, missing slot {e}\n{status}'.format(status=status))
+      print('Unexpected status from mastodon, missing slot {e}\n{status}'.format(e=e, status=status))
       return (None, None)
 
   def do_process_status(self, config, mastodon_client, status):
