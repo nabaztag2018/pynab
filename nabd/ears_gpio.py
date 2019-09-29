@@ -66,7 +66,7 @@ class EarsGPIO(Ears):
         loop.call_soon_threadsafe(lambda ear=ear: callback(ear))
       else:
         self.positions[ear] = (self.positions[ear] + direction) % EarsGPIO.HOLES
-        if self.targets[ear] == None: # reset mode
+        if self.targets[ear] is None: # reset mode
           self.encoder_cv.notify_all()
         else:
           if self.positions[ear] == self.targets[ear]:
@@ -128,7 +128,7 @@ class EarsGPIO(Ears):
     Lock: acquired
     """
     for ear in [0, 1]:
-      if self.positions[ear] == None:
+      if self.positions[ear] is None:
         self.positions[ear] = 0
         self.targets[ear] = None
         self._start_motor(ear, EarsGPIO.FORWARD_INCREMENT)
@@ -141,7 +141,7 @@ class EarsGPIO(Ears):
           # Got a signal
           now = time.time()
           for ear in range(2):
-            if self.targets[ear] == None and self.positions[ear] != current_positions[ear]:
+            if self.targets[ear] is None and self.positions[ear] != current_positions[ear]:
               delta = now - previous_risings[ear]
               if delta > 0.4:
                 # passed the missing hole
@@ -158,7 +158,7 @@ class EarsGPIO(Ears):
           # Got no signal.
           now = time.time()
           for ear in range(2):
-            if self.targets[ear] == None:
+            if self.targets[ear] is None:
               delta = now - previous_risings[ear]
               if delta > 0.4:
                 # At missing hole
@@ -202,7 +202,7 @@ class EarsGPIO(Ears):
     Get the position of the ears, running a detection if required.
     """
     async with self.lock:
-      if self.positions[0] == None or self.positions[1] == None:
+      if self.positions[0] is None or self.positions[1] is None:
         return await asyncio.get_event_loop().run_in_executor(self.executor, self._run_detection, None, None)
       return (self.positions[0], self.positions[1])
 
@@ -223,7 +223,7 @@ class EarsGPIO(Ears):
     Lock: acquired.
     """
     # Return ears to a known state
-    if self.positions[0] == None or self.positions[1] == None:
+    if self.positions[0] is None or self.positions[1] is None:
       await asyncio.get_event_loop().run_in_executor(self.executor, self._run_detection, 0, 0)
     self.targets[ear] = position
     if direction:

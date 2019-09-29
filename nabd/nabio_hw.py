@@ -36,7 +36,7 @@ class NabIOHW(NabIO):
 
   def set_leds(self, nose, left, center, right, bottom):
     for (led_ix, led) in [(Leds.LED_NOSE, nose), (Leds.LED_LEFT, left), (Leds.LED_CENTER, center), (Leds.LED_RIGHT, right), (Leds.LED_BOTTOM, bottom)]:
-      if led == None:
+      if led is None:
         (r, g, b) = (0, 0, 0)
       else:
         (r, g, b) = led

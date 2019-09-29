@@ -48,7 +48,7 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
   def do_update(self, mastodon_client, status):
     config = self.__config()
     (status_id, status_date) = self.process_status(config, mastodon_client, status)
-    if status_id != None and (config.last_processed_status_id == None or status_id > config.last_processed_status_id):
+    if status_id != None and (config.last_processed_status_id is None or status_id > config.last_processed_status_id):
       config.last_processed_status_id = status_id
     if status_date != None and status_date > config.last_processed_status_date:
       config.last_processed_status_date = status_date
@@ -60,7 +60,7 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
     max_id = config.last_processed_status_id
     for status in timeline:
       (status_id, status_date) = self.process_status(config, mastodon_client, status)
-      if status_id != None and (max_id == None or status_id > max_id):
+      if status_id != None and (max_id is None or status_id > max_id):
         max_id = status_id
       if status_date != None and max_date > status_date:
         max_date = status_date
@@ -102,7 +102,7 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
   def transition_state(self, config, mastodon_client, sender, sender_name, type, params, message_date):
     current_state = config.spouse_pairing_state
     matching = config.spouse_handle != None and config.spouse_handle == sender
-    if current_state == None:
+    if current_state is None:
       if type == 'proposal':
         config.spouse_handle = sender
         config.spouse_pairing_state = 'waiting_approval'
@@ -245,13 +245,13 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
 
   def setup_streaming(self, reloading=False):
     config = self.__config()
-    setup = reloading and self.mastodon_client == None and config.spouse_handle == None
-    if config.access_token == None:
+    setup = reloading and self.mastodon_client is None and config.spouse_handle is None
+    if config.access_token is None:
       self.close_streaming()
     else:
       if config.access_token != self.current_access_token:
         self.close_streaming()
-      if self.mastodon_client == None:
+      if self.mastodon_client is None:
         try:
           self.mastodon_client = Mastodon(client_id = config.client_id, \
             client_secret = config.client_secret, \
@@ -267,7 +267,7 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
         except MastodonError as e:
           print('Unexpected mastodon error: {e}'.format(e=e))
           self.loop.call_later(NabMastodond.RETRY_DELAY, self.setup_streaming)
-      if self.mastodon_client != None and self.mastodon_stream_handle == None:
+      if self.mastodon_client != None and self.mastodon_stream_handle is None:
         self.mastodon_stream_handle = self.mastodon_client.stream_user(self, run_async=True, reconnect_async=True)
       if self.mastodon_client != None:
         timeline = self.mastodon_client.timeline(timeline="direct", since_id=config.last_processed_status_id)

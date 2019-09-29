@@ -44,7 +44,7 @@ class ConnectView(View):
       config.redirect_uri = None
       config.instance = request.POST['instance']
     # Register application on Mastodon
-    if config.client_secret == None:
+    if config.client_secret is None:
       try:
         (client_id, client_secret) = Mastodon.create_app(
           'nabmastodond',
@@ -125,7 +125,7 @@ class OAuthCBView(View):
 class WeddingView(View):
   def put(self, request, *args, **kwargs):
     config = Config.load()
-    if config.spouse_pairing_state == None:
+    if config.spouse_pairing_state is None:
       mastodon_client = Mastodon( \
         client_id = config.client_id, \
         client_secret = config.client_secret, \
