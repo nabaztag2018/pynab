@@ -30,7 +30,7 @@ class SettingsView(TemplateView):
     if 'location' in request.POST:
       location = request.POST['location']
       try:
-        client = meteofranceClient(location)
+        meteofranceClient(location)
         config.location = location
       except meteofranceError as exp:
         return JsonResponse({'status':'unknownLocationError','message':_('Unknown location')}, status=406)

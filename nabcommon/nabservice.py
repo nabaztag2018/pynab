@@ -106,8 +106,6 @@ class NabService(ABC):
     # Silently ignore the fact that the daemon is not running
     except OSError:
       pass
-    except FileNotFoundError:
-      pass
 
   @classmethod
   def main(cls, argv):
