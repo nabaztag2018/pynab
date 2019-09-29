@@ -27,7 +27,7 @@ class Leds(object, metaclass=abc.ABCMeta):
     raise NotImplementedError( 'Should have implemented' )
 
   @abc.abstractmethod
-  def setall(self, led, red, green, blue):
+  def setall(self, red, green, blue):
     """
     Set the color of every led.
     """
