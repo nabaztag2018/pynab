@@ -4,7 +4,6 @@ import logging
 from nabcommon import nablogging
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
-from pydoc import locate
 from .leds import Leds
 from django.conf import settings
 from django.apps import apps

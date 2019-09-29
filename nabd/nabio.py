@@ -1,5 +1,4 @@
 import abc
-import asyncio
 from .choreography import ChoreographyInterpreter
 
 class NabIO(object, metaclass=abc.ABCMeta):

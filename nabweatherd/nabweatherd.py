@@ -1,4 +1,4 @@
-import sys, asyncio, datetime, random
+import sys, datetime
 import dateutil.parser
 from nabcommon.nabservice import NabRecurrentService
 from meteofrance.client import meteofranceClient
