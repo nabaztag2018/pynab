@@ -9,7 +9,7 @@ class ASR:
   Class handling automatic speech recognition.
   """
   MODELS = {
-    'fr_FR': '/opt/kaldi/model/kaldi-nabaztag-fr-r20190518'
+    'fr_FR': '/opt/kaldi/model/kaldi-nabaztag-fr-r20191001'
   }
   DEFAULT_LOCALE = 'fr_FR'
   

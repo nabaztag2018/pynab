@@ -79,9 +79,9 @@ if [ $makerfaire2018 -eq 0 ]; then
     wget -O - -q https://goofy.zamia.org/zamia-speech/asr-models/kaldi-generic-en-tdnn_250-r20190609.tar.xz | sudo tar xJ -C /opt/kaldi/model/
   fi
 
-  if [ ! -d "/opt/kaldi/model/kaldi-nabaztag-fr-r20190518" ]; then
+  if [ ! -d "/opt/kaldi/model/kaldi-nabaztag-fr-r20191001" ]; then
     echo "Installing kaldi model for French"
-    wget -O - -q https://github.com/pguyot/zamia-speech/releases/download/20190518/kaldi-nabaztag-fr-r20190518.tar.xz | sudo tar xJ -C /opt/kaldi/model
+    wget -O - -q https://github.com/pguyot/zamia-speech/releases/download/20190930/kaldi-nabaztag-fr-r20191001.tar.xz | sudo tar xJ -C /opt/kaldi/model
   fi
 fi
 
