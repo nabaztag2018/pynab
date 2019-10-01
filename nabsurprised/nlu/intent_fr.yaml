@@ -8,9 +8,14 @@ utterances:
   - fais-moi rire
   - raconte un truc
   - raconte-moi un truc
+  - surprise
+  - surprise surprise
+  - humeur
 
 ---
 type: intent
 name: carot
 utterances:
   - carotte
+  - tu veux une carotte
+  - aimes-tu les carottes
