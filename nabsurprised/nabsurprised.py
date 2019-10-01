@@ -22,10 +22,12 @@ class NabSurprised(NabRandomService):
 
   async def process_nabd_packet(self, packet):
     if packet['type'] == 'asr_event':
+      now = datetime.datetime.now(datetime.timezone.utc)
+      expiration = now + datetime.timedelta(minutes=1)
       if packet['nlu']['intent'] == 'surprise':
-        self.perform(datetime.datetime.now(datetime.timezone.utc), None)
+        self.perform(expiration, None)
       if packet['nlu']['intent'] == 'carot':
-        packet = '{"type":"message","signature":{"audio":["nabsurprised/respirations/*.mp3"]},"body":[{"audio":["nabsurprised/carot/*.mp3"]}],"expiration":"' + datetime.datetime.now(datetime.timezone.utc).isoformat() + '"}\r\n'
+        packet = '{"type":"message","signature":{"audio":["nabsurprised/respirations/*.mp3"]},"body":[{"audio":["nabsurprised/carot/*.mp3"]}],"expiration":"' + expiration.isoformat() + '"}\r\n'
         self.writer.write(packet.encode('utf8'))
 
 if __name__ == '__main__':
