@@ -348,7 +348,9 @@ class NabWeatherd(NabRecurrentService):
   async def process_nabd_packet(self, packet):
     if packet['type'] == 'asr_event' and packet['nlu']['intent'] == 'weather_forecast':
       # todo : detect today/tomorrow
-      self.perform(datetime.datetime.now(datetime.timezone.utc), 'today')
+      now = datetime.datetime.now(datetime.timezone.utc)
+      expiration = now + datetime.timedelta(minutes=1)
+      self.perform(expiration, 'today')
 
 if __name__ == '__main__':
   NabWeatherd.main(sys.argv[1:])
