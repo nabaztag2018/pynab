@@ -160,6 +160,7 @@ class SoundAlsa(Sound):
   async def start_recording(self, stream_cb):
     await self.stop_playing()
     self.currently_recording = True
+    self.recorded_raw = open('sound_alsa_recording.raw', 'wb')
     self.future = asyncio.get_event_loop().run_in_executor(self.executor, lambda cb=stream_cb: self._record(cb))
 
   def _record(self, cb):
@@ -176,6 +177,7 @@ class SoundAlsa(Sound):
         if not self.currently_recording:
           finalize = True
         if l or finalize:
+          self.recorded_raw.write(data)
           cb(data, finalize)
     except Exception:
       print(traceback.format_exc())
@@ -188,6 +190,7 @@ class SoundAlsa(Sound):
     if self.currently_recording:
       self.currently_recording = False
     await self.wait_until_done()
+    self.recorded_raw.close()
 
   @staticmethod
   def __test_device(device, record):
