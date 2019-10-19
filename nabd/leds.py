@@ -110,7 +110,7 @@ class LedsSoft(Leds, metaclass=abc.ABCMeta):
                 if show:
                     self.do_show()
                 timeout = None
-                if next_pulse != None:
+                if next_pulse is not None:
                     delta = next_pulse - time.time()
                     timeout = max(0, delta)
                 self.condition.wait(timeout=timeout)

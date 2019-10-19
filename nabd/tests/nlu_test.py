@@ -18,7 +18,7 @@ class TestNLU(unittest.TestCase):
     def test_en(self):
         nlu = NLU('en_US')
         result = self.interpret(nlu, "i'm trying to think but nothing happens")
-        if result != None:
+        if result is not None:
             self.assertEqual(result['intent'], 'surprise')
         else:
             self.assertEqual(result, None)
