@@ -17,7 +17,8 @@ class SocketIO(io.RawIOBase):
         self.sock = sock
 
     def read(self, sz=-1):
-        if (sz == -1): sz = 0x7FFFFFFF
+        if (sz == -1):
+            sz = 0x7FFFFFFF
         return self.sock.recv(sz)
 
     def seekable(self):

@@ -120,9 +120,10 @@ class NabService(ABC):
         service_name = cls.__name__.lower()
         nablogging.setup_logging(service_name)
         pidfilepath = '/var/run/{service_name}.pid'.format(service_name=service_name)
-        usage = '{service_name} [options]\n'.format(service_name=service_name) \
-         + ' -h                                     display this message\n' \
-         + ' --pidfile=<pidfile>    define pidfile (default = {pidfilepath})\n'.format(pidfilepath=pidfilepath)
+        usage = \
+            '{service_name} [options]\n'.format(service_name=service_name) \
+            + ' -h                   display this message\n' \
+            + ' --pidfile=<pidfile>  define pidfile (default = {pidfilepath})\n'.format(pidfilepath=pidfilepath)
         try:
             opts, args = getopt.getopt(argv, "h", ["pidfile="])
         except getopt.GetoptError:

@@ -43,12 +43,12 @@ class ASR:
             return future.result()
         else:
             # not sure we could do that
-            s, l = self.decoder.get_decoded_string()
-            return s
+            str, likelihood = self.decoder.get_decoded_string()
+            return str
 
     def _get_decoded_string(self):
         try:
-            s, l = self.decoder.get_decoded_string()
-            return s
+            str, likelihood = self.decoder.get_decoded_string()
+            return str
         except Exception:
             print(traceback.format_exc())

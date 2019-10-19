@@ -48,14 +48,14 @@ class ButtonGPIO(Button):
 
     #
     # (0) --- down --> (1) --- timer ---> hold
-    #										|
-    #										--- up ---> (2) --- timer ---> click + goto state 0
-    #																 |
-    #																 --- down ---> (3) --- timer ---> click_and_hold
-    #																								|
-    #																								--- up ---> (4) --- timer ---> double click
-    #																														 |
-    #																														 --- down ---> (5) --- timer ---> click_and_hold
+    #                   |
+    #                   --- up ---> (2) --- timer ---> click + goto state 0
+    #                                |
+    #                                --- down ---> (3) --- timer ---> click_and_hold
+    #                                               |
+    #                                               --- up ---> (4) --- timer ---> double click
+    #                                                            |
+    #                                                            --- down ---> (5) --- timer ---> click_and_hold
     def _button_event(self, channel):
         now = time.time()
         if self.button_timer:

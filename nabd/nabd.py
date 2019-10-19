@@ -54,8 +54,9 @@ class Nabd:
         self.ears = {'left': Nabd.INIT_EAR_POSITION, 'right': Nabd.INIT_EAR_POSITION}
         self.info = {}              # Info persists across service connections.
         self.state = 'idle'         # 'asleep'/'idle'/'interactive'/'playing'/'recording'
-        self.service_writers = {}   # Dictionary of writers, i.e. connected services
-                                    # For each writer, value is the list of registered events
+        # Dictionary of writers, i.e. connected services
+        # For each writer, value is the list of registered events
+        self.service_writers = {}
         self.interactive_service_writer = None
         self.interactive_service_events = []  # Events registered in interactive mode
         self.running = True
@@ -208,7 +209,7 @@ class Nabd:
         """ Process an info packet """
         if 'info_id' in packet:
             if 'animation' in packet:
-                if not 'tempo' in packet['animation'] or not 'colors' in packet['animation']:
+                if 'tempo' not in packet['animation'] or 'colors' not in packet['animation']:
                     self.write_response_packet(packet, {'status': 'error', 'class': 'MalformedPacket', 'message': 'Missing required tempo & colors slots in animation'}, writer)
                 else:
                     self.info[packet['info_id']] = packet['animation']
@@ -496,9 +497,10 @@ class Nabd:
     def main(argv):
         nablogging.setup_logging('nabd')
         pidfilepath = "/var/run/nabd.pid"
-        usage = 'nabd [options]\n' \
-         + ' -h                                     display this message\n' \
-         + ' --pidfile=<pidfile>    define pidfile (default = {pidfilepath})\n'.format(pidfilepath=pidfilepath)
+        usage = \
+            'nabd [options]\n' \
+            + ' -h                    display this message\n' \
+            + ' --pidfile=<pidfile>   define pidfile (default = {pidfilepath})\n'.format(pidfilepath=pidfilepath)
         try:
             opts, args = getopt.getopt(argv, "h", ["pidfile=", "nabio="])
         except getopt.GetoptError:
