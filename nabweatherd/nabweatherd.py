@@ -1,4 +1,5 @@
-import sys, datetime
+import sys
+import datetime
 import dateutil.parser
 from nabcommon.nabservice import NabRecurrentService
 from meteofrance.client import meteofranceClient

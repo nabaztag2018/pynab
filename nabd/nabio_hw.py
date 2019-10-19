@@ -1,4 +1,6 @@
-import asyncio, time, sys
+import asyncio
+import time
+import sys
 
 from .button_gpio import ButtonGPIO
 from .ears import Ears

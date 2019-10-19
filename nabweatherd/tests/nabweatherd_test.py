@@ -1,4 +1,12 @@
-import unittest, asyncio, threading, json, django, time, datetime, signal, pytest
+import unittest
+import asyncio
+import threading
+import json
+import django
+import time
+import datetime
+import signal
+import pytest
 from nabweatherd.nabweatherd import NabWeatherd
 
 

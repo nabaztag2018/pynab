@@ -1,4 +1,6 @@
-import sys, asyncio, re
+import sys
+import asyncio
+import re
 from nabcommon import nabservice
 from mastodon import Mastodon, StreamListener, MastodonError
 from operator import attrgetter

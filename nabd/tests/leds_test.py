@@ -1,4 +1,5 @@
-import unittest, time
+import unittest
+import time
 from nabd.leds import Leds, LedsSoft
 
 

@@ -1,4 +1,6 @@
-import sys, datetime, random
+import sys
+import datetime
+import random
 from nabcommon.nabservice import NabRandomService
 
 
