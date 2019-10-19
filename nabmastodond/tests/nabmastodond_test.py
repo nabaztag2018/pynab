@@ -45,7 +45,8 @@ class TestMastodonLogic(unittest.TestCase, MockMastodonClient):
     def test_process_status(self):
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, None)
-        config.last_processed_status_date = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = \
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
         config.instance = 'botsin.space'
         config.username = 'self'
         config.save()
@@ -53,7 +54,9 @@ class TestMastodonLogic(unittest.TestCase, MockMastodonClient):
         service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': 'Hello', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())})
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses, [])
 
     def test_ignore_old_status_by_date(self):
@@ -67,7 +70,9 @@ class TestMastodonLogic(unittest.TestCase, MockMastodonClient):
         service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Would you accept to be my spouse? (NabPairing Proposal - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())})
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
         self.assertEqual(config.spouse_pairing_date, None)
@@ -84,7 +89,9 @@ class TestMastodonLogic(unittest.TestCase, MockMastodonClient):
         service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Would you accept to be my spouse? (NabPairing Proposal - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())})
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 64)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
         self.assertEqual(config.spouse_pairing_date, None)
@@ -207,7 +214,8 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
         config = models.Config.load()
         config.instance = 'botsin.space'
         config.username = 'self'
-        config.last_processed_status_date = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = \
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
         config.save()
 
     # Free -> Waiting Approval
@@ -218,10 +226,14 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
@@ -234,7 +246,9 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
         self.assertEqual(config.spouse_pairing_date, None)
@@ -250,7 +264,9 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
         self.assertEqual(config.spouse_pairing_date, None)
@@ -263,7 +279,9 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
         self.assertEqual(config.spouse_pairing_date, None)
@@ -276,7 +294,9 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
         self.assertEqual(config.spouse_pairing_date, None)
@@ -292,12 +312,14 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     def setUp(self):
         super().setUp()
         config = models.Config.load()
-        config.last_processed_status_date = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = \
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
         config.instance = 'botsin.space'
         config.username = 'self'
         config.spouse_handle = 'tester@botsin.space'
         config.spouse_pairing_state = 'proposed'
-        config.spouse_pairing_date = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.spouse_pairing_date = \
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
         config.save()
 
     # Proposed -> Free
@@ -308,10 +330,14 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
@@ -322,10 +348,14 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
@@ -338,10 +368,14 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 2)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
@@ -355,10 +389,14 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
         self.assertTrue('(NabPairing Acceptation - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
@@ -377,10 +415,14 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'proposed')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
         self.assertTrue('(NabPairing Divorce - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
@@ -393,10 +435,14 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'proposed')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
@@ -406,10 +452,14 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'proposed')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
@@ -419,10 +469,14 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'proposed')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
         self.assertTrue('(NabPairing Rejection - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
         self.assertTrue('botsin.space/@other' in self.posted_statuses[0]['content'])
@@ -434,10 +488,14 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'proposed')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
         self.assertEqual(len(self.posted_statuses), 0)
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
@@ -447,10 +505,14 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'proposed')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
         self.assertTrue('(NabPairing Divorce - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
@@ -463,12 +525,14 @@ class TestMastodondPairingProtocolWaitingApproval(TestMastodondPairingProtocol):
     def setUp(self):
         super().setUp()
         config = models.Config.load()
-        config.last_processed_status_date = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = \
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
         config.instance = 'botsin.space'
         config.username = 'self'
         config.spouse_handle = 'tester@botsin.space'
         config.spouse_pairing_state = 'waiting_approval'
-        config.spouse_pairing_date = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.spouse_pairing_date = \
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
         config.save()
 
     # Waiting Approval -> Free
@@ -479,10 +543,14 @@ class TestMastodondPairingProtocolWaitingApproval(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
@@ -493,10 +561,14 @@ class TestMastodondPairingProtocolWaitingApproval(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
@@ -506,10 +578,14 @@ class TestMastodondPairingProtocolWaitingApproval(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
         self.assertTrue('(NabPairing Divorce - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
@@ -524,10 +600,14 @@ class TestMastodondPairingProtocolWaitingApproval(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
@@ -538,10 +618,14 @@ class TestMastodondPairingProtocolWaitingApproval(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'other@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
         self.assertTrue('(NabPairing Rejection - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
         self.assertTrue('botsin.space/@tester' in self.posted_statuses[0]['content'])
@@ -554,10 +638,14 @@ class TestMastodondPairingProtocolWaitingApproval(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
@@ -567,10 +655,14 @@ class TestMastodondPairingProtocolWaitingApproval(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
@@ -580,10 +672,14 @@ class TestMastodondPairingProtocolWaitingApproval(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
         self.assertTrue('(NabPairing Divorce - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
@@ -596,10 +692,14 @@ class TestMastodondPairingProtocolWaitingApproval(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
         self.assertEqual(len(self.posted_statuses), 0)
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
@@ -609,10 +709,14 @@ class TestMastodondPairingProtocolWaitingApproval(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
         self.assertTrue('(NabPairing Divorce - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
@@ -625,12 +729,14 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
     def setUp(self):
         super().setUp()
         config = models.Config.load()
-        config.last_processed_status_date = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = \
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
         config.instance = 'botsin.space'
         config.username = 'self'
         config.spouse_handle = 'tester@botsin.space'
         config.spouse_pairing_state = 'married'
-        config.spouse_pairing_date = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.spouse_pairing_date = \
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
         config.save()
 
     # Married -> Free
@@ -641,10 +747,14 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 3)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
@@ -661,10 +771,14 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 3)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
@@ -683,10 +797,14 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
         self.assertTrue('(NabPairing Acceptation - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
@@ -702,10 +820,14 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(len(self.posted_statuses), 0)
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
@@ -722,10 +844,14 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_left_ear_position, 4)
         self.assertEqual(config.spouse_right_ear_position, 6)
         self.assertEqual(len(self.posted_statuses), 0)
@@ -747,10 +873,14 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
         self.assertTrue('(NabPairing Rejection - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
         self.assertTrue('botsin.space/@other' in self.posted_statuses[0]['content'])
@@ -765,10 +895,14 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
         self.assertTrue('(NabPairing Divorce - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
@@ -784,10 +918,14 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
@@ -800,10 +938,14 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
@@ -816,10 +958,14 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(config.last_processed_status_date, datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(
+            config.last_processed_status_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(config.spouse_pairing_date, datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(
+            config.spouse_pairing_date,
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
         self.assertTrue('(NabPairing Divorce - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
@@ -858,14 +1004,16 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
 
     def test_married(self):
         config = models.Config.load()
-        config.last_processed_status_date = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = \
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
         config.instance = 'botsin.space'
         config.username = 'self'
         config.spouse_left_ear_position = 7
         config.spouse_right_ear_position = 5
         config.spouse_handle = 'tester@botsin.space'
         config.spouse_pairing_state = 'married'
-        config.spouse_pairing_date = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.spouse_pairing_date = \
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
         config.access_token = 'access_token'
         config.save()
         service = nabmastodond.NabMastodond()
@@ -887,7 +1035,8 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
 
     def test_not_married(self):
         config = models.Config.load()
-        config.last_processed_status_date = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = \
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
         config.instance = 'botsin.space'
         config.username = 'self'
         config.spouse_handle = None
@@ -930,8 +1079,12 @@ class TestMastodonClientBase:
         with open(TestMastodonClientBase.APPKEY_FILE, "r") as appkey_file:
             self.client_id = appkey_file.readline().strip()
             self.client_secret = appkey_file.readline().strip()
-        self.user1_access_token, self.user1_username = self.login(TestMastodonClientBase.USER1KEY_FILE, TestMastodonClientBase.USER1OOB_FILE, 1)
-        self.user2_access_token, self.user2_username = self.login(TestMastodonClientBase.USER2KEY_FILE, TestMastodonClientBase.USER2OOB_FILE, 2)
+        self.user1_access_token, self.user1_username = self.login(
+            TestMastodonClientBase.USER1KEY_FILE,
+            TestMastodonClientBase.USER1OOB_FILE, 1)
+        self.user2_access_token, self.user2_username = self.login(
+            TestMastodonClientBase.USER2KEY_FILE,
+            TestMastodonClientBase.USER2OOB_FILE, 2)
 
     def tearDown(self):
         if self.user1_access_token is not None:
@@ -941,25 +1094,38 @@ class TestMastodonClientBase:
 
     def login(self, key_file, oob_file, user_n):
         if not os.path.isfile(key_file):
-            mastodon_client = Mastodon(client_id=self.client_id, client_secret=self.client_secret, api_base_url=TestMastodonClientBase.API_BASE_URL)
+            mastodon_client = Mastodon(
+                client_id=self.client_id,
+                client_secret=self.client_secret,
+                api_base_url=TestMastodonClientBase.API_BASE_URL)
             if not os.path.isfile(oob_file):
-                request_url = mastodon_client.auth_request_url(redirect_uris=TestMastodonClientBase.REDIRECT_URI)
+                request_url = mastodon_client.auth_request_url(
+                    redirect_uris=TestMastodonClientBase.REDIRECT_URI)
                 reason = "Log as user {user_n} and visit {url} and save code to {oob_file}".format(user_n=user_n, url=request_url, oob_file=oob_file)
                 print(reason)
                 pytest.skip(reason)
             with open(oob_file, "r") as oob_file:
                 oob = oob_file.readline().strip()
-            access_token = mastodon_client.log_in(code=oob, redirect_uri=TestMastodonClientBase.REDIRECT_URI)
+            access_token = mastodon_client.log_in(
+                code=oob, redirect_uri=TestMastodonClientBase.REDIRECT_URI)
             with open(key_file, "w") as user1key_file:
                 user1key_file.writelines([access_token])
         with open(key_file, "r") as user1key_file:
             access_token = user1key_file.readline().strip()
-            mastodon_client = Mastodon(client_id=self.client_id, client_secret=self.client_secret, api_base_url=TestMastodonClientBase.API_BASE_URL, access_token=access_token)
+            mastodon_client = Mastodon(
+                client_id=self.client_id,
+                client_secret=self.client_secret,
+                api_base_url=TestMastodonClientBase.API_BASE_URL,
+                access_token=access_token)
             account_details = mastodon_client.account_verify_credentials()
             return (access_token, account_details.username)
 
     def purge_dms(self, access_token):
-        mastodon_client = Mastodon(client_id=self.client_id, client_secret=self.client_secret, api_base_url=TestMastodonClientBase.API_BASE_URL, access_token=access_token)
+        mastodon_client = Mastodon(
+            client_id=self.client_id,
+            client_secret=self.client_secret,
+            api_base_url=TestMastodonClientBase.API_BASE_URL,
+            access_token=access_token)
         conversations = mastodon_client.conversations()
         for conversation in conversations:
             status = conversation.last_status
@@ -977,13 +1143,24 @@ class TestSendDM(unittest.TestCase, TestMastodonClientBase):
         TestMastodonClientBase.tearDown(self)
 
     def test_connect_send_dm(self):
-        user1_mastodon_client = Mastodon(client_id=self.client_id, client_secret=self.client_secret, api_base_url=TestMastodonClientBase.API_BASE_URL, access_token=self.user1_access_token)
+        user1_mastodon_client = Mastodon(
+            client_id=self.client_id,
+            client_secret=self.client_secret,
+            api_base_url=TestMastodonClientBase.API_BASE_URL,
+            access_token=self.user1_access_token)
         spouse = self.user2_username
         if '@' not in spouse:
             spouse = spouse + '@' + TestMastodonClientBase.INSTANCE
-        proposal_toot = nabmastodond.NabMastodond.send_dm(user1_mastodon_client, spouse, 'proposal')
-        user2_mastodon_client = Mastodon(client_id=self.client_id, client_secret=self.client_secret, api_base_url=TestMastodonClientBase.API_BASE_URL, access_token=self.user2_access_token)
-        self.assertEqual(user2_mastodon_client.conversations()[0].last_status.id, proposal_toot.id)
+        proposal_toot = nabmastodond.NabMastodond.send_dm(
+            user1_mastodon_client, spouse, 'proposal')
+        user2_mastodon_client = Mastodon(
+            client_id=self.client_id,
+            client_secret=self.client_secret,
+            api_base_url=TestMastodonClientBase.API_BASE_URL,
+            access_token=self.user2_access_token)
+        self.assertEqual(
+            user2_mastodon_client.conversations()[0].last_status.id,
+            proposal_toot.id)
 
 
 @pytest.mark.django_db
@@ -991,7 +1168,11 @@ class TestMastodonClientProposal(TestMastodondBase, TestMastodonClientBase):
     def setUp(self):
         TestMastodondBase.setUp(self)
         TestMastodonClientBase.setUp(self)
-        self.alter_mastodon_client = Mastodon(client_id=self.client_id, client_secret=self.client_secret, api_base_url=TestMastodonClientBase.API_BASE_URL, access_token=self.user2_access_token)
+        self.alter_mastodon_client = Mastodon(
+            client_id=self.client_id,
+            client_secret=self.client_secret,
+            api_base_url=TestMastodonClientBase.API_BASE_URL,
+            access_token=self.user2_access_token)
 
     def tearDown(self):
         TestMastodondBase.tearDown(self)
@@ -999,7 +1180,8 @@ class TestMastodonClientProposal(TestMastodondBase, TestMastodonClientBase):
 
     def test_mastodon_client_alter_proposal_before_start(self):
         config = models.Config.load()
-        config.last_processed_status_date = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = \
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
         config.instance = 'botsin.space'
         config.username = self.user1_username
         config.access_token = self.user1_access_token
@@ -1008,25 +1190,32 @@ class TestMastodonClientProposal(TestMastodondBase, TestMastodonClientBase):
         asyncio.set_event_loop(self.service_loop)
         self.service_loop.call_later(1, lambda: self.service_loop.stop())
         service = nabmastodond.NabMastodond()
-        proposal_toot = nabmastodond.NabMastodond.send_dm(self.alter_mastodon_client, self.user1_username, 'proposal')
+        proposal_toot = nabmastodond.NabMastodond.send_dm(
+            self.alter_mastodon_client, self.user1_username, 'proposal')
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, proposal_toot.id)
-        self.assertEqual(config.last_processed_status_date, proposal_toot.created_at)
+        self.assertEqual(
+            config.last_processed_status_date,
+            proposal_toot.created_at)
         self.assertEqual(config.spouse_handle, 'pynab_test_2@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
         self.assertEqual(config.spouse_pairing_date, proposal_toot.created_at)
 
     def test_mastodon_client_alter_proposal_after_start(self):
         config = models.Config.load()
-        config.last_processed_status_date = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = \
+            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
         config.instance = 'botsin.space'
         config.username = self.user1_username
         config.access_token = self.user1_access_token
         config.save()
         self.service_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.service_loop)
-        self.service_loop.call_later(2, lambda: nabmastodond.NabMastodond.send_dm(self.alter_mastodon_client, self.user1_username, 'proposal'))
+        self.service_loop.call_later(
+            2,
+            lambda: nabmastodond.NabMastodond.send_dm(
+                self.alter_mastodon_client, self.user1_username, 'proposal'))
         self.service_loop.call_later(3, lambda: self.service_loop.stop())
         service = nabmastodond.NabMastodond()
         service.run()
@@ -1035,4 +1224,5 @@ class TestMastodonClientProposal(TestMastodondBase, TestMastodonClientBase):
         self.assertNotEqual(config.last_processed_status_date, None)
         self.assertEqual(config.spouse_handle, 'pynab_test_2@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(config.spouse_pairing_date, config.last_processed_status_date)
+        self.assertEqual(
+            config.spouse_pairing_date, config.last_processed_status_date)
