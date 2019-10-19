@@ -1,6 +1,7 @@
 import sys, asyncio, re
 from nabcommon import nabservice
 from mastodon import Mastodon, StreamListener, MastodonError
+from operator import attrgetter
 
 class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
   DAEMON_PIDFILE = '/var/run/nabmastodond.pid'
@@ -29,7 +30,7 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
     self.setup_streaming(True)
 
   def close_streaming(self):
-    if self.mastodon_stream_handle:
+    if self.mastodon_stream_handle and self.mastodon_stream_handle.connection:
       self.mastodon_stream_handle.close()
     self.current_access_token = None
     self.mastodon_stream_handle = None
@@ -54,15 +55,16 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
       config.last_processed_status_date = status_date
     config.save()
 
-  def process_timeline(self, mastodon_client, timeline):
+  def process_conversations(self, mastodon_client, conversations):
     config = self.__config()
     max_date = config.last_processed_status_date
     max_id = config.last_processed_status_id
-    for status in timeline:
+    conversations_last_statuses = map(attrgetter('last_status'), conversations)
+    for status in sorted(conversations_last_statuses, key=attrgetter('id')):
       (status_id, status_date) = self.process_status(config, mastodon_client, status)
       if status_id != None and (max_id is None or status_id > max_id):
         max_id = status_id
-      if status_date != None and max_date > status_date:
+      if status_date != None and (status_date is None or status_date > max_date):
         max_date = status_date
     config.last_processed_status_date = max_date
     config.last_processed_status_id = max_id
@@ -270,8 +272,8 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
       if self.mastodon_client != None and self.mastodon_stream_handle is None:
         self.mastodon_stream_handle = self.mastodon_client.stream_user(self, run_async=True, reconnect_async=True)
       if self.mastodon_client != None:
-        timeline = self.mastodon_client.timeline(timeline="direct", since_id=config.last_processed_status_id)
-        self.process_timeline(self.mastodon_client, timeline)
+        conversations = self.mastodon_client.conversations(since_id=config.last_processed_status_id)
+        self.process_conversations(self.mastodon_client, conversations)
 
   async def process_nabd_packet(self, packet):
     if packet['type'] == 'ears_event':
@@ -286,8 +288,8 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
 
   def run(self):
     super().connect()
-    self.setup_streaming()
     self.loop = asyncio.get_event_loop()
+    self.setup_streaming()
     config = self.__config()
     if config.spouse_pairing_state == 'married':
       self.send_start_listening_to_ears()
