@@ -125,14 +125,14 @@ LANGUAGE_CODE = 'en-us'
 # Available languages for modules.
 # Locales are inferred from this list.
 LANGUAGES = [
-  ('fr-fr', _('French')),
-  ('de-de', _('German')),
-  ('en-us', _('U.S. English')),
-  ('en-gb', _('British English')),
-  ('it-it', _('Italian')),
-  ('es-es', _('Spanish')),
-  ('ja-jp', _('Japanese')),
-  ('pt-br', _('Brazilian Portuguese')),
+    ('fr-fr', _('French')),
+    ('de-de', _('German')),
+    ('en-us', _('U.S. English')),
+    ('en-gb', _('British English')),
+    ('it-it', _('Italian')),
+    ('es-es', _('Spanish')),
+    ('ja-jp', _('Japanese')),
+    ('pt-br', _('Brazilian Portuguese')),
 ]
 
 TIME_ZONE = 'UTC'

@@ -6,5 +6,5 @@ register = template.Library()
 @register.filter
 @stringfilter
 def to_profile_url(value):
-  [username, instance] = value.split('@')
-  return 'https://' + instance + '/@' + username
+    [username, instance] = value.split('@')
+    return 'https://' + instance + '/@' + username
