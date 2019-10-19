@@ -1,6 +1,7 @@
 import abc
 from .resources import Resources
 
+
 class Sound(object, metaclass=abc.ABCMeta):
     """ Interface for sound """
 
@@ -9,7 +10,7 @@ class Sound(object, metaclass=abc.ABCMeta):
         file = Resources.find('sounds', audio_resource)
         if file != None:
             return file.as_posix()
-        print('Warning : could not find resource {r}'.format(r = audio_resource))
+        print('Warning : could not find resource {r}'.format(r=audio_resource))
         return None
 
     async def play_list(self, filenames, preloaded):
@@ -36,30 +37,30 @@ class Sound(object, metaclass=abc.ABCMeta):
         Start to play a given sound.
         Stop currently playing sound if any.
         """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')
 
     async def wait_until_done(self):
         """
         Wait until sound has been played.
         """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')
 
     async def stop_playing(self):
         """
         Stop currently playing sound.
         """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')
 
     async def start_recording(self, stream_cb):
         """
         Start recording sound.
         Invokes stream_cb repeatedly with recorded samples.
         """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')
 
     async def stop_recording(self):
         """
         Stop recording sound.
         Invokes stream_cb with finalize set to true.
         """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')

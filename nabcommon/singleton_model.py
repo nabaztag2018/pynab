@@ -1,11 +1,12 @@
 from django.db import models
 
+
 class SingletonModel(models.Model):
     """
     Singleton model for Django, used for service settings.
-    
+
     Taken directly from https://steelkiwi.com/blog/practical-application-singleton-design-pattern/
-    
+
     Copyright © 2017 SteelKiwi, http://steelkiwi.com
 
     Licensed under the Apache License, Version 2.0 (the "License");

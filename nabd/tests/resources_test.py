@@ -3,6 +3,7 @@ from nabd.resources import Resources
 from nabd.i18n import Config
 from nabd.choreography import ChoreographyInterpreter
 
+
 @pytest.mark.django_db
 class TestResources(unittest.TestCase):
     def test_find_existing(self):

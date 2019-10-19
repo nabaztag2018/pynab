@@ -1,6 +1,7 @@
 import unittest, time
 from nabd.leds import Leds, LedsSoft
 
+
 class LedsInterface(LedsSoft):
     def __init__(self):
         super().__init__()
@@ -11,6 +12,7 @@ class LedsInterface(LedsSoft):
 
     def do_show(self):
         self.calls.append('do_show')
+
 
 class TestLeds(unittest.TestCase):
     def setUp(self):

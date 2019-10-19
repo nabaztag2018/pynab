@@ -12,6 +12,7 @@ from nabcommon.nabservice import NabService
 import time
 import traceback
 
+
 class Nabd:
     SLEEP_EAR_POSITION = 8
     INIT_EAR_POSITION = 0
@@ -44,12 +45,12 @@ class Nabd:
         self.idle_queue = collections.deque()
         # Current position of ears in idle mode
         self.ears = {'left': Nabd.INIT_EAR_POSITION, 'right': Nabd.INIT_EAR_POSITION}
-        self.info = {}                                          # Info persists across service connections.
-        self.state = 'idle'                                 # 'asleep'/'idle'/'interactive'/'playing'/'recording'
-        self.service_writers = {}                       # Dictionary of writers, i.e. connected services
-                                                                                # For each writer, value is the list of registered events
+        self.info = {}              # Info persists across service connections.
+        self.state = 'idle'         # 'asleep'/'idle'/'interactive'/'playing'/'recording'
+        self.service_writers = {}   # Dictionary of writers, i.e. connected services
+                                    # For each writer, value is the list of registered events
         self.interactive_service_writer = None
-        self.interactive_service_events = [] # Events registered in interactive mode
+        self.interactive_service_events = []  # Events registered in interactive mode
         self.running = True
         self.loop = None
         self._ears_moved_task = None
@@ -118,7 +119,7 @@ class Nabd:
         """
         while True:
             if 'expiration' in item[0] and self.is_past(item[0]['expiration']):
-                self.write_response_packet(item[0], {'status':'expired'}, item[1])
+                self.write_response_packet(item[0], {'status': 'expired'}, item[1])
                 if len(self.idle_queue) == 0:
                     await self.set_state('idle')
                     break
@@ -128,7 +129,7 @@ class Nabd:
                 if item[0]['type'] == 'command':
                     await self.set_state('playing')
                     await self.perform_command(item[0])
-                    self.write_response_packet(item[0], {'status':'ok'}, item[1])
+                    self.write_response_packet(item[0], {'status': 'ok'}, item[1])
                     if len(self.idle_queue) == 0:
                         await self.set_state('idle')
                         break
@@ -137,7 +138,7 @@ class Nabd:
                 elif item[0]['type'] == 'message':
                     await self.set_state('playing')
                     await self.perform_message(item[0])
-                    self.write_response_packet(item[0], {'status':'ok'}, item[1])
+                    self.write_response_packet(item[0], {'status': 'ok'}, item[1])
                     if len(self.idle_queue) == 0:
                         await self.set_state('idle')
                         break
@@ -153,11 +154,11 @@ class Nabd:
                     if has_non_sleep:
                         self.idle_queue.append(item)
                     else:
-                        self.write_response_packet(item[0], {'status':'ok'}, item[1])
+                        self.write_response_packet(item[0], {'status': 'ok'}, item[1])
                         await self.set_state('asleep')
                         break
                 elif item[0]['type'] == 'mode' and item[0]['mode'] == 'interactive':
-                    self.write_response_packet(item[0], {'status':'ok'}, item[1])
+                    self.write_response_packet(item[0], {'status': 'ok'}, item[1])
                     await self.set_state('interactive')
                     self.interactive_service_writer = item[1]
                     if 'events' in item[0]:
@@ -201,17 +202,17 @@ class Nabd:
         if 'info_id' in packet:
             if 'animation' in packet:
                 if not 'tempo' in packet['animation'] or not 'colors' in packet['animation']:
-                    self.write_response_packet(packet, {'status':'error','class':'MalformedPacket','message':'Missing required tempo & colors slots in animation'}, writer)
+                    self.write_response_packet(packet, {'status': 'error', 'class': 'MalformedPacket', 'message': 'Missing required tempo & colors slots in animation'}, writer)
                 else:
                     self.info[packet['info_id']] = packet['animation']
             else:
                 del self.info[packet['info_id']]
-            self.write_response_packet(packet, {'status':'ok'}, writer)
+            self.write_response_packet(packet, {'status': 'ok'}, writer)
             # Signal idle loop to make sure we display updated info
             async with self.idle_cv:
                 self.idle_cv.notify()
         else:
-            self.write_response_packet(packet, {'status':'error','class':'MalformedPacket','message':'Missing required info_id slot'}, writer)
+            self.write_response_packet(packet, {'status': 'error', 'class': 'MalformedPacket', 'message': 'Missing required info_id slot'}, writer)
 
     async def process_ears_packet(self, packet, writer):
         """ Process an ears packet """
@@ -221,7 +222,7 @@ class Nabd:
             self.ears['right'] = packet['right']
         if self.state == 'idle':
             await self.nabio.move_ears(self.ears['left'], self.ears['right'])
-        self.write_response_packet(packet, {'status':'ok'}, writer)
+        self.write_response_packet(packet, {'status': 'ok'}, writer)
 
     async def process_command_packet(self, packet, writer):
         """ Process a command packet """
@@ -229,13 +230,13 @@ class Nabd:
             if self.interactive_service_writer == writer:
                 # interactive => play command immediately
                 await self.perform_command(packet)
-                self.write_response_packet(packet, {'status':'ok'}, writer)
+                self.write_response_packet(packet, {'status': 'ok'}, writer)
             else:
                 async with self.idle_cv:
                     self.idle_queue.append((packet, writer))
                     self.idle_cv.notify()
         else:
-            self.write_response_packet(packet, {'status':'error','class':'MalformedPacket','message':'Missing required sequence slot'}, writer)
+            self.write_response_packet(packet, {'status': 'error', 'class': 'MalformedPacket', 'message': 'Missing required sequence slot'}, writer)
 
     async def process_message_packet(self, packet, writer):
         """ Process a message packet """
@@ -243,28 +244,28 @@ class Nabd:
             if self.interactive_service_writer == writer:
                 # interactive => play command immediately
                 await self.perform_message(packet)
-                self.write_response_packet(packet, {'status':'ok'}, writer)
+                self.write_response_packet(packet, {'status': 'ok'}, writer)
             else:
                 async with self.idle_cv:
                     self.idle_queue.append((packet, writer))
                     self.idle_cv.notify()
         else:
-            self.write_response_packet(packet, {'status':'error','class':'MalformedPacket','message':'Missing required body slot'}, writer)
+            self.write_response_packet(packet, {'status': 'error', 'class': 'MalformedPacket', 'message': 'Missing required body slot'}, writer)
 
     async def process_cancel_packet(self, packet, writer):
         """ Process a cancel packet """
-        self.write_response_packet(packet, {'status':'error','class':'Unimplemented','message':'unimplemented'}, writer)
+        self.write_response_packet(packet, {'status': 'error', 'class': 'Unimplemented', 'message': 'unimplemented'}, writer)
 
     async def process_wakeup_packet(self, packet, writer):
         """ Process a wakeup packet """
-        self.write_response_packet(packet, {'status':'ok'}, writer)
+        self.write_response_packet(packet, {'status': 'ok'}, writer)
         if self.state == 'asleep':
             await self.transition_to_idle()
 
     async def process_sleep_packet(self, packet, writer):
         """ Process a sleep packet """
         if self.state == 'asleep':
-            self.write_response_packet(packet, {'status':'ok'}, writer)
+            self.write_response_packet(packet, {'status': 'ok'}, writer)
         else:
             async with self.idle_cv:
                 self.idle_queue.append((packet, writer))
@@ -284,9 +285,9 @@ class Nabd:
             if writer == self.interactive_service_writer:
                 # exit interactive mode.
                 await self.exit_interactive()
-            self.write_response_packet(packet, {'status':'ok'}, writer)
+            self.write_response_packet(packet, {'status': 'ok'}, writer)
         else:
-            self.write_response_packet(packet, {'status':'error','class':'UnknownPacket','message':'Unknown or malformed mode packet'}, writer)
+            self.write_response_packet(packet, {'status': 'error', 'class': 'UnknownPacket', 'message': 'Unknown or malformed mode packet'}, writer)
 
     async def process_packet(self, packet, writer):
         """ Process a packet from a service """
@@ -305,9 +306,9 @@ class Nabd:
             if packet['type'] in processors:
                 await processors[packet['type']](packet, writer)
             else:
-                self.write_response_packet(packet, {'status':'error','class':'UnknownPacket','message':'Unknown type ' + str(packet['type'])}, writer)
+                self.write_response_packet(packet, {'status': 'error', 'class': 'UnknownPacket', 'message': 'Unknown type ' + str(packet['type'])}, writer)
         else:
-            self.write_response_packet(packet, {'status':'error','class':'MalformedPacket','message':'Missing type slot'}, writer)
+            self.write_response_packet(packet, {'status': 'error', 'class': 'MalformedPacket', 'message': 'Missing type slot'}, writer)
 
     def write_packet(self, response, writer):
         writer.write((json.dumps(response) + '\r\n').encode('utf8'))
@@ -330,7 +331,7 @@ class Nabd:
             self.write_state_packet(sw)
 
     def write_state_packet(self, writer):
-        self.write_packet({'type':'state','state':self.state}, writer)
+        self.write_packet({'type': 'state', 'state': self.state}, writer)
 
     # Handle service through TCP/IP protocol
     async def service_loop(self, reader, writer):
@@ -344,11 +345,11 @@ class Nabd:
                         packet = json.loads(line.decode('utf8'))
                         await self.process_packet(packet, writer)
                     except UnicodeDecodeError as e:
-                        self.write_packet({'type':'response','status':'error','class':'UnicodeDecodeError','message':str(e)}, writer)
+                        self.write_packet({'type': 'response', 'status': 'error', 'class': 'UnicodeDecodeError', 'message': str(e)}, writer)
                     except json.decoder.JSONDecodeError as e:
-                        self.write_packet({'type':'response','status':'error','class':'JSONDecodeError','message':str(e)}, writer)
+                        self.write_packet({'type': 'response', 'status': 'error', 'class': 'JSONDecodeError', 'message': str(e)}, writer)
             writer.close()
-            if sys.version_info >= (3,7):
+            if sys.version_info >= (3, 7):
                 await writer.wait_closed()
         except ConnectionResetError:
             pass
@@ -376,7 +377,7 @@ class Nabd:
         elif button_event == 'triple_click':
             asyncio.ensure_future(self._shutdown())
         else:
-            self.broadcast_event('button', {'type':'button_event', 'event': button_event, 'time': event_time})
+            self.broadcast_event('button', {'type': 'button_event', 'event': button_event, 'time': event_time})
 
     async def start_asr(self):
         await self.set_state('recording')
@@ -395,7 +396,7 @@ class Nabd:
             # Did not understand
             await self.nabio.asr_failed()
         else:
-            self.broadcast_event('asr', {'type':'asr_event', 'nlu': response, 'time': now})
+            self.broadcast_event('asr', {'type': 'asr_event', 'nlu': response, 'time': now})
 
     async def _shutdown(self):
         await self.sleep_setup()
@@ -411,7 +412,7 @@ class Nabd:
                 ear_str = 'left'
             else:
                 ear_str = 'right'
-            self.write_packet({'type':'ear_event', 'ear':ear_str}, self.interactive_service_writer)
+            self.write_packet({'type': 'ear_event', 'ear': ear_str}, self.interactive_service_writer)
         else:
             # Wait a little bit for user to continue moving the ears
             # Then we'll run a detection and tell services if we're not sleeping.
@@ -426,7 +427,7 @@ class Nabd:
             self.ears['left'] = left
             self.ears['right'] = right
             if self.state != 'asleep':
-                self.broadcast_event('ears', {'type':'ears_event', 'left': left, 'right': right})
+                self.broadcast_event('ears', {'type': 'ears_event', 'left': left, 'right': right})
 
     def run(self):
         self.loop = asyncio.get_event_loop()
@@ -453,9 +454,9 @@ class Nabd:
             self.loop.run_until_complete(self.stop_idle_worker())
             for writer in self.service_writers.copy():
                 writer.close()
-                if sys.version_info >= (3,7):
+                if sys.version_info >= (3, 7):
                     self.loop.run_until_complete(writer.wait_closed())
-            if sys.version_info >= (3,7):
+            if sys.version_info >= (3, 7):
                 tasks = asyncio.all_tasks(self.loop)
             else:
                 tasks = asyncio.Task.all_tasks(self.loop)
@@ -467,7 +468,7 @@ class Nabd:
 
     def stop(self):
         if not self.loop.is_closed():
-            self.loop.call_soon_threadsafe(lambda : self.loop.stop())
+            self.loop.call_soon_threadsafe(lambda: self.loop.stop())
 
     @staticmethod
     def leds_boot(nabio, step):
@@ -492,7 +493,7 @@ class Nabd:
          + ' -h                                     display this message\n' \
          + ' --pidfile=<pidfile>    define pidfile (default = {pidfilepath})\n'.format(pidfilepath=pidfilepath)
         try:
-            opts, args = getopt.getopt(argv,"h",["pidfile=","nabio="])
+            opts, args = getopt.getopt(argv, "h", ["pidfile=", "nabio="])
         except getopt.GetoptError:
             print(usage)
             exit(2)
@@ -516,6 +517,7 @@ class Nabd:
         except LockFailed:
             print('Cannot write pid file to {pidfilepath}, please fix permissions'.format(pidfilepath=pidfilepath))
             exit(1)
+
 
 if __name__ == '__main__':
     Nabd.main(sys.argv[1:])

@@ -5,6 +5,7 @@ from .models import Config
 from .nabtaichid import NabTaichid
 import datetime
 
+
 class SettingsView(TemplateView):
     template_name = "nabtaichid/settings.html"
 

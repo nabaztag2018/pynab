@@ -76,7 +76,7 @@ class NabIOHW(NabIO):
             # https://bugs.python.org/issue32751
             # https://bugs.python.org/issue33638
             if sys.version_info < (3, 7):
-                await asyncio.sleep(0) # tentative workaround
+                await asyncio.sleep(0)  # tentative workaround
             timeout = True
         return timeout
 
@@ -87,9 +87,9 @@ class NabIOHW(NabIO):
             values = []
             if color[led]:
                 int_value = int(color[led], 16)
-                values.append((int_value >> 16) & 0xFF) # r
-                values.append((int_value >> 8) & 0xFF) # g
-                values.append(int_value & 0xFF) # b
+                values.append((int_value >> 16) & 0xFF)   # r
+                values.append((int_value >> 8) & 0xFF)    # g
+                values.append(int_value & 0xFF)           # b
             else:
                 values.append(0)
                 values.append(0)

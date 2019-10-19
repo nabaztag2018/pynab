@@ -1,6 +1,7 @@
 import unittest, asyncio, threading, json, django, time, datetime, signal, pytest
 from nabsurprised.nabsurprised import NabSurprised
 
+
 class MockWriter(object):
     def __init__(self):
         self.written = []
@@ -8,13 +9,14 @@ class MockWriter(object):
     def write(self, packet):
         self.written.append(packet)
 
+
 @pytest.mark.django_db
 class TestNabSurprised(unittest.TestCase):
     def test_perform(self):
         service = NabSurprised()
         writer = MockWriter()
         service.writer = writer
-        expiration = datetime.datetime(2018,11,1,0,0,0)
+        expiration = datetime.datetime(2018, 11, 1, 0, 0, 0)
         service.perform(expiration, None)
         self.assertEqual(len(writer.written), 1)
         packet = writer.written[0]

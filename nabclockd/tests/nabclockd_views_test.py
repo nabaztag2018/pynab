@@ -1,6 +1,7 @@
 from django.test import TestCase, Client
 from nabclockd.models import Config
 
+
 class TestView(TestCase):
     def setUp(self):
         Config.load()

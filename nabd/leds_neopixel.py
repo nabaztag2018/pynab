@@ -1,15 +1,16 @@
 from rpi_ws281x import Adafruit_NeoPixel, Color
 from .leds import LedsSoft
 
-class LedsNeoPixel(LedsSoft):
-    LED_PIN              = 13            # GPIO pin connected to the pixels (18 uses PWM!).
-    LED_FREQ_HZ      = 800000    # LED signal frequency in hertz (usually 800khz)
-    LED_DMA              = 12            # DMA channel to use for generating signal (try 10)
-    LED_BRIGHTNESS = 200         # Set to 0 for darkest and 255 for brightest
-    LED_INVERT       = False     # True to invert the signal (when using NPN transistor level shift)
-    LED_CHANNEL      = 1             # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
-    PULSING_RATE     = 0.100     # every 100ms
+class LedsNeoPixel(LedsSoft):
+    LED_PIN = 13            # GPIO pin connected to the pixels (18 uses PWM!).
+    LED_FREQ_HZ = 800000    # LED signal frequency in hertz (usually 800khz)
+    LED_DMA = 12            # DMA channel to use for generating signal (try 10)
+    LED_BRIGHTNESS = 200    # Set to 0 for darkest and 255 for brightest
+    LED_INVERT = False      # True to invert the signal (when using NPN transistor level shift)
+    LED_CHANNEL = 1         # set to '1' for GPIOs 13, 19, 41, 45 or 53
+
+    PULSING_RATE = 0.100    # every 100ms
 
     def __init__(self):
         super().__init__()

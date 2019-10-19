@@ -1,6 +1,7 @@
 import sys, datetime, random
 from nabcommon.nabservice import NabRandomService
 
+
 class NabTaichid(NabRandomService):
     DAEMON_PIDFILE = '/var/run/nabtaichid.pid'
 
@@ -27,6 +28,7 @@ class NabTaichid(NabRandomService):
             now = datetime.datetime.now(datetime.timezone.utc)
             expiration = now + datetime.timedelta(minutes=1)
             self.perform(expiration, None)
+
 
 if __name__ == '__main__':
     NabTaichid.main(sys.argv[1:])

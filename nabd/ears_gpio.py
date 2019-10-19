@@ -8,10 +8,12 @@ from concurrent.futures import ThreadPoolExecutor
 from .ears import Ears
 import logging
 
+
 @atexit.register
 def cleanup_gpio():
     GPIO.setwarnings(False)
     GPIO.cleanup()
+
 
 class EarsGPIO(Ears):
     ENCODERS_CHANNELS = [24, 23]
@@ -53,7 +55,7 @@ class EarsGPIO(Ears):
         Thread: Rpi.GPIO event thread
         Lock: unknown
         """
-        logging.debug('encoder_cb, channel = {channel}'.format(channel =channel))
+        logging.debug('encoder_cb, channel = {channel}'.format(channel=channel))
         if channel == EarsGPIO.ENCODERS_CHANNELS[0]:
             ear = 0
         elif channel == EarsGPIO.ENCODERS_CHANNELS[1]:
@@ -66,7 +68,7 @@ class EarsGPIO(Ears):
                 loop.call_soon_threadsafe(lambda ear=ear: callback(ear))
             else:
                 self.positions[ear] = (self.positions[ear] + direction) % EarsGPIO.HOLES
-                if self.targets[ear] is None: # reset mode
+                if self.targets[ear] is None:  # reset mode
                     self.encoder_cv.notify_all()
                 else:
                     if self.positions[ear] == self.targets[ear]:

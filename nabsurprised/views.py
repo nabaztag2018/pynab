@@ -5,6 +5,7 @@ from .models import Config
 from .nabsurprised import NabSurprised
 import datetime
 
+
 class SettingsView(TemplateView):
     template_name = "nabsurprised/settings.html"
 

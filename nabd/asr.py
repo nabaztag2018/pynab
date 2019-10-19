@@ -4,6 +4,7 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 
+
 class ASR:
     """
     Class handling automatic speech recognition.
@@ -12,7 +13,7 @@ class ASR:
         'fr_FR': '/opt/kaldi/model/kaldi-nabaztag-fr-r20191001'
     }
     DEFAULT_LOCALE = 'fr_FR'
-    
+
     def __init__(self, locale):
         self.executor = ThreadPoolExecutor(max_workers=1)
         self._load_model(locale)
@@ -38,7 +39,7 @@ class ASR:
 
     async def get_decoded_string(self, sync):
         if sync:
-            future = self.executor.submit(lambda : self._get_decoded_string())
+            future = self.executor.submit(lambda: self._get_decoded_string())
             return future.result()
         else:
             # not sure we could do that

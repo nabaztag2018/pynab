@@ -3,6 +3,7 @@ import dateutil.parser
 from nabcommon.nabservice import NabRecurrentService
 from meteofrance.client import meteofranceClient
 
+
 class NabWeatherd(NabRecurrentService):
     UNIT_CELSIUS = 1
     UNIT_FARENHEIT = 2
@@ -75,52 +76,52 @@ class NabWeatherd(NabRecurrentService):
 
     # Météo France weather classes
     WEATHER_CLASSES = {
-        'J_W1_0-N_0': ('sunny', SUNNY_INFO_ANIMATION), # Ensoleillé
-        'N_W1_0-N_0': ('sunny', SUNNY_INFO_ANIMATION), # Nuit Claire
-        'J_W1_0-N_5': ('cloudy', CLOUDY_INFO_ANIMATION), # Ciel voilé
-        'N_W1_0-N_5': ('cloudy', CLOUDY_INFO_ANIMATION), # Ciel voilé nuit
-        'J_W1_0-N_1': ('sunny', SUNNY_INFO_ANIMATION), # Éclaircies
-        'J_W1_0-N_2': ('sunny', SUNNY_INFO_ANIMATION), # Éclaircies
-        'N_W1_0-N_1': ('sunny', SUNNY_INFO_ANIMATION), # Éclaircies (nuit)
-        'J_W1_0-N_3': ('cloudy', CLOUDY_INFO_ANIMATION), # Très nuageux
-        'J_W1_1-N_0': ('foggy', FOGGY_INFO_ANIMATION), # Brume ou bancs de brouillard (jour)
-        'N_W1_1-N_0': ('foggy', FOGGY_INFO_ANIMATION), # Brume ou bancs de brouillard (nuit)
-        'J_W1_1-N_3': ('foggy', FOGGY_INFO_ANIMATION), # Brume ou bancs de brouillard (non précisé)
-        'J_W1_3-N_0': ('foggy', FOGGY_INFO_ANIMATION), # Brouillard
-        'J_W1_6-N_0': ('foggy', FOGGY_INFO_ANIMATION), # Brouillard givrant
-        'J_W1_7-N_0': ('rainy', RAINY_INFO_ANIMATION), # Bruine
-        'J_W1_8-N_0': ('rainy', RAINY_INFO_ANIMATION), # Pluie verglaçante (jour)
-        'N_W1_8-N_0': ('rainy', RAINY_INFO_ANIMATION), # Pluie verglaçante (nuit)
-        'J_W1_8-N_3': ('rainy', RAINY_INFO_ANIMATION), # Pluie verglaçante (non précisé)
-        'J_W1_9-N_0': ('rainy', RAINY_INFO_ANIMATION), # Pluies éparses / Rares averses (jour)
-        'N_W1_9-N_0': ('rainy', RAINY_INFO_ANIMATION), # Pluies éparses / Rares averses (nuit)
-        'J_W1_9-N_3': ('rainy', RAINY_INFO_ANIMATION), # Pluies éparses / Rares averses (non précisé)
-        'J_W2_14': ('rainy', RAINY_INFO_ANIMATION), # Pluie / Averses (jour)
-        'N_W2_14': ('rainy', RAINY_INFO_ANIMATION), # Pluie / Averses (nuit)
-        'J_W1_10-N_0': ('rainy', RAINY_INFO_ANIMATION), # Pluie / Averses (non précisé)
-        'J_W1_11-N_0': ('rainy', RAINY_INFO_ANIMATION), # Pluie forte
-        'J_W1_12-N_0': ('rainy', RAINY_INFO_ANIMATION), # Pluies orageuses
-        'J_W1_32-N_0': ('rainy', RAINY_INFO_ANIMATION), # Pluies orageuses (jour)
-        'N_W1_32-N_0': ('rainy', RAINY_INFO_ANIMATION), # Pluies orageuses (nuit)
-        'J_W1_13-N_0': ('snowy', SNOWY_INFO_ANIMATION), # Quelques flocons (jour)
-        'N_W1_13-N_0': ('snowy', SNOWY_INFO_ANIMATION), # Quelques flocons (nuit)
-        'J_W1_13-N_3': ('snowy', SNOWY_INFO_ANIMATION), # Quelques flocons (non précisé)
-        'J_W1_14-N_0': ('snowy', SNOWY_INFO_ANIMATION), # Pluie et neige (jour)
-        'N_W1_14-N_0': ('snowy', SNOWY_INFO_ANIMATION), # Pluie et neige (nuit)
-        'J_W1_14-N_3': ('snowy', SNOWY_INFO_ANIMATION), # Pluie et neige (non précisé)
-        'J_W1_15-N_0': ('snowy', SNOWY_INFO_ANIMATION), # Neige (jour)
-        'N_W1_15-N_0': ('snowy', SNOWY_INFO_ANIMATION), # Neige (nuit)
-        'J_W1_22-N_3': ('snowy', SNOWY_INFO_ANIMATION), # Neige (non précisé)
-        'J_W1_17-N_0': ('snowy', SNOWY_INFO_ANIMATION), # Neige forte
-        'J_W1_23-N_0': ('rainy', RAINY_INFO_ANIMATION), # Risque de grêle (jour)
-        'N_W1_23-N_0': ('rainy', RAINY_INFO_ANIMATION), # Risque de grêle (nuit)
-        'J_W1_23-N_3': ('rainy', RAINY_INFO_ANIMATION), # Risque de grêle (non précisé)
-        'J_W1_24-N_0': ('stormy', STORMY_INFO_ANIMATION), # Risque d’orages (jour)
-        'N_W1_24-N_0': ('stormy', STORMY_INFO_ANIMATION), # Risque d’orages (nuit)
-        'J_W1_24-N_3': ('stormy', STORMY_INFO_ANIMATION), # Risque d’orages (non précisé)
-        'J_W1_27-N_0': ('stormy', STORMY_INFO_ANIMATION), # Orages (jour)
-        'N_W1_27-N_0': ('stormy', STORMY_INFO_ANIMATION), # Orages (nuit)
-        'J_W1_27-N_3': ('stormy', STORMY_INFO_ANIMATION), # Orages (non précisé)
+        'J_W1_0-N_0': ('sunny', SUNNY_INFO_ANIMATION),  # Ensoleillé
+        'N_W1_0-N_0': ('sunny', SUNNY_INFO_ANIMATION),  # Nuit Claire
+        'J_W1_0-N_5': ('cloudy', CLOUDY_INFO_ANIMATION),  # Ciel voilé
+        'N_W1_0-N_5': ('cloudy', CLOUDY_INFO_ANIMATION),  # Ciel voilé nuit
+        'J_W1_0-N_1': ('sunny', SUNNY_INFO_ANIMATION),  # Éclaircies
+        'J_W1_0-N_2': ('sunny', SUNNY_INFO_ANIMATION),  # Éclaircies
+        'N_W1_0-N_1': ('sunny', SUNNY_INFO_ANIMATION),  # Éclaircies (nuit)
+        'J_W1_0-N_3': ('cloudy', CLOUDY_INFO_ANIMATION),  # Très nuageux
+        'J_W1_1-N_0': ('foggy', FOGGY_INFO_ANIMATION),  # Brume ou bancs de brouillard (jour)
+        'N_W1_1-N_0': ('foggy', FOGGY_INFO_ANIMATION),  # Brume ou bancs de brouillard (nuit)
+        'J_W1_1-N_3': ('foggy', FOGGY_INFO_ANIMATION),  # Brume ou bancs de brouillard (non précisé)
+        'J_W1_3-N_0': ('foggy', FOGGY_INFO_ANIMATION),  # Brouillard
+        'J_W1_6-N_0': ('foggy', FOGGY_INFO_ANIMATION),  # Brouillard givrant
+        'J_W1_7-N_0': ('rainy', RAINY_INFO_ANIMATION),  # Bruine
+        'J_W1_8-N_0': ('rainy', RAINY_INFO_ANIMATION),  # Pluie verglaçante (jour)
+        'N_W1_8-N_0': ('rainy', RAINY_INFO_ANIMATION),  # Pluie verglaçante (nuit)
+        'J_W1_8-N_3': ('rainy', RAINY_INFO_ANIMATION),  # Pluie verglaçante (non précisé)
+        'J_W1_9-N_0': ('rainy', RAINY_INFO_ANIMATION),  # Pluies éparses / Rares averses (jour)
+        'N_W1_9-N_0': ('rainy', RAINY_INFO_ANIMATION),  # Pluies éparses / Rares averses (nuit)
+        'J_W1_9-N_3': ('rainy', RAINY_INFO_ANIMATION),  # Pluies éparses / Rares averses (non précisé)
+        'J_W2_14': ('rainy', RAINY_INFO_ANIMATION),  # Pluie / Averses (jour)
+        'N_W2_14': ('rainy', RAINY_INFO_ANIMATION),  # Pluie / Averses (nuit)
+        'J_W1_10-N_0': ('rainy', RAINY_INFO_ANIMATION),  # Pluie / Averses (non précisé)
+        'J_W1_11-N_0': ('rainy', RAINY_INFO_ANIMATION),  # Pluie forte
+        'J_W1_12-N_0': ('rainy', RAINY_INFO_ANIMATION),  # Pluies orageuses
+        'J_W1_32-N_0': ('rainy', RAINY_INFO_ANIMATION),  # Pluies orageuses (jour)
+        'N_W1_32-N_0': ('rainy', RAINY_INFO_ANIMATION),  # Pluies orageuses (nuit)
+        'J_W1_13-N_0': ('snowy', SNOWY_INFO_ANIMATION),  # Quelques flocons (jour)
+        'N_W1_13-N_0': ('snowy', SNOWY_INFO_ANIMATION),  # Quelques flocons (nuit)
+        'J_W1_13-N_3': ('snowy', SNOWY_INFO_ANIMATION),  # Quelques flocons (non précisé)
+        'J_W1_14-N_0': ('snowy', SNOWY_INFO_ANIMATION),  # Pluie et neige (jour)
+        'N_W1_14-N_0': ('snowy', SNOWY_INFO_ANIMATION),  # Pluie et neige (nuit)
+        'J_W1_14-N_3': ('snowy', SNOWY_INFO_ANIMATION),  # Pluie et neige (non précisé)
+        'J_W1_15-N_0': ('snowy', SNOWY_INFO_ANIMATION),  # Neige (jour)
+        'N_W1_15-N_0': ('snowy', SNOWY_INFO_ANIMATION),  # Neige (nuit)
+        'J_W1_22-N_3': ('snowy', SNOWY_INFO_ANIMATION),  # Neige (non précisé)
+        'J_W1_17-N_0': ('snowy', SNOWY_INFO_ANIMATION),  # Neige forte
+        'J_W1_23-N_0': ('rainy', RAINY_INFO_ANIMATION),  # Risque de grêle (jour)
+        'N_W1_23-N_0': ('rainy', RAINY_INFO_ANIMATION),  # Risque de grêle (nuit)
+        'J_W1_23-N_3': ('rainy', RAINY_INFO_ANIMATION),  # Risque de grêle (non précisé)
+        'J_W1_24-N_0': ('stormy', STORMY_INFO_ANIMATION),  # Risque d’orages (jour)
+        'N_W1_24-N_0': ('stormy', STORMY_INFO_ANIMATION),  # Risque d’orages (nuit)
+        'J_W1_24-N_3': ('stormy', STORMY_INFO_ANIMATION),  # Risque d’orages (non précisé)
+        'J_W1_27-N_0': ('stormy', STORMY_INFO_ANIMATION),  # Orages (jour)
+        'N_W1_27-N_0': ('stormy', STORMY_INFO_ANIMATION),  # Orages (nuit)
+        'J_W1_27-N_3': ('stormy', STORMY_INFO_ANIMATION),  # Orages (non précisé)
     }
 
     # Dictionary built from css rules
@@ -300,7 +301,7 @@ class NabWeatherd(NabRecurrentService):
     def compute_next(self, scheduled_messages):
         # next is the earliest of an info within one hour and the next scheduled message.
         now = datetime.datetime.now(datetime.timezone.utc)
-        next_hour = now + datetime.timedelta(seconds = 3600)
+        next_hour = now + datetime.timedelta(seconds=3600)
         return (next_hour, "info")
 
     def perform(self, expiration, type):
@@ -351,6 +352,7 @@ class NabWeatherd(NabRecurrentService):
             now = datetime.datetime.now(datetime.timezone.utc)
             expiration = now + datetime.timedelta(minutes=1)
             self.perform(expiration, 'today')
+
 
 if __name__ == '__main__':
     NabWeatherd.main(sys.argv[1:])

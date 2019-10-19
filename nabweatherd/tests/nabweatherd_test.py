@@ -1,12 +1,14 @@
 import unittest, asyncio, threading, json, django, time, datetime, signal, pytest
 from nabweatherd.nabweatherd import NabWeatherd
 
+
 class MockWriter(object):
     def __init__(self):
         self.written = []
 
     def write(self, packet):
         self.written.append(packet)
+
 
 @pytest.mark.django_db
 class TestNabWeatherd(unittest.TestCase):
@@ -15,7 +17,7 @@ class TestNabWeatherd(unittest.TestCase):
         writer = MockWriter()
         service.writer = writer
         service.location = '75005'
-        expiration = datetime.datetime(2019,4,22,0,0,0)
+        expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
         service.perform(expiration, "today")
         self.assertEqual(len(writer.written), 2)
         packet = writer.written[0]

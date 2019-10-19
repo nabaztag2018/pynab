@@ -1,12 +1,13 @@
 import abc
 from .choreography import ChoreographyInterpreter
 
+
 class NabIO(object, metaclass=abc.ABCMeta):
     """ Interface for I/O interactions with a nabaztag """
 
-    MODEL_2018 = 1              # https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF
+    MODEL_2018 = 1          # https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF
     MODEL_2019_TAG = 2      # https://github.com/nabaztag2018/hardware/blob/master/pyNab_V4.1_voice_reco.PDF
-    MODEL_2019_TAGTAG = 3 # with RFID
+    MODEL_2019_TAGTAG = 3   # with RFID
 
     # Each info loop lasts 15 seconds
     INFO_LOOP_LENGTH = 15.0
@@ -16,7 +17,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """
         Init ears and move them to the initial position.
         """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')
 
     @abc.abstractmethod
     async def move_ears(self, left_ear, right_ear):
@@ -24,7 +25,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
         Move ears to a given position and return only when they reached this
         position.
         """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')
 
     @abc.abstractmethod
     async def detect_ears_positions(self):
@@ -32,17 +33,17 @@ class NabIO(object, metaclass=abc.ABCMeta):
         Detect ears positions and return the position before the detection.
         A second call will return the current position.
         """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')
 
     @abc.abstractmethod
     def set_leds(self, nose, left, center, right, bottom):
         """ Set the leds. None means to turn them off. """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')
 
     @abc.abstractmethod
     def pulse(self, led, color):
         """ Set a led to pulse. """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')
 
     @abc.abstractmethod
     def bind_button_event(self, loop, callback):
@@ -57,7 +58,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
 
         Make sure the callback is called on the provided event loop, with loop.call_soon_threadsafe
         """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')
 
     @abc.abstractmethod
     def bind_ears_event(self, loop, callback):
@@ -67,7 +68,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
 
         Make sure the callback is called on the provided event loop, with loop.call_soon_threadsafe
         """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')
 
     @abc.abstractmethod
     async def play_info(self, condvar, tempo, colors):
@@ -78,7 +79,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
 
         If 'left'/'center'/'right' slots are absent, the light is off.
         """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')
 
     async def start_acquisition(self, acquisition_cb):
         """
@@ -163,4 +164,4 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """
         Cancel currently running sequence or info animation.
         """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')

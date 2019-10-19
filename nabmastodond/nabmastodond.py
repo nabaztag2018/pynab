@@ -3,10 +3,11 @@ from nabcommon import nabservice
 from mastodon import Mastodon, StreamListener, MastodonError
 from operator import attrgetter
 
-class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
+
+class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
     DAEMON_PIDFILE = '/var/run/nabmastodond.pid'
 
-    RETRY_DELAY = 15 * 60 # Retry to reconnect every 15 minutes.
+    RETRY_DELAY = 15 * 60  # Retry to reconnect every 15 minutes.
     NABPAIRING_MESSAGE_RE = 'NabPairing (?P<cmd>Proposal|Acceptation|Rejection|Divorce|Ears (?P<left>[0-9]+) (?P<right>[0-9]+)) - (?:<a href=")?https://github.com/nabaztag2018/pynab'
     PROTOCOL_MESSAGES = { \
         'proposal': 'Would you accept to be my spouse? (NabPairing Proposal - https://github.com/nabaztag2018/pynab)', \
@@ -229,13 +230,13 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
         self.writer.write(packet.encode('utf8'))
 
     @staticmethod
-    def send_dm(mastodon_client, target, message, params = {}):
+    def send_dm(mastodon_client, target, message, params={}):
         """
         Send a DM following pairing protocol
         """
         message_str = NabMastodond.PROTOCOL_MESSAGES[message].format(**params)
         status = '@' + target + ' ' + message_str
-        return mastodon_client.status_post(status, visibility = 'direct')
+        return mastodon_client.status_post(status, visibility='direct')
 
     def decode_dm(self, status):
         m = re.search(NabMastodond.NABPAIRING_MESSAGE_RE, status['content'])
@@ -255,10 +256,11 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
                 self.close_streaming()
             if self.mastodon_client is None:
                 try:
-                    self.mastodon_client = Mastodon(client_id = config.client_id,
-                                                    client_secret = config.client_secret,
-                                                    access_token = config.access_token,
-                                                    api_base_url = 'https://' + config.instance)
+                    self.mastodon_client = Mastodon(
+                        client_id=config.client_id,
+                        client_secret=config.client_secret,
+                        access_token=config.access_token,
+                        api_base_url='https://' + config.instance)
                     self.current_access_token = config.access_token
                     if setup:
                         self.play_message('setup', config.spouse_handle)
@@ -303,13 +305,14 @@ class NabMastodond(nabservice.NabService,asyncio.Protocol,StreamListener):
             self.running = False    # signal to exit
             self.writer.close()
             self.close_streaming()
-            if sys.version_info >= (3,7):
+            if sys.version_info >= (3, 7):
                 tasks = asyncio.all_tasks(self.loop)
             else:
                 tasks = asyncio.Task.all_tasks(self.loop)
             for t in [t for t in tasks if not (t.done() or t.cancelled())]:
                 self.loop.run_until_complete(t)      # give canceled tasks the last chance to run
             self.loop.close()
+
 
 if __name__ == '__main__':
     NabMastodond.main(sys.argv[1:])

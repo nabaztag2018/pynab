@@ -5,6 +5,7 @@ from .nabclockd import NabClockd
 from django.utils import translation
 from pytz import common_timezones
 
+
 class SettingsView(TemplateView):
     template_name = "nabclockd/settings.html"
 

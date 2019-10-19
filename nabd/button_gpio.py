@@ -6,10 +6,12 @@ import atexit
 import time
 from threading import Timer, Lock
 
+
 @atexit.register
 def cleanup_gpio():
     GPIO.setwarnings(False)
     GPIO.cleanup()
+
 
 class ButtonGPIO(Button):
     BUTTON_CHANNEL_2018 = 2

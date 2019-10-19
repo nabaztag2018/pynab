@@ -8,6 +8,7 @@ from django.utils import translation
 from meteofrance.client import meteofranceClient, meteofranceError
 import datetime
 
+
 class SettingsView(TemplateView):
     template_name = "nabweatherd/settings.html"
 
@@ -33,7 +34,7 @@ class SettingsView(TemplateView):
                 meteofranceClient(location)
                 config.location = location
             except meteofranceError as exp:
-                return JsonResponse({'status':'unknownLocationError','message':_('Unknown location')}, status=406)
+                return JsonResponse({'status': 'unknownLocationError', 'message': _('Unknown location')}, status=406)
         if 'unit' in request.POST:
             unit = request.POST['unit']
             config.unit = int(unit)

@@ -2,6 +2,7 @@ import random
 from nabweb import settings
 from pathlib import Path
 
+
 class Resources(object):
     @staticmethod
     def find(type, resources):
@@ -16,10 +17,10 @@ class Resources(object):
             path0 = Path(resources)
             if path0.is_absolute():
                 if path0.is_file():
-                    return path0 # Already found
-                raise ValueError('find_resource expects a relative path, got {path}'.format(path = filename))
+                    return path0  # Already found
+                raise ValueError('find_resource expects a relative path, got {path}'.format(path=filename))
             if "/" in type:
-                raise ValueError('find_resource expects a directory name for type, got {type}'.format(type = type))
+                raise ValueError('find_resource expects a directory name for type, got {type}'.format(type=type))
             is_random = path0.name.startswith('*')
             if is_random:
                 result = Resources._find_random(type, path0.parent.as_posix(), path0.name)

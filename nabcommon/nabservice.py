@@ -7,6 +7,7 @@ from django.apps import apps
 import logging
 from nabcommon import nablogging
 
+
 class NabService(ABC):
     PORT_NUMBER = 10543
 
@@ -38,7 +39,7 @@ class NabService(ABC):
         signal.signal(signal.SIGUSR1, self.signal_handler)
 
     def signal_handler(self, sig, frame):
-        self.loop.call_soon_threadsafe(lambda : self.loop.create_task(self.reload_config()))
+        self.loop.call_soon_threadsafe(lambda: self.loop.create_task(self.reload_config()))
 
     @abstractmethod
     async def reload_config(self):
@@ -62,7 +63,7 @@ class NabService(ABC):
                     except json.decoder.JSONDecodeError as e:
                         logging.error('Invalid JSON packet from nabd: {line}\n{e}'.format(line=line, e=e))
             self.writer.close()
-            if sys.version_info >= (3,7):
+            if sys.version_info >= (3, 7):
                 await self.writer.wait_closed()
         except KeyboardInterrupt:
             pass
@@ -116,7 +117,7 @@ class NabService(ABC):
          + ' -h                                     display this message\n' \
          + ' --pidfile=<pidfile>    define pidfile (default = {pidfilepath})\n'.format(pidfilepath=pidfilepath)
         try:
-            opts, args = getopt.getopt(argv,"h",["pidfile="])
+            opts, args = getopt.getopt(argv, "h", ["pidfile="])
         except getopt.GetoptError:
             print(usage)
             exit(2)
@@ -141,6 +142,7 @@ class NabService(ABC):
             print(error_msg)
             logging.critical(error_msg)
             exit(1)
+
 
 class NabRecurrentService(NabService, ABC):
     """
@@ -249,7 +251,7 @@ class NabRecurrentService(NabService, ABC):
         finally:
             self.writer.close()
             self.loop.run_until_complete(self.stop_service_loop())
-            if sys.version_info >= (3,7):
+            if sys.version_info >= (3, 7):
                 tasks = asyncio.all_tasks(self.loop)
             else:
                 tasks = asyncio.Task.all_tasks(self.loop)
@@ -264,6 +266,7 @@ class NabRecurrentService(NabService, ABC):
         else:
             (self.next_date, self.freq_config) = config_tuple
             self.next_args = None
+
 
 class NabRandomService(NabRecurrentService, ABC):
     """
@@ -288,7 +291,7 @@ class NabRandomService(NabRecurrentService, ABC):
             return None
         now = datetime.datetime.now(datetime.timezone.utc)
         next_delta = self.compute_random_delta(frequency)
-        return now + datetime.timedelta(seconds = next_delta)
+        return now + datetime.timedelta(seconds=next_delta)
 
     def compute_next(self, frequency):
         next = self.do_compute_next(frequency)

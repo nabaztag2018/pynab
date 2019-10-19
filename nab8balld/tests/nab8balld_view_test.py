@@ -2,6 +2,7 @@ from django.test import TestCase, Client
 from nab8balld.models import Config
 import datetime
 
+
 class TestView(TestCase):
     def setUp(self):
         Config.load()
