@@ -1,4 +1,11 @@
-import asyncio, json, datetime, collections, sys, getopt, os, socket
+import asyncio
+import json
+import datetime
+import collections
+import sys
+import getopt
+import os
+import socket
 import dateutil.parser
 import logging
 from nabcommon import nablogging

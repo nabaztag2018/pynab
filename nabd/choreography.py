@@ -1,4 +1,6 @@
-import random, time, asyncio
+import random
+import time
+import asyncio
 from .resources import Resources
 from .ears import Ears
 from contextlib import suppress

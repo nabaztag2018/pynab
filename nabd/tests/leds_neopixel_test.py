@@ -1,4 +1,8 @@
-import unittest, time, pytest, sys, platform
+import unittest
+import time
+import pytest
+import sys
+import platform
 from nabd.leds import Leds
 
 
