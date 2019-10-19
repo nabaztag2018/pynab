@@ -4,6 +4,7 @@ from nabd.ears import Ears
 from nabd.leds import Leds
 from nabd.sound import Sound
 
+
 class NabIOMock(NabIO):
     def __init__(self):
         self.leds = LedsMock()
@@ -55,7 +56,7 @@ class NabIOMock(NabIO):
         self.ears_event_cb = {'callback': callback, 'loop': loop}
 
     async def play_info(self, condvar, tempo, colors):
-        self.played_infos.append({'tempo':tempo, 'colors': colors})
+        self.played_infos.append({'tempo': tempo, 'colors': colors})
         try:
             await asyncio.wait_for(condvar.wait(), NabIO.INFO_LOOP_LENGTH)
         except asyncio.TimeoutError:
@@ -76,6 +77,7 @@ class NabIOMock(NabIO):
 
     def has_sound_input(self):
         return False
+
 
 class EarsMock(Ears):
     def __init__(self):
@@ -111,6 +113,7 @@ class EarsMock(Ears):
     async def wait_while_running(self):
         self.called_list.append('wait_while_running()')
 
+
 class LedsMock(Leds):
     def __init__(self):
         self.called_list = []
@@ -123,6 +126,7 @@ class LedsMock(Leds):
 
     def setall(self, red, green, blue):
         self.called_list.append('setall({red},{green},{blue})'.format(red=red, green=green, blue=blue))
+
 
 class SoundMock(Sound):
     def __init__(self):

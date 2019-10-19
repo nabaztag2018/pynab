@@ -1,6 +1,7 @@
 import logging
 import logging.handlers
 
+
 def setup_logging(daemon):
     log_handler = logging.handlers.WatchedFileHandler('/var/log/{daemon}.log'.format(daemon=daemon))
     formatter = logging.Formatter('%(levelname)s %(asctime)s %(message)s')

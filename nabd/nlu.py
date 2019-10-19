@@ -4,6 +4,7 @@ from nabweb import settings
 from concurrent.futures import ThreadPoolExecutor
 import traceback
 
+
 class NLU:
     """
     Class handling natural language understanding.

@@ -2,6 +2,7 @@ import unittest, asyncio, base64, re, pytest
 from mock import EarsMock, LedsMock, SoundMock
 from nabd.choreography import ChoreographyInterpreter
 
+
 class TestChoreographyInterpreter(unittest.TestCase):
     def setUp(self):
         self.loop = asyncio.new_event_loop()
@@ -109,6 +110,7 @@ class TestChoreographyInterpreter(unittest.TestCase):
         self.assertEqual(self.ears.called_list, [])
         self.assertEqual(self.sound.called_list, [])
 
+
 @pytest.mark.django_db
 class TestTaichiChoreographies(unittest.TestCase):
     def setUp(self):
@@ -139,11 +141,12 @@ class TestTaichiChoreographies(unittest.TestCase):
             off_leds = 0
             for ledi in self.leds.called_list:
                 if ledi.endswith('0,0,0)'):
-                    off_leds=off_leds+1
+                    off_leds = off_leds+1
                 else:
-                    color_leds=color_leds+1
+                    color_leds = color_leds+1
             self.assertTrue(color_leds > 0)
             self.assertTrue(off_leds > 0)
+
 
 @pytest.mark.django_db
 class TestStreamingChoregraphy(unittest.TestCase):
@@ -170,9 +173,9 @@ class TestStreamingChoregraphy(unittest.TestCase):
         off_leds = 0
         for ledi in self.leds.called_list:
             if ledi.endswith('0,0,0)'):
-                off_leds=off_leds+1
+                off_leds = off_leds+1
             else:
-                color_leds=color_leds+1
+                color_leds = color_leds+1
         self.assertTrue(color_leds > 0)
         self.assertTrue(off_leds > 0)
 

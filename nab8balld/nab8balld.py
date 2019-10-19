@@ -1,6 +1,7 @@
 import sys, asyncio, datetime, random
 from nabcommon.nabservice import NabService
 
+
 class Nab8Balld(NabService):
     DAEMON_PIDFILE = '/var/run/nab8balld.pid'
 
@@ -56,13 +57,14 @@ class Nab8Balld(NabService):
         finally:
             self.running = False    # signal to exit
             self.writer.close()
-            if sys.version_info >= (3,7):
+            if sys.version_info >= (3, 7):
                 tasks = asyncio.all_tasks(self.loop)
             else:
                 tasks = asyncio.Task.all_tasks(self.loop)
             for t in [t for t in tasks if not (t.done() or t.cancelled())]:
                 self.loop.run_until_complete(t)      # give canceled tasks the last chance to run
             self.loop.close()
+
 
 if __name__ == '__main__':
     Nab8Balld.main(sys.argv[1:])

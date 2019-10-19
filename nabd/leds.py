@@ -2,6 +2,7 @@ import abc
 import time
 from threading import Thread, Lock, Condition
 
+
 class Leds(object, metaclass=abc.ABCMeta):
     """ Interface for leds """
 
@@ -17,21 +18,21 @@ class Leds(object, metaclass=abc.ABCMeta):
         """
         Set the color of a given led.
         """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')
 
     @abc.abstractmethod
     def pulse(self, led, red, green, blue):
         """
         Set a given led to pulse to a given color.
         """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')
 
     @abc.abstractmethod
     def setall(self, red, green, blue):
         """
         Set the color of every led.
         """
-        raise NotImplementedError( 'Should have implemented' )
+        raise NotImplementedError('Should have implemented')
 
     def stop(self):
         """
@@ -39,12 +40,13 @@ class Leds(object, metaclass=abc.ABCMeta):
         """
         pass
 
+
 class LedsSoft(Leds, metaclass=abc.ABCMeta):
     """
     Base implementation with software pulsing.
     """
-    PULSING_RATE     = 0.200        # every 200ms
-    PULSING_STEPS    = 10               # number of steps to reach target color
+    PULSING_RATE = 0.200  # every 200ms
+    PULSING_STEPS = 10    # number of steps to reach target color
 
     def __init__(self):
         self.condition = Condition()
@@ -53,7 +55,7 @@ class LedsSoft(Leds, metaclass=abc.ABCMeta):
         self.pending_lock = Lock()
         self.last_pulse = None
         self.running = True
-        self.thread = Thread(target = self.run, daemon = True)
+        self.thread = Thread(target=self.run, daemon=True)
         self.thread.start()
 
     def run(self):

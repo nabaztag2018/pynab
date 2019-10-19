@@ -68,7 +68,7 @@ class SoundAlsa(Sound):
                 device = 'plughw:CARD={sound_card}'.format(sound_card=sound_card)
 
                 if not SoundAlsa.__test_device(device, False):
-                        raise RuntimeError('Unable to configure sound card for playback')
+                    raise RuntimeError('Unable to configure sound card for playback')
 
                 return idx, sound_card, device,
 
@@ -83,17 +83,17 @@ class SoundAlsa(Sound):
                     width = f.getsampwidth()
                     rate = f.getframerate()
                     self._setup_device(device, channels, rate, width)
-                    periodsize = rate // 10 # 1/10th of second
+                    periodsize = rate // 10   # 1/10th of second
                     device.setperiodsize(periodsize)
                     target_chunk_size = periodsize * channels * width
 
                     chunk = io.BytesIO()
-                    chunk_length = 0 # tracking chunk length is technically useless here but we do it for consistency
+                    chunk_length = 0  # tracking chunk length is technically useless here but we do it for consistency
                     data = f.readframes(periodsize)
                     while data and self.currently_playing:
                         chunk_length += chunk.write(data)
 
-                        if chunk_length < target_chunk_size :
+                        if chunk_length < target_chunk_size:
                             # This (probably) is last iteration.
                             # ALSA device expects chunks of fixed period size
                             # Pad the sound with silence to complete chunk
@@ -109,7 +109,7 @@ class SoundAlsa(Sound):
                 rate, channels, encoding = mp3.get_format()
                 width = mp3.get_width_by_encoding(encoding)
                 self._setup_device(device, channels, rate, width)
-                periodsize = rate // 10 # 1/10th of second
+                periodsize = rate // 10   # 1/10th of second
                 device.setperiodsize(periodsize)
                 target_chunk_size = periodsize * width * channels
                 chunk = io.BytesIO()
@@ -170,7 +170,7 @@ class SoundAlsa(Sound):
             inp.setchannels(1)
             inp.setrate(16000)
             inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
-            inp.setperiodsize(1600) # 100ms
+            inp.setperiodsize(1600)   # 100ms
             finalize = False
             while not finalize:
                 l, data = inp.read()
@@ -245,9 +245,9 @@ class SoundAlsa(Sound):
         self.future = asyncio.get_event_loop().run_in_executor(self.executor, lambda f=filename: self._play(f))
 
     __PCM_FORMAT_BY_WIDTH = {
-        1:alsaaudio.PCM_FORMAT_U8, # 8bit is unsigned in wav files
+        1: alsaaudio.PCM_FORMAT_U8,  # 8bit is unsigned in wav files
         # Otherwise we assume signed data, little endian
-        2:alsaaudio.PCM_FORMAT_S16_LE,
-        4:alsaaudio.PCM_FORMAT_S32_LE,
+        2: alsaaudio.PCM_FORMAT_S16_LE,
+        4: alsaaudio.PCM_FORMAT_S32_LE,
         }
     """ Mapping between the PCM format and the width of a sound """

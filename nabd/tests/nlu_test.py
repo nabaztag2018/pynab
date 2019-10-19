@@ -1,6 +1,7 @@
 import unittest, asyncio, datetime, sys
 from nabd.nlu import NLU
 
+
 class TestNLU(unittest.TestCase):
     def setUp(self):
         self.loop = asyncio.new_event_loop()

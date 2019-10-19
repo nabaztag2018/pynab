@@ -3,6 +3,7 @@ from nabmastodond.models import Config
 import datetime
 from dateutil.tz import tzutc
 
+
 class TestView(TestCase):
     def setUp(self):
         Config.load()
@@ -39,7 +40,7 @@ class TestView(TestCase):
         config.client_secret = 'test_client_secret'
         config.save()
 
-        response = c.post('/nabmastodond/connect', {'location':'http://192.168.0.42/', 'instance':'mastodon.social'})
+        response = c.post('/nabmastodond/connect', {'location': 'http://192.168.0.42/', 'instance': 'mastodon.social'})
         self.assertEqual(response.status_code, 200)
         response_json = response.json()
         self.assertTrue('status' in response_json)
@@ -52,7 +53,7 @@ class TestView(TestCase):
         ms1_client_id = config.client_id
         ms1_client_secret = config.client_secret
 
-        response = c.post('/nabmastodond/connect', {'location':'http://192.168.0.42/', 'instance':'mastodon.social'})
+        response = c.post('/nabmastodond/connect', {'location': 'http://192.168.0.42/', 'instance': 'mastodon.social'})
         response_json = response.json()
         self.assertTrue('status' in response_json)
         self.assertTrue('request_url' in response_json)
@@ -62,7 +63,7 @@ class TestView(TestCase):
         self.assertEqual(config.client_secret, ms1_client_secret)
         self.assertEqual(config.redirect_uri, 'http://192.168.0.42/nabmastodond/oauthcb')
 
-        response = c.post('/nabmastodond/connect', {'location':'http://10.10.10.42/', 'instance':'mastodon.social'})
+        response = c.post('/nabmastodond/connect', {'location': 'http://10.10.10.42/', 'instance': 'mastodon.social'})
         response_json = response.json()
         self.assertTrue('status' in response_json)
         self.assertTrue('request_url' in response_json)
@@ -74,7 +75,7 @@ class TestView(TestCase):
         ms2_client_id = config.client_id
         ms2_client_secret = config.client_secret
 
-        response = c.post('/nabmastodond/connect', {'location':'http://10.10.10.42/', 'instance':'botsin.space'})
+        response = c.post('/nabmastodond/connect', {'location': 'http://10.10.10.42/', 'instance': 'botsin.space'})
         response_json = response.json()
         self.assertTrue('status' in response_json)
         self.assertTrue('request_url' in response_json)

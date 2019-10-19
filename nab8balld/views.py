@@ -5,6 +5,7 @@ from .models import Config
 from .nab8balld import Nab8Balld
 import datetime
 
+
 class SettingsView(TemplateView):
     template_name = "nab8balld/settings.html"
 

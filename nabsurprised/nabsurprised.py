@@ -1,6 +1,7 @@
 import sys, datetime, random
 from nabcommon.nabservice import NabRandomService
 
+
 class NabSurprised(NabRandomService):
     def get_config(self):
         from . import models
@@ -29,6 +30,7 @@ class NabSurprised(NabRandomService):
             if packet['nlu']['intent'] == 'carot':
                 packet = '{"type":"message","signature":{"audio":["nabsurprised/respirations/*.mp3"]},"body":[{"audio":["nabsurprised/carot/*.mp3"]}],"expiration":"' + expiration.isoformat() + '"}\r\n'
                 self.writer.write(packet.encode('utf8'))
+
 
 if __name__ == '__main__':
     NabSurprised.main(sys.argv[1:])

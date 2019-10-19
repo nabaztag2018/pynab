@@ -2,6 +2,7 @@ from django.test import TestCase, Client
 from nabweatherd.models import Config
 import datetime
 
+
 class TestView(TestCase):
     def setUp(self):
         Config.load()

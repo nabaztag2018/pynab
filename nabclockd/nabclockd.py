@@ -1,6 +1,7 @@
 import sys, asyncio, json, datetime
 from nabcommon import nabservice
 
+
 class NabClockd(nabservice.NabService):
     DAEMON_PIDFILE = '/var/run/nabclockd.pid'
 
@@ -19,10 +20,10 @@ class NabClockd(nabservice.NabService):
         self.config = models.Config.load()
         async with self.loop_cv:
             self.loop_cv.notify()
-    
+
     def valid_time(self, now):
-        return now > datetime.datetime(2018,11,1)
-    
+        return now > datetime.datetime(2018, 11, 1)
+
     def chime(self, hour):
         now = datetime.datetime.now()
         expiration = now + datetime.timedelta(minutes=3)
@@ -50,7 +51,7 @@ class NabClockd(nabservice.NabService):
             if (should_sleep is None or should_sleep == False) and now.minute == 0 and self.config.chime_hour:
                 if self.last_chime != now.hour:
                     response.append('chime')
-            if now.minute > 5: # account for time drifts
+            if now.minute > 5:  # account for time drifts
                 response.append('reset_last_chime')
         return response
 
@@ -108,13 +109,14 @@ class NabClockd(nabservice.NabService):
         finally:
             self.writer.close()
             self.loop.run_until_complete(self.stop_clock_loop())
-            if sys.version_info >= (3,7):
+            if sys.version_info >= (3, 7):
                 tasks = asyncio.all_tasks(self.loop)
             else:
                 tasks = asyncio.Task.all_tasks(self.loop)
             for t in [t for t in tasks if not (t.done() or t.cancelled())]:
                 self.loop.run_until_complete(t)      # give canceled tasks the last chance to run
             self.loop.close()
+
 
 if __name__ == '__main__':
     NabClockd.main(sys.argv[1:])
