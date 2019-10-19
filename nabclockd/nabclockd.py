@@ -38,15 +38,15 @@ class NabClockd(nabservice.NabService):
         response = []
         if self.valid_time(now):
             should_sleep = None
-            if self.config.wakeup_hour != None and \
-                 self.config.sleep_hour != None and \
-                 self.config.wakeup_min != None and \
-                 self.config.sleep_min != None:
+            if self.config.wakeup_hour is not None and \
+                 self.config.sleep_hour is not None and \
+                 self.config.wakeup_min is not None and \
+                 self.config.sleep_min is not None:
                 if (self.config.wakeup_hour, self.config.wakeup_min) < (self.config.sleep_hour, self.config.sleep_min):
                     should_sleep = (now.hour, now.minute) < (self.config.wakeup_hour, self.config.wakeup_min) or (now.hour, now.minute) >= (self.config.sleep_hour, self.config.sleep_min)
                 else:
                     should_sleep = (now.hour, now.minute) < (self.config.wakeup_hour, self.config.wakeup_min) and (now.hour, now.minute) >= (self.config.sleep_hour, self.config.sleep_min)
-            if should_sleep != None and self.asleep != None and should_sleep != self.asleep:
+            if should_sleep is not None and self.asleep is not None and should_sleep != self.asleep:
                 if should_sleep:
                     response.append('sleep')
                 else:

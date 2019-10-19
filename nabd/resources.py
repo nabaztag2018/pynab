@@ -26,7 +26,7 @@ class Resources(object):
                 result = Resources._find_random(type, path0.parent.as_posix(), path0.name)
             else:
                 result = Resources._find_file(type, filename)
-            if result != None:
+            if result is not None:
                 return result
         return None
 

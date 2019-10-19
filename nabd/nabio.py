@@ -131,7 +131,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
                 chor = seq_item['choreography']
             else:
                 chor = default_chor
-            if chor != None:
+            if chor is not None:
                 await ci.start(chor)
             else:
                 await ci.stop()
@@ -153,7 +153,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
                     audio_list = seq_item['audio']
                 for res in audio_list:
                     f = await self.sound.preload(res)
-                    if f != None:
+                    if f is not None:
                         preloaded_audio_list.append(f)
                 seq_item['audio'] = preloaded_audio_list
             preloaded_sequence.append(seq_item)

@@ -147,9 +147,9 @@ class EarsGPIO(Ears):
                             delta = now - previous_risings[ear]
                             if delta > 0.4:
                                 # passed the missing hole
-                                if target_left != None and ear == Ears.LEFT_EAR:
+                                if target_left is not None and ear == Ears.LEFT_EAR:
                                     self.targets[ear] = target_left
-                                elif target_right != None and ear == Ears.RIGHT_EAR:
+                                elif target_right is not None and ear == Ears.RIGHT_EAR:
                                     self.targets[ear] = target_right
                                 else:
                                     self.targets[ear] = (self.directions[ear] - self.positions[ear]) % EarsGPIO.HOLES
@@ -164,9 +164,9 @@ class EarsGPIO(Ears):
                             delta = now - previous_risings[ear]
                             if delta > 0.4:
                                 # At missing hole
-                                if target_left != None and ear == Ears.LEFT_EAR:
+                                if target_left is not None and ear == Ears.LEFT_EAR:
                                     self.targets[ear] = target_left
-                                elif target_right != None and ear == Ears.RIGHT_EAR:
+                                elif target_right is not None and ear == Ears.RIGHT_EAR:
                                     self.targets[ear] = target_right
                                 else:
                                     self.targets[ear] = (- self.positions[ear]) % EarsGPIO.HOLES

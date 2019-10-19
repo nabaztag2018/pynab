@@ -8,7 +8,7 @@ class Sound(object, metaclass=abc.ABCMeta):
     async def preload(self, audio_resource):
         # For now only consider local paths
         file = Resources.find('sounds', audio_resource)
-        if file != None:
+        if file is not None:
             return file.as_posix()
         print('Warning : could not find resource {r}'.format(r=audio_resource))
         return None
@@ -20,7 +20,7 @@ class Sound(object, metaclass=abc.ABCMeta):
         else:
             for filename in filenames:
                 preloaded_file = await self.preload(filename)
-                if preloaded_file != None:
+                if preloaded_file is not None:
                     preloaded_list.append(preloaded_file)
         await self.stop_playing()
         for filename in preloaded_list:
@@ -29,7 +29,7 @@ class Sound(object, metaclass=abc.ABCMeta):
 
     async def start_playing(self, audio_resource):
         preloaded = await self.preload(audio_resource)
-        if preloaded != None:
+        if preloaded is not None:
             await self.start_playing_preloaded(preloaded)
 
     async def start_playing_preloaded(self, filename):

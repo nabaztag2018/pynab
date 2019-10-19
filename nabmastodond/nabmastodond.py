@@ -52,9 +52,9 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
     def do_update(self, mastodon_client, status):
         config = self.__config()
         (status_id, status_date) = self.process_status(config, mastodon_client, status)
-        if status_id != None and (config.last_processed_status_id is None or status_id > config.last_processed_status_id):
+        if status_id is not None and (config.last_processed_status_id is None or status_id > config.last_processed_status_id):
             config.last_processed_status_id = status_id
-        if status_date != None and status_date > config.last_processed_status_date:
+        if status_date is not None and status_date > config.last_processed_status_date:
             config.last_processed_status_date = status_date
         config.save()
 
@@ -65,9 +65,9 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
         conversations_last_statuses = map(attrgetter('last_status'), conversations)
         for status in sorted(conversations_last_statuses, key=attrgetter('id')):
             (status_id, status_date) = self.process_status(config, mastodon_client, status)
-            if status_id != None and (max_id is None or status_id > max_id):
+            if status_id is not None and (max_id is None or status_id > max_id):
                 max_id = status_id
-            if status_date != None and (status_date is None or status_date > max_date):
+            if status_date is not None and (status_date is None or status_date > max_date):
                 max_date = status_date
         config.last_processed_status_date = max_date
         config.last_processed_status_id = max_id
@@ -78,7 +78,7 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
             status_id = status['id']
             status_date = status['created_at']
             skip = False
-            if config.last_processed_status_id != None:
+            if config.last_processed_status_id is not None:
                 skip = status_id <= config.last_processed_status_id
             skip = skip or config.last_processed_status_date > status_date
             if not skip:
@@ -101,12 +101,12 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
                 else:
                     sender_name = sender_account['username']
                 type, params = self.decode_dm(status)
-                if type != None:
+                if type is not None:
                     self.transition_state(config, mastodon_client, sender, sender_name, type, params, status['created_at'])
 
     def transition_state(self, config, mastodon_client, sender, sender_name, type, params, message_date):
         current_state = config.spouse_pairing_state
-        matching = config.spouse_handle != None and config.spouse_handle == sender
+        matching = config.spouse_handle is not None and config.spouse_handle == sender
         if current_state is None:
             if type == 'proposal':
                 config.spouse_handle = sender
@@ -273,9 +273,9 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
                 except MastodonError as e:
                     print('Unexpected mastodon error: {e}'.format(e=e))
                     self.loop.call_later(NabMastodond.RETRY_DELAY, self.setup_streaming)
-            if self.mastodon_client != None and self.mastodon_stream_handle is None:
+            if self.mastodon_client is not None and self.mastodon_stream_handle is None:
                 self.mastodon_stream_handle = self.mastodon_client.stream_user(self, run_async=True, reconnect_async=True)
-            if self.mastodon_client != None:
+            if self.mastodon_client is not None:
                 conversations = self.mastodon_client.conversations(since_id=config.last_processed_status_id)
                 self.process_conversations(self.mastodon_client, conversations)
 
@@ -297,7 +297,7 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
         config = self.__config()
         if config.spouse_pairing_state == 'married':
             self.send_start_listening_to_ears()
-            if config.spouse_left_ear_position != None:
+            if config.spouse_left_ear_position is not None:
                 self.send_ears(config.spouse_left_ear_position, config.spouse_right_ear_position)
         try:
             self.loop.run_forever()

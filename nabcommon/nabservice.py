@@ -210,7 +210,7 @@ class NabRecurrentService(NabService, ABC):
                         now = datetime.datetime.now(datetime.timezone.utc)
                         next_date = self.next_date
                         next_args = self.next_args
-                        if next_date != None and next_date <= now:
+                        if next_date is not None and next_date <= now:
                             self.perform(next_date + datetime.timedelta(minutes=1), next_args)
                             next_date = None
                             next_args = None
