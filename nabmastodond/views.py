@@ -85,7 +85,7 @@ class LoginView(View):
         if config.access_token:
             try:
                 mastodon_client = Mastodon(
-                    client_id=config.client_id, \
+                    client_id=config.client_id,
                     client_secret=config.client_secret,
                     access_token=config.access_token,
                     api_base_url='https://' + config.instance)
@@ -182,8 +182,7 @@ class WeddingView(View):
         config = Config.load()
         params = json.loads(request.body.decode('utf8'))
         spouse = params['spouse']
-        if (config.spouse_pairing_state == 'married' or config.spouse_pairing_state == 'proposed') \
-            and config.spouse_handle == spouse:
+        if (config.spouse_pairing_state == 'married' or config.spouse_pairing_state == 'proposed') and config.spouse_handle == spouse:
             mastodon_client = Mastodon(
                 client_id=config.client_id,
                 client_secret=config.client_secret,

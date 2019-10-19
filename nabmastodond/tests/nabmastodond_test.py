@@ -17,7 +17,7 @@ from mastodon import Mastodon, MastodonNotFoundError
 
 class MockMastodonClient:
     def __init__(self):
-            self.posted_statuses = []
+        self.posted_statuses = []
 
     def status_post(self, status, visibility=None, idempotency_key=None):
         """
@@ -796,7 +796,7 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
 
     def test_process_nonmatching_divorce(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> I think we should split. Can we skip the lawyers? (NabPairing Divorce - https://github.com/nabaztag2018/pynab)</p>', "created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> I think we should split. Can we skip the lawyers? (NabPairing Divorce - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
@@ -874,9 +874,9 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
         service.current_access_token = 'access_token'
         service.run()
         config = models.Config.load()
-        #self.assertEqual(config.spouse_left_ear_position, 4)
-        #self.assertEqual(config.spouse_right_ear_position, 6)
-        #self.assertEqual(len(self.posted_statuses), 1)
+        # self.assertEqual(config.spouse_left_ear_position, 4)
+        # self.assertEqual(config.spouse_right_ear_position, 6)
+        # self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
         self.assertTrue('(NabPairing Ears 4 6 - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
         self.assertTrue('botsin.space/@tester' in self.posted_statuses[0]['content'])

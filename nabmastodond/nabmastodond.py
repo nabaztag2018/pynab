@@ -11,12 +11,12 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
 
     RETRY_DELAY = 15 * 60  # Retry to reconnect every 15 minutes.
     NABPAIRING_MESSAGE_RE = 'NabPairing (?P<cmd>Proposal|Acceptation|Rejection|Divorce|Ears (?P<left>[0-9]+) (?P<right>[0-9]+)) - (?:<a href=")?https://github.com/nabaztag2018/pynab'
-    PROTOCOL_MESSAGES = { \
-        'proposal': 'Would you accept to be my spouse? (NabPairing Proposal - https://github.com/nabaztag2018/pynab)', \
-        'acceptation': 'Oh yes, I do accept to be your spouse (NabPairing Acceptation - https://github.com/nabaztag2018/pynab)', \
-        'rejection': 'Sorry, I cannot be your spouse right now (NabPairing Rejection - https://github.com/nabaztag2018/pynab)', \
-        'divorce': 'I think we should split. Can we skip the lawyers? (NabPairing Divorce - https://github.com/nabaztag2018/pynab)', \
-        'ears': 'Let\'s dance (NabPairing Ears {left} {right} - https://github.com/nabaztag2018/pynab)', \
+    PROTOCOL_MESSAGES = {
+        'proposal': 'Would you accept to be my spouse? (NabPairing Proposal - https://github.com/nabaztag2018/pynab)',
+        'acceptation': 'Oh yes, I do accept to be your spouse (NabPairing Acceptation - https://github.com/nabaztag2018/pynab)',
+        'rejection': 'Sorry, I cannot be your spouse right now (NabPairing Rejection - https://github.com/nabaztag2018/pynab)',
+        'divorce': 'I think we should split. Can we skip the lawyers? (NabPairing Divorce - https://github.com/nabaztag2018/pynab)',
+        'ears': 'Let\'s dance (NabPairing Ears {left} {right} - https://github.com/nabaztag2018/pynab)',
     }
 
     def __init__(self):

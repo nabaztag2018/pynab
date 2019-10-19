@@ -6,7 +6,7 @@ import platform
 from nabd.leds import Leds
 
 
-@pytest.mark.skipif(sys.platform != 'linux' or not 'arm' in platform.machine(), reason="Neopixel test only makes sens on a physical Nabaztag")
+@pytest.mark.skipif(sys.platform != 'linux' or 'arm' not in platform.machine(), reason="Neopixel test only makes sens on a physical Nabaztag")
 class TestLedsNeopixel(unittest.TestCase):
     def test_set_one(self):
         from nabd.leds_neopixel import LedsNeoPixel

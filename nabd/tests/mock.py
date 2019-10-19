@@ -90,7 +90,7 @@ class EarsMock(Ears):
         self.cb = (loop, callback)
 
     async def reset_ears(self, target_left, target_right):
-        self.called_list.append('reset_ears({l},{r})'.format(l=target_left, r=target_right))
+        self.called_list.append('reset_ears({left},{right})'.format(left=target_left, right=target_right))
 
     async def move(self, ear, delta, direction):
         self.called_list.append('move({ear},{delta},{direction})'.format(ear=ear, delta=delta, direction=direction))

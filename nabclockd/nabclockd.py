@@ -39,9 +39,9 @@ class NabClockd(nabservice.NabService):
         if self.valid_time(now):
             should_sleep = None
             if self.config.wakeup_hour is not None and \
-                 self.config.sleep_hour is not None and \
-                 self.config.wakeup_min is not None and \
-                 self.config.sleep_min is not None:
+               self.config.sleep_hour is not None and \
+               self.config.wakeup_min is not None and \
+               self.config.sleep_min is not None:
                 if (self.config.wakeup_hour, self.config.wakeup_min) < (self.config.sleep_hour, self.config.sleep_min):
                     should_sleep = (now.hour, now.minute) < (self.config.wakeup_hour, self.config.wakeup_min) or (now.hour, now.minute) >= (self.config.sleep_hour, self.config.sleep_min)
                 else:
@@ -51,7 +51,7 @@ class NabClockd(nabservice.NabService):
                     response.append('sleep')
                 else:
                     response.append('wakeup')
-            if (should_sleep is None or should_sleep == False) and now.minute == 0 and self.config.chime_hour:
+            if (should_sleep is None or should_sleep is False) and now.minute == 0 and self.config.chime_hour:
                 if self.last_chime != now.hour:
                     response.append('chime')
             if now.minute > 5:  # account for time drifts
