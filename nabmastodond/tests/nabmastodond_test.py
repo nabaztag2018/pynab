@@ -820,6 +820,7 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
     super().setUp()
     self.posted_statuses = []
     self.mock_connection_handler = self.ears_handler
+    self.connection = None
     self.ears_handler_packets = []
     self.ears_handler_called = 0
     self.service_loop = asyncio.new_event_loop()
@@ -948,6 +949,12 @@ class TestMastodonClientBase:
         pass
 
 class TestSendDM(unittest.TestCase, TestMastodonClientBase):
+  def setUp(self):
+    TestMastodonClientBase.setUp(self)
+
+  def tearDown(self):
+    TestMastodonClientBase.tearDown(self)
+
   def test_connect_send_dm(self):
     user1_mastodon_client = Mastodon(client_id = self.client_id, client_secret = self.client_secret, api_base_url = TestMastodonClientBase.API_BASE_URL, access_token = self.user1_access_token)
     spouse = self.user2_username
@@ -980,7 +987,6 @@ class TestMastodonClientProposal(TestMastodondBase, TestMastodonClientBase):
     self.service_loop.call_later(1, lambda : self.service_loop.stop())
     service = nabmastodond.NabMastodond()
     proposal_toot = nabmastodond.NabMastodond.send_dm(self.alter_mastodon_client, self.user1_username, 'proposal')
-    print(proposal_toot)
     service.run()
     config = models.Config.load()
     self.assertEqual(config.last_processed_status_id, proposal_toot.id)
