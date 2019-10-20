@@ -244,7 +244,8 @@ class Nabd:
                     self.write_response_packet(
                         packet,
                         {
-                            "status": "error", "class": "MalformedPacket",
+                            "status": "error",
+                            "class": "MalformedPacket",
                             "message": "Missing required tempo & colors slots "
                             "in animation",
                         },
