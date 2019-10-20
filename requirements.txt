@@ -1,5 +1,6 @@
 wheel
 pytest
+pytest-pep8
 django
 psycopg2-binary
 pytest-django
