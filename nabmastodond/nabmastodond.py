@@ -307,10 +307,7 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
             self.running = False    # signal to exit
             self.writer.close()
             self.close_streaming()
-            if sys.version_info >= (3, 7):
-                tasks = asyncio.all_tasks(self.loop)
-            else:
-                tasks = asyncio.Task.all_tasks(self.loop)
+            tasks = asyncio.all_tasks(self.loop)
             for t in [t for t in tasks if not (t.done() or t.cancelled())]:
                 self.loop.run_until_complete(t)      # give canceled tasks the last chance to run
             self.loop.close()
