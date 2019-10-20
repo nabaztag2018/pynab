@@ -419,8 +419,9 @@ class NabWeatherd(NabRecurrentService):
             self.writer.write(packet.encode("utf8"))
         else:
             if (
-                self.forecast_date is None or
-                (datetime.datetime.now() - self.forecast_date).seconds >= 1800
+                self.forecast_date is None
+                or (datetime.datetime.now() - self.forecast_date).seconds
+                >= 1800
             ):
                 self.update_weather_forecast()
             # Always update info.

@@ -72,8 +72,8 @@ class ConnectView(View):
                 return HttpResponse(
                     "Unknown error",
                     content=f'{{"status":"error",'
-                            f'"code":"MastodonError",'
-                            f'"message":"{e}"}}',
+                    f'"code":"MastodonError",'
+                    f'"message":"{e}"}}',
                     mimetype="application/json",
                     status=500,
                 )
@@ -136,8 +136,8 @@ class LoginView(View):
                 return HttpResponse(
                     "Unauthorized",
                     content=f'{{"status":"error",'
-                            f'"result":"unauthorized",'
-                            f'"message":"{e}"}}',
+                    f'"result":"unauthorized",'
+                    f'"message":"{e}"}}',
                     mimetype="application/json",
                     status=401,
                 )
