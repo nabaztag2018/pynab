@@ -21,21 +21,20 @@ class NabService(ABC):
     def __init__(self):
         if not settings.configured:
             from django.apps.config import AppConfig
+
             conf = {
-                'INSTALLED_APPS': [
-                    type(self).__name__.lower()
-                ],
-                'USE_TZ': True,
-                'DATABASES': {
-                    'default': {
-                        'ENGINE': 'django.db.backends.postgresql',
-                        'NAME': 'pynab',
-                        'USER': 'pynab',
-                        'PASSWORD': '',
-                        'HOST': '',
-                        'PORT': '',
+                "INSTALLED_APPS": [type(self).__name__.lower()],
+                "USE_TZ": True,
+                "DATABASES": {
+                    "default": {
+                        "ENGINE": "django.db.backends.postgresql",
+                        "NAME": "pynab",
+                        "USER": "pynab",
+                        "PASSWORD": "",
+                        "HOST": "",
+                        "PORT": "",
                     }
-                }
+                },
             }
             settings.configure(**conf)
             apps.populate(settings.INSTALLED_APPS)
@@ -46,7 +45,9 @@ class NabService(ABC):
         signal.signal(signal.SIGUSR1, self.signal_handler)
 
     def signal_handler(self, sig, frame):
-        self.loop.call_soon_threadsafe(lambda: self.loop.create_task(self.reload_config()))
+        self.loop.call_soon_threadsafe(
+            lambda: self.loop.create_task(self.reload_config())
+        )
 
     @abstractmethod
     async def reload_config(self):
@@ -62,13 +63,21 @@ class NabService(ABC):
         try:
             while self.running and not self.reader.at_eof():
                 line = await self.reader.readline()
-                if line != b'' and line != b'\r\n':
+                if line != b"" and line != b"\r\n":
                     try:
-                        packet = json.loads(line.decode('utf8'))
-                        logging.debug('process nabd packet: {packet}'.format(packet=packet))
+                        packet = json.loads(line.decode("utf8"))
+                        logging.debug(
+                            "process nabd packet: {packet}".format(
+                                packet=packet
+                            )
+                        )
                         await self.process_nabd_packet(packet)
                     except json.decoder.JSONDecodeError as e:
-                        logging.error('Invalid JSON packet from nabd: {line}\n{e}'.format(line=line, e=e))
+                        logging.error(
+                            "Invalid JSON packet from nabd: {line}\n{e}".format(
+                                line=line, e=e
+                            )
+                        )
             self.writer.close()
             await self.writer.wait_closed()
         except KeyboardInterrupt:
@@ -85,15 +94,19 @@ class NabService(ABC):
         self.loop.create_task(self.client_loop())
 
     def _do_connect(self, retry_count):
-        connection = asyncio.open_connection(host="127.0.0.1", port=NabService.PORT_NUMBER)
+        connection = asyncio.open_connection(
+            host="127.0.0.1", port=NabService.PORT_NUMBER
+        )
         try:
             (reader, writer) = self.loop.run_until_complete(connection)
             self.reader = reader
             self.writer = writer
         except ConnectionRefusedError:
             if retry_count == 0:
-                print('Could not connect to server. Is nabd running?')
-                logging.critical('Could not connect to server. Is nabd running?')
+                print("Could not connect to server. Is nabd running?")
+                logging.critical(
+                    "Could not connect to server. Is nabd running?"
+                )
                 exit(1)
             time.sleep(1)
             self._do_connect(retry_count - 1)
@@ -105,9 +118,11 @@ class NabService(ABC):
     @classmethod
     def signal_daemon(cls):
         service_name = cls.__name__.lower()
-        pidfilepath = '/var/run/{service_name}.pid'.format(service_name=service_name)
+        pidfilepath = "/var/run/{service_name}.pid".format(
+            service_name=service_name
+        )
         try:
-            with open(pidfilepath, 'r') as f:
+            with open(pidfilepath, "r") as f:
                 pidstr = f.read()
             os.kill(int(pidstr), signal.SIGUSR1)
         # Silently ignore the fact that the daemon is not running
@@ -118,21 +133,26 @@ class NabService(ABC):
     def main(cls, argv):
         service_name = cls.__name__.lower()
         nablogging.setup_logging(service_name)
-        pidfilepath = '/var/run/{service_name}.pid'.format(service_name=service_name)
-        usage = \
-            '{service_name} [options]\n'.format(service_name=service_name) \
-            + ' -h                   display this message\n' \
-            + ' --pidfile=<pidfile>  define pidfile (default = {pidfilepath})\n'.format(pidfilepath=pidfilepath)
+        pidfilepath = "/var/run/{service_name}.pid".format(
+            service_name=service_name
+        )
+        usage = (
+            "{service_name} [options]\n".format(service_name=service_name)
+            + " -h                   display this message\n"
+            + " --pidfile=<pidfile>  define pidfile (default = {pidfilepath})\n".format(
+                pidfilepath=pidfilepath
+            )
+        )
         try:
             opts, args = getopt.getopt(argv, "h", ["pidfile="])
         except getopt.GetoptError:
             print(usage)
             exit(2)
         for opt, arg in opts:
-            if opt == '-h':
+            if opt == "-h":
                 print(usage)
                 exit(0)
-            elif opt == '--pidfile':
+            elif opt == "--pidfile":
                 pidfilepath = arg
         pidfile = PIDLockFile(pidfilepath, timeout=-1)
         try:
@@ -140,12 +160,16 @@ class NabService(ABC):
                 service = cls()
                 service.run()
         except AlreadyLocked:
-            error_msg = '{service_name} already running? (pid={pid})'.format(service_name=service_name, pid=pidfile.read_pid())
+            error_msg = "{service_name} already running? (pid={pid})".format(
+                service_name=service_name, pid=pidfile.read_pid()
+            )
             print(error_msg)
             logging.critical(error_msg)
             exit(1)
         except LockFailed:
-            error_msg = 'Cannot write pid file to {pidfilepath}, please fix permissions'.format(pidfilepath=pidfilepath)
+            error_msg = "Cannot write pid file to {pidfilepath}, please fix permissions".format(
+                pidfilepath=pidfilepath
+            )
             print(error_msg)
             logging.critical(error_msg)
             exit(1)
@@ -157,6 +181,7 @@ class NabRecurrentService(NabService, ABC):
     Next performance time is saved in database.
     Reload configuration on USR1 signal.
     """
+
     def __init__(self):
         super().__init__()
         self._get_config()
@@ -195,8 +220,9 @@ class NabRecurrentService(NabService, ABC):
         pass
 
     async def reload_config(self):
-        logging.info('reloading configuration')
+        logging.info("reloading configuration")
         from django.core.cache import cache
+
         cache.clear()
         self._get_config()
         async with self.loop_cv:
@@ -211,17 +237,26 @@ class NabRecurrentService(NabService, ABC):
                         next_date = self.next_date
                         next_args = self.next_args
                         if next_date is not None and next_date <= now:
-                            self.perform(next_date + datetime.timedelta(minutes=1), next_args)
+                            self.perform(
+                                next_date + datetime.timedelta(minutes=1),
+                                next_args,
+                            )
                             next_date = None
                             next_args = None
-                        if self.saved_freq_config != self.freq_config or next_date is None:
+                        if (
+                            self.saved_freq_config != self.freq_config
+                            or next_date is None
+                        ):
                             next_tuple = self.compute_next(self.freq_config)
                             if next_tuple is None:
                                 next_date = None
                                 next_args = None
                             else:
                                 (next_date, next_args) = next_tuple
-                        if next_date != self.next_date or next_args != self.next_args:
+                        if (
+                            next_date != self.next_date
+                            or next_args != self.next_args
+                        ):
                             self.next_date = next_date
                             self.next_args = next_args
                             self.update_next(next_date, next_args)
@@ -230,7 +265,9 @@ class NabRecurrentService(NabService, ABC):
                             sleep_amount = None
                         else:
                             sleep_amount = (next_date - now).total_seconds()
-                        await asyncio.wait_for(self.loop_cv.wait(), sleep_amount)
+                        await asyncio.wait_for(
+                            self.loop_cv.wait(), sleep_amount
+                        )
                     except asyncio.TimeoutError:
                         pass
         except KeyboardInterrupt:
@@ -241,7 +278,7 @@ class NabRecurrentService(NabService, ABC):
 
     async def stop_service_loop(self):
         async with self.loop_cv:
-            self.running = False    # signal to exit
+            self.running = False  # signal to exit
             self.loop_cv.notify()
 
     def run(self):
@@ -260,7 +297,9 @@ class NabRecurrentService(NabService, ABC):
             self.loop.run_until_complete(self.stop_service_loop())
             tasks = asyncio.all_tasks(self.loop)
             for t in [t for t in tasks if not (t.done() or t.cancelled())]:
-                self.loop.run_until_complete(t)      # give canceled tasks the last chance to run
+                self.loop.run_until_complete(
+                    t
+                )  # give canceled tasks the last chance to run
             self.loop.close()
 
     def _get_config(self):
@@ -280,6 +319,7 @@ class NabRandomService(NabRecurrentService, ABC):
     There is no next_args.
     Reload configuration on USR1 signal.
     """
+
     @abstractmethod
     def compute_random_delta(self, frequency):
         """

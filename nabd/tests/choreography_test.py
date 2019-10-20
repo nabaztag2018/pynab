@@ -20,7 +20,7 @@ class TestChoreographyInterpreter(unittest.TestCase):
         chor = base64.b16decode("0007020304050607")
         task = self.loop.create_task(self.ci.play_binary(chor))
         self.loop.run_until_complete(task)
-        self.assertEqual(self.leds.called_list, ['set1(2,3,4,5)'])
+        self.assertEqual(self.leds.called_list, ["set1(2,3,4,5)"])
         self.assertEqual(self.ears.called_list, [])
         self.assertEqual(self.sound.called_list, [])
 
@@ -29,14 +29,14 @@ class TestChoreographyInterpreter(unittest.TestCase):
         task = self.loop.create_task(self.ci.play_binary(chor))
         self.loop.run_until_complete(task)
         self.assertEqual(self.leds.called_list, [])
-        self.assertEqual(self.ears.called_list, ['go(1,3,0)'])
+        self.assertEqual(self.ears.called_list, ["go(1,3,0)"])
         self.assertEqual(self.sound.called_list, [])
 
     def test_set_leds_color(self):
         chor = base64.b16decode("0009020304")
         task = self.loop.create_task(self.ci.play_binary(chor))
         self.loop.run_until_complete(task)
-        self.assertEqual(self.leds.called_list, ['setall(2,3,4)'])
+        self.assertEqual(self.leds.called_list, ["setall(2,3,4)"])
         self.assertEqual(self.ears.called_list, [])
         self.assertEqual(self.sound.called_list, [])
 
@@ -44,7 +44,7 @@ class TestChoreographyInterpreter(unittest.TestCase):
         chor = base64.b16decode("000A02")
         task = self.loop.create_task(self.ci.play_binary(chor))
         self.loop.run_until_complete(task)
-        self.assertEqual(self.leds.called_list, ['set1(2,0,0,0)'])
+        self.assertEqual(self.leds.called_list, ["set1(2,0,0,0)"])
         self.assertEqual(self.ears.called_list, [])
         self.assertEqual(self.sound.called_list, [])
 
@@ -52,7 +52,7 @@ class TestChoreographyInterpreter(unittest.TestCase):
         chor = base64.b16decode("000E0203")
         task = self.loop.create_task(self.ci.play_binary(chor))
         self.loop.run_until_complete(task)
-        self.assertEqual(self.leds.called_list, ['set1(2,0,0,0)'])
+        self.assertEqual(self.leds.called_list, ["set1(2,0,0,0)"])
         self.assertEqual(self.ears.called_list, [])
         self.assertEqual(self.sound.called_list, [])
 
@@ -64,14 +64,14 @@ class TestChoreographyInterpreter(unittest.TestCase):
         self.assertEqual(self.ears.called_list, [])
         self.assertEqual(len(self.sound.called_list), 1)
         soundcall = self.sound.called_list[0]
-        self.assertTrue(re.match(r'start\(.+\)', soundcall))
+        self.assertTrue(re.match(r"start\(.+\)", soundcall))
 
     def test_avance(self):
         chor = base64.b16decode("00110102")
         task = self.loop.create_task(self.ci.play_binary(chor))
         self.loop.run_until_complete(task)
         self.assertEqual(self.leds.called_list, [])
-        self.assertEqual(self.ears.called_list, ['move(1,2,0)'])
+        self.assertEqual(self.ears.called_list, ["move(1,2,0)"])
         self.assertEqual(self.sound.called_list, [])
 
     def test_setmotordir(self):
@@ -79,38 +79,43 @@ class TestChoreographyInterpreter(unittest.TestCase):
         task = self.loop.create_task(self.ci.play_binary(chor))
         self.loop.run_until_complete(task)
         self.assertEqual(self.leds.called_list, [])
-        self.assertEqual(self.ears.called_list, ['move(1,-2,1)'])
+        self.assertEqual(self.ears.called_list, ["move(1,-2,1)"])
         self.assertEqual(self.sound.called_list, [])
 
     def test_ifne(self):
         chor = base64.b16decode("0012000000000A02")
         task = self.loop.create_task(self.ci.play_binary(chor))
         self.loop.run_until_complete(task)
-        self.assertEqual(self.leds.called_list, ['set1(2,0,0,0)'])
+        self.assertEqual(self.leds.called_list, ["set1(2,0,0,0)"])
         self.assertEqual(self.ears.called_list, [])
         self.assertEqual(self.sound.called_list, [])
 
     def test_rfidok(self):
         chor = base64.b16decode(
-            "0101010100010E0007030000FF000000" +
-            "07020000FF00000007010000FF000001" +
-            "07030000000000000702000000000000" +
-            "070100000000000107040000FF000002" +
-            "070400000000000107040000FF000002" +
-            "0A04")
+            "0101010100010E0007030000FF000000"
+            + "07020000FF00000007010000FF000001"
+            + "07030000000000000702000000000000"
+            + "070100000000000107040000FF000002"
+            + "070400000000000107040000FF000002"
+            + "0A04"
+        )
         task = self.loop.create_task(self.ci.play_binary(chor))
         self.loop.run_until_complete(task)
-        self.assertEqual(self.leds.called_list, [
-            'set1(3,0,0,255)',
-            'set1(2,0,0,255)',
-            'set1(1,0,0,255)',
-            'set1(3,0,0,0)',
-            'set1(2,0,0,0)',
-            'set1(1,0,0,0)',
-            'set1(4,0,0,255)',
-            'set1(4,0,0,0)',
-            'set1(4,0,0,255)',
-            'set1(4,0,0,0)'])
+        self.assertEqual(
+            self.leds.called_list,
+            [
+                "set1(3,0,0,255)",
+                "set1(2,0,0,255)",
+                "set1(1,0,0,255)",
+                "set1(3,0,0,0)",
+                "set1(2,0,0,0)",
+                "set1(1,0,0,0)",
+                "set1(4,0,0,255)",
+                "set1(4,0,0,0)",
+                "set1(4,0,0,255)",
+                "set1(4,0,0,0)",
+            ],
+        )
         self.assertEqual(self.ears.called_list, [])
         self.assertEqual(self.sound.called_list, [])
 
@@ -131,7 +136,9 @@ class TestTaichiChoreographies(unittest.TestCase):
             self.leds.called_list = []
             self.ears.called_list = []
             self.ci.taichi_random = random
-            task = self.loop.create_task(self.ci.start("nabtaichid/taichi.chor"))
+            task = self.loop.create_task(
+                self.ci.start("nabtaichid/taichi.chor")
+            )
             self.loop.run_until_complete(task)
             task = self.loop.create_task(self.ci.wait_until_complete())
             self.loop.run_until_complete(task)
@@ -144,10 +151,10 @@ class TestTaichiChoreographies(unittest.TestCase):
             color_leds = 0
             off_leds = 0
             for ledi in self.leds.called_list:
-                if ledi.endswith('0,0,0)'):
-                    off_leds = off_leds+1
+                if ledi.endswith("0,0,0)"):
+                    off_leds = off_leds + 1
                 else:
-                    color_leds = color_leds+1
+                    color_leds = color_leds + 1
             self.assertTrue(color_leds > 0)
             self.assertTrue(off_leds > 0)
 
@@ -163,7 +170,9 @@ class TestStreamingChoregraphy(unittest.TestCase):
         self.ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
 
     def test_streaming(self):
-        task = self.loop.create_task(self.ci.start(ChoreographyInterpreter.STREAMING_URN))
+        task = self.loop.create_task(
+            self.ci.start(ChoreographyInterpreter.STREAMING_URN)
+        )
         self.loop.run_until_complete(task)
         task = self.loop.create_task(asyncio.sleep(1))
         self.loop.run_until_complete(task)
@@ -176,15 +185,17 @@ class TestStreamingChoregraphy(unittest.TestCase):
         color_leds = 0
         off_leds = 0
         for ledi in self.leds.called_list:
-            if ledi.endswith('0,0,0)'):
-                off_leds = off_leds+1
+            if ledi.endswith("0,0,0)"):
+                off_leds = off_leds + 1
             else:
-                color_leds = color_leds+1
+                color_leds = color_leds + 1
         self.assertTrue(color_leds > 0)
         self.assertTrue(off_leds > 0)
 
     def test_streaming_n(self):
-        task = self.loop.create_task(self.ci.start(ChoreographyInterpreter.STREAMING_URN + ':3'))
+        task = self.loop.create_task(
+            self.ci.start(ChoreographyInterpreter.STREAMING_URN + ":3")
+        )
         self.loop.run_until_complete(task)
         task = self.loop.create_task(asyncio.sleep(1))
         self.loop.run_until_complete(task)
@@ -199,7 +210,9 @@ class TestStreamingChoregraphy(unittest.TestCase):
             self.sound.called_list = []
             self.leds.called_list = []
             self.ears.called_list = []
-            task = self.loop.create_task(self.ci.start(f"nabd/streaming/{chor}.chor"))
+            task = self.loop.create_task(
+                self.ci.start(f"nabd/streaming/{chor}.chor")
+            )
             self.loop.run_until_complete(task)
             task = self.loop.create_task(asyncio.sleep(4))
             self.loop.run_until_complete(task)

@@ -13,17 +13,23 @@ class Resources(object):
         Files are first searched in <app>/<type>/<locale>/ then <app>/<type>/
         Random lookup is performed when component is * or *.suffix
         """
-        for filename in resources.split(';'):
+        for filename in resources.split(";"):
             path0 = Path(resources)
             if path0.is_absolute():
                 if path0.is_file():
                     return path0  # Already found
-                raise ValueError(f'find_resource expects a relative path, got {filename}')
+                raise ValueError(
+                    f"find_resource expects a relative path, got {filename}"
+                )
             if "/" in type:
-                raise ValueError(f'find_resource expects a directory name for type, got {type}')
-            is_random = path0.name.startswith('*')
+                raise ValueError(
+                    f"find_resource expects a directory name for type, got {type}"
+                )
+            is_random = path0.name.startswith("*")
             if is_random:
-                result = Resources._find_random(type, path0.parent.as_posix(), path0.name)
+                result = Resources._find_random(
+                    type, path0.parent.as_posix(), path0.name
+                )
             else:
                 result = Resources._find_file(type, filename)
             if result is not None:
@@ -33,11 +39,15 @@ class Resources(object):
     @staticmethod
     def _find_file(type, filename):
         from .i18n import get_locale
+
         all_apps = settings.INSTALLED_APPS
         basepath = Path(settings.BASE_DIR)
         locale = get_locale()
         for app in all_apps:
-            for path in [basepath.joinpath(app, type, locale, filename), basepath.joinpath(app, type, filename)]:
+            for path in [
+                basepath.joinpath(app, type, locale, filename),
+                basepath.joinpath(app, type, filename),
+            ]:
                 if path.is_file():
                     return path
         return None
@@ -45,11 +55,15 @@ class Resources(object):
     @staticmethod
     def _find_random(type, parent, pattern):
         from .i18n import get_locale
+
         all_apps = settings.INSTALLED_APPS
         basepath = Path(settings.BASE_DIR)
         locale = get_locale()
         for app in all_apps:
-            for path in [basepath.joinpath(app, type, locale, parent), basepath.joinpath(app, type, parent)]:
+            for path in [
+                basepath.joinpath(app, type, locale, parent),
+                basepath.joinpath(app, type, parent),
+            ]:
                 if path.is_dir():
                     list = path.glob(pattern)
                     if list != []:

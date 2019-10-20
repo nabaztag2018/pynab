@@ -9,10 +9,9 @@ class ASR:
     """
     Class handling automatic speech recognition.
     """
-    MODELS = {
-        'fr_FR': '/opt/kaldi/model/kaldi-nabaztag-fr-r20191001'
-    }
-    DEFAULT_LOCALE = 'fr_FR'
+
+    MODELS = {"fr_FR": "/opt/kaldi/model/kaldi-nabaztag-fr-r20191001"}
+    DEFAULT_LOCALE = "fr_FR"
 
     def __init__(self, locale):
         self.executor = ThreadPoolExecutor(max_workers=1)
@@ -27,13 +26,17 @@ class ASR:
         self.decoder = KaldiNNet3OnlineDecoder(self.model)
 
     def decode_chunk(self, samples, finalize):
-        self.executor.submit(lambda s=samples, f=finalize: self._decode_chunk(s, f))
+        self.executor.submit(
+            lambda s=samples, f=finalize: self._decode_chunk(s, f)
+        )
 
     def _decode_chunk(self, frames, finalize):
         try:
             nframes = len(frames) / 2
-            samples = struct.unpack_from('<%dh' % nframes, frames)
-            self.decoder.decode(16000, np.array(samples, dtype=np.float32), finalize)
+            samples = struct.unpack_from("<%dh" % nframes, frames)
+            self.decoder.decode(
+                16000, np.array(samples, dtype=np.float32), finalize
+            )
         except Exception:
             print(traceback.format_exc())
 

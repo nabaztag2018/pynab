@@ -28,7 +28,7 @@ class TestNabSurprised(unittest.TestCase):
         service.perform(expiration, None)
         self.assertEqual(len(writer.written), 1)
         packet = writer.written[0]
-        packet_json = json.loads(packet.decode('utf8'))
-        self.assertEqual(packet_json['type'], 'message')
-        self.assertTrue('signature' in packet_json)
-        self.assertTrue('body' in packet_json)
+        packet_json = json.loads(packet.decode("utf8"))
+        self.assertEqual(packet_json["type"], "message")
+        self.assertTrue("signature" in packet_json)
+        self.assertTrue("body" in packet_json)

@@ -9,12 +9,13 @@ class NLU:
     """
     Class handling natural language understanding.
     """
+
     ENGINES = {
-        'en_US': 'nlu/engine_en/',
-        'en_GB': 'nlu/engine_en/',
-        'fr_FR': 'nlu/engine_fr/',
+        "en_US": "nlu/engine_en/",
+        "en_GB": "nlu/engine_en/",
+        "fr_FR": "nlu/engine_fr/",
     }
-    DEFAULT_LOCALE = 'fr_FR'
+    DEFAULT_LOCALE = "fr_FR"
 
     def __init__(self, locale):
         self.executor = ThreadPoolExecutor(max_workers=1)
@@ -27,7 +28,7 @@ class NLU:
             else:
                 path = NLU.ENGINES[NLU.DEFAULT_LOCALE]
             basepath = Path(settings.BASE_DIR)
-            fullpath = basepath.joinpath('nabd', path).as_posix()
+            fullpath = basepath.joinpath("nabd", path).as_posix()
             self.nlu_engine = SnipsNLUEngine.from_path(fullpath)
         except Exception:
             print(traceback.format_exc())
@@ -42,15 +43,15 @@ class NLU:
 
     def _interpret(self, string):
         try:
-            if string == '':
+            if string == "":
                 return None
             # TODO : hardcode magic 8 ball ?
             parsed = self.nlu_engine.parse(string)
-            if parsed['intent']['intentName'] is None:
+            if parsed["intent"]["intentName"] is None:
                 return None
-            result = {'intent': parsed['intent']['intentName']}
-            for slot in parsed['slots']:
-                result[slot['slotName']] = slot['value']['value']
+            result = {"intent": parsed["intent"]["intentName"]}
+            for slot in parsed["slots"]:
+                result[slot["slotName"]] = slot["value"]["value"]
             return result
         except Exception:
             print(traceback.format_exc())

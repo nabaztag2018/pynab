@@ -5,9 +5,13 @@ from .choreography import ChoreographyInterpreter
 class NabIO(object, metaclass=abc.ABCMeta):
     """ Interface for I/O interactions with a nabaztag """
 
-    MODEL_2018 = 1          # https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF
-    MODEL_2019_TAG = 2      # https://github.com/nabaztag2018/hardware/blob/master/pyNab_V4.1_voice_reco.PDF
-    MODEL_2019_TAGTAG = 3   # with RFID
+    MODEL_2018 = (
+        1
+    )  # https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF
+    MODEL_2019_TAG = (
+        2
+    )  # https://github.com/nabaztag2018/hardware/blob/master/pyNab_V4.1_voice_reco.PDF
+    MODEL_2019_TAGTAG = 3  # with RFID
 
     # Each info loop lasts 15 seconds
     INFO_LOOP_LENGTH = 15.0
@@ -17,7 +21,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """
         Init ears and move them to the initial position.
         """
-        raise NotImplementedError('Should have implemented')
+        raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
     async def move_ears(self, left_ear, right_ear):
@@ -25,7 +29,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
         Move ears to a given position and return only when they reached this
         position.
         """
-        raise NotImplementedError('Should have implemented')
+        raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
     async def detect_ears_positions(self):
@@ -33,17 +37,17 @@ class NabIO(object, metaclass=abc.ABCMeta):
         Detect ears positions and return the position before the detection.
         A second call will return the current position.
         """
-        raise NotImplementedError('Should have implemented')
+        raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
     def set_leds(self, nose, left, center, right, bottom):
         """ Set the leds. None means to turn them off. """
-        raise NotImplementedError('Should have implemented')
+        raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
     def pulse(self, led, color):
         """ Set a led to pulse. """
-        raise NotImplementedError('Should have implemented')
+        raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
     def bind_button_event(self, loop, callback):
@@ -58,7 +62,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
 
         Make sure the callback is called on the provided event loop, with loop.call_soon_threadsafe
         """
-        raise NotImplementedError('Should have implemented')
+        raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
     def bind_ears_event(self, loop, callback):
@@ -68,7 +72,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
 
         Make sure the callback is called on the provided event loop, with loop.call_soon_threadsafe
         """
-        raise NotImplementedError('Should have implemented')
+        raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
     async def play_info(self, condvar, tempo, colors):
@@ -79,7 +83,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
 
         If 'left'/'center'/'right' slots are absent, the light is off.
         """
-        raise NotImplementedError('Should have implemented')
+        raise NotImplementedError("Should have implemented")
 
     async def start_acquisition(self, acquisition_cb):
         """
@@ -108,9 +112,15 @@ class NabIO(object, metaclass=abc.ABCMeta):
         preloaded_sig = await self._preload([signature])
         preloaded_body = await self._preload(body)
         ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
-        await self._play_preloaded(ci, preloaded_sig, ChoreographyInterpreter.STREAMING_URN)
-        await self._play_preloaded(ci, preloaded_body, ChoreographyInterpreter.STREAMING_URN)
-        await self._play_preloaded(ci, preloaded_sig, ChoreographyInterpreter.STREAMING_URN)
+        await self._play_preloaded(
+            ci, preloaded_sig, ChoreographyInterpreter.STREAMING_URN
+        )
+        await self._play_preloaded(
+            ci, preloaded_body, ChoreographyInterpreter.STREAMING_URN
+        )
+        await self._play_preloaded(
+            ci, preloaded_sig, ChoreographyInterpreter.STREAMING_URN
+        )
         await ci.stop()
 
     async def play_sequence(self, sequence):
@@ -127,16 +137,16 @@ class NabIO(object, metaclass=abc.ABCMeta):
 
     async def _play_preloaded(self, ci, preloaded, default_chor):
         for seq_item in preloaded:
-            if 'choreography' in seq_item:
-                chor = seq_item['choreography']
+            if "choreography" in seq_item:
+                chor = seq_item["choreography"]
             else:
                 chor = default_chor
             if chor is not None:
                 await ci.start(chor)
             else:
                 await ci.stop()
-            if 'audio' in seq_item:
-                await self.sound.play_list(seq_item['audio'], True)
+            if "audio" in seq_item:
+                await self.sound.play_list(seq_item["audio"], True)
                 return True
             else:
                 return False
@@ -144,18 +154,20 @@ class NabIO(object, metaclass=abc.ABCMeta):
     async def _preload(self, sequence):
         preloaded_sequence = []
         for seq_item in sequence:
-            if 'audio' in seq_item:
+            if "audio" in seq_item:
                 preloaded_audio_list = []
-                if isinstance(seq_item['audio'], str):
-                    print(f'Warning: audio should be a list of resources (sequence item: {seq_item})')
-                    audio_list = [seq_item['audio']]
+                if isinstance(seq_item["audio"], str):
+                    print(
+                        f"Warning: audio should be a list of resources (sequence item: {seq_item})"
+                    )
+                    audio_list = [seq_item["audio"]]
                 else:
-                    audio_list = seq_item['audio']
+                    audio_list = seq_item["audio"]
                 for res in audio_list:
                     f = await self.sound.preload(res)
                     if f is not None:
                         preloaded_audio_list.append(f)
-                seq_item['audio'] = preloaded_audio_list
+                seq_item["audio"] = preloaded_audio_list
             preloaded_sequence.append(seq_item)
         return preloaded_sequence
 
@@ -164,4 +176,4 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """
         Cancel currently running sequence or info animation.
         """
-        raise NotImplementedError('Should have implemented')
+        raise NotImplementedError("Should have implemented")

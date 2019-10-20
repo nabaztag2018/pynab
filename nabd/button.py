@@ -11,4 +11,4 @@ class Button(object, metaclass=abc.ABCMeta):
         callback is cb(event, time).
         The callback is called on the provided event loop, with loop.call_soon_threadsafe
         """
-        raise NotImplementedError('Should have implemented')
+        raise NotImplementedError("Should have implemented")
