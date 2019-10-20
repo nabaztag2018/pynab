@@ -15,6 +15,48 @@ from nabcommon import nabservice
 from mastodon import Mastodon, MastodonNotFoundError
 
 
+DATE_1 = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+DATE_2 = datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())
+TESTER_MASTODON_ACCOUNT = {
+    'acct': 'tester@botsin.space',
+    'url': 'https://botsin.space/@tester',
+    'display_name': 'Test specialist'}
+OTHER_MASTODON_ACCOUNT = {
+    'acct': 'other@botsin.space',
+    'url': 'https://botsin.space/@other',
+    'display_name': 'Test specialist'}
+SPLIT_CONTENT = '<p><span class="h-card"><a href="https://botsin.space/@nab' \
+    'aztag" class="u-url mention" rel="nofollow noopener" target="_blank">@' \
+    '<span>nabaztag</span></a></span> I think we should split. Can weskip t' \
+    'he lawyers? (NabPairing Divorce - https://github.com/nabaztag2018/pyna' \
+    'b)</p>'
+REJECTION_CONTENT = '<p><span class="h-card"><a href="https://botsin.space/' \
+    '@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blan' \
+    'k">@<span>nabaztag</span></a></span> Sorry, I cannot be your spouse ri' \
+    'ght now (NabPairing Rejection - https://github.com/nabaztag2018/pynab)' \
+    '</p>'
+EARS_4_6_CONTENT = '<p><span class="h-card"><a href="https://botsin.space/@' \
+    'nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank' \
+    '">@<span>nabaztag</span></a></span> Let\'s dance (NabPairing Ears 4 6 ' \
+    '- https://github.com/nabaztag2018/pynab)</p>'
+PROPOSAL_CONTENT = '<p><span class="h-card"><a href="https://botsin.space/@' \
+    'nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank' \
+    '">@<span>nabaztag</span></a></span> Would you accept to be my spouse? ' \
+    '(NabPairing Proposal - https://github.com/nabaztag2018/pynab)</p>'
+ACCEPTATION_CONTENT = '<p><span class="h-card"><a href="https://botsin.spac' \
+    'e/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_bl' \
+    'ank">@<span>nabaztag</span></a></span> Oh yes, I do accept to be your ' \
+    'spouse (NabPairing Acceptation - https://github.com/nabaztag2018/pynab' \
+    ')</p>'
+ALTERNATE_ACCEPTATION_CONTENT = '<p><span class="h-card"><a href="https://b' \
+    'otsin.space/@rostropovich" class="u-url mention" rel="nofollow noopene' \
+    'r" target="_blank">@<span>rostropovich</span></a></span> Yup! (NabPair' \
+    'ing Acceptation - <a href="https://github.com/nabaztag2018/pynab" rel=' \
+    '"nofollow noopener" target="_blank"><span class="invisible">https://</' \
+    'span><span class="">github.com/nabaztag2018/pynab</span><span class="i' \
+    'nvisible"></span></a>)</p>'
+
+
 class MockMastodonClient:
     def __init__(self):
         self.posted_statuses = []
@@ -25,8 +67,16 @@ class MockMastodonClient:
         """
         if visibility is None:
             visibility = 'public'
-        content = re.sub(r'@([^ @]+)@([^ @]+)', r'<span class="h-card"><a href="https://\2/@\1" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>\1</span></a></span>', status)
-        status = {'id': len(self.posted_statuses) + 1, 'created_at': datetime.datetime.utcnow(), 'visibility': visibility, 'content': content}
+        content = re.sub(
+            r'@([^ @]+)@([^ @]+)',
+            r'<span class="h-card"><a href="https://\2/@\1" '
+            r'class="u-url mention" rel="nofollow noopener" '
+            r'target="_blank">@<span>\1</span></a></span>', status)
+        status = {
+            'id': len(self.posted_statuses) + 1,
+            'created_at': datetime.datetime.utcnow(),
+            'visibility': visibility,
+            'content': content}
         self.posted_statuses.append(status)
         return status
 
@@ -45,34 +95,39 @@ class TestMastodonLogic(unittest.TestCase, MockMastodonClient):
     def test_process_status(self):
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, None)
-        config.last_processed_status_date = \
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = DATE_1
         config.instance = 'botsin.space'
         config.username = 'self'
         config.save()
         service = nabmastodond.NabMastodond()
-        service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': 'Hello', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())})
+        service.do_update(self, {
+            'id': 42, 'visibility': 'direct',
+            'account': {
+                'acct': 'tester@botsin.space',
+                'url': 'https://botsin.space/@tester',
+                'display_name': 'Test specialist'
+            },
+            'content': 'Hello', 'created_at': DATE_2})
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(self.posted_statuses, [])
 
     def test_ignore_old_status_by_date(self):
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, None)
-        config.last_processed_status_date = datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())
+        config.last_processed_status_date = DATE_2
         config.instance = 'botsin.space'
         config.username = 'self'
         config.save()
         service = nabmastodond.NabMastodond()
-        service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Would you accept to be my spouse? (NabPairing Proposal - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())})
+        service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': PROPOSAL_CONTENT, 'created_at': DATE_1})
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
         self.assertEqual(config.spouse_pairing_date, None)
@@ -81,17 +136,18 @@ class TestMastodonLogic(unittest.TestCase, MockMastodonClient):
     def test_ignore_old_status_by_id(self):
         config = models.Config.load()
         config.last_processed_status_id = 64
-        config.last_processed_status_date = datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())
+        config.last_processed_status_date = DATE_2
         config.instance = 'botsin.space'
         config.username = 'self'
         config.save()
         service = nabmastodond.NabMastodond()
-        service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Would you accept to be my spouse? (NabPairing Proposal - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())})
+        service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': PROPOSAL_CONTENT, 'created_at': DATE_1})
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 64)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
         self.assertEqual(config.spouse_pairing_date, None)
@@ -99,19 +155,25 @@ class TestMastodonLogic(unittest.TestCase, MockMastodonClient):
 
     def test_decode_dm(self):
         service = nabmastodond.NabMastodond()
-        self.assertEqual(service.decode_dm({'content': '<p><span class="h-card"><a href="https://botsin.space/@rostropovich" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>rostropovich</span></a></span> Yup! (NabPairing Acceptation - <a href="https://github.com/nabaztag2018/pynab" rel="nofollow noopener" target="_blank"><span class="invisible">https://</span><span class="">github.com/nabaztag2018/pynab</span><span class="invisible"></span></a>)</p>'}), ('acceptation', None))
+        self.assertEqual(
+            service.decode_dm({'content': ALTERNATE_ACCEPTATION_CONTENT}),
+            ('acceptation', None))
 
 
 class TestMastodondBase(unittest.TestCase):
     async def mock_nabd_service_handler(self, reader, writer):
         self.service_writer = writer
-        if hasattr(self, 'mock_connection_handler') and self.mock_connection_handler is not None:
+        if (hasattr(self, 'mock_connection_handler') and
+                self.mock_connection_handler is not None):
             await self.mock_connection_handler(reader, writer)
 
     def mock_nabd_thread_entry_point(self, kwargs):
         self.mock_nabd_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.mock_nabd_loop)
-        server_task = self.mock_nabd_loop.create_task(asyncio.start_server(self.mock_nabd_service_handler, 'localhost', nabservice.NabService.PORT_NUMBER))
+        server_task = self.mock_nabd_loop.create_task(
+            asyncio.start_server(
+                self.mock_nabd_service_handler,
+                'localhost', nabservice.NabService.PORT_NUMBER))
         try:
             self.mock_nabd_loop.run_forever()
         finally:
@@ -124,13 +186,15 @@ class TestMastodondBase(unittest.TestCase):
     def setUp(self):
         self.service_writer = None
         self.mock_nabd_loop = None
-        self.mock_nabd_thread = threading.Thread(target=self.mock_nabd_thread_entry_point, args=[self])
+        self.mock_nabd_thread = threading.Thread(
+            target=self.mock_nabd_thread_entry_point, args=[self])
         self.mock_nabd_thread.start()
         self.posted_statuses = []
         time.sleep(1)
 
     def tearDown(self):
-        self.mock_nabd_loop.call_soon_threadsafe(lambda: self.mock_nabd_loop.stop())
+        self.mock_nabd_loop.call_soon_threadsafe(
+            lambda: self.mock_nabd_loop.stop())
         self.mock_nabd_thread.join(3)
 
 
@@ -138,7 +202,7 @@ class TestMastodondBase(unittest.TestCase):
 class TestMastodond(TestMastodondBase):
     async def connect_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
-        self.connect_handler_called = self.connect_handler_called + 1
+        self.connect_handler_called += 1
 
     def test_connect(self):
         self.mock_connection_handler = self.connect_handler
@@ -152,7 +216,7 @@ class TestMastodond(TestMastodondBase):
 
     async def connect_with_ears_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
-        self.connect_with_ears_handler_called = self.connect_with_ears_handler_called + 1
+        self.connect_with_ears_handler_called += 1
         while not reader.at_eof():
             line = await reader.readline()
             if line != b'':
@@ -175,12 +239,18 @@ class TestMastodond(TestMastodondBase):
         service.run()
         self.assertEqual(self.connect_with_ears_handler_called, 1)
         self.assertEqual(len(self.connect_with_ears_handler_packets), 2)
-        self.assertEqual(self.connect_with_ears_handler_packets[0]['type'], 'mode')
-        self.assertEqual(self.connect_with_ears_handler_packets[0]['mode'], 'idle')
-        self.assertEqual(self.connect_with_ears_handler_packets[0]['events'], ['ears'])
-        self.assertEqual(self.connect_with_ears_handler_packets[1]['type'], 'ears')
-        self.assertEqual(self.connect_with_ears_handler_packets[1]['left'], 3)
-        self.assertEqual(self.connect_with_ears_handler_packets[1]['right'], 5)
+        self.assertEqual(
+            self.connect_with_ears_handler_packets[0]['type'], 'mode')
+        self.assertEqual(
+            self.connect_with_ears_handler_packets[0]['mode'], 'idle')
+        self.assertEqual(
+            self.connect_with_ears_handler_packets[0]['events'], ['ears'])
+        self.assertEqual(
+            self.connect_with_ears_handler_packets[1]['type'], 'ears')
+        self.assertEqual(
+            self.connect_with_ears_handler_packets[1]['left'], 3)
+        self.assertEqual(
+            self.connect_with_ears_handler_packets[1]['right'], 5)
 
 
 class TestMastodondPairingProtocol(TestMastodondBase, MockMastodonClient):
@@ -199,7 +269,7 @@ class TestMastodondPairingProtocol(TestMastodondBase, MockMastodonClient):
 
     async def protocol_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
-        self.protocol_handler_called = self.protocol_handler_called + 1
+        self.protocol_handler_called += 1
         while not reader.at_eof():
             line = await reader.readline()
             if line != b'':
@@ -214,26 +284,24 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
         config = models.Config.load()
         config.instance = 'botsin.space'
         config.username = 'self'
-        config.last_processed_status_date = \
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = DATE_1
         config.save()
 
     # Free -> Waiting Approval
 
     def test_process_proposal(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Would you accept to be my spouse? (NabPairing Proposal - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': PROPOSAL_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_2)
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
@@ -242,31 +310,36 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
 
     def test_process_acceptation(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Oh yes, I do accept to be your spouse (NabPairing Acceptation - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': ACCEPTATION_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
         self.assertEqual(config.spouse_pairing_date, None)
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
-        self.assertTrue('(NabPairing Divorce - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
-        self.assertTrue('botsin.space/@tester' in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            '(NabPairing Divorce - https://github.com/nabaztag2018/pynab)'
+            in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            'botsin.space/@tester' in self.posted_statuses[0]['content'])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
     def test_process_rejection(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Sorry, I cannot be your spouse right now (NabPairing Rejection - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': REJECTION_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
         self.assertEqual(config.spouse_pairing_date, None)
@@ -275,13 +348,14 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
 
     def test_process_divorce(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> I think we should split. Can we skip the lawyers? (NabPairing Divorce - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': SPLIT_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
         self.assertEqual(config.spouse_pairing_date, None)
@@ -290,20 +364,24 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
 
     def test_process_ears(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Let\'s dance (NabPairing Ears 4 6 - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': EARS_4_6_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
         self.assertEqual(config.spouse_pairing_date, None)
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
-        self.assertTrue('(NabPairing Divorce - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
-        self.assertTrue('botsin.space/@tester' in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            '(NabPairing Divorce - https://github.com/nabaztag2018/pynab)'
+            in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            'botsin.space/@tester' in self.posted_statuses[0]['content'])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
 
@@ -312,50 +390,46 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     def setUp(self):
         super().setUp()
         config = models.Config.load()
-        config.last_processed_status_date = \
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = DATE_1
         config.instance = 'botsin.space'
         config.username = 'self'
         config.spouse_handle = 'tester@botsin.space'
         config.spouse_pairing_state = 'proposed'
-        config.spouse_pairing_date = \
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.spouse_pairing_date = DATE_1
         config.save()
 
     # Proposed -> Free
 
     def test_process_matching_rejection(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Sorry, I cannot be your spouse right now (NabPairing Rejection - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': REJECTION_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_2)
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
 
     def test_process_matching_divorce(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> I think we should split. Can we skip the lawyers? (NabPairing Divorce - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': SPLIT_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_2)
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
@@ -364,18 +438,17 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
 
     def test_process_matching_acceptation(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Oh yes, I do accept to be your spouse (NabPairing Acceptation - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': ACCEPTATION_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_2)
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 2)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
@@ -385,22 +458,24 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
 
     def test_process_matching_proposal(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Would you accept to be my spouse? (NabPairing Proposal - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': PROPOSAL_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_2)
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
-        self.assertTrue('(NabPairing Acceptation - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
-        self.assertTrue('botsin.space/@tester' in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            '(NabPairing Acceptation - https://github.com/nabaztag2018/pynab)'
+            in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            'botsin.space/@tester' in self.posted_statuses[0]['content'])
         self.assertEqual(len(self.protocol_handler_packets), 2)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
         self.assertEqual(self.protocol_handler_packets[0]['mode'], 'idle')
@@ -411,316 +486,320 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
 
     def test_process_nonmatching_acceptation(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Oh yes, I do accept to be your spouse (NabPairing Acceptation - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': OTHER_MASTODON_ACCOUNT,
+                   'content': ACCEPTATION_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'proposed')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_1)
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
-        self.assertTrue('(NabPairing Divorce - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
-        self.assertTrue('botsin.space/@other' in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            '(NabPairing Divorce - https://github.com/nabaztag2018/pynab)'
+            in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            'botsin.space/@other' in self.posted_statuses[0]['content'])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
     def test_process_nonmatching_divorce(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> I think we should split. Can we skip the lawyers? (NabPairing Divorce - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': OTHER_MASTODON_ACCOUNT,
+                   'content': SPLIT_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'proposed')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_1)
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
     def test_process_nonmatching_rejection(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Sorry, I cannot be your spouse right now (NabPairing Rejection - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': OTHER_MASTODON_ACCOUNT,
+                   'content': REJECTION_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'proposed')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_1)
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
     def test_process_nonmatching_proposal(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Would you accept to be my spouse? (NabPairing Proposal - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': OTHER_MASTODON_ACCOUNT,
+                   'content': PROPOSAL_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'proposed')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
-        self.assertTrue('(NabPairing Rejection - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
-        self.assertTrue('botsin.space/@other' in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            '(NabPairing Rejection - https://github.com/nabaztag2018/pynab)'
+            in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            'botsin.space/@other' in self.posted_statuses[0]['content'])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
     def test_process_matching_ears(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Let\'s dance (NabPairing Ears 4 6 - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': EARS_4_6_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'proposed')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_1)
         self.assertEqual(len(self.posted_statuses), 0)
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
     def test_process_nonmatching_ears(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Let\'s dance (NabPairing Ears 4 6 - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': OTHER_MASTODON_ACCOUNT,
+                   'content': EARS_4_6_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'proposed')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_1)
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
-        self.assertTrue('(NabPairing Divorce - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
-        self.assertTrue('botsin.space/@other' in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            '(NabPairing Divorce - https://github.com/nabaztag2018/pynab)'
+            in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            'botsin.space/@other' in self.posted_statuses[0]['content'])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
 
 @pytest.mark.django_db
-class TestMastodondPairingProtocolWaitingApproval(TestMastodondPairingProtocol):
+class TestMastodondPairingProtocolWaitingApproval(
+        TestMastodondPairingProtocol):
     def setUp(self):
         super().setUp()
         config = models.Config.load()
-        config.last_processed_status_date = \
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = DATE_1
         config.instance = 'botsin.space'
         config.username = 'self'
         config.spouse_handle = 'tester@botsin.space'
         config.spouse_pairing_state = 'waiting_approval'
-        config.spouse_pairing_date = \
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.spouse_pairing_date = DATE_1
         config.save()
 
     # Waiting Approval -> Free
 
     def test_process_matching_divorce(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> I think we should split. Can we skip the lawyers? (NabPairing Divorce - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': SPLIT_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_2)
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
 
     def test_process_matching_rejection(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Sorry, I cannot be your spouse right now (NabPairing Rejection - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': REJECTION_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_2)
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
     def test_process_matching_acceptation(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Oh yes, I do accept to be your spouse (NabPairing Acceptation - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': ACCEPTATION_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_2)
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
-        self.assertTrue('(NabPairing Divorce - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
-        self.assertTrue('botsin.space/@tester' in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            '(NabPairing Divorce - https://github.com/nabaztag2018/pynab)'
+            in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            'botsin.space/@tester' in self.posted_statuses[0]['content'])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
     # Waiting Approval -> Waiting Approval
 
     def test_process_matching_proposal(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Would you accept to be my spouse? (NabPairing Proposal - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': PROPOSAL_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_2)
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
 
     def test_process_nonmatching_proposal(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Would you accept to be my spouse? (NabPairing Proposal - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': OTHER_MASTODON_ACCOUNT,
+                   'content': PROPOSAL_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'other@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_2)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
-        self.assertTrue('(NabPairing Rejection - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
-        self.assertTrue('botsin.space/@tester' in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            '(NabPairing Rejection - https://github.com/nabaztag2018/pynab)'
+            in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            'botsin.space/@tester' in self.posted_statuses[0]['content'])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'message')
 
     def test_process_nonmatching_divorce(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> I think we should split. Can we skip the lawyers? (NabPairing Divorce - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': OTHER_MASTODON_ACCOUNT,
+                   'content': SPLIT_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_1)
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
     def test_process_nonmatching_rejection(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Sorry, I cannot be your spouse right now (NabPairing Rejection - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': OTHER_MASTODON_ACCOUNT,
+                   'content': REJECTION_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_1)
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
     def test_process_nonmatching_acceptation(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Oh yes, I do accept to be your spouse (NabPairing Acceptation - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': OTHER_MASTODON_ACCOUNT,
+                   'content': ACCEPTATION_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_1)
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
-        self.assertTrue('(NabPairing Divorce - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
-        self.assertTrue('botsin.space/@other' in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            '(NabPairing Divorce - https://github.com/nabaztag2018/pynab)'
+            in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            'botsin.space/@other' in self.posted_statuses[0]['content'])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
     def test_process_matching_ears(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Let\'s dance (NabPairing Ears 4 6 - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': EARS_4_6_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_1)
         self.assertEqual(len(self.posted_statuses), 0)
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
     def test_process_nonmatching_ears(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Let\'s dance (NabPairing Ears 4 6 - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': OTHER_MASTODON_ACCOUNT,
+                   'content': EARS_4_6_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'waiting_approval')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_1)
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
-        self.assertTrue('(NabPairing Divorce - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
-        self.assertTrue('botsin.space/@other' in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            '(NabPairing Divorce - https://github.com/nabaztag2018/pynab)'
+            in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            'botsin.space/@other' in self.posted_statuses[0]['content'])
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
 
@@ -729,32 +808,29 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
     def setUp(self):
         super().setUp()
         config = models.Config.load()
-        config.last_processed_status_date = \
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = DATE_1
         config.instance = 'botsin.space'
         config.username = 'self'
         config.spouse_handle = 'tester@botsin.space'
         config.spouse_pairing_state = 'married'
-        config.spouse_pairing_date = \
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.spouse_pairing_date = DATE_1
         config.save()
 
     # Married -> Free
 
     def test_process_matching_divorce(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> I think we should split. Can we skip the lawyers? (NabPairing Divorce - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': SPLIT_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_2)
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 3)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
@@ -767,18 +843,17 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
 
     def test_process_matching_rejection(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Sorry, I cannot be your spouse right now (NabPairing Rejection - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': REJECTION_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, None)
         self.assertEqual(config.spouse_pairing_state, None)
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_2)
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 3)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
@@ -793,22 +868,24 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
 
     def test_process_matching_proposal(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Would you accept to be my spouse? (NabPairing Proposal - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': PROPOSAL_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_2)
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
-        self.assertTrue('(NabPairing Acceptation - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
-        self.assertTrue('botsin.space/@tester' in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            '(NabPairing Acceptation - https://github.com/nabaztag2018/pynab)'
+            in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            'botsin.space/@tester' in self.posted_statuses[0]['content'])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
         self.assertEqual(self.protocol_handler_packets[0]['mode'], 'idle')
@@ -816,18 +893,17 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
 
     def test_process_matching_acceptation(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Oh yes, I do accept to be your spouse (NabPairing Acceptation - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': ACCEPTATION_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_2)
         self.assertEqual(len(self.posted_statuses), 0)
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
@@ -840,18 +916,17 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         config.spouse_right_ear_position = 5
         config.save()
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'tester@botsin.space', 'url': 'https://botsin.space/@tester', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Let\'s dance (NabPairing Ears 4 6 - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': TESTER_MASTODON_ACCOUNT,
+                   'content': EARS_4_6_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_2)
         self.assertEqual(config.spouse_left_ear_position, 4)
         self.assertEqual(config.spouse_right_ear_position, 6)
         self.assertEqual(len(self.posted_statuses), 0)
@@ -869,21 +944,23 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
 
     def test_process_nonmatching_proposal(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Would you accept to be my spouse? (NabPairing Proposal - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': OTHER_MASTODON_ACCOUNT,
+                   'content': PROPOSAL_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
-        self.assertTrue('(NabPairing Rejection - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
-        self.assertTrue('botsin.space/@other' in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            '(NabPairing Rejection - https://github.com/nabaztag2018/pynab)'
+            in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            'botsin.space/@other' in self.posted_statuses[0]['content'])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
         self.assertEqual(self.protocol_handler_packets[0]['mode'], 'idle')
@@ -891,22 +968,24 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
 
     def test_process_nonmatching_acceptation(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Oh yes, I do accept to be your spouse (NabPairing Acceptation - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': OTHER_MASTODON_ACCOUNT,
+                   'content': ACCEPTATION_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_1)
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
-        self.assertTrue('(NabPairing Divorce - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
-        self.assertTrue('botsin.space/@other' in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            '(NabPairing Divorce - https://github.com/nabaztag2018/pynab)'
+            in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            'botsin.space/@other' in self.posted_statuses[0]['content'])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
         self.assertEqual(self.protocol_handler_packets[0]['mode'], 'idle')
@@ -914,18 +993,17 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
 
     def test_process_nonmatching_rejection(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Sorry, I cannot be your spouse right now (NabPairing Rejection - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': OTHER_MASTODON_ACCOUNT,
+                   'content': REJECTION_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_1)
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
@@ -934,18 +1012,17 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
 
     def test_process_nonmatching_divorce(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> I think we should split. Can we skip the lawyers? (NabPairing Divorce - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': OTHER_MASTODON_ACCOUNT,
+                   'content': SPLIT_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_1)
         self.assertEqual(self.posted_statuses, [])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
@@ -954,22 +1031,24 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
 
     def test_process_nonmatching_ears(self):
         service = nabmastodond.NabMastodond()
-        self.service_loop.call_later(1, lambda: service.do_update(self, {'id': 42, 'visibility': 'direct', 'account': {'acct': 'other@botsin.space', 'url': 'https://botsin.space/@other', 'display_name': 'Test specialist'}, 'content': '<p><span class="h-card"><a href="https://botsin.space/@nabaztag" class="u-url mention" rel="nofollow noopener" target="_blank">@<span>nabaztag</span></a></span> Let\'s dance (NabPairing Ears 4 6 - https://github.com/nabaztag2018/pynab)</p>', 'created_at': datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())}))
+        self.service_loop.call_later(1, lambda: service.do_update(
+            self, {'id': 42, 'visibility': 'direct',
+                   'account': OTHER_MASTODON_ACCOUNT,
+                   'content': EARS_4_6_CONTENT, 'created_at': DATE_2}))
         service.run()
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, 42)
-        self.assertEqual(
-            config.last_processed_status_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc()))
+        self.assertEqual(config.last_processed_status_date, DATE_2)
         self.assertEqual(config.spouse_handle, 'tester@botsin.space')
         self.assertEqual(config.spouse_pairing_state, 'married')
-        self.assertEqual(
-            config.spouse_pairing_date,
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc()))
+        self.assertEqual(config.spouse_pairing_date, DATE_1)
         self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
-        self.assertTrue('(NabPairing Divorce - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
-        self.assertTrue('botsin.space/@other' in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            '(NabPairing Divorce - https://github.com/nabaztag2018/pynab)'
+            in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            'botsin.space/@other' in self.posted_statuses[0]['content'])
         self.assertEqual(len(self.protocol_handler_packets), 1)
         self.assertEqual(self.protocol_handler_packets[0]['type'], 'mode')
         self.assertEqual(self.protocol_handler_packets[0]['mode'], 'idle')
@@ -995,7 +1074,7 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
     async def ears_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
         writer.write(b'{"type":"ears_event","left":4,"right":6}\r\n')
-        self.ears_handler_called = self.ears_handler_called + 1
+        self.ears_handler_called += 1
         while not reader.at_eof():
             line = await reader.readline()
             if line != b'':
@@ -1004,16 +1083,14 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
 
     def test_married(self):
         config = models.Config.load()
-        config.last_processed_status_date = \
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = DATE_1
         config.instance = 'botsin.space'
         config.username = 'self'
         config.spouse_left_ear_position = 7
         config.spouse_right_ear_position = 5
         config.spouse_handle = 'tester@botsin.space'
         config.spouse_pairing_state = 'married'
-        config.spouse_pairing_date = \
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.spouse_pairing_date = DATE_1
         config.access_token = 'access_token'
         config.save()
         service = nabmastodond.NabMastodond()
@@ -1026,8 +1103,11 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
         # self.assertEqual(config.spouse_right_ear_position, 6)
         # self.assertEqual(len(self.posted_statuses), 1)
         self.assertEqual(self.posted_statuses[0]['visibility'], 'direct')
-        self.assertTrue('(NabPairing Ears 4 6 - https://github.com/nabaztag2018/pynab)' in self.posted_statuses[0]['content'])
-        self.assertTrue('botsin.space/@tester' in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            '(NabPairing Ears 4 6 - https://github.com/nabaztag2018/pynab)'
+            in self.posted_statuses[0]['content'])
+        self.assertTrue(
+            'botsin.space/@tester' in self.posted_statuses[0]['content'])
         self.assertEqual(len(self.ears_handler_packets), 3)
         self.assertEqual(self.ears_handler_packets[0]['type'], 'mode')
         self.assertEqual(self.ears_handler_packets[1]['type'], 'ears')
@@ -1035,8 +1115,7 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
 
     def test_not_married(self):
         config = models.Config.load()
-        config.last_processed_status_date = \
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = DATE_1
         config.instance = 'botsin.space'
         config.username = 'self'
         config.spouse_handle = None
@@ -1075,7 +1154,8 @@ class TestMastodonClientBase:
                 redirect_uris=TestMastodonClientBase.REDIRECT_URI
             )
             with open(TestMastodonClientBase.APPKEY_FILE, "w") as appkey_file:
-                appkey_file.writelines([client_id + "\n", client_secret + "\n"])
+                appkey_file.writelines(
+                    [client_id + "\n", client_secret + "\n"])
         with open(TestMastodonClientBase.APPKEY_FILE, "r") as appkey_file:
             self.client_id = appkey_file.readline().strip()
             self.client_secret = appkey_file.readline().strip()
@@ -1101,7 +1181,8 @@ class TestMastodonClientBase:
             if not os.path.isfile(oob_file):
                 request_url = mastodon_client.auth_request_url(
                     redirect_uris=TestMastodonClientBase.REDIRECT_URI)
-                reason = "Log as user {user_n} and visit {url} and save code to {oob_file}".format(user_n=user_n, url=request_url, oob_file=oob_file)
+                reason = f"Log as user {user_n} and visit {request_url} and" \
+                    f" save code to {oob_file}"
                 print(reason)
                 pytest.skip(reason)
             with open(oob_file, "r") as oob_file:
@@ -1180,8 +1261,7 @@ class TestMastodonClientProposal(TestMastodondBase, TestMastodonClientBase):
 
     def test_mastodon_client_alter_proposal_before_start(self):
         config = models.Config.load()
-        config.last_processed_status_date = \
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = DATE_1
         config.instance = 'botsin.space'
         config.username = self.user1_username
         config.access_token = self.user1_access_token
@@ -1204,8 +1284,7 @@ class TestMastodonClientProposal(TestMastodondBase, TestMastodonClientBase):
 
     def test_mastodon_client_alter_proposal_after_start(self):
         config = models.Config.load()
-        config.last_processed_status_date = \
-            datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
+        config.last_processed_status_date = DATE_1
         config.instance = 'botsin.space'
         config.username = self.user1_username
         config.access_token = self.user1_access_token
