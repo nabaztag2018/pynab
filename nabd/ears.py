@@ -17,7 +17,8 @@ class Ears(object, metaclass=abc.ABCMeta):
         """
         Define the callback for ears events.
         callback is cb(ear) with ear being LEFT_EAR or RIGHT_EAR.
-        The callback is called on the provided event loop, with loop.call_soon_threadsafe
+        The callback is called on the provided event loop, with
+        loop.call_soon_threadsafe
         """
         raise NotImplementedError("Should have implemented")
 
@@ -44,11 +45,15 @@ class Ears(object, metaclass=abc.ABCMeta):
         """
         Go to a specific position
         If position is not within 0-(STEPS-1), it represents additional turns.
-        For example, STEPS means to position the ear at 0 after at least a complete turn.
+        For example, STEPS means to position the ear at 0 after at least a
+        complete turn.
         """
         raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
     async def wait_while_running(self):
-        """ Wait until both motors have stopped as ears reached their target position """
+        """
+        Wait until both motors have stopped as ears reached their target
+        position
+        """
         raise NotImplementedError("Should have implemented")

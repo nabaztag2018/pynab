@@ -144,10 +144,12 @@ class TestNabd(unittest.TestCase):
             self.assertEqual(packet_j["type"], "state")
             self.assertEqual(packet_j["state"], "asleep")
             s2.write(
-                b'{"type":"command","request_id":"command_request_1","sequence":[]}\r\n'
+                b'{"type":"command",'
+                b'"request_id":"command_request_1","sequence":[]}\r\n'
             )
             s2.write(
-                b'{"type":"command","request_id":"command_request_2","sequence":[]}\r\n'
+                b'{"type":"command",'
+                b'"request_id":"command_request_2","sequence":[]}\r\n'
             )
             s1.write(b'{"type":"wakeup","request_id":"wakeup_request"}\r\n')
             packet = s1.readline()  # response packet
@@ -208,7 +210,18 @@ class TestNabd(unittest.TestCase):
             packet = s1.readline()  # state packet
             # [25 {3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 0 0 0 0 0 0 0 0 0}] // soleil
             s1.write(
-                b'{"type":"info","info_id":"weather","request_id":"test_id","animation":{"tempo":25,"colors":[{"left":"ffff00","center":"ffff00","right":"ffff00"},{"left":"ffff00","center":"ffff00","right":"ffff00"},{"left":"ffff00","center":"ffff00","right":"ffff00"},{"left":"ffff00","center":"ffff00","right":"ffff00"},{"left":"ffff00","center":"ffff00","right":"ffff00"},{"left":"000000","center":"000000","right":"000000"},{"left":"000000","center":"000000","right":"000000"},{"left":"000000","center":"000000","right":"000000"}]}}\r\n'
+                b'{"type":"info",'
+                b'"info_id":"weather","request_id":"test_id",'
+                b'"animation":{"tempo":25,"colors":['
+                b'{"left":"ffff00","center":"ffff00","right":"ffff00"},'
+                b'{"left":"ffff00","center":"ffff00","right":"ffff00"},'
+                b'{"left":"ffff00","center":"ffff00","right":"ffff00"},'
+                b'{"left":"ffff00","center":"ffff00","right":"ffff00"},'
+                b'{"left":"ffff00","center":"ffff00","right":"ffff00"},'
+                b'{"left":"000000","center":"000000","right":"000000"},'
+                b'{"left":"000000","center":"000000","right":"000000"},'
+                b'{"left":"000000","center":"000000","right":"000000"}]}}'
+                b"\r\n"
             )
             packet = s1.readline()  # response packet
             packet_j = json.loads(packet.decode("utf8"))
@@ -267,7 +280,8 @@ class TestNabd(unittest.TestCase):
             )
             # [25 {3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 0 0 0 0 0 0 0 0 0}] // soleil
             s1.write(
-                b'{"type":"info","info_id":"weather","request_id":"clear_id"}\r\n'
+                b'{"type":"info","info_id":"weather",'
+                b'"request_id":"clear_id"}\r\n'
             )
             packet = s1.readline()  # response packet
             packet_j = json.loads(packet.decode("utf8"))
@@ -284,7 +298,13 @@ class TestNabd(unittest.TestCase):
         try:
             packet = s1.readline()  # state packet
             s1.write(
-                b'{"type":"command","request_id":"test_id","sequence":{"audio":["weather/fr/signature.mp3","weather/fr/today.mp3","weather/fr/sky/0.mp3","weather/fr/temp/42.mp3","weather/fr/temp/degree.mp3","weather/fr/temp/signature.mp3"],"choregraphy":"streaming"}}\r\n'
+                b'{"type":"command","request_id":"test_id",'
+                b'"sequence":{"audio":['
+                b'"weather/fr/signature.mp3","weather/fr/today.mp3",'
+                b'"weather/fr/sky/0.mp3","weather/fr/temp/42.mp3",'
+                b'"weather/fr/temp/degree.mp3",'
+                b'"weather/fr/temp/signature.mp3"],'
+                b'"choregraphy":"streaming"}}\r\n'
             )
             packet = s1.readline()  # new state packet
             packet_j = json.loads(packet.decode("utf8"))
@@ -326,9 +346,14 @@ class TestNabd(unittest.TestCase):
             now = datetime.datetime.now()
             expiration = now + datetime.timedelta(minutes=3)
             packet = (
-                '{"type":"command","request_id":"test_id","sequence":{"audio":["weather/fr/signature.mp3","weather/fr/today.mp3","weather/fr/sky/0.mp3","weather/fr/temp/42.mp3","weather/fr/temp/degree.mp3","weather/fr/temp/signature.mp3"],"choregraphy":"streaming"},"expiration":"'
-                + expiration.isoformat()
-                + '"}\r\n'
+                '{"type":"command","request_id":"test_id",'
+                '"sequence":{"audio":['
+                '"weather/fr/signature.mp3","weather/fr/today.mp3",'
+                '"weather/fr/sky/0.mp3","weather/fr/temp/42.mp3",'
+                '"weather/fr/temp/degree.mp3",'
+                '"weather/fr/temp/signature.mp3"],'
+                '"choregraphy":"streaming"},'
+                '"expiration":"' + expiration.isoformat() + '"}\r\n'
             )
             s1.write(packet.encode("utf8"))
             packet = s1.readline()  # new state packet
@@ -346,9 +371,14 @@ class TestNabd(unittest.TestCase):
             now = datetime.datetime.now()
             expiration = now + datetime.timedelta(minutes=-1)
             packet = (
-                '{"type":"command","request_id":"test_id","sequence":{"audio":["weather/fr/signature.mp3","weather/fr/today.mp3","weather/fr/sky/0.mp3","weather/fr/temp/42.mp3","weather/fr/temp/degree.mp3","weather/fr/temp/signature.mp3"],"choregraphy":"streaming"},"expiration":"'
-                + expiration.isoformat()
-                + '"}\r\n'
+                '{"type":"command","request_id":"test_id",'
+                '"sequence":{"audio":['
+                '"weather/fr/signature.mp3","weather/fr/today.mp3",'
+                '"weather/fr/sky/0.mp3","weather/fr/temp/42.mp3",'
+                '"weather/fr/temp/degree.mp3",'
+                '"weather/fr/temp/signature.mp3"],'
+                '"choregraphy":"streaming"},'
+                '"expiration":"' + expiration.isoformat() + '"}\r\n'
             )
             s1.write(packet.encode("utf8"))
             packet = s1.readline()  # new state packet

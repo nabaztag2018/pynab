@@ -71,7 +71,9 @@ class ConnectView(View):
             except MastodonError as e:
                 return HttpResponse(
                     "Unknown error",
-                    content=f'{{"status":"error","code":"MastodonError","message":"{e}"}}',
+                    content=f'{{"status":"error",'
+                            f'"code":"MastodonError",'
+                            f'"message":"{e}"}}',
                     mimetype="application/json",
                     status=500,
                 )
@@ -133,7 +135,9 @@ class LoginView(View):
                 NabMastodond.signal_daemon()
                 return HttpResponse(
                     "Unauthorized",
-                    content=f'{{"status":"error","result":"unauthorized","message":"{e}"}}',
+                    content=f'{{"status":"error",'
+                            f'"result":"unauthorized",'
+                            f'"message":"{e}"}}',
                     mimetype="application/json",
                     status=401,
                 )

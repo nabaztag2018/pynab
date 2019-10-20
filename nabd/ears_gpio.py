@@ -31,9 +31,9 @@ class EarsGPIO(Ears):
         self.positions = [0, 0]
         self.directions = [0, 0]
         self.executor = ThreadPoolExecutor(max_workers=1)
-        self.lock = (
-            asyncio.Lock()
-        )  # Lock preventing detection and move operations happening simultaneously
+        # Lock preventing detection and move operations happening
+        # simultaneously
+        self.lock = asyncio.Lock()
         GPIO.setwarnings(True)
         GPIO.setmode(GPIO.BCM)
         for channel in EarsGPIO.ENCODERS_CHANNELS:
@@ -251,7 +251,8 @@ class EarsGPIO(Ears):
         Go to a specific position.
         If direction is 0, turn forward, otherwise, turn backward
         If position is not within 0-16, it represents additional turns.
-        For example, 17 means to position the ear at 0 after at least a complete turn.
+        For example, 17 means to position the ear at 0 after at least a
+        complete turn.
         Returns before ear reached requested position.
         """
         async with self.lock:

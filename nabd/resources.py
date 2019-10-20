@@ -8,7 +8,8 @@ class Resources(object):
     def find(type, resources):
         """
         Find a resource from its type and its name.
-        Return the first found resource, resources being delimited by semi-colons
+        Return the first found resource, resources being delimited by
+        semi-colons.
         Perform localization and random lookups with specific tag.
         Files are first searched in <app>/<type>/<locale>/ then <app>/<type>/
         Random lookup is performed when component is * or *.suffix
@@ -23,7 +24,8 @@ class Resources(object):
                 )
             if "/" in type:
                 raise ValueError(
-                    f"find_resource expects a directory name for type, got {type}"
+                    f"find_resource expects a directory name for type, "
+                    f"got {type}"
                 )
             is_random = path0.name.startswith("*")
             if is_random:

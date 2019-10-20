@@ -58,7 +58,8 @@ class SoundAlsa(Sound):
     @functools.lru_cache()
     def sound_configuration():
         """
-            Returns the (as a triplet) the card's index (zero based), raw card name and the device (playback or recording)
+            Returns the (as a triplet) the card's index (zero based), raw card
+            name and the device (playback or recording)
             supported by the hardware as a unicode string.
 
             @rtype: tuple
@@ -71,7 +72,8 @@ class SoundAlsa(Sound):
             @postcondition: isinstance(return[2], six.text_type)
             @postcondition: len(return[2]) > 0
 
-            @raise RuntimeError: if no ALSO device could be found or if the device found cannot be configured.
+            @raise RuntimeError: if no ALSO device could be found or if the
+            device found cannot be configured.
         """
         for idx, sound_card in enumerate(alsaaudio.cards()):
             if sound_card in SoundAlsa.SOUND_CARDS_SUPPORTED:
@@ -102,9 +104,9 @@ class SoundAlsa(Sound):
                     target_chunk_size = periodsize * channels * width
 
                     chunk = io.BytesIO()
-                    chunk_length = (
-                        0
-                    )  # tracking chunk length is technically useless here but we do it for consistency
+                    # tracking chunk length is technically useless here but we
+                    # do it for consistency
+                    chunk_length = 0
                     data = f.readframes(periodsize)
                     while data and self.currently_playing:
                         chunk_length += chunk.write(data)
@@ -134,7 +136,8 @@ class SoundAlsa(Sound):
                 chunk_length = 0
                 for frames in mp3.iter_frames():
                     if (chunk_length + len(frames)) <= target_chunk_size:
-                        # Chunk is still smaller than what ALSA device expects (0.1 sec)
+                        # Chunk is still smaller than what ALSA device expects
+                        # (0.1 sec)
                         chunk_length += chunk.write(frames)
                     else:
                         frames_view = memoryview(frames)
@@ -219,17 +222,20 @@ class SoundAlsa(Sound):
     @staticmethod
     def __test_device(device, record):
         """
-            Test selected ALSA device, making sure it handles both stereo and mono and
-            both 44.1KHz and 22.05KHz on output, mono and 16 kHz on input.
+            Test selected ALSA device, making sure it handles both stereo and
+            mono and both 44.1KHz and 22.05KHz on output, mono and 16 kHz on
+            input.
+
             On a typical RPI configuration, default with hifiberry card is not
-            configured to do software-mono, so we'll use plughw:CARD=sndrpihifiberry instead.
-            Likewise, on 2019 cards, hw:CARD=seeed2micvoicec is not able to run mono
-            sound.
+            configured to do software-mono, so we'll use
+            plughw:CARD=sndrpihifiberry instead.
+            Likewise, on 2019 cards, hw:CARD=seeed2micvoicec is not able to run
+            mono sound.
 
             @param device: name of the sound device
             @type device: six.text_type
-            @param record: C{True} if this method is looking for recording device. C{False} if the device should
-            only playback.
+            @param record: C{True} if this method is looking for recording
+            device. C{False} if the device should only playback.
             @type record: bool
         """
         try:

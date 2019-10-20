@@ -49,7 +49,8 @@ class NabWebUpgradeView(View):
     def get(self, request, *args, **kwargs):
         root_dir = (
             os.popen(
-                "sed -nE -e 's|WorkingDirectory=(.+)|\\1|p' < /lib/systemd/system/nabd.service"
+                "sed -nE -e 's|WorkingDirectory=(.+)|\\1|p' "
+                "< /lib/systemd/system/nabd.service"
             )
             .read()
             .rstrip()
@@ -58,7 +59,8 @@ class NabWebUpgradeView(View):
             return JsonResponse(
                 {
                     "status": "error",
-                    "message": "Cannot find pynab installation from Raspbian systemd services",
+                    "message": "Cannot find pynab installation from "
+                    "Raspbian systemd services",
                 }
             )
         head_sha1 = (
@@ -68,12 +70,14 @@ class NabWebUpgradeView(View):
             return JsonResponse(
                 {
                     "status": "error",
-                    "message": "Cannot get HEAD - not a git repository? Check /var/log/syslog",
+                    "message": "Cannot get HEAD - not a git repository? "
+                    "Check /var/log/syslog",
                 }
             )
         commit_count = (
             os.popen(
-                f"cd {root_dir} && git fetch && git rev-list --count HEAD..origin/master"
+                f"cd {root_dir} && git fetch "
+                f"&& git rev-list --count HEAD..origin/master"
             )
             .read()
             .rstrip()
@@ -82,7 +86,8 @@ class NabWebUpgradeView(View):
             return JsonResponse(
                 {
                     "status": "error",
-                    "message": "Cannot get number of commits from upstream. Not connected to the internet?",
+                    "message": "Cannot get number of commits from upstream. "
+                    "Not connected to the internet?",
                 }
             )
         return JsonResponse(
@@ -92,7 +97,8 @@ class NabWebUpgradeView(View):
     def post(self, request, *args, **kwargs):
         root_dir = (
             os.popen(
-                "sed -nE -e 's|WorkingDirectory=(.+)|\\1|p' < /lib/systemd/system/nabd.service"
+                "sed -nE -e 's|WorkingDirectory=(.+)|\\1|p' "
+                "< /lib/systemd/system/nabd.service"
             )
             .read()
             .rstrip()

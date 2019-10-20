@@ -35,11 +35,10 @@ class NabClockd(nabservice.NabService):
         expiration = now + datetime.timedelta(minutes=3)
         # TODO: randomly play a message from all/
         packet = (
-            '{"type":"message","signature":{"audio":["nabclockd/signature.mp3"]},"body":[{"audio":["nabclockd/'
-            + str(hour)
-            + '/*.mp3"]}],"expiration":"'
-            + expiration.isoformat()
-            + '"}\r\n'
+            '{"type":"message",'
+            '"signature":{"audio":["nabclockd/signature.mp3"]},'
+            '"body":[{"audio":["nabclockd/' + str(hour) + '/*.mp3"]}],'
+            '"expiration":"' + expiration.isoformat() + '"}\r\n'
         )
         self.writer.write(packet.encode("utf8"))
 
