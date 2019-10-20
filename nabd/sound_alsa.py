@@ -65,7 +65,7 @@ class SoundAlsa(Sound):
         """
         for idx, sound_card, in enumerate(alsaaudio.cards()):
             if sound_card in SoundAlsa.SOUND_CARDS_SUPPORTED:
-                device = 'plughw:CARD={sound_card}'.format(sound_card=sound_card)
+                device = f'plughw:CARD={sound_card}'
 
                 if not SoundAlsa.__test_device(device, False):
                     raise RuntimeError('Unable to configure sound card for playback')

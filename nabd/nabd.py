@@ -175,7 +175,7 @@ class Nabd:
                         self.interactive_service_events = ['ears', 'button']
                     break
                 else:
-                    raise RuntimeError('Unexpected packet {packet}'.format(packet=item[0]))
+                    raise RuntimeError(f'Unexpected packet {item[0]}')
 
     def is_past(self, isodatestr):
         # Python 3.7's fromisoformat only parses output of isoformat, not all valid ISO 8601 dates.
@@ -299,7 +299,7 @@ class Nabd:
 
     async def process_packet(self, packet, writer):
         """ Process a packet from a service """
-        logging.debug('packet from service: {packet}'.format(packet=packet))
+        logging.debug(f'packet from service: {packet}')
         if 'type' in packet:
             processors = {
                 'info': self.process_info_packet,
@@ -322,7 +322,7 @@ class Nabd:
         writer.write((json.dumps(response) + '\r\n').encode('utf8'))
 
     def broadcast_event(self, event_type, response):
-        logging.debug('broadcast event to services: {event_type}, {response}'.format(event_type=event_type, response=response))
+        logging.debug(f'broadcast event to services: {event_type}, {response}')
         for sw, events in self.service_writers.items():
             if event_type in events:
                 self.write_packet(response, sw)
@@ -395,9 +395,9 @@ class Nabd:
         now = time.time()
         decoded_str = await self.asr.get_decoded_string(True)
         # ASR model needs to be improved, log outcome.
-        logging.info('ASR string: {str}'.format(str=decoded_str))
+        logging.info(f'ASR string: {decoded_str}')
         response = await self.nlu.interpret(decoded_str)
-        logging.debug('NUL response: {response}'.format(response=str(response)))
+        logging.debug(f'NUL response: {str(response)}')
         await self.set_state('idle')
         if response is None:
             # Did not understand
@@ -492,10 +492,11 @@ class Nabd:
     def main(argv):
         nablogging.setup_logging('nabd')
         pidfilepath = "/var/run/nabd.pid"
-        usage = \
-            'nabd [options]\n' \
-            + ' -h                    display this message\n' \
-            + ' --pidfile=<pidfile>   define pidfile (default = {pidfilepath})\n'.format(pidfilepath=pidfilepath)
+        usage = (
+            'nabd [options]\n'
+            ' -h                    display this message\n'
+            f' --pidfile=<pidfile>   define pidfile (default = {pidfilepath})\n'
+        )
         try:
             opts, args = getopt.getopt(argv, "h", ["pidfile=", "nabio="])
         except getopt.GetoptError:
@@ -516,10 +517,10 @@ class Nabd:
                 nabd = Nabd(nabio)
                 nabd.run()
         except AlreadyLocked:
-            print('nabd already running? (pid={pid})'.format(pid=pidfile.read_pid()))
+            print(f'nabd already running? (pid={pidfile.read_pid()})')
             exit(1)
         except LockFailed:
-            print('Cannot write pid file to {pidfilepath}, please fix permissions'.format(pidfilepath=pidfilepath))
+            print(f'Cannot write pid file to {pidfilepath}, please fix permissions')
             exit(1)
 
 

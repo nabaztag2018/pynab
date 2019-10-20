@@ -199,7 +199,7 @@ class TestStreamingChoregraphy(unittest.TestCase):
             self.sound.called_list = []
             self.leds.called_list = []
             self.ears.called_list = []
-            task = self.loop.create_task(self.ci.start("nabd/streaming/{chor}.chor".format(chor=chor)))
+            task = self.loop.create_task(self.ci.start(f"nabd/streaming/{chor}.chor"))
             self.loop.run_until_complete(task)
             task = self.loop.create_task(asyncio.sleep(4))
             self.loop.run_until_complete(task)
