@@ -22,9 +22,9 @@ class NabTaichid(NabRandomService):
 
     def perform(self, expiration, args):
         packet = (
-            '{"type":"command","sequence":[{"choreography":"nabtaichid/taichi.chor"}],"expiration":"'
-            + expiration.isoformat()
-            + '"}\r\n'
+            '{"type":"command",'
+            '"sequence":[{"choreography":"nabtaichid/taichi.chor"}],'
+            '"expiration":"' + expiration.isoformat() + '"}\r\n'
         )
         self.writer.write(packet.encode("utf8"))
 

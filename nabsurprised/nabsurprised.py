@@ -20,9 +20,10 @@ class NabSurprised(NabRandomService):
 
     def perform(self, expiration, args):
         packet = (
-            '{"type":"message","signature":{"audio":["nabsurprised/respirations/*.mp3"]},"body":[{"audio":["nabsurprised/*.mp3"]}],"expiration":"'
-            + expiration.isoformat()
-            + '"}\r\n'
+            '{"type":"message",'
+            '"signature":{"audio":["nabsurprised/respirations/*.mp3"]},'
+            '"body":[{"audio":["nabsurprised/*.mp3"]}],'
+            '"expiration":"' + expiration.isoformat() + '"}\r\n'
         )
         self.writer.write(packet.encode("utf8"))
 
@@ -37,9 +38,10 @@ class NabSurprised(NabRandomService):
                 self.perform(expiration, None)
             if packet["nlu"]["intent"] == "carot":
                 packet = (
-                    '{"type":"message","signature":{"audio":["nabsurprised/respirations/*.mp3"]},"body":[{"audio":["nabsurprised/carot/*.mp3"]}],"expiration":"'
-                    + expiration.isoformat()
-                    + '"}\r\n'
+                    '{"type":"message","signature":{'
+                    '"audio":["nabsurprised/respirations/*.mp3"]},'
+                    '"body":[{"audio":["nabsurprised/carot/*.mp3"]}],'
+                    '"expiration":"' + expiration.isoformat() + '"}\r\n'
                 )
                 self.writer.write(packet.encode("utf8"))
 

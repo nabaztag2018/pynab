@@ -10,13 +10,22 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
     DAEMON_PIDFILE = "/var/run/nabmastodond.pid"
 
     RETRY_DELAY = 15 * 60  # Retry to reconnect every 15 minutes.
-    NABPAIRING_MESSAGE_RE = 'NabPairing (?P<cmd>Proposal|Acceptation|Rejection|Divorce|Ears (?P<left>[0-9]+) (?P<right>[0-9]+)) - (?:<a href=")?https://github.com/nabaztag2018/pynab'
+    NABPAIRING_MESSAGE_RE = (
+        r"NabPairing (?P<cmd>Proposal|Acceptation|Rejection|Divorce|Ears "
+        r'(?P<left>[0-9]+) (?P<right>[0-9]+)) - (?:<a href=")?'
+        r"https://github.com/nabaztag2018/pynab"
+    )
     PROTOCOL_MESSAGES = {
-        "proposal": "Would you accept to be my spouse? (NabPairing Proposal - https://github.com/nabaztag2018/pynab)",
-        "acceptation": "Oh yes, I do accept to be your spouse (NabPairing Acceptation - https://github.com/nabaztag2018/pynab)",
-        "rejection": "Sorry, I cannot be your spouse right now (NabPairing Rejection - https://github.com/nabaztag2018/pynab)",
-        "divorce": "I think we should split. Can we skip the lawyers? (NabPairing Divorce - https://github.com/nabaztag2018/pynab)",
-        "ears": "Let's dance (NabPairing Ears {left} {right} - https://github.com/nabaztag2018/pynab)",
+        "proposal": "Would you accept to be my spouse? "
+        "(NabPairing Proposal - https://github.com/nabaztag2018/pynab)",
+        "acceptation": "Oh yes, I do accept to be your spouse "
+        "(NabPairing Acceptation - https://github.com/nabaztag2018/pynab)",
+        "rejection": "Sorry, I cannot be your spouse right now "
+        "(NabPairing Rejection - https://github.com/nabaztag2018/pynab)",
+        "divorce": "I think we should split. Can we skip the lawyers? "
+        "(NabPairing Divorce - https://github.com/nabaztag2018/pynab)",
+        "ears": "Let's dance (NabPairing Ears {left} {right} - "
+        "https://github.com/nabaztag2018/pynab)",
     }
 
     def __init__(self):
@@ -263,17 +272,45 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
         Play pairing protocol message
         """
         if message == "ears":
-            packet = '{"type":"command","sequence":[{"audio":["nabmastodond/communion.wav"]}]}\r\n'
+            packet = (
+                '{"type":"command",'
+                '"sequence":[{"audio":["nabmastodond/communion.wav"]}]}\r\n'
+            )
         elif message == "proposal_received":
-            packet = '{"type":"message","signature":{"audio":["nabmastodond/respirations/*.mp3"]},"body":[{"audio":["nabmastodond/proposal_received.mp3"]}]}\r\n'
+            packet = (
+                '{"type":"message",'
+                '"signature":{"audio":["nabmastodond/respirations/*.mp3"]},'
+                '"body":[{"audio":["nabmastodond/proposal_received.mp3"]}]}'
+                "\r\n"
+            )
         elif message == "proposal_refused":
-            packet = '{"type":"message","signature":{"audio":["nabmastodond/respirations/*.mp3"]},"body":[{"audio":["nabmastodond/proposal_refused.mp3"]}]}\r\n'
+            packet = (
+                '{"type":"message",'
+                '"signature":{"audio":["nabmastodond/respirations/*.mp3"]},'
+                '"body":[{"audio":["nabmastodond/proposal_refused.mp3"]}]}'
+                "\r\n"
+            )
         elif message == "proposal_accepted":
-            packet = '{"type":"message","signature":{"audio":["nabmastodond/respirations/*.mp3"]},"body":[{"audio":["nabmastodond/proposal_accepted.mp3"]}]}\r\n'
+            packet = (
+                '{"type":"message",'
+                '"signature":{"audio":["nabmastodond/respirations/*.mp3"]},'
+                '"body":[{"audio":["nabmastodond/proposal_accepted.mp3"]}]}'
+                "\r\n"
+            )
         elif message == "pairing_cancelled":
-            packet = '{"type":"message","signature":{"audio":["nabmastodond/respirations/*.mp3"]},"body":[{"audio":["nabmastodond/pairing_cancelled.mp3"]}]}\r\n'
+            packet = (
+                '{"type":"message",'
+                '"signature":{"audio":["nabmastodond/respirations/*.mp3"]},'
+                '"body":[{"audio":["nabmastodond/pairing_cancelled.mp3"]}]}'
+                "\r\n"
+            )
         elif message == "setup":
-            packet = '{"type":"message","signature":{"audio":["nabmastodond/respirations/*.mp3"]},"body":[{"audio":["nabmastodond/setup.mp3"]}]}\r\n'
+            packet = (
+                '{"type":"message",'
+                '"signature":{"audio":["nabmastodond/respirations/*.mp3"]},'
+                '"body":[{"audio":["nabmastodond/setup.mp3"]}]}'
+                "\r\n"
+            )
         self.writer.write(packet.encode("utf8"))
 
     def send_start_listening_to_ears(self):

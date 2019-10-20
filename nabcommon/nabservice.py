@@ -66,17 +66,11 @@ class NabService(ABC):
                 if line != b"" and line != b"\r\n":
                     try:
                         packet = json.loads(line.decode("utf8"))
-                        logging.debug(
-                            "process nabd packet: {packet}".format(
-                                packet=packet
-                            )
-                        )
+                        logging.debug(f"process nabd packet: {packet}")
                         await self.process_nabd_packet(packet)
                     except json.decoder.JSONDecodeError as e:
                         logging.error(
-                            "Invalid JSON packet from nabd: {line}\n{e}".format(
-                                line=line, e=e
-                            )
+                            f"Invalid JSON packet from nabd: {line}\n{e}"
                         )
             self.writer.close()
             await self.writer.wait_closed()
@@ -118,9 +112,7 @@ class NabService(ABC):
     @classmethod
     def signal_daemon(cls):
         service_name = cls.__name__.lower()
-        pidfilepath = "/var/run/{service_name}.pid".format(
-            service_name=service_name
-        )
+        pidfilepath = f"/var/run/{service_name}.pid"
         try:
             with open(pidfilepath, "r") as f:
                 pidstr = f.read()
@@ -133,15 +125,11 @@ class NabService(ABC):
     def main(cls, argv):
         service_name = cls.__name__.lower()
         nablogging.setup_logging(service_name)
-        pidfilepath = "/var/run/{service_name}.pid".format(
-            service_name=service_name
-        )
+        pidfilepath = "/var/run/{service_name}.pid"
         usage = (
-            "{service_name} [options]\n".format(service_name=service_name)
-            + " -h                   display this message\n"
-            + " --pidfile=<pidfile>  define pidfile (default = {pidfilepath})\n".format(
-                pidfilepath=pidfilepath
-            )
+            f"{service_name} [options]\n"
+            f" -h                   display this message\n"
+            f" --pidfile=<pidfile>  define pidfile (default = {pidfilepath})\n"
         )
         try:
             opts, args = getopt.getopt(argv, "h", ["pidfile="])
@@ -160,15 +148,16 @@ class NabService(ABC):
                 service = cls()
                 service.run()
         except AlreadyLocked:
-            error_msg = "{service_name} already running? (pid={pid})".format(
-                service_name=service_name, pid=pidfile.read_pid()
+            error_msg = (
+                f"{service_name} already running? (pid={pidfile.read_pid()})"
             )
             print(error_msg)
             logging.critical(error_msg)
             exit(1)
         except LockFailed:
-            error_msg = "Cannot write pid file to {pidfilepath}, please fix permissions".format(
-                pidfilepath=pidfilepath
+            error_msg = (
+                f"Cannot write pid file to {pidfilepath}, please fix "
+                f"permissions"
             )
             print(error_msg)
             logging.critical(error_msg)
@@ -191,8 +180,9 @@ class NabRecurrentService(NabService, ABC):
     @abstractmethod
     def get_config(self):
         """
-        Return a tuple (next_date, next_args, freq_config) or (next_date, freq_config) from configuration.
-        freq_config is any value sufficient to compute date and args of next performance.
+        Return a tuple (next_date, next_args, freq_config) or (next_date,
+        freq_config) from configuration. freq_config is any value sufficient to
+        compute date and args of next performance.
         """
         pass
 

@@ -91,8 +91,8 @@ class Nabd:
 
     async def idle_worker_loop(self):
         """
-        Idle worker loop is responsible for playing enqueued messages and displaying
-        info items.
+        Idle worker loop is responsible for playing enqueued messages and
+        displaying info items.
         """
         try:
             async with self.idle_cv:
@@ -129,7 +129,8 @@ class Nabd:
         Exit interactive mode.
         Restarts idle loop worker.
         """
-        # interactive -> playing or interactive -> idle depending on the command queue
+        # interactive -> playing or interactive -> idle depending on the
+        # command queue
         self.interactive_service_writer = None
         await self.transition_to_idle()
 
@@ -204,7 +205,8 @@ class Nabd:
                     raise RuntimeError(f"Unexpected packet {item[0]}")
 
     def is_past(self, isodatestr):
-        # Python 3.7's fromisoformat only parses output of isoformat, not all valid ISO 8601 dates.
+        # Python 3.7's fromisoformat only parses output of isoformat, not all
+        # valid ISO 8601 dates.
         parsed = dateutil.parser.isoparse(isodatestr)
         if parsed.tzinfo:
             return parsed < datetime.datetime.now().astimezone()
@@ -242,9 +244,9 @@ class Nabd:
                     self.write_response_packet(
                         packet,
                         {
-                            "status": "error",
-                            "class": "MalformedPacket",
-                            "message": "Missing required tempo & colors slots in animation",
+                            "status": "error", "class": "MalformedPacket",
+                            "message": "Missing required tempo & colors slots "
+                            "in animation",
                         },
                         writer,
                     )
@@ -543,7 +545,8 @@ class Nabd:
             )
         else:
             # Wait a little bit for user to continue moving the ears
-            # Then we'll run a detection and tell services if we're not sleeping.
+            # Then we'll run a detection and tell services if we're not
+            # sleeping.
             if self._ears_moved_task:
                 self._ears_moved_task.cancel()
             self._ears_moved_task = asyncio.ensure_future(self._ears_moved())
@@ -656,9 +659,9 @@ class Nabd:
         nablogging.setup_logging("nabd")
         pidfilepath = "/var/run/nabd.pid"
         usage = (
-            "nabd [options]\n"
-            " -h                    display this message\n"
-            f" --pidfile=<pidfile>   define pidfile (default = {pidfilepath})\n"
+            f"nabd [options]\n"
+            f" -h                  display this message\n"
+            f" --pidfile=<pidfile> define pidfile (default = {pidfilepath})\n"
         )
         try:
             opts, args = getopt.getopt(argv, "h", ["pidfile=", "nabio="])
@@ -685,7 +688,8 @@ class Nabd:
             exit(1)
         except LockFailed:
             print(
-                f"Cannot write pid file to {pidfilepath}, please fix permissions"
+                f"Cannot write pid file to {pidfilepath}, please fix "
+                f"permissions"
             )
             exit(1)
 

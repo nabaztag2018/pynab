@@ -17,7 +17,8 @@ class ChoreographyInterpreter:
         self.running_ref = None
         self.timescale = 0
         # Random is for ifne, only used in taichi.
-        # Generator based on original code yielding 0-29, not exactly uniformly.
+        # Generator based on original code yielding 0-29, not exactly
+        # uniformly.
         # Original code:
         # set chorrandom=((Iecholn rand&255)*30)>>8; // v16
         #

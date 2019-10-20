@@ -54,7 +54,8 @@ class NabWeatherd(NabRecurrentService):
         '{"left":"000000","center":"000000","right":"0000ff"}]}'
     )
 
-    # [40 {4 0 0 0 0 0 0 0 4 0 0 0 0 4 0 0 0 0 0 0 4 0 0 0 0 4 0 0 0 0 4 0 0 0 0 0}] // neige
+    # [40 {4 0 0 0 0 0 0 0 4 0 0 0 0 4 0 0 0 0 0 0 4 0 0 0 0 4 0
+    #      0 0 0 4 0 0 0 0 0}] // neige
     SNOWY_INFO_ANIMATION = (
         '{"tempo":40,"colors":['
         '{"left":"0000ff","center":"000000","right":"000000"},'
@@ -71,7 +72,8 @@ class NabWeatherd(NabRecurrentService):
         '{"left":"000000","center":"000000","right":"000000"}]}'
     )
 
-    # [25 {0 4 3 0 0 0 0 0 0 0 0 0 0 0 0 4 3 0 0 4 3 0 0 0 0 0 0 0 3 4 3 4 0}] // orage
+    # [25 {0 4 3 0 0 0 0 0 0 0 0 0 0 0 0 4 3 0 0 4 3 0 0 0 0 0 0
+    #      0 3 4 3 4 0}] // orage
     STORMY_INFO_ANIMATION = (
         '{"tempo":25,"colors":['
         '{"left":"000000","center":"0000ff","right":"ffff00"},'
@@ -397,7 +399,8 @@ class NabWeatherd(NabRecurrentService):
         config.save()
 
     def compute_next(self, scheduled_messages):
-        # next is the earliest of an info within one hour and the next scheduled message.
+        # next is the earliest of an info within one hour and the next
+        # scheduled message.
         now = datetime.datetime.now(datetime.timezone.utc)
         next_hour = now + datetime.timedelta(seconds=3600)
         return (next_hour, "info")
@@ -407,16 +410,17 @@ class NabWeatherd(NabRecurrentService):
 
         if self.location is None:
             packet = (
-                '{"type":"message","signature":{"audio":["nabweatherd/signature.mp3"]},"body":[{"audio":["nabweatherd/no-location-error.mp3]}],"expiration":"'
-                + expiration.isoformat()
-                + '"}\r\n'
+                '{"type":"message",'
+                '"signature":{"audio":['
+                '"nabweatherd/signature.mp3"]},'
+                '"body":[{"audio":["nabweatherd/no-location-error.mp3]}],'
+                '"expiration":"' + expiration.isoformat() + '"}\r\n'
             )
             self.writer.write(packet.encode("utf8"))
         else:
             if (
-                self.forecast_date is None
-                or (datetime.datetime.now() - self.forecast_date).seconds
-                >= 1800
+                self.forecast_date is None or
+                (datetime.datetime.now() - self.forecast_date).seconds >= 1800
             ):
                 self.update_weather_forecast()
             # Always update info.
@@ -444,15 +448,13 @@ class NabWeatherd(NabRecurrentService):
                 if config.unit == NabWeatherd.UNIT_FARENHEIT:
                     max_temp = round(max_temp * 1.8 + 32.0)
                 packet = (
-                    '{"type":"message","signature":{"audio":["nabweatherd/signature.mp3"]},"body":[{"audio":["nabweatherd/'
-                    + type
-                    + '.mp3", "nabweatherd/sky/'
-                    + weather_class
-                    + '.mp3", "nabweatherd/temp/'
-                    + str(max_temp)
-                    + '.mp3", "nabweatherd/degree.mp3"]}],"expiration":"'
-                    + expiration.isoformat()
-                    + '"}\r\n'
+                    '{"type":"message",'
+                    '"signature":{"audio":["nabweatherd/signature.mp3"]},'
+                    '"body":[{"audio":["nabweatherd/' + type + '.mp3",'
+                    '"nabweatherd/sky/' + weather_class + '.mp3",'
+                    '"nabweatherd/temp/' + str(max_temp) + '.mp3",'
+                    '"nabweatherd/degree.mp3"]}],'
+                    '"expiration":"' + expiration.isoformat() + '"}\r\n'
                 )
                 self.writer.write(packet.encode("utf8"))
 

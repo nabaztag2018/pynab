@@ -5,13 +5,13 @@ from .choreography import ChoreographyInterpreter
 class NabIO(object, metaclass=abc.ABCMeta):
     """ Interface for I/O interactions with a nabaztag """
 
-    MODEL_2018 = (
-        1
-    )  # https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF
-    MODEL_2019_TAG = (
-        2
-    )  # https://github.com/nabaztag2018/hardware/blob/master/pyNab_V4.1_voice_reco.PDF
-    MODEL_2019_TAGTAG = 3  # with RFID
+    # https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF
+    MODEL_2018 = 1
+    # https://github.com/nabaztag2018/hardware/blob/master/
+    # pyNab_V4.1_voice_reco.PDF
+    MODEL_2019_TAG = 2
+    # with RFID
+    MODEL_2019_TAGTAG = 3
 
     # Each info loop lasts 15 seconds
     INFO_LOOP_LENGTH = 15.0
@@ -60,7 +60,8 @@ class NabIO(object, metaclass=abc.ABCMeta):
         - 'double_click'
         - 'click_and_hold'
 
-        Make sure the callback is called on the provided event loop, with loop.call_soon_threadsafe
+        Make sure the callback is called on the provided event loop, with
+        loop.call_soon_threadsafe
         """
         raise NotImplementedError("Should have implemented")
 
@@ -70,7 +71,8 @@ class NabIO(object, metaclass=abc.ABCMeta):
         Define the callback for ears events.
         callback is cb(ear) ear being the ear moved.
 
-        Make sure the callback is called on the provided event loop, with loop.call_soon_threadsafe
+        Make sure the callback is called on the provided event loop, with
+        loop.call_soon_threadsafe
         """
         raise NotImplementedError("Should have implemented")
 
@@ -79,7 +81,8 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """
         Play an info animation.
         tempo & colors are as described in the nabd protocol.
-        Run the animation in loop for the complete info duration (15 seconds) or until condvar is notified
+        Run the animation in loop for the complete info duration (15 seconds)
+        or until condvar is notified
 
         If 'left'/'center'/'right' slots are absent, the light is off.
         """
@@ -87,7 +90,8 @@ class NabIO(object, metaclass=abc.ABCMeta):
 
     async def start_acquisition(self, acquisition_cb):
         """
-        Play listen sound and start acquisition, calling callback with sound samples.
+        Play listen sound and start acquisition, calling callback with sound
+        samples.
         """
         await self.sound.play_list(["asr/listen.mp3"], False)
         await self.sound.start_recording(acquisition_cb)
@@ -158,7 +162,8 @@ class NabIO(object, metaclass=abc.ABCMeta):
                 preloaded_audio_list = []
                 if isinstance(seq_item["audio"], str):
                     print(
-                        f"Warning: audio should be a list of resources (sequence item: {seq_item})"
+                        f"Warning: audio should be a list of resources "
+                        f"(sequence item: {seq_item})"
                     )
                     audio_list = [seq_item["audio"]]
                 else:
