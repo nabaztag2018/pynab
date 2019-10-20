@@ -125,7 +125,7 @@ class NabService(ABC):
     def main(cls, argv):
         service_name = cls.__name__.lower()
         nablogging.setup_logging(service_name)
-        pidfilepath = "/var/run/{service_name}.pid"
+        pidfilepath = f"/var/run/{service_name}.pid"
         usage = (
             f"{service_name} [options]\n"
             f" -h                   display this message\n"
