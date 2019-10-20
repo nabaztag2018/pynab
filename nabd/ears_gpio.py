@@ -55,7 +55,7 @@ class EarsGPIO(Ears):
         Thread: Rpi.GPIO event thread
         Lock: unknown
         """
-        logging.debug('encoder_cb, channel = {channel}'.format(channel=channel))
+        logging.debug(f'encoder_cb, channel = {channel}')
         if channel == EarsGPIO.ENCODERS_CHANNELS[0]:
             ear = 0
         elif channel == EarsGPIO.ENCODERS_CHANNELS[1]:
@@ -86,7 +86,7 @@ class EarsGPIO(Ears):
         Thread: RPi.GPIO event
         Lock: unknown
         """
-        logging.debug('stop_motor ear = {ear}'.format(ear=ear))
+        logging.debug(f'stop_motor ear = {ear}')
         for channel in EarsGPIO.MOTOR_CHANNELS[ear]:
             GPIO.output(channel, GPIO.LOW)
         self.running[ear] = False
@@ -100,7 +100,7 @@ class EarsGPIO(Ears):
         Threads: main loop or executor
         Lock: acquired
         """
-        logging.debug('start_motor ear = {ear}'.format(ear=ear))
+        logging.debug(f'start_motor ear = {ear}')
         dir_ix = int((1 - direction) / 2)
         GPIO.output(EarsGPIO.MOTOR_CHANNELS[ear][1 - dir_ix], GPIO.LOW)
         GPIO.output(EarsGPIO.MOTOR_CHANNELS[ear][dir_ix], GPIO.HIGH)

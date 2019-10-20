@@ -59,7 +59,7 @@ class ConnectView(View):
                 config.redirect_uri = redirect_uri
                 reset_access_token(config)
             except MastodonError as e:
-                return HttpResponse('Unknown error', content='{{"status":"error","code":"MastodonError","message":"{e}"}}'.format(e=e), mimetype='application/json', status=500)
+                return HttpResponse('Unknown error', content=f'{{"status":"error","code":"MastodonError","message":"{e}"}}', mimetype='application/json', status=500)
         # Start OAuth process
         mastodon_client = Mastodon(
             client_id=config.client_id,
@@ -109,9 +109,9 @@ class LoginView(View):
                 reset_access_token(config)
                 config.save()
                 NabMastodond.signal_daemon()
-                return HttpResponse('Unauthorized', content='{{"status":"error","result":"unauthorized","message":"{e}"}}'.format(e=e), mimetype='application/json', status=401)
+                return HttpResponse('Unauthorized', content=f'{{"status":"error","result":"unauthorized","message":"{e}"}}', mimetype='application/json', status=401)
             except MastodonError as e:
-                return HttpResponse('Unknown error', content='{{"status":"error","message":"{e}"}}'.format(e=e), mimetype='application/json', status=500)
+                return HttpResponse('Unknown error', content=f'{{"status":"error","message":"{e}"}}', mimetype='application/json', status=500)
         else:
             return HttpResponse('Not found', content='{"status":"error","result":"not_found"}', mimetype='application/json', status=404)
 

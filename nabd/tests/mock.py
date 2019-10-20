@@ -19,12 +19,12 @@ class NabIOMock(NabIO):
     async def setup_ears(self, left_ear, right_ear):
         self.left_ear = left_ear
         self.right_ear = right_ear
-        self.called_list.append('setup_ears({left}, {right})'.format(left=left_ear, right=right_ear))
+        self.called_list.append(f"setup_ears({left_ear}, {right_ear})")
 
     async def move_ears(self, left_ear, right_ear):
         self.left_ear = left_ear
         self.right_ear = right_ear
-        self.called_list.append('move_ears({left}, {right})'.format(left=left_ear, right=right_ear))
+        self.called_list.append(f"move_ears({left_ear}, {right_ear})")
 
     async def detect_ears_positions(self):
         self.called_list.append('detect_ears_positions()')
@@ -39,15 +39,15 @@ class NabIOMock(NabIO):
 
     def pulse(self, led, color):
         if led == Leds.LED_NOSE:
-            self.nose_led = 'pulse({c})'.format(c=color)
+            self.nose_led = f"pulse({color})"
         elif led == Leds.LED_LEFT:
-            self.left_led = 'pulse({c})'.format(c=color)
+            self.left_led = f"pulse({color})"
         elif led == Leds.LED_CENTER:
-            self.left_center = 'pulse({c})'.format(c=color)
+            self.left_center = f"pulse({color})"
         elif led == Leds.LED_RIGHT:
-            self.left_right = 'pulse({c})'.format(c=color)
+            self.left_right = f"pulse({color})"
         elif led == Leds.LED_BOTTOM:
-            self.bottom_led = 'pulse({c})'.format(c=color)
+            self.bottom_led = f"pulse({color})"
 
     def bind_button_event(self, loop, callback):
         self.button_event_cb = {'callback': callback, 'loop': loop}
@@ -90,10 +90,10 @@ class EarsMock(Ears):
         self.cb = (loop, callback)
 
     async def reset_ears(self, target_left, target_right):
-        self.called_list.append('reset_ears({left},{right})'.format(left=target_left, right=target_right))
+        self.called_list.append(f"reset_ears({target_left},{target_right})")
 
     async def move(self, ear, delta, direction):
-        self.called_list.append('move({ear},{delta},{direction})'.format(ear=ear, delta=delta, direction=direction))
+        self.called_list.append(f"move({ear},{delta},{direction})")
         if ear == Ears.LEFT_EAR:
             self.left = (self.left + delta) % Ears.STEPS
         else:
@@ -104,7 +104,7 @@ class EarsMock(Ears):
         return (self.left, self.right)
 
     async def go(self, ear, position, direction):
-        self.called_list.append('go({ear},{position},{direction})'.format(ear=ear, position=position, direction=direction))
+        self.called_list.append(f"go({ear},{position},{direction})")
         if ear == Ears.LEFT_EAR:
             self.left = position % Ears.STEPS
         else:
@@ -119,13 +119,13 @@ class LedsMock(Leds):
         self.called_list = []
 
     def set1(self, led, red, green, blue):
-        self.called_list.append('set1({led},{red},{green},{blue})'.format(led=led, red=red, green=green, blue=blue))
+        self.called_list.append(f'set1({led},{red},{green},{blue})')
 
     def pulse(self, led, red, green, blue):
-        self.called_list.append('pulse({led},{red},{green},{blue})'.format(led=led, red=red, green=green, blue=blue))
+        self.called_list.append(f'pulse({led},{red},{green},{blue})')
 
     def setall(self, red, green, blue):
-        self.called_list.append('setall({red},{green},{blue})'.format(red=red, green=green, blue=blue))
+        self.called_list.append(f'setall({red},{green},{blue})')
 
 
 class SoundMock(Sound):
@@ -133,7 +133,7 @@ class SoundMock(Sound):
         self.called_list = []
 
     async def start_playing(self, filename):
-        self.called_list.append('start({filename})'.format(filename=filename))
+        self.called_list.append(f'start({filename})')
 
     async def wait_until_done(self):
         self.called_list.append('wait_until_done()')

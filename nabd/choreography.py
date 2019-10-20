@@ -255,10 +255,10 @@ class ChoreographyInterpreter:
             except IndexError as err:
                 # 255 apparently used for end.
                 if opcode != 255:
-                    print('Unknown opcode {opcode}'.format(opcode=opcode))
+                    print(f'Unknown opcode {opcode}')
                 return
             except AttributeError as err:
-                print('Unknown opcode {opcode} {err}'.format(opcode=opcode, err=err))
+                print(f'Unknown opcode {opcode} {err}')
                 return
             index = await handler(index, chor)
 
@@ -328,4 +328,4 @@ class ChoreographyInterpreter:
         except asyncio.CancelledError:
             raise
         except Exception:
-            logging.info('Crash in choreography interpreter: {traceback}'.format(traceback=traceback.format_exc()))
+            logging.info(f'Crash in choreography interpreter: {traceback.format_exc()}')

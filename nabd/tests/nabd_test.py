@@ -255,7 +255,7 @@ class TestNabd(unittest.TestCase):
             packet = '{"type":"command","request_id":"test_id","sequence":{"audio":["weather/fr/signature.mp3","weather/fr/today.mp3","weather/fr/sky/0.mp3","weather/fr/temp/42.mp3","weather/fr/temp/degree.mp3","weather/fr/temp/signature.mp3"],"choregraphy":"streaming"},"expiration":"' + expiration.isoformat() + '"}\r\n'
             s1.write(packet.encode('utf8'))
             packet = s1.readline()  # new state packet
-            print("packet={packet}".format(packet=packet))
+            print(f"packet={packet}")
             packet_j = json.loads(packet.decode('utf8'))
             self.assertEqual(packet_j['type'], 'state')
             self.assertEqual(packet_j['state'], 'playing')
@@ -271,7 +271,7 @@ class TestNabd(unittest.TestCase):
             packet = '{"type":"command","request_id":"test_id","sequence":{"audio":["weather/fr/signature.mp3","weather/fr/today.mp3","weather/fr/sky/0.mp3","weather/fr/temp/42.mp3","weather/fr/temp/degree.mp3","weather/fr/temp/signature.mp3"],"choregraphy":"streaming"},"expiration":"' + expiration.isoformat() + '"}\r\n'
             s1.write(packet.encode('utf8'))
             packet = s1.readline()  # new state packet
-            print("packet={packet}".format(packet=packet))
+            print(f"packet={packet}")
             packet_j = json.loads(packet.decode('utf8'))
             self.assertEqual(packet_j['type'], 'response')
             self.assertEqual(packet_j['status'], 'expired')

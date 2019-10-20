@@ -147,7 +147,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
             if 'audio' in seq_item:
                 preloaded_audio_list = []
                 if isinstance(seq_item['audio'], str):
-                    print('Warning: audio should be a list of resources (sequence item: {seq_item})'.format(seq_item=seq_item))
+                    print(f'Warning: audio should be a list of resources (sequence item: {seq_item})')
                     audio_list = [seq_item['audio']]
                 else:
                     audio_list = seq_item['audio']
