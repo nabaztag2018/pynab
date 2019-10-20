@@ -8,7 +8,7 @@ Ce système est conçu pour deux cartes :
 - Une carte réalisée pour Maker Faire 2018, qui ne fonctionne qu'avec les Nabaztag v1 (sans micro ni RFID).
 - Une nouvelle version de la carte, proposée via la campagne Ulule en mai 2019, qui fonctionne avec les Nabaztag v1 et v2 (les micros sont sur la carte, du coup les Nabaztag v1 bénéficient aussi de la reconnaissance vocale).
 
-Les schémas et fichiers de fabrication de ces deux cartes sont dans le repository [hardware](https://github.com/nabaztag2018/hardware), respectivement [`RPI\_Nabaztag`](https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF) (2018) et [`pyNab\_v4.1`](https://github.com/nabaztag2018/hardware/blob/master/pyNab_V4.1_voice_reco.PDF) (2019).
+Les schémas et fichiers de fabrication de ces deux cartes sont dans le repository [hardware](https://github.com/nabaztag2018/hardware), respectivement [`RPI_Nabaztag`](https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF) (2018) et [`pyNab_v4.1`](https://github.com/nabaztag2018/hardware/blob/master/pyNab_V4.1_voice_reco.PDF) (2019).
 
 # Images
 
