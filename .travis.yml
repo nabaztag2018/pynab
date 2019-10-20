@@ -5,7 +5,7 @@ before_install:
 language: python
 python:
   - 3.7
-dist: xenial
+dist: bionic
 sudo: true
 script:
   - sh /home/travis/build/nabaztag2018/pynab/.travis_build_nlu_engines.sh
