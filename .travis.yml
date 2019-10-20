@@ -10,6 +10,8 @@ sudo: true
 script:
   - sh /home/travis/build/nabaztag2018/pynab/.travis_build_nlu_engines.sh
   - pytest
+addons:
+  postgresql: "10"
 services:
   - postgresql
 before_script:
