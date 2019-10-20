@@ -1247,8 +1247,10 @@ class TestSendDM(unittest.TestCase, TestMastodonClientBase):
 @pytest.mark.django_db
 class TestMastodonClientProposal(TestMastodondBase, TestMastodonClientBase):
     def setUp(self):
-        TestMastodondBase.setUp(self)
+        # Give a chance to TestMastodonClientBase to skip the test before
+        # starting a mock nabd
         TestMastodonClientBase.setUp(self)
+        TestMastodondBase.setUp(self)
         self.alter_mastodon_client = Mastodon(
             client_id=self.client_id,
             client_secret=self.client_secret,
