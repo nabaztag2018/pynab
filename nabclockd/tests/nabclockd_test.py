@@ -44,7 +44,7 @@ class TestNabclockd(unittest.TestCase):
 
     async def connect_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
-        self.connect_handler_called = self.connect_handler_called + 1
+        self.connect_handler_called += 1
 
     def test_connect(self):
         self.mock_connection_handler = self.connect_handler
@@ -58,7 +58,7 @@ class TestNabclockd(unittest.TestCase):
 
     async def wakeup_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"asleep"}\r\n')
-        self.wakeup_handler_called = self.wakeup_handler_called + 1
+        self.wakeup_handler_called += 1
         while not reader.at_eof():
             line = await reader.readline()
             if line != b'':
