@@ -357,8 +357,7 @@ class Nabd:
                     except json.decoder.JSONDecodeError as e:
                         self.write_packet({'type': 'response', 'status': 'error', 'class': 'JSONDecodeError', 'message': str(e)}, writer)
             writer.close()
-            if sys.version_info >= (3, 7):
-                await writer.wait_closed()
+            await writer.wait_closed()
         except ConnectionResetError:
             pass
         except Exception:
@@ -462,12 +461,8 @@ class Nabd:
             self.loop.run_until_complete(self.stop_idle_worker())
             for writer in self.service_writers.copy():
                 writer.close()
-                if sys.version_info >= (3, 7):
-                    self.loop.run_until_complete(writer.wait_closed())
-            if sys.version_info >= (3, 7):
-                tasks = asyncio.all_tasks(self.loop)
-            else:
-                tasks = asyncio.Task.all_tasks(self.loop)
+                self.loop.run_until_complete(writer.wait_closed())
+            tasks = asyncio.all_tasks(self.loop)
             for t in [t for t in tasks if not (t.done() or t.cancelled())]:
                 self.loop.run_until_complete(t)      # give canceled tasks the last chance to run
             server = server_task.result()

@@ -70,8 +70,7 @@ class NabService(ABC):
                     except json.decoder.JSONDecodeError as e:
                         logging.error('Invalid JSON packet from nabd: {line}\n{e}'.format(line=line, e=e))
             self.writer.close()
-            if sys.version_info >= (3, 7):
-                await self.writer.wait_closed()
+            await self.writer.wait_closed()
         except KeyboardInterrupt:
             pass
         finally:
@@ -259,10 +258,7 @@ class NabRecurrentService(NabService, ABC):
         finally:
             self.writer.close()
             self.loop.run_until_complete(self.stop_service_loop())
-            if sys.version_info >= (3, 7):
-                tasks = asyncio.all_tasks(self.loop)
-            else:
-                tasks = asyncio.Task.all_tasks(self.loop)
+            tasks = asyncio.all_tasks(self.loop)
             for t in [t for t in tasks if not (t.done() or t.cancelled())]:
                 self.loop.run_until_complete(t)      # give canceled tasks the last chance to run
             self.loop.close()
