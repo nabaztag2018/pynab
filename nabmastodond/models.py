@@ -3,7 +3,7 @@ from nabcommon import singleton_model
 
 
 class Config(singleton_model.SingletonModel):
-    instance = models.TextField(default='botsin.space')
+    instance = models.TextField(default="botsin.space")
     client_id = models.TextField(null=True)
     client_secret = models.TextField(null=True)
     redirect_uri = models.TextField(null=True)
@@ -20,4 +20,4 @@ class Config(singleton_model.SingletonModel):
     last_processed_status_date = models.DateTimeField(null=True)
 
     class Meta:
-        app_label = 'nabmastodond'
+        app_label = "nabmastodond"

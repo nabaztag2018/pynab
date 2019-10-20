@@ -12,31 +12,41 @@ from .sound import Sound
 
 
 class SoundAlsa(Sound):
-    MODEL_2018_CARD_NAME = 'sndrpihifiberry'
+    MODEL_2018_CARD_NAME = "sndrpihifiberry"
 
-    MODEL_2019_CARD_NAME = 'seeed2micvoicec'
+    MODEL_2019_CARD_NAME = "seeed2micvoicec"
 
-    SOUND_CARDS_SUPPORTED = frozenset((MODEL_2018_CARD_NAME, MODEL_2019_CARD_NAME,))
+    SOUND_CARDS_SUPPORTED = frozenset(
+        (MODEL_2018_CARD_NAME, MODEL_2019_CARD_NAME)
+    )
 
     def __init__(self, hw_model):
 
-        card_index, sound_card, playback_device, = SoundAlsa.sound_configuration()
+        card_index, sound_card, playback_device, = (
+            SoundAlsa.sound_configuration()
+        )
         self.playback_device = playback_device
 
         if sound_card == SoundAlsa.MODEL_2018_CARD_NAME:
             self.playback_mixer = None
-            self.record_device = 'null'
+            self.record_device = "null"
             self.record_mixer = None
         else:
             # do we have anyone else? either way it is not supported
             assert sound_card == SoundAlsa.MODEL_2019_CARD_NAME
 
-            self.playback_mixer = alsaaudio.Mixer(control='Playback', cardindex=card_index)
+            self.playback_mixer = alsaaudio.Mixer(
+                control="Playback", cardindex=card_index
+            )
             self.record_device = self.playback_device
-            self.record_mixer = alsaaudio.Mixer(control='Capture', cardindex=card_index)
+            self.record_mixer = alsaaudio.Mixer(
+                control="Capture", cardindex=card_index
+            )
 
             if not SoundAlsa.__test_device(self.record_device, True):
-                raise RuntimeError('Unable to configure sound card for recording')
+                raise RuntimeError(
+                    "Unable to configure sound card for recording"
+                )
 
         self.executor = ThreadPoolExecutor(max_workers=1)
 
@@ -63,32 +73,38 @@ class SoundAlsa(Sound):
 
             @raise RuntimeError: if no ALSO device could be found or if the device found cannot be configured.
         """
-        for idx, sound_card, in enumerate(alsaaudio.cards()):
+        for idx, sound_card in enumerate(alsaaudio.cards()):
             if sound_card in SoundAlsa.SOUND_CARDS_SUPPORTED:
-                device = f'plughw:CARD={sound_card}'
+                device = f"plughw:CARD={sound_card}"
 
                 if not SoundAlsa.__test_device(device, False):
-                    raise RuntimeError('Unable to configure sound card for playback')
+                    raise RuntimeError(
+                        "Unable to configure sound card for playback"
+                    )
 
-                return idx, sound_card, device,
+                return idx, sound_card, device
 
-        raise RuntimeError('Sound card not found by ALSA (are drivers missing?)')
+        raise RuntimeError(
+            "Sound card not found by ALSA (are drivers missing?)"
+        )
 
     def _play(self, filename):
         try:
             device = alsaaudio.PCM(device=self.playback_device)
-            if filename.endswith('.wav'):
-                with wave.open(filename, 'rb') as f:
+            if filename.endswith(".wav"):
+                with wave.open(filename, "rb") as f:
                     channels = f.getnchannels()
                     width = f.getsampwidth()
                     rate = f.getframerate()
                     self._setup_device(device, channels, rate, width)
-                    periodsize = rate // 10   # 1/10th of second
+                    periodsize = rate // 10  # 1/10th of second
                     device.setperiodsize(periodsize)
                     target_chunk_size = periodsize * channels * width
 
                     chunk = io.BytesIO()
-                    chunk_length = 0  # tracking chunk length is technically useless here but we do it for consistency
+                    chunk_length = (
+                        0
+                    )  # tracking chunk length is technically useless here but we do it for consistency
                     data = f.readframes(periodsize)
                     while data and self.currently_playing:
                         chunk_length += chunk.write(data)
@@ -97,19 +113,21 @@ class SoundAlsa(Sound):
                             # This (probably) is last iteration.
                             # ALSA device expects chunks of fixed period size
                             # Pad the sound with silence to complete chunk
-                            chunk_length += chunk.write(bytearray(target_chunk_size - chunk_length))
+                            chunk_length += chunk.write(
+                                bytearray(target_chunk_size - chunk_length)
+                            )
 
                         device.write(chunk.getvalue())
                         chunk.seek(0)
                         chunk_length = 0
                         data = f.readframes(periodsize)
 
-            elif filename.endswith('.mp3'):
+            elif filename.endswith(".mp3"):
                 mp3 = Mpg123(filename)
                 rate, channels, encoding = mp3.get_format()
                 width = mp3.get_width_by_encoding(encoding)
                 self._setup_device(device, channels, rate, width)
-                periodsize = rate // 10   # 1/10th of second
+                periodsize = rate // 10  # 1/10th of second
                 device.setperiodsize(periodsize)
                 target_chunk_size = periodsize * width * channels
                 chunk = io.BytesIO()
@@ -160,17 +178,23 @@ class SoundAlsa(Sound):
     async def start_recording(self, stream_cb):
         await self.stop_playing()
         self.currently_recording = True
-        self.recorded_raw = open('sound_alsa_recording.raw', 'wb')
-        self.future = asyncio.get_event_loop().run_in_executor(self.executor, lambda cb=stream_cb: self._record(cb))
+        self.recorded_raw = open("sound_alsa_recording.raw", "wb")
+        self.future = asyncio.get_event_loop().run_in_executor(
+            self.executor, lambda cb=stream_cb: self._record(cb)
+        )
 
     def _record(self, cb):
         inp = None
         try:
-            inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, device=self.record_device)
+            inp = alsaaudio.PCM(
+                alsaaudio.PCM_CAPTURE,
+                alsaaudio.PCM_NORMAL,
+                device=self.record_device,
+            )
             inp.setchannels(1)
             inp.setrate(16000)
             inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
-            inp.setperiodsize(1600)   # 100ms
+            inp.setperiodsize(1600)  # 100ms
             finalize = False
             while not finalize:
                 l, data = inp.read()
@@ -216,7 +240,10 @@ class SoundAlsa(Sound):
             else:
                 dev = alsaaudio.PCM(device=device)
 
-            if dev.setformat(alsaaudio.PCM_FORMAT_S16_LE) != alsaaudio.PCM_FORMAT_S16_LE:
+            if (
+                dev.setformat(alsaaudio.PCM_FORMAT_S16_LE)
+                != alsaaudio.PCM_FORMAT_S16_LE
+            ):
                 return False
             if record:
                 if dev.setchannels(1) != 1:
@@ -242,12 +269,14 @@ class SoundAlsa(Sound):
     async def start_playing_preloaded(self, filename):
         await self.stop_playing()
         self.currently_playing = True
-        self.future = asyncio.get_event_loop().run_in_executor(self.executor, lambda f=filename: self._play(f))
+        self.future = asyncio.get_event_loop().run_in_executor(
+            self.executor, lambda f=filename: self._play(f)
+        )
 
     __PCM_FORMAT_BY_WIDTH = {
         1: alsaaudio.PCM_FORMAT_U8,  # 8bit is unsigned in wav files
         # Otherwise we assume signed data, little endian
         2: alsaaudio.PCM_FORMAT_S16_LE,
         4: alsaaudio.PCM_FORMAT_S32_LE,
-        }
+    }
     """ Mapping between the PCM format and the width of a sound """

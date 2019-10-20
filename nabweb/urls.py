@@ -18,13 +18,13 @@ from django.urls import path, include
 from .views import NabWebView, NabWebUpgradeView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('nab8balld/', include('nab8balld.urls')),
-    path('nabclockd/', include('nabclockd.urls')),
-    path('nabmastodond/', include('nabmastodond.urls')),
-    path('nabsurprised/', include('nabsurprised.urls')),
-    path('nabtaichid/', include('nabtaichid.urls')),
-    path('nabweatherd/', include('nabweatherd.urls')),
-    path('', NabWebView.as_view()),
-    path('upgrade', NabWebUpgradeView.as_view(), name='nabweb.upgrade'),
+    path("admin/", admin.site.urls),
+    path("nab8balld/", include("nab8balld.urls")),
+    path("nabclockd/", include("nabclockd.urls")),
+    path("nabmastodond/", include("nabmastodond.urls")),
+    path("nabsurprised/", include("nabsurprised.urls")),
+    path("nabtaichid/", include("nabtaichid.urls")),
+    path("nabweatherd/", include("nabweatherd.urls")),
+    path("", NabWebView.as_view()),
+    path("upgrade", NabWebUpgradeView.as_view(), name="nabweb.upgrade"),
 ]

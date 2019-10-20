@@ -8,12 +8,12 @@ class TestView(TestCase):
 
     def test_get_settings(self):
         c = Client()
-        response = c.get('/nabclockd/settings')
+        response = c.get("/nabclockd/settings")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.templates[0].name, 'nabclockd/settings.html')
-        self.assertTrue('config' in response.context)
+        self.assertEqual(response.templates[0].name, "nabclockd/settings.html")
+        self.assertTrue("config" in response.context)
         config = Config.load()
-        self.assertEqual(response.context['config'], config)
+        self.assertEqual(response.context["config"], config)
         self.assertEqual(config.chime_hour, True)
         self.assertEqual(config.wakeup_hour, 7)
         self.assertEqual(config.wakeup_min, 0)
@@ -22,12 +22,12 @@ class TestView(TestCase):
 
     def test_set_chime_hour(self):
         c = Client()
-        response = c.post('/nabclockd/settings', {'chime_hour': 'false'})
+        response = c.post("/nabclockd/settings", {"chime_hour": "false"})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.templates[0].name, 'nabclockd/settings.html')
-        self.assertTrue('config' in response.context)
+        self.assertEqual(response.templates[0].name, "nabclockd/settings.html")
+        self.assertTrue("config" in response.context)
         config = Config.load()
-        self.assertEqual(response.context['config'], config)
+        self.assertEqual(response.context["config"], config)
         self.assertEqual(config.chime_hour, False)
         self.assertEqual(config.wakeup_hour, 7)
         self.assertEqual(config.wakeup_min, 0)
@@ -36,12 +36,12 @@ class TestView(TestCase):
 
     def test_set_wakeup_time(self):
         c = Client()
-        response = c.post('/nabclockd/settings', {'wakeup_time': '09:42'})
+        response = c.post("/nabclockd/settings", {"wakeup_time": "09:42"})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.templates[0].name, 'nabclockd/settings.html')
-        self.assertTrue('config' in response.context)
+        self.assertEqual(response.templates[0].name, "nabclockd/settings.html")
+        self.assertTrue("config" in response.context)
         config = Config.load()
-        self.assertEqual(response.context['config'], config)
+        self.assertEqual(response.context["config"], config)
         self.assertEqual(config.chime_hour, True)
         self.assertEqual(config.wakeup_hour, 9)
         self.assertEqual(config.wakeup_min, 42)
@@ -50,12 +50,12 @@ class TestView(TestCase):
 
     def test_set_sleep_time(self):
         c = Client()
-        response = c.post('/nabclockd/settings', {'sleep_time': '21:21'})
+        response = c.post("/nabclockd/settings", {"sleep_time": "21:21"})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.templates[0].name, 'nabclockd/settings.html')
-        self.assertTrue('config' in response.context)
+        self.assertEqual(response.templates[0].name, "nabclockd/settings.html")
+        self.assertTrue("config" in response.context)
         config = Config.load()
-        self.assertEqual(response.context['config'], config)
+        self.assertEqual(response.context["config"], config)
         self.assertEqual(config.chime_hour, True)
         self.assertEqual(config.wakeup_hour, 7)
         self.assertEqual(config.wakeup_min, 0)
@@ -64,12 +64,19 @@ class TestView(TestCase):
 
     def test_set_all(self):
         c = Client()
-        response = c.post('/nabclockd/settings', {'chime_hour': 'false', 'wakeup_time': '09:42', 'sleep_time': '21:21'})
+        response = c.post(
+            "/nabclockd/settings",
+            {
+                "chime_hour": "false",
+                "wakeup_time": "09:42",
+                "sleep_time": "21:21",
+            },
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.templates[0].name, 'nabclockd/settings.html')
-        self.assertTrue('config' in response.context)
+        self.assertEqual(response.templates[0].name, "nabclockd/settings.html")
+        self.assertTrue("config" in response.context)
         config = Config.load()
-        self.assertEqual(response.context['config'], config)
+        self.assertEqual(response.context["config"], config)
         self.assertEqual(config.chime_hour, False)
         self.assertEqual(config.wakeup_hour, 9)
         self.assertEqual(config.wakeup_min, 42)

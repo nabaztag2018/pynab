@@ -28,117 +28,184 @@ class ChoreographyInterpreter:
         self.taichi_directions = [0, 0]
         self.current_palette = [(0, 0, 0) for x in range(8)]
 
-    STREAMING_URN = 'urn:x-chor:streaming'
+    STREAMING_URN = "urn:x-chor:streaming"
 
     # from nominal.010120_as3.mtl
     MTL_OPCODE_HANDLDERS = [
-        'nop',
-        'frame_duration',
-        'undefined',
-        'undefined',
-        'undefined',
-        'undefined',
-        'undefined',                # 'set_color', but commented
-        'set_led_color',
-        'set_motor',
-        'set_leds_color',       # v16
-        'set_led_off',          # v17
-        'undefined',
-        'undefined',
-        'undefined',
-        'set_led_palette',
-        'undefined',                # 'set_palette', but commented
-        'randmidi',
-        'avance',
-        'ifne',                         # only used for taichi
-        'attend',
-        'setmotordir',          # v16
+        "nop",
+        "frame_duration",
+        "undefined",
+        "undefined",
+        "undefined",
+        "undefined",
+        "undefined",  # 'set_color', but commented
+        "set_led_color",
+        "set_motor",
+        "set_leds_color",  # v16
+        "set_led_off",  # v17
+        "undefined",
+        "undefined",
+        "undefined",
+        "set_led_palette",
+        "undefined",  # 'set_palette', but commented
+        "randmidi",
+        "avance",
+        "ifne",  # only used for taichi
+        "attend",
+        "setmotordir",  # v16
     ]
 
     STREAMING_OPCODE_HANDLERS = [
-        'nop',
-        'nop_1',                        # frame_duration is ignored
-        'undefined',
-        'undefined',
-        'undefined',
-        'undefined',
-        'undefined',                # 'set_color', but commented
-        'set_led_color',
-        'undefined',
-        'undefined',                # v16
-        'set_led_off',          # v17
-        'undefined',
-        'undefined',
-        'undefined',
-        'set_led_palette_streaming',
-        'undefined',                # 'set_palette', but commented
-        'undefined',
-        'undefined',
-        'undefined',                # only used for taichi
-        'undefined',
-        'undefined',                # v16
+        "nop",
+        "nop_1",  # frame_duration is ignored
+        "undefined",
+        "undefined",
+        "undefined",
+        "undefined",
+        "undefined",  # 'set_color', but commented
+        "set_led_color",
+        "undefined",
+        "undefined",  # v16
+        "set_led_off",  # v17
+        "undefined",
+        "undefined",
+        "undefined",
+        "set_led_palette_streaming",
+        "undefined",  # 'set_palette', but commented
+        "undefined",
+        "undefined",
+        "undefined",  # only used for taichi
+        "undefined",
+        "undefined",  # v16
     ]
 
     # from Nabaztag_wait.vasm
     VASM_OPCODE_HANDLERS = [
-        'nop',
-        'frame_duration',
-        'play_midi',
-        'stop_midi',
-        'play_sound',
-        'stop_sound',
-        'echo',
-        'set_led_color',
-        'set_motor',
-        'avance',
-        'attend',
-        'end',
-        'wait_music',
-        'set',
-        'ifne',
-        'rand',
+        "nop",
+        "frame_duration",
+        "play_midi",
+        "stop_midi",
+        "play_sound",
+        "stop_sound",
+        "echo",
+        "set_led_color",
+        "set_motor",
+        "avance",
+        "attend",
+        "end",
+        "wait_music",
+        "set",
+        "ifne",
+        "rand",
     ]
 
     MIDI_LIST = [
-        'choreographies/1noteA4.mp3',
-        'choreographies/1noteB5.mp3',
-        'choreographies/1noteBb4.mp3',
-        'choreographies/1noteC5.mp3',
-        'choreographies/1noteE4.mp3',
-        'choreographies/1noteF4.mp3',
-        'choreographies/1noteF5.mp3',
-        'choreographies/1noteG5.mp3',
-        'choreographies/2notesC6C4.mp3',
-        'choreographies/2notesC6F5.mp3',
-        'choreographies/2notesD4A5.mp3',
-        'choreographies/2notesD4G4.mp3',
-        'choreographies/2notesD5G4.mp3',
-        'choreographies/2notesE5A5.mp3',
-        'choreographies/2notesE5C6.mp3',
-        'choreographies/2notesE5E4.mp3',
-        'choreographies/3notesA4G5G5.mp3',
-        'choreographies/3notesB5A5F5.mp3',
-        'choreographies/3notesB5D5C6.mp3',
-        'choreographies/3notesD4E4G4.mp3',
-        'choreographies/3notesE5A5C6.mp3',
-        'choreographies/3notesE5C6D5.mp3',
-        'choreographies/3notesE5D5A5.mp3',
-        'choreographies/3notesF5C6G5.mp3'
+        "choreographies/1noteA4.mp3",
+        "choreographies/1noteB5.mp3",
+        "choreographies/1noteBb4.mp3",
+        "choreographies/1noteC5.mp3",
+        "choreographies/1noteE4.mp3",
+        "choreographies/1noteF4.mp3",
+        "choreographies/1noteF5.mp3",
+        "choreographies/1noteG5.mp3",
+        "choreographies/2notesC6C4.mp3",
+        "choreographies/2notesC6F5.mp3",
+        "choreographies/2notesD4A5.mp3",
+        "choreographies/2notesD4G4.mp3",
+        "choreographies/2notesD5G4.mp3",
+        "choreographies/2notesE5A5.mp3",
+        "choreographies/2notesE5C6.mp3",
+        "choreographies/2notesE5E4.mp3",
+        "choreographies/3notesA4G5G5.mp3",
+        "choreographies/3notesB5A5F5.mp3",
+        "choreographies/3notesB5D5C6.mp3",
+        "choreographies/3notesD4E4G4.mp3",
+        "choreographies/3notesE5A5C6.mp3",
+        "choreographies/3notesE5C6D5.mp3",
+        "choreographies/3notesE5D5A5.mp3",
+        "choreographies/3notesF5C6G5.mp3",
     ]
 
-    STREAMING_CHOREGRAPHIES = 'nabd/streaming/*.chor'
+    STREAMING_CHOREGRAPHIES = "nabd/streaming/*.chor"
 
     PALETTES = [
-        [(255, 12, 0), (0, 255, 31), (255, 242, 0), (0, 3, 255), (255, 242, 0), (0, 255, 31), (255, 12, 0), (0, 0, 0)],  # acidulée
-        [(95, 0, 255), (127, 0, 255), (146, 0, 255), (191, 0, 255), (223, 0, 255), (255, 0, 223), (255, 0, 146), (0, 0, 0)],  # violet
-        [(255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (0, 0, 0)],  # lumiere
-        [(254, 128, 2), (243, 68, 2), (216, 6, 7), (200, 4, 13), (170, 0, 24), (218, 5, 96), (207, 6, 138), (0, 0, 0)],  # emotion
-        [(20, 155, 18), (255, 0, 0), (252, 243, 5), (20, 155, 18), (252, 243, 5), (255, 0, 0), (20, 155, 18), (0, 0, 0)],  # oriental
-        [(252, 238, 71), (206, 59, 69), (85, 68, 212), (78, 167, 82), (243, 75, 153), (151, 71, 196), (255, 255, 255), (0, 0, 0)],  # pastel
-        [(204, 255, 102), (204, 255, 0), (153, 255, 0), (51, 204, 0), (0, 153, 51), (0, 136, 0), (0, 102, 51), (0, 0, 0)],  # nature
+        [
+            (255, 12, 0),
+            (0, 255, 31),
+            (255, 242, 0),
+            (0, 3, 255),
+            (255, 242, 0),
+            (0, 255, 31),
+            (255, 12, 0),
+            (0, 0, 0),
+        ],  # acidulée
+        [
+            (95, 0, 255),
+            (127, 0, 255),
+            (146, 0, 255),
+            (191, 0, 255),
+            (223, 0, 255),
+            (255, 0, 223),
+            (255, 0, 146),
+            (0, 0, 0),
+        ],  # violet
+        [
+            (255, 255, 255),
+            (255, 255, 255),
+            (255, 255, 255),
+            (255, 255, 255),
+            (255, 255, 255),
+            (255, 255, 255),
+            (255, 255, 255),
+            (0, 0, 0),
+        ],  # lumiere
+        [
+            (254, 128, 2),
+            (243, 68, 2),
+            (216, 6, 7),
+            (200, 4, 13),
+            (170, 0, 24),
+            (218, 5, 96),
+            (207, 6, 138),
+            (0, 0, 0),
+        ],  # emotion
+        [
+            (20, 155, 18),
+            (255, 0, 0),
+            (252, 243, 5),
+            (20, 155, 18),
+            (252, 243, 5),
+            (255, 0, 0),
+            (20, 155, 18),
+            (0, 0, 0),
+        ],  # oriental
+        [
+            (252, 238, 71),
+            (206, 59, 69),
+            (85, 68, 212),
+            (78, 167, 82),
+            (243, 75, 153),
+            (151, 71, 196),
+            (255, 255, 255),
+            (0, 0, 0),
+        ],  # pastel
+        [
+            (204, 255, 102),
+            (204, 255, 0),
+            (153, 255, 0),
+            (51, 204, 0),
+            (0, 153, 51),
+            (0, 136, 0),
+            (0, 102, 51),
+            (0, 0, 0),
+        ],  # nature
     ]
 
-    OPCODE_HANDLERS = {'mtl': MTL_OPCODE_HANDLDERS, 'vasm': VASM_OPCODE_HANDLERS, 'streaming': STREAMING_OPCODE_HANDLERS}
+    OPCODE_HANDLERS = {
+        "mtl": MTL_OPCODE_HANDLDERS,
+        "vasm": VASM_OPCODE_HANDLERS,
+        "streaming": STREAMING_OPCODE_HANDLERS,
+    }
 
     async def nop(self, index, chor):
         return index
@@ -193,7 +260,9 @@ class ChoreographyInterpreter:
         return index + 2
 
     async def randmidi(self, index, chor):
-        await self.sound.start_playing(random.choice(ChoreographyInterpreter.MIDI_LIST))
+        await self.sound.start_playing(
+            random.choice(ChoreographyInterpreter.MIDI_LIST)
+        )
         return index
 
     async def avance(self, index, chor):
@@ -209,7 +278,7 @@ class ChoreographyInterpreter:
         if self.taichi_random == chor[index]:
             return index + 3
         rel = (chor[index + 1] << 8) + chor[index + 2]
-        if rel >= 32768:        # assumed signed (?)
+        if rel >= 32768:  # assumed signed (?)
             rel = rel - 65536
         return index + rel + 3
 
@@ -224,7 +293,7 @@ class ChoreographyInterpreter:
         self.taichi_directions[motor] = dir
         return index + 2
 
-    async def play_binary(self, chor, opcodes='mtl', timescale=0):
+    async def play_binary(self, chor, opcodes="mtl", timescale=0):
         if chor[0] == 1 and chor[1] == 1 and chor[2] == 1 and chor[3] == 1:
             # Consider this is the header
             await self.do_play_binary(4, chor, opcodes, timescale)
@@ -255,43 +324,60 @@ class ChoreographyInterpreter:
             except IndexError as err:
                 # 255 apparently used for end.
                 if opcode != 255:
-                    print(f'Unknown opcode {opcode}')
+                    print(f"Unknown opcode {opcode}")
                 return
             except AttributeError as err:
-                print(f'Unknown opcode {opcode} {err}')
+                print(f"Unknown opcode {opcode} {err}")
                 return
             index = await handler(index, chor)
 
     async def play_streaming(self, ref):
-        ref0 = ref[len(ChoreographyInterpreter.STREAMING_URN):]
-        if ref0 == '':
+        ref0 = ref[len(ChoreographyInterpreter.STREAMING_URN) :]
+        if ref0 == "":
             self.current_palette_is_random = True
         else:
             self.current_palette_is_random = False
-            self.current_palette = ChoreographyInterpreter.PALETTES[int(ref0[1:]) & 7]
+            self.current_palette = ChoreographyInterpreter.PALETTES[
+                int(ref0[1:]) & 7
+            ]
         chorst_oreille_chance = None
         while True:
             if chorst_oreille_chance is None:
                 chorst_oreille_chance = 0
                 left, right = random.choice([(0, 10), (10, 0)])
                 await self.ears.go(Ears.LEFT_EAR, left, Ears.FORWARD_DIRECTION)
-                await self.ears.go(Ears.RIGHT_EAR, right, Ears.FORWARD_DIRECTION)
+                await self.ears.go(
+                    Ears.RIGHT_EAR, right, Ears.FORWARD_DIRECTION
+                )
             else:
                 if random.randint(0, chorst_oreille_chance) == 0:
                     pos = random.choice([0, 5, 10, 14])
-                    await self.ears.go(Ears.LEFT_EAR, pos, Ears.FORWARD_DIRECTION)
+                    await self.ears.go(
+                        Ears.LEFT_EAR, pos, Ears.FORWARD_DIRECTION
+                    )
                     pos = random.choice([0, 5, 10, 14])
-                    await self.ears.go(Ears.RIGHT_EAR, pos, Ears.FORWARD_DIRECTION)
+                    await self.ears.go(
+                        Ears.RIGHT_EAR, pos, Ears.FORWARD_DIRECTION
+                    )
                     chorst_oreille_chance = (chorst_oreille_chance + 1) % 4
-            file = Resources.find('choreographies', ChoreographyInterpreter.STREAMING_CHOREGRAPHIES)
+            file = Resources.find(
+                "choreographies",
+                ChoreographyInterpreter.STREAMING_CHOREGRAPHIES,
+            )
             chor = file.read_bytes()
             chorst_tempo = 160 + random.randint(0, 90)
             chorst_loops = 3 + random.randint(0, 17)
             if self.current_palette_is_random:
-                self.current_palette = random.choice(ChoreographyInterpreter.PALETTES)
-            self.chorst_palettecolors = [random.randint(0, 7), random.randint(0, 7), random.randint(0, 7)]
+                self.current_palette = random.choice(
+                    ChoreographyInterpreter.PALETTES
+                )
+            self.chorst_palettecolors = [
+                random.randint(0, 7),
+                random.randint(0, 7),
+                random.randint(0, 7),
+            ]
             for ix in range(chorst_loops):
-                await self.play_binary(chor, 'streaming', chorst_tempo)
+                await self.play_binary(chor, "streaming", chorst_tempo)
 
     async def start(self, ref):
         if ref != self.running_ref:
@@ -322,10 +408,12 @@ class ChoreographyInterpreter:
                 await self.play_streaming(ref)
             else:
                 # Assume a resource for now.
-                file = Resources.find('choreographies', ref)
+                file = Resources.find("choreographies", ref)
                 chor = file.read_bytes()
                 await self.play_binary(chor)
         except asyncio.CancelledError:
             raise
         except Exception:
-            logging.info(f'Crash in choreography interpreter: {traceback.format_exc()}')
+            logging.info(
+                f"Crash in choreography interpreter: {traceback.format_exc()}"
+            )

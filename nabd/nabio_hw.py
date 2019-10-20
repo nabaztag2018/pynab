@@ -36,7 +36,13 @@ class NabIOHW(NabIO):
         return await self.ears.detect_positions()
 
     def set_leds(self, nose, left, center, right, bottom):
-        for (led_ix, led) in [(Leds.LED_NOSE, nose), (Leds.LED_LEFT, left), (Leds.LED_CENTER, center), (Leds.LED_RIGHT, right), (Leds.LED_BOTTOM, bottom)]:
+        for (led_ix, led) in [
+            (Leds.LED_NOSE, nose),
+            (Leds.LED_LEFT, left),
+            (Leds.LED_CENTER, center),
+            (Leds.LED_RIGHT, right),
+            (Leds.LED_BOTTOM, bottom),
+        ]:
             if led is None:
                 (r, g, b) = (0, 0, 0)
             else:
@@ -80,13 +86,17 @@ class NabIOHW(NabIO):
     @staticmethod
     def _convert_info_color(color):
         animation = []
-        for led_ix, led in [(Leds.LED_LEFT, 'left'), (Leds.LED_CENTER, 'center'), (Leds.LED_RIGHT, 'right')]:
+        for led_ix, led in [
+            (Leds.LED_LEFT, "left"),
+            (Leds.LED_CENTER, "center"),
+            (Leds.LED_RIGHT, "right"),
+        ]:
             values = []
             if color[led]:
                 int_value = int(color[led], 16)
-                values.append((int_value >> 16) & 0xFF)   # r
-                values.append((int_value >> 8) & 0xFF)    # g
-                values.append(int_value & 0xFF)           # b
+                values.append((int_value >> 16) & 0xFF)  # r
+                values.append((int_value >> 8) & 0xFF)  # g
+                values.append(int_value & 0xFF)  # b
             else:
                 values.append(0)
                 values.append(0)

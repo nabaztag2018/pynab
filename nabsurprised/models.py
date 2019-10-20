@@ -7,4 +7,4 @@ class Config(singleton_model.SingletonModel):
     next_surprise = models.DateTimeField(null=True)
 
     class Meta:
-        app_label = 'nabsurprised'
+        app_label = "nabsurprised"

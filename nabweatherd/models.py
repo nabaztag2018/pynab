@@ -9,7 +9,7 @@ class Config(singleton_model.SingletonModel):
     next_performance_type = models.TextField(null=True)
 
     class Meta:
-        app_label = 'nabweatherd'
+        app_label = "nabweatherd"
 
 
 class ScheduledMessage(models.Model):
@@ -18,4 +18,4 @@ class ScheduledMessage(models.Model):
     type = models.TextField(null=False)
 
     class Meta:
-        app_label = 'nabweatherd'
+        app_label = "nabweatherd"

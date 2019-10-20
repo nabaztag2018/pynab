@@ -5,10 +5,14 @@ import platform
 import pytest
 
 
-@pytest.mark.skipif(sys.platform != 'linux' or 'arm' not in platform.machine(), reason="HW test only makes sense on a physical Nabaztag")
+@pytest.mark.skipif(
+    sys.platform != "linux" or "arm" not in platform.machine(),
+    reason="HW test only makes sense on a physical Nabaztag",
+)
 class TestNabIOHW(unittest.TestCase):
     def setUp(self):
         from nabd.nabio_hw import NabIOHW
+
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
         self.nabio = NabIOHW()

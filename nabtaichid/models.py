@@ -7,4 +7,4 @@ class Config(singleton_model.SingletonModel):
     next_taichi = models.DateTimeField(null=True)
 
     class Meta:
-        app_label = 'nabtaichid'
+        app_label = "nabtaichid"

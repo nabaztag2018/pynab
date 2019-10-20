@@ -18,21 +18,21 @@ class Leds(object, metaclass=abc.ABCMeta):
         """
         Set the color of a given led.
         """
-        raise NotImplementedError('Should have implemented')
+        raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
     def pulse(self, led, red, green, blue):
         """
         Set a given led to pulse to a given color.
         """
-        raise NotImplementedError('Should have implemented')
+        raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
     def setall(self, red, green, blue):
         """
         Set the color of every led.
         """
-        raise NotImplementedError('Should have implemented')
+        raise NotImplementedError("Should have implemented")
 
     def stop(self):
         """
@@ -45,8 +45,9 @@ class LedsSoft(Leds, metaclass=abc.ABCMeta):
     """
     Base implementation with software pulsing.
     """
+
     PULSING_RATE = 0.200  # every 200ms
-    PULSING_STEPS = 10    # number of steps to reach target color
+    PULSING_STEPS = 10  # number of steps to reach target color
 
     def __init__(self):
         self.condition = Condition()
@@ -64,14 +65,23 @@ class LedsSoft(Leds, metaclass=abc.ABCMeta):
                 show = False
                 with self.pending_lock:
                     for cmd, led, (r, g, b) in self.pending:
-                        if cmd == 'pulse':
+                        if cmd == "pulse":
                             self.do_set(led, 0, 0, 0)
                             show = True
                             if self.last_pulse is None:
                                 self.last_pulse = time.time()
-                            color_incr = (r / LedsSoft.PULSING_STEPS, g / LedsSoft.PULSING_STEPS, b / LedsSoft.PULSING_STEPS)
-                            self.pulsing[led] = ((r, g, b), (0, 0, 0), 1, color_incr)
-                        elif cmd == 'set':
+                            color_incr = (
+                                r / LedsSoft.PULSING_STEPS,
+                                g / LedsSoft.PULSING_STEPS,
+                                b / LedsSoft.PULSING_STEPS,
+                            )
+                            self.pulsing[led] = (
+                                (r, g, b),
+                                (0, 0, 0),
+                                1,
+                                color_incr,
+                            )
+                        elif cmd == "set":
                             if led in self.pulsing:
                                 del self.pulsing[led]
                             self.do_set(led, r, g, b)
@@ -86,12 +96,27 @@ class LedsSoft(Leds, metaclass=abc.ABCMeta):
                         next_pulse = next_pulse + LedsSoft.PULSING_RATE
                         new_pulsing = {}
                         for led, pulse in self.pulsing.items():
-                            (target, (current_r, current_g, current_b), direction, incr) = pulse
+                            (
+                                target,
+                                (current_r, current_g, current_b),
+                                direction,
+                                incr,
+                            ) = pulse
                             (target_r, target_g, target_b) = target
                             (incr_r, incr_g, incr_b) = incr
-                            if direction == 1 and target_r == int(current_r) and target_g == int(current_g) and target_b == int(current_b):
+                            if (
+                                direction == 1
+                                and target_r == int(current_r)
+                                and target_g == int(current_g)
+                                and target_b == int(current_b)
+                            ):
                                 direction = -1
-                            elif direction == -1 and int(current_r) == 0 and int(current_g) == 0 and int(current_b) == 0:
+                            elif (
+                                direction == -1
+                                and int(current_r) == 0
+                                and int(current_g) == 0
+                                and int(current_b) == 0
+                            ):
                                 direction = 1
                             if direction == 1:
                                 new_r = min(current_r + incr_r, target_r)
@@ -101,9 +126,16 @@ class LedsSoft(Leds, metaclass=abc.ABCMeta):
                                 new_r = max(current_r - incr_r, 0)
                                 new_g = max(current_g - incr_g, 0)
                                 new_b = max(current_b - incr_b, 0)
-                            self.do_set(led, int(new_r), int(new_g), int(new_b))
+                            self.do_set(
+                                led, int(new_r), int(new_g), int(new_b)
+                            )
                             show = True
-                            new_pulsing[led] = (target, (new_r, new_g, new_b), direction, incr)
+                            new_pulsing[led] = (
+                                target,
+                                (new_r, new_g, new_b),
+                                direction,
+                                incr,
+                            )
                         self.pulsing = new_pulsing
                 else:
                     self.last_pulse = None
@@ -117,20 +149,20 @@ class LedsSoft(Leds, metaclass=abc.ABCMeta):
 
     def set1(self, led, red, green, blue):
         with self.pending_lock:
-            self.pending.append(('set', led, (red, green, blue)))
+            self.pending.append(("set", led, (red, green, blue)))
         with self.condition:
             self.condition.notify()
 
     def pulse(self, led, red, green, blue):
         with self.pending_lock:
-            self.pending.append(('pulse', led, (red, green, blue)))
+            self.pending.append(("pulse", led, (red, green, blue)))
         with self.condition:
             self.condition.notify()
 
     def setall(self, red, green, blue):
         with self.pending_lock:
             for led in range(Leds.LED_COUNT):
-                self.pending.append(('set', led, (red, green, blue)))
+                self.pending.append(("set", led, (red, green, blue)))
         with self.condition:
             self.condition.notify()
 
