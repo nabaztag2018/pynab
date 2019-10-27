@@ -47,7 +47,7 @@ fi
 cd `dirname "$0"`
 root_dir=`pwd`
 
-if [ $travis_chroot -eq 0 -a $makerfaire2018 -eq 0 -a `aplay -L | grep -c "seeed2micvoicec"` -eq 0 ]; then
+if [ $travis_chroot -eq 0 -a $makerfaire2018 -eq 0 -a `aplay -L | grep -c "tagtagtagsound"` -eq 0 ]; then
   if [ `aplay -L | grep -c "hifiberry"` -gt 0 ]; then
     echo "Judging from the sound card, this looks likes a Paris Maker Faire 2018 card."
     echo "Please double-check and restart this script with --makerfaire2018"

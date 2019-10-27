@@ -35,7 +35,7 @@ Maker Faire 2018 :
 https://support.hifiberry.com/hc/en-us/articles/205377651-Configuring-Linux-4-x-or-higher
 
 Ulule 2019 :
-http://wiki.seeedstudio.com/ReSpeaker_2_Mics_Pi_HAT/
+https://github.com/pguyot/wm8960/tree/tagtagtag-sound
 
 2. Installer PostgreSQL et les paquets requis
 
