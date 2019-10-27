@@ -14,7 +14,7 @@ from .sound import Sound
 class SoundAlsa(Sound):
     MODEL_2018_CARD_NAME = "sndrpihifiberry"
 
-    MODEL_2019_CARD_NAME = "seeed2micvoicec"
+    MODEL_2019_CARD_NAME = "tagtagtagsound"
 
     SOUND_CARDS_SUPPORTED = frozenset(
         (MODEL_2018_CARD_NAME, MODEL_2019_CARD_NAME)
