@@ -52,7 +52,7 @@ if [ $travis_chroot -eq 0 -a $makerfaire2018 -eq 0 -a `aplay -L | grep -c "tagta
     echo "Judging from the sound card, this looks likes a Paris Maker Faire 2018 card."
     echo "Please double-check and restart this script with --makerfaire2018"
   else
-    echo "Please install and configure sound card driver http://wiki.seeedstudio.com/ReSpeaker_2_Mics_Pi_HAT/"
+    echo "Please install and configure sound card driver https://github.com/pguyot/wm8960/tree/tagtagtag-sound"
   fi
   exit 1
 fi
