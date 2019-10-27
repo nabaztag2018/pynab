@@ -1,7 +1,5 @@
 import sys
 import asyncio
-import datetime
-import random
 from nabcommon.nabservice import NabService
 
 

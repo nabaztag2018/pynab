@@ -1,9 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from django.http import JsonResponse
 from .models import Config
 from .nab8balld import Nab8Balld
-import datetime
 
 
 class SettingsView(TemplateView):

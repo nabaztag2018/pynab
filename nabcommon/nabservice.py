@@ -4,14 +4,13 @@ import json
 import getopt
 import signal
 import datetime
-import sys
 import time
+import logging
 from abc import ABC, abstractmethod
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
 from django.conf import settings
 from django.apps import apps
-import logging
 from nabcommon import nablogging
 
 

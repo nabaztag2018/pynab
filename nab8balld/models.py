@@ -1,5 +1,4 @@
 from django.db import models
-from django.core import validators
 from nabcommon import singleton_model
 
 
