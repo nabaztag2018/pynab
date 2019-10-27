@@ -1,9 +1,8 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
+from pytz import common_timezones
 from .models import Config
 from .nabclockd import NabClockd
-from django.utils import translation
-from pytz import common_timezones
 
 
 class SettingsView(TemplateView):

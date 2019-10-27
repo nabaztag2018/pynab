@@ -6,15 +6,15 @@ import sys
 import getopt
 import os
 import socket
-import dateutil.parser
 import logging
-from nabcommon import nablogging
+import dateutil.parser
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
-from .leds import Leds
 from django.conf import settings
 from django.apps import apps
+from nabcommon import nablogging
 from nabcommon.nabservice import NabService
+from .leds import Leds
 
 import time
 import traceback
