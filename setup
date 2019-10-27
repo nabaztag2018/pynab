@@ -8,6 +8,7 @@ IFS=$'\n\t'
 # https://disconnected.systems/blog/custom-rpi-image-with-github-travis/
 
 GPU_MEM=16
+LC_ALL=C
 
 # Replace /boot/cmdline.txt since it contains root device mapping to a PARTUUID that 
 # changed during parted resize. We try to disable the autoresize here as well.
