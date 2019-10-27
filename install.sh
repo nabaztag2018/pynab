@@ -26,7 +26,7 @@ if [ "${1:-}" == "travis-chroot" ]; then
   travis_chroot=1
 elif [ "${1:-}" == "test" ]; then
   test=1
-elif [ "${1:-}" == "upgrade" ]; then
+elif [ "${1:-}" == "--upgrade" ]; then
   upgrade=1
   # auto-detect maker faire card here.
   if [ `aplay -L | grep -c "hifiberry"` -gt 0 ]; then
