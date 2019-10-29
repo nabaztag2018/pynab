@@ -241,16 +241,13 @@ class Nabd:
                     "tempo" not in packet["animation"]
                     or "colors" not in packet["animation"]
                 ):
-                    self.write_response_packet(
-                        packet,
-                        {
-                            "status": "error",
-                            "class": "MalformedPacket",
-                            "message": "Missing required tempo & colors slots "
-                            "in animation",
-                        },
-                        writer,
-                    )
+                    response_packet = {
+                        "status": "error",
+                        "class": "MalformedPacket",
+                        "message": "Missing required tempo & colors slots in "
+                        "animation",
+                    }
+                    self.write_response_packet(packet, response_packet, writer)
                 else:
                     self.info[packet["info_id"]] = packet["animation"]
             else:
@@ -260,15 +257,12 @@ class Nabd:
             async with self.idle_cv:
                 self.idle_cv.notify()
         else:
-            self.write_response_packet(
-                packet,
-                {
-                    "status": "error",
-                    "class": "MalformedPacket",
-                    "message": "Missing required info_id slot",
-                },
-                writer,
-            )
+            response_packet = {
+                "status": "error",
+                "class": "MalformedPacket",
+                "message": "Missing required info_id slot",
+            }
+            self.write_response_packet(packet, response_packet, writer)
 
     async def process_ears_packet(self, packet, writer):
         """ Process an ears packet """
@@ -303,27 +297,21 @@ class Nabd:
                     self.idle_queue.append((packet, writer))
                     self.idle_cv.notify()
         else:
-            self.write_response_packet(
-                packet,
-                {
-                    "status": "error",
-                    "class": "MalformedPacket",
-                    "message": "Missing required body slot",
-                },
-                writer,
-            )
+            response_packet = {
+                "status": "error",
+                "class": "MalformedPacket",
+                "message": f"Missing required {key} slot",
+            }
+            self.write_response_packet(packet, response_packet, writer)
 
     async def process_cancel_packet(self, packet, writer):
         """ Process a cancel packet """
-        self.write_response_packet(
-            packet,
-            {
-                "status": "error",
-                "class": "Unimplemented",
-                "message": "unimplemented",
-            },
-            writer,
-        )
+        response_packet = {
+            "status": "error",
+            "class": "Unimplemented",
+            "message": "unimplemented",
+        }
+        self.write_response_packet(packet, response_packet, writer)
 
     async def process_wakeup_packet(self, packet, writer):
         """ Process a wakeup packet """
@@ -356,15 +344,12 @@ class Nabd:
                 await self.exit_interactive()
             self.write_response_packet(packet, {"status": "ok"}, writer)
         else:
-            self.write_response_packet(
-                packet,
-                {
-                    "status": "error",
-                    "class": "UnknownPacket",
-                    "message": "Unknown or malformed mode packet",
-                },
-                writer,
-            )
+            response_packet = {
+                "status": "error",
+                "class": "UnknownPacket",
+                "message": "Unknown or malformed mode packet",
+            }
+            self.write_response_packet(packet, response_packet, writer)
 
     async def process_packet(self, packet, writer):
         """ Process a packet from a service """
@@ -383,25 +368,19 @@ class Nabd:
             if packet["type"] in processors:
                 await processors[packet["type"]](packet, writer)
             else:
-                self.write_response_packet(
-                    packet,
-                    {
-                        "status": "error",
-                        "class": "UnknownPacket",
-                        "message": "Unknown type " + str(packet["type"]),
-                    },
-                    writer,
-                )
-        else:
-            self.write_response_packet(
-                packet,
-                {
+                response_packet = {
                     "status": "error",
-                    "class": "MalformedPacket",
-                    "message": "Missing type slot",
-                },
-                writer,
-            )
+                    "class": "UnknownPacket",
+                    "message": f"Unknown type {str(packet['type'])}"
+                }
+                self.write_response_packet(packet, response_packet, writer)
+        else:
+            response_packet = {
+                "status": "error",
+                "class": "MalformedPacket",
+                "message": "Missing type slot",
+            }
+            self.write_response_packet(packet, response_packet, writer)
 
     def write_packet(self, response, writer):
         writer.write((json.dumps(response) + "\r\n").encode("utf8"))
@@ -438,25 +417,21 @@ class Nabd:
                         packet = json.loads(line.decode("utf8"))
                         await self.process_packet(packet, writer)
                     except UnicodeDecodeError as e:
-                        self.write_packet(
-                            {
-                                "type": "response",
-                                "status": "error",
-                                "class": "UnicodeDecodeError",
-                                "message": str(e),
-                            },
-                            writer,
-                        )
+                        error_packet = {
+                            "type": "response",
+                            "status": "error",
+                            "class": "UnicodeDecodeError",
+                            "message": str(e),
+                        }
+                        self.write_packet(error_packet, writer)
                     except json.decoder.JSONDecodeError as e:
-                        self.write_packet(
-                            {
-                                "type": "response",
-                                "status": "error",
-                                "class": "JSONDecodeError",
-                                "message": str(e),
-                            },
-                            writer,
-                        )
+                        error_packet = {
+                            "type": "response",
+                            "status": "error",
+                            "class": "JSONDecodeError",
+                            "message": str(e),
+                        }
+                        self.write_packet(error_packet, writer)
             writer.close()
             await writer.wait_closed()
         except ConnectionResetError:
