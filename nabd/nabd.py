@@ -282,32 +282,21 @@ class Nabd:
 
     async def process_command_packet(self, packet, writer):
         """ Process a command packet """
-        if "sequence" in packet:
-            if self.interactive_service_writer == writer:
-                # interactive => play command immediately
-                await self.perform_command(packet)
-                self.write_response_packet(packet, {"status": "ok"}, writer)
-            else:
-                async with self.idle_cv:
-                    self.idle_queue.append((packet, writer))
-                    self.idle_cv.notify()
-        else:
-            self.write_response_packet(
-                packet,
-                {
-                    "status": "error",
-                    "class": "MalformedPacket",
-                    "message": "Missing required sequence slot",
-                },
-                writer,
-            )
+        key = "sequence"
+        handler = self.perform_command
+        await self.perform_cmd_msg_packet(packet, writer, key, handler)
 
     async def process_message_packet(self, packet, writer):
         """ Process a message packet """
-        if "body" in packet:
+        key = "body"
+        handler = self.perform_message
+        await self.perform_cmd_msg_packet(packet, writer, key, handler)
+
+    async def perform_cmd_msg_packet(self, packet, writer, key, handler):
+        if key in packet:
             if self.interactive_service_writer == writer:
                 # interactive => play command immediately
-                await self.perform_message(packet)
+                await handler(packet)
                 self.write_response_packet(packet, {"status": "ok"}, writer)
             else:
                 async with self.idle_cv:
