@@ -354,9 +354,26 @@ class Nabd:
     async def process_mode_packet(self, packet, writer):
         """ Process a mode packet """
         if "mode" in packet and packet["mode"] == "interactive":
-            async with self.idle_cv:
-                self.idle_queue.append((packet, writer))
-                self.idle_cv.notify()
+            if writer == self.interactive_service_writer:
+                if "events" in packet:
+                    self.interactive_service_events = packet["events"]
+                else:
+                    self.interactive_service_events = ["ears", "button"]
+                self.write_response_packet(packet, {"status": "ok"}, writer)
+            elif self.interactive_service_writer is not None:
+                self.write_response_packet(
+                    packet,
+                    {
+                        "status": "error",
+                        "class": "AlreadyInInteractiveMode",
+                        "message": "Nabd is already in interactive mode",
+                    },
+                    writer,
+                )
+            else:
+                async with self.idle_cv:
+                    self.idle_queue.append((packet, writer))
+                    self.idle_cv.notify()
         elif "mode" in packet and packet["mode"] == "idle":
             if "events" in packet:
                 self.service_writers[writer] = packet["events"]
