@@ -55,8 +55,8 @@ class Nabd:
         }
         self.info = {}  # Info persists across service connections.
         self.state = (
-            "idle"
-        )  # 'asleep'/'idle'/'interactive'/'playing'/'recording'
+            "idle"  # 'asleep'/'idle'/'interactive'/'playing'/'recording'
+        )
         # Dictionary of writers, i.e. connected services
         # For each writer, value is the list of registered events
         self.service_writers = {}
