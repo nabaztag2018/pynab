@@ -1,3 +1,4 @@
+import os
 import random
 from nabweb import settings
 from pathlib import Path
@@ -42,10 +43,11 @@ class Resources(object):
     def _find_file(type, filename):
         from .i18n import get_locale
 
-        all_apps = settings.INSTALLED_APPS
         basepath = Path(settings.BASE_DIR)
         locale = get_locale()
-        for app in all_apps:
+        for app in os.listdir(basepath):
+            if not os.path.isdir(app):
+                continue
             for path in [
                 basepath.joinpath(app, type, locale, filename),
                 basepath.joinpath(app, type, filename),
@@ -58,10 +60,11 @@ class Resources(object):
     def _find_random(type, parent, pattern):
         from .i18n import get_locale
 
-        all_apps = settings.INSTALLED_APPS
         basepath = Path(settings.BASE_DIR)
         locale = get_locale()
-        for app in all_apps:
+        for app in os.listdir(basepath):
+            if not os.path.isdir(app):
+                continue
             for path in [
                 basepath.joinpath(app, type, locale, parent),
                 basepath.joinpath(app, type, parent),
