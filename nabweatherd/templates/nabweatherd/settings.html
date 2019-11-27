@@ -14,7 +14,6 @@
       </div>
       <div class="form-group row">
         <label for="weatherUnitSel" class="col-6 col-form-label">{% trans "Unit" %}</label>
-        {{ user_language }}
         <div class="col-6">
             <select name="unit" id="weatherUnitSel">
             <option value="1" {% if config.unit == 1 %}selected{% endif %}{% if not celsius_available %} disabled{% endif %}>{% trans "Celsius" %}</option>
@@ -24,7 +23,7 @@
         </div>
       </div>
       <div class="form-group row">
-        <label for="weatherUnitSel" class="col-6 col-form-label">{% trans "Forecast" %}</label>
+        <label class="col-6 col-form-label">{% trans "Forecast" %}</label>
         <div class="col-6">
           <button type="button" class="btn btn-primary now-button" data-forecast-day='today'>{% trans "Today" %}</button>
           <button type="button" class="btn btn-primary now-button" data-forecast-day='tomorrow'>{% trans "Tomorrow" %}</button>
