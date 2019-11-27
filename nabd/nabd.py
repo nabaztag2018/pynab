@@ -103,7 +103,7 @@ class Nabd:
                         await self.process_idle_item(item)
                     else:
                         if self.state == "idle" and len(self.info.items()) > 0:
-                            for key, value in self.info.items():
+                            for key, value in self.info.copy().items():
                                 await self.nabio.play_info(
                                     self.idle_cv,
                                     value["tempo"],
