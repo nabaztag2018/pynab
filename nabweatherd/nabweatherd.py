@@ -1,6 +1,7 @@
 import sys
 import datetime
 import dateutil.parser
+import logging
 from nabcommon.nabservice import NabRecurrentService
 from meteofrance.client import meteofranceClient
 
@@ -409,13 +410,17 @@ class NabWeatherd(NabRecurrentService):
         from . import models
 
         if self.location is None:
-            packet = (
-                '{"type":"message",'
-                '"signature":{"audio":['
-                '"nabweatherd/signature.mp3"]},'
-                '"body":[{"audio":["nabweatherd/no-location-error.mp3]}],'
-                '"expiration":"' + expiration.isoformat() + '"}\r\n'
-            )
+            logging.debug(f"location is None (service is unconfigured)")
+            if type != "info":
+                packet = (
+                    '{"type":"message",'
+                    '"signature":{"audio":['
+                    '"nabweatherd/signature.mp3"]},'
+                    '"body":[{"audio":["nabweatherd/no-location-error.mp3"]}],'
+                    '"expiration":"' + expiration.isoformat() + '"}\r\n'
+                )
+                self.writer.write(packet.encode("utf8"))
+            packet = '{"type":"info","info_id":"weather"}\r\n'
             self.writer.write(packet.encode("utf8"))
         else:
             if (
