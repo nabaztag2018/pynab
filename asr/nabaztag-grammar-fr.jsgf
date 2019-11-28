@@ -1,0 +1,89 @@
+#JSGF V1.0;
+
+grammar fr.tagtagtag;
+
+public <control> =
+    <noise> +
+    | [ <euh> ] ( <weather> | <airquality> | <8ball> | <surprise> | <taichi> | <carot> | <clock> ) [ <euh> ];
+
+<date> = ( aujourd'hui | demain | ce matin | demain matin | cet après-midi | dans l'heure ) ;
+<giveme> = ( tu me donnerais | donne-moi | tu peux me donner | tu pourrais me donner | est-ce que tu peux me donner | est-ce que tu pourrais me donner ) ;
+<please> = ( s'il-te-plait ) ;
+<euh> = ( euh ) ;
+
+<noise> =
+    <euh>
+    | attends
+    | bonjour
+    | coucou
+    | dis
+    | hein
+    | lapin
+    | nabaztag
+    ;
+    
+<weather> =
+    météo [<date>]
+    | <giveme> ( la | les prévisions ) météo [ d'aujourd'hui | de demain | pour aujourd'hui | pour demain ] [<please>]
+    | dis-moi s'il ( pleuvra | va pleuvoir | ( va faire | fera ) ( chaud | froid ) | va faire beau | y aura des éclaircies ) [<date>] [<please>]
+    | est-ce ( qu'il | que il ) ( pleuvra | va pleuvoir | ( va faire | fera ) ( chaud | froid ) | va faire beau | y aura des éclaircies ) [<date>]
+    | est-ce qu'il ( pleut | fait chaud | fait froid ) [<date>]
+    | est-ce que ( j'ai | j'aurai ) besoin d'un [ parapluie | pull | imper | k-way | imperméable | blouson ] [<date>]
+    | est-ce que je peux sortir en t-shirt | chemise | short [<date>]
+    | quel temps ( fera-t-il | fait-il | il ( fait | va faire ) ) [ dehors | à l'extérieur ] [<date>]
+    | quelle ( est | sera ) la météo [<date>]
+    | va-t-il ( faire ( beau | froid | chaud ) | neiger | pleuvoir ) [<date>]
+    ;
+
+<airquality> =
+    air
+    | [ <giveme> la ] qualité de l'air [ <date> ]
+    | [ <giveme> le ] taux de CO2 [ <date> ]
+    | quelle est la qualité de l'air [<date>] [ dehors | à l'extérieur ]
+    | quel est le taux de CO2 [<date>] [ dehors | à l'extérieur ]
+    ;
+
+<8ball> = gourou
+    | ( dis | dis-moi ) ( lapin | nabaztag | gourou )
+    ;
+
+<surprise> =
+    guili-guili
+    | guili guili
+    | chatouille
+    | fais-moi rire
+    | raconte un truc
+    | raconte-moi un truc
+    | surprise
+    | surprise surprise
+    | humeur
+    ;
+
+<carot> =
+    carotte
+    | tu veux une carotte
+    | aimes-tu les carottes
+    ;
+
+<clock> =
+    horloge
+    | <giveme> l'heure
+    | est-ce que c'est l'heure
+    | il est quelle heure
+    | quelle heure est-il
+    ;
+
+<taichi> =
+    tai-chi
+    | c'est l'heure ( du | de ton ) tai-chi
+    | tu me referais ( le | ton ) tai-chi
+    | j'adore le tai-chi tu me le referais
+    ;
+
+<sleep> =
+    dormir
+    | dodo
+    | c'est l'heure de [ faire dodo | se coucher ]
+    | c'est l'heure [ d'aller au lit ]
+    | au lit
+    ;
