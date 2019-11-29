@@ -56,6 +56,13 @@ cd /home/pi/wm8960
 make
 sudo make install
 
+echo "Installing ears driver"
+cd /home/pi
+sudo -u pi git clone -b tagtagtag-sound https://github.com/pguyot/tagtagtag-ears
+cd /home/pi/tagtagtag-ears
+make
+sudo make install
+
 echo "Installing pynab release branch"
 cd /home/pi
 sudo -u pi git clone -b release https://github.com/nabaztag2018/pynab.git
