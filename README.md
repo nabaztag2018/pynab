@@ -13,9 +13,9 @@ Les schémas et fichiers de fabrication de ces deux cartes sont dans le reposito
 
 # Images
 
-Les [releases](https://github.com/nabaztag2018/pynab/releases) sont des images de Raspbian Stretch Lite 2018-11-13 avec pynab pré-installé. Elles ont les mêmes réglages que [Raspbian](https://www.raspberrypi.org/downloads/raspbian/).
+Les [releases](https://github.com/nabaztag2018/pynab/releases) sont des images de Raspbian Buster Lite 2019-09-26 avec pynab pré-installé. Elles ont les mêmes réglages que [Raspbian](https://www.raspberrypi.org/downloads/raspbian/).
 
-La release actuelle (0.2.0) ne fonctionne que sur les cartes 2018.
+La release actuelle (0.4.0) ne fonctionne que sur les cartes 2019.
 
 # Installation sur Raspbian (pour développeurs !)
 
@@ -29,13 +29,16 @@ sudo apt update
 sudo apt upgrade
 ```
 
-1. Configurer la carte son et redémarrer.
+1. Configurer la carte son et les oreilles et redémarrer.
 
 Maker Faire 2018 :
 https://support.hifiberry.com/hc/en-us/articles/205377651-Configuring-Linux-4-x-or-higher
 
 Ulule 2019 :
 https://github.com/pguyot/wm8960/tree/tagtagtag-sound
+
+Les deux cartes :
+https://github.com/pguyot/tagtagtag-ears
 
 2. Installer PostgreSQL et les paquets requis
 
@@ -76,6 +79,7 @@ bash upgrade.sh
 Cf le document [PROTOCOL.md](PROTOCOL.md)
 
 - nabd : daemon qui gère le lapin (i/o, chorégraphies)
+- nab8balld : daemon pour le service gourou
 - nabclockd : daemon pour le service horloge
 - nabsurprised : daemon pour le service surprises
 - nabtaichid : daemon pour le service taichi
