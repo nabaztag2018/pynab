@@ -272,8 +272,6 @@ class ChoreographyInterpreter:
         motor = chor[index]
         delta = chor[index + 1]
         direction = self.taichi_directions[motor]
-        if direction:
-            delta = -delta
         await self.ears.move(motor, delta, direction)
         return index + 2
 

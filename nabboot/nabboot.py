@@ -1,9 +1,8 @@
 # Script executed at boot and at shutdown.
-# At boot, set leds to orange and configure GPIOs (to prevent any motor to run)
+# At boot, set leds to orange.
 # At shutdown, turn leds off.
 
 from rpi_ws281x import Adafruit_NeoPixel, Color
-import RPi.GPIO as GPIO
 import sys
 
 
@@ -13,9 +12,7 @@ def set_leds(shutdown):
     LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
     LED_DMA = 12  # DMA channel to use for generating signal (try 10)
     LED_BRIGHTNESS = 200  # Set to 0 for darkest and 255 for brightest
-    LED_INVERT = (
-        False
-    )  # True to invert the signal (when using NPN transistor level shift)
+    LED_INVERT = False  # True to invert the signal (when using NPN transistor level shift)
     LED_CHANNEL = 1  # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
     strip = Adafruit_NeoPixel(
@@ -41,19 +38,6 @@ def set_leds(shutdown):
     strip.show()
 
 
-def set_motors():
-    MOTOR_CHANNELS = [[12, 11], [10, 9]]
-
-    GPIO.setwarnings(False)
-    GPIO.setmode(GPIO.BCM)
-    GPIO.cleanup()
-    for pairs in MOTOR_CHANNELS:
-        for channel in pairs:
-            GPIO.setup(channel, GPIO.OUT)
-            GPIO.output(channel, GPIO.LOW)
-
-
 if __name__ == "__main__":
     shutdown = len(sys.argv) > 1 and sys.argv[1] == "shutdown"
     set_leds(shutdown)
-    set_motors()

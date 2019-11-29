@@ -57,3 +57,10 @@ class Ears(object, metaclass=abc.ABCMeta):
         position
         """
         raise NotImplementedError("Should have implemented")
+
+    @abc.abstractmethod
+    def is_broken(self, ear):
+        """
+        Determine if ear is apparently broken
+        """
+        raise NotImplementedError("Should have implemented")

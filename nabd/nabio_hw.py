@@ -4,7 +4,7 @@ import sys
 
 from .button_gpio import ButtonGPIO
 from .ears import Ears
-from .ears_gpio import EarsGPIO
+from .ears_dev import EarsDev
 from .leds import Leds
 from .leds_neopixel import LedsNeoPixel
 from .nabio import NabIO
@@ -20,7 +20,7 @@ class NabIOHW(NabIO):
         super().__init__()
         self.model = NabIOHW.detect_model()
         self.leds = LedsNeoPixel()
-        self.ears = EarsGPIO()
+        self.ears = EarsDev()
         self.sound = SoundAlsa(self.model)
         self.button = ButtonGPIO(self.model)
 
