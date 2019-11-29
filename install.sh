@@ -64,7 +64,7 @@ if [ $makerfaire2018 -eq 1 ]; then
   fi
 fi
 
-if [ $travis_chroot -eq 0 ! -e "/dev/ear0" ]; then
+if [ $travis_chroot -eq 0 -a ! -e "/dev/ear0" ]; then
   echo "Please install ears driver https://github.com/pguyot/tagtagtag-ears"
   exit 1
 fi
