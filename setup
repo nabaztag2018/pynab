@@ -58,7 +58,7 @@ sudo make install
 
 echo "Installing ears driver"
 cd /home/pi
-sudo -u pi git clone -b tagtagtag-sound https://github.com/pguyot/tagtagtag-ears
+sudo -u pi git clone https://github.com/pguyot/tagtagtag-ears
 cd /home/pi/tagtagtag-ears
 make
 sudo make install
