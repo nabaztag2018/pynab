@@ -6,6 +6,7 @@ from .ears import Ears
 from contextlib import suppress
 import logging
 import traceback
+import urllib.request
 
 
 class ChoreographyInterpreter:
@@ -30,6 +31,7 @@ class ChoreographyInterpreter:
         self.current_palette = [(0, 0, 0) for x in range(8)]
 
     STREAMING_URN = "urn:x-chor:streaming"
+    DATA_MTL_BINARY_SCHEME = "data:application/x-nabaztag-mtl-choreography"
 
     # from nominal.010120_as3.mtl
     MTL_OPCODE_HANDLDERS = [
@@ -270,8 +272,6 @@ class ChoreographyInterpreter:
         motor = chor[index]
         delta = chor[index + 1]
         direction = self.taichi_directions[motor]
-        if direction:
-            delta = -delta
         await self.ears.move(motor, delta, direction)
         return index + 2
 
@@ -407,6 +407,11 @@ class ChoreographyInterpreter:
         try:
             if ref.startswith(ChoreographyInterpreter.STREAMING_URN):
                 await self.play_streaming(ref)
+            elif ref.startswith(
+                ChoreographyInterpreter.DATA_MTL_BINARY_SCHEME
+            ):
+                chor = urllib.request.urlopen(ref).read()
+                await self.play_binary(chor)
             else:
                 # Assume a resource for now.
                 file = Resources.find("choreographies", ref)

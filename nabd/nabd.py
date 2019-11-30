@@ -55,8 +55,8 @@ class Nabd:
         }
         self.info = {}  # Info persists across service connections.
         self.state = (
-            "idle"
-        )  # 'asleep'/'idle'/'interactive'/'playing'/'recording'
+            "idle"  # 'asleep'/'idle'/'interactive'/'playing'/'recording'
+        )
         # Dictionary of writers, i.e. connected services
         # For each writer, value is the list of registered events
         self.service_writers = {}
@@ -103,7 +103,7 @@ class Nabd:
                         await self.process_idle_item(item)
                     else:
                         if self.state == "idle" and len(self.info.items()) > 0:
-                            for key, value in self.info.items():
+                            for key, value in self.info.copy().items():
                                 await self.nabio.play_info(
                                     self.idle_cv,
                                     value["tempo"],
@@ -241,13 +241,16 @@ class Nabd:
                     "tempo" not in packet["animation"]
                     or "colors" not in packet["animation"]
                 ):
-                    response_packet = {
-                        "status": "error",
-                        "class": "MalformedPacket",
-                        "message": "Missing required tempo & colors slots in "
-                        "animation",
-                    }
-                    self.write_response_packet(packet, response_packet, writer)
+                    self.write_response_packet(
+                        packet,
+                        {
+                            "status": "error",
+                            "class": "MalformedPacket",
+                            "message": "Missing required tempo & colors slots "
+                            "in animation",
+                        },
+                        writer,
+                    )
                 else:
                     self.info[packet["info_id"]] = packet["animation"]
             else:
@@ -257,12 +260,15 @@ class Nabd:
             async with self.idle_cv:
                 self.idle_cv.notify()
         else:
-            response_packet = {
-                "status": "error",
-                "class": "MalformedPacket",
-                "message": "Missing required info_id slot",
-            }
-            self.write_response_packet(packet, response_packet, writer)
+            self.write_response_packet(
+                packet,
+                {
+                    "status": "error",
+                    "class": "MalformedPacket",
+                    "message": "Missing required info_id slot",
+                },
+                writer,
+            )
 
     async def process_ears_packet(self, packet, writer):
         """ Process an ears packet """
@@ -276,42 +282,59 @@ class Nabd:
 
     async def process_command_packet(self, packet, writer):
         """ Process a command packet """
-        key = "sequence"
-        handler = self.perform_command
-        await self.perform_cmd_msg_packet(packet, writer, key, handler)
-
-    async def process_message_packet(self, packet, writer):
-        """ Process a message packet """
-        key = "body"
-        handler = self.perform_message
-        await self.perform_cmd_msg_packet(packet, writer, key, handler)
-
-    async def perform_cmd_msg_packet(self, packet, writer, key, handler):
-        if key in packet:
+        if "sequence" in packet:
             if self.interactive_service_writer == writer:
                 # interactive => play command immediately
-                await handler(packet)
+                await self.perform_command(packet)
                 self.write_response_packet(packet, {"status": "ok"}, writer)
             else:
                 async with self.idle_cv:
                     self.idle_queue.append((packet, writer))
                     self.idle_cv.notify()
         else:
-            response_packet = {
-                "status": "error",
-                "class": "MalformedPacket",
-                "message": f"Missing required {key} slot",
-            }
-            self.write_response_packet(packet, response_packet, writer)
+            self.write_response_packet(
+                packet,
+                {
+                    "status": "error",
+                    "class": "MalformedPacket",
+                    "message": "Missing required sequence slot",
+                },
+                writer,
+            )
+
+    async def process_message_packet(self, packet, writer):
+        """ Process a message packet """
+        if "body" in packet:
+            if self.interactive_service_writer == writer:
+                # interactive => play command immediately
+                await self.perform_message(packet)
+                self.write_response_packet(packet, {"status": "ok"}, writer)
+            else:
+                async with self.idle_cv:
+                    self.idle_queue.append((packet, writer))
+                    self.idle_cv.notify()
+        else:
+            self.write_response_packet(
+                packet,
+                {
+                    "status": "error",
+                    "class": "MalformedPacket",
+                    "message": "Missing required body slot",
+                },
+                writer,
+            )
 
     async def process_cancel_packet(self, packet, writer):
         """ Process a cancel packet """
-        response_packet = {
-            "status": "error",
-            "class": "Unimplemented",
-            "message": "unimplemented",
-        }
-        self.write_response_packet(packet, response_packet, writer)
+        self.write_response_packet(
+            packet,
+            {
+                "status": "error",
+                "class": "Unimplemented",
+                "message": "unimplemented",
+            },
+            writer,
+        )
 
     async def process_wakeup_packet(self, packet, writer):
         """ Process a wakeup packet """
@@ -331,9 +354,26 @@ class Nabd:
     async def process_mode_packet(self, packet, writer):
         """ Process a mode packet """
         if "mode" in packet and packet["mode"] == "interactive":
-            async with self.idle_cv:
-                self.idle_queue.append((packet, writer))
-                self.idle_cv.notify()
+            if writer == self.interactive_service_writer:
+                if "events" in packet:
+                    self.interactive_service_events = packet["events"]
+                else:
+                    self.interactive_service_events = ["ears", "button"]
+                self.write_response_packet(packet, {"status": "ok"}, writer)
+            elif self.interactive_service_writer is not None:
+                self.write_response_packet(
+                    packet,
+                    {
+                        "status": "error",
+                        "class": "AlreadyInInteractiveMode",
+                        "message": "Nabd is already in interactive mode",
+                    },
+                    writer,
+                )
+            else:
+                async with self.idle_cv:
+                    self.idle_queue.append((packet, writer))
+                    self.idle_cv.notify()
         elif "mode" in packet and packet["mode"] == "idle":
             if "events" in packet:
                 self.service_writers[writer] = packet["events"]
@@ -344,12 +384,15 @@ class Nabd:
                 await self.exit_interactive()
             self.write_response_packet(packet, {"status": "ok"}, writer)
         else:
-            response_packet = {
-                "status": "error",
-                "class": "UnknownPacket",
-                "message": "Unknown or malformed mode packet",
-            }
-            self.write_response_packet(packet, response_packet, writer)
+            self.write_response_packet(
+                packet,
+                {
+                    "status": "error",
+                    "class": "UnknownPacket",
+                    "message": "Unknown or malformed mode packet",
+                },
+                writer,
+            )
 
     async def process_packet(self, packet, writer):
         """ Process a packet from a service """
@@ -368,19 +411,25 @@ class Nabd:
             if packet["type"] in processors:
                 await processors[packet["type"]](packet, writer)
             else:
-                response_packet = {
-                    "status": "error",
-                    "class": "UnknownPacket",
-                    "message": f"Unknown type {str(packet['type'])}"
-                }
-                self.write_response_packet(packet, response_packet, writer)
+                self.write_response_packet(
+                    packet,
+                    {
+                        "status": "error",
+                        "class": "UnknownPacket",
+                        "message": "Unknown type " + str(packet["type"]),
+                    },
+                    writer,
+                )
         else:
-            response_packet = {
-                "status": "error",
-                "class": "MalformedPacket",
-                "message": "Missing type slot",
-            }
-            self.write_response_packet(packet, response_packet, writer)
+            self.write_response_packet(
+                packet,
+                {
+                    "status": "error",
+                    "class": "MalformedPacket",
+                    "message": "Missing type slot",
+                },
+                writer,
+            )
 
     def write_packet(self, response, writer):
         writer.write((json.dumps(response) + "\r\n").encode("utf8"))
@@ -417,21 +466,25 @@ class Nabd:
                         packet = json.loads(line.decode("utf8"))
                         await self.process_packet(packet, writer)
                     except UnicodeDecodeError as e:
-                        error_packet = {
-                            "type": "response",
-                            "status": "error",
-                            "class": "UnicodeDecodeError",
-                            "message": str(e),
-                        }
-                        self.write_packet(error_packet, writer)
+                        self.write_packet(
+                            {
+                                "type": "response",
+                                "status": "error",
+                                "class": "UnicodeDecodeError",
+                                "message": str(e),
+                            },
+                            writer,
+                        )
                     except json.decoder.JSONDecodeError as e:
-                        error_packet = {
-                            "type": "response",
-                            "status": "error",
-                            "class": "JSONDecodeError",
-                            "message": str(e),
-                        }
-                        self.write_packet(error_packet, writer)
+                        self.write_packet(
+                            {
+                                "type": "response",
+                                "status": "error",
+                                "class": "JSONDecodeError",
+                                "message": str(e),
+                            },
+                            writer,
+                        )
             writer.close()
             await writer.wait_closed()
         except ConnectionResetError:

@@ -117,6 +117,10 @@ class EarsMock(Ears):
     async def wait_while_running(self):
         self.called_list.append("wait_while_running()")
 
+    async def is_broken(self, ear):
+        self.called_list.append(f"is_broken({ear})")
+        return False
+
 
 class LedsMock(Leds):
     def __init__(self):

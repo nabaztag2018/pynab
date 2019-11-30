@@ -79,7 +79,7 @@ class TestChoreographyInterpreter(unittest.TestCase):
         task = self.loop.create_task(self.ci.play_binary(chor))
         self.loop.run_until_complete(task)
         self.assertEqual(self.leds.called_list, [])
-        self.assertEqual(self.ears.called_list, ["move(1,-2,1)"])
+        self.assertEqual(self.ears.called_list, ["move(1,2,1)"])
         self.assertEqual(self.sound.called_list, [])
 
     def test_ifne(self):

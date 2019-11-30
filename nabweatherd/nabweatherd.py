@@ -1,6 +1,7 @@
 import sys
 import datetime
 import dateutil.parser
+import logging
 from nabcommon.nabservice import NabRecurrentService
 from meteofrance.client import meteofranceClient
 
@@ -239,6 +240,7 @@ class NabWeatherd(NabRecurrentService):
         "J_W1_18-N_3": "J_W1_9-N_3",
         "J_W1_18-N": "J_W1_9-N_0",
         "J_W1_19-N": "J_W1_10-N_0",
+        "J_W1_19-N": "J_W2_14",
         "J_W1_20-N_3": "J_W1_14-N_3",
         "J_W1_20": "J_W1_14-N_0",
         "J_W1_21-N_3": "J_W1_13-N_3",
@@ -310,6 +312,7 @@ class NabWeatherd(NabRecurrentService):
         "N_W1_18-N_3": "J_W1_9-N_3",
         "N_W1_18-N": "N_W1_9-N_0",
         "N_W1_19-N": "J_W1_10-N_0",
+        "N_W1_19-N": "N_W2_14",
         "N_W1_20-N_3": "J_W1_14-N_3",
         "N_W1_20": "N_W1_14-N_0",
         "N_W1_21-N_3": "J_W1_13-N_3",
@@ -407,13 +410,17 @@ class NabWeatherd(NabRecurrentService):
         from . import models
 
         if self.location is None:
-            packet = (
-                '{"type":"message",'
-                '"signature":{"audio":['
-                '"nabweatherd/signature.mp3"]},'
-                '"body":[{"audio":["nabweatherd/no-location-error.mp3]}],'
-                '"expiration":"' + expiration.isoformat() + '"}\r\n'
-            )
+            logging.debug(f"location is None (service is unconfigured)")
+            if type != "info":
+                packet = (
+                    '{"type":"message",'
+                    '"signature":{"audio":['
+                    '"nabweatherd/signature.mp3"]},'
+                    '"body":[{"audio":["nabweatherd/no-location-error.mp3"]}],'
+                    '"expiration":"' + expiration.isoformat() + '"}\r\n'
+                )
+                self.writer.write(packet.encode("utf8"))
+            packet = '{"type":"info","info_id":"weather"}\r\n'
             self.writer.write(packet.encode("utf8"))
         else:
             if (
