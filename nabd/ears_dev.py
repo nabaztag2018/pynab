@@ -153,7 +153,9 @@ class EarsDev(Ears):
         Returns before ear reached requested position.
         """
         async with self.lock:
-            await self._do_go(ear, position, direction)
+            await asyncio.get_event_loop().run_in_executor(
+                self.executor, self._do_go, ear, position, direction
+            )
 
     def _do_go(self, ear, position, direction):
         """
