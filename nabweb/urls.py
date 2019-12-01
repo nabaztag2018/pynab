@@ -13,18 +13,18 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.apps import apps
 from django.contrib import admin
 from django.urls import path, include
-from .views import NabWebView, NabWebUpgradeView
+from .views import NabWebView, NabWebServicesView, NabWebUpgradeView
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("nab8balld/", include("nab8balld.urls")),
-    path("nabclockd/", include("nabclockd.urls")),
-    path("nabmastodond/", include("nabmastodond.urls")),
-    path("nabsurprised/", include("nabsurprised.urls")),
-    path("nabtaichid/", include("nabtaichid.urls")),
-    path("nabweatherd/", include("nabweatherd.urls")),
     path("", NabWebView.as_view()),
+    path("services/", NabWebServicesView.as_view()),
     path("upgrade", NabWebUpgradeView.as_view(), name="nabweb.upgrade"),
 ]
+
+# Service URLs added automatically
+for config in apps.get_app_configs():
+    if hasattr(config.module, 'NABAZTAG_SERVICE_PRIORITY'):
+        urlpatterns.append(path(config.name + "/", include(config.name + ".urls")))

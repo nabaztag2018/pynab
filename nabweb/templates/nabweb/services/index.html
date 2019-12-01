@@ -1,0 +1,25 @@
+{% extends 'nabweb/_base.html' %}
+{% load i18n %}
+{% block subtitle %}{% trans "Services" %}{% endblock %}
+{% block content %}
+  {% for service in services %}
+    {% if forloop.counter0|divisibleby:2 %}
+    <div class="row">
+    {% endif %}
+      <div class="settings col-md-6 mb-3" data-url="/{{ service }}/settings"></div>
+    {% if not forloop.counter0|divisibleby:2 or forloop.last %}
+    </div>
+    {% endif %}
+  {% endfor %}
+  <script type="text/javascript">
+    $(function() {
+      console.log("{{ services }}");
+      $("div.settings").each(function(index, element) {
+        var url = $(element).data('url');
+        $.get(url, function(data) {
+          $(element).html(data);
+        });
+      });
+    });
+  </script>
+{% endblock %}

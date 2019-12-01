@@ -1,3 +1,7 @@
+import abc
+import os
+
+from django.apps import apps
 from django.views.generic import View
 from django.shortcuts import render
 from django.utils import translation
@@ -5,11 +9,12 @@ from django.conf import settings
 from django.http import JsonResponse
 from nabd.i18n import Config
 from django.utils.translation import to_locale, to_language
-import os
 
 
-class NabWebView(View):
-    template_name = "nabweb/index.html"
+class BaseView(View, metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def template_name(self):
+        pass
 
     def get_locales(self):
         config = Config.load()
@@ -18,17 +23,21 @@ class NabWebView(View):
             for (lang, name) in settings.LANGUAGES
         ]
 
-    def get(self, request, *args, **kwargs):
+    def get_context(self):
         user_locale = Config.load().locale
         user_language = to_language(user_locale)
         translation.activate(user_language)
         self.request.session[translation.LANGUAGE_SESSION_KEY] = user_language
         locales = self.get_locales()
-        return render(
-            request,
-            NabWebView.template_name,
-            context={"current_locale": user_locale, "locales": locales},
-        )
+        return {"current_locale": user_locale, "locales": locales}
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context()
+        return render(request, self.template_name(), context=context)
+
+class NabWebView(BaseView):
+    def template_name(self):
+        return "nabweb/index.html"
 
     def post(self, request, *args, **kwargs):
         config = Config.load()
@@ -40,10 +49,27 @@ class NabWebView(View):
         locales = self.get_locales()
         return render(
             request,
-            NabWebView.template_name,
+            self.template_name(),
             context={"current_locale": config.locale, "locales": locales},
         )
 
+class NabWebServicesView(BaseView):
+    def template_name(self):
+        return "nabweb/services/index.html"
+
+    def get_context(self):
+        context = super().get_context()
+        services = []
+        for config in apps.get_app_configs():
+            if hasattr(config.module, 'NABAZTAG_SERVICE_PRIORITY'):
+                services.append({
+                    'priority': config.module.NABAZTAG_SERVICE_PRIORITY,
+                    'name': config.name
+                })
+        services_sorted = sorted(services, key=lambda s: s['priority'])
+        services_names = map(lambda s: s['name'], services_sorted)
+        context["services"] = services_names
+        return context
 
 class NabWebUpgradeView(View):
     def get(self, request, *args, **kwargs):

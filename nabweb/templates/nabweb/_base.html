@@ -1,0 +1,133 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="{% static "nabweb/css/bootstrap.min.css" %}">
+    <link rel="stylesheet/less" type="text/css" href="{% static "nabweb/css/bootstrap-button-toggle.less" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "nabweb/css/bootstrap4-clockpicker.min.css" %}">
+    <title>{% trans "Nabaztag configuration" %} :: {% block subtitle %}{% endblock %}</title>
+    <script src="{% static "nabweb/js/jquery-3.3.1.min.js" %}"></script>
+    <script src="{% static "nabweb/js/popper.min.js" %}"></script>
+    <script src="{% static "nabweb/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "nabweb/js/less.min.js" %}"></script>
+    <script src="{% static "nabweb/js/bootstrap4-clockpicker.min.js" %}"></script>
+    <script src="{% static "nabweb/js/jquery.bootstrap-growl.min.js" %}"></script>
+  </head>
+  <body>
+    <header class="navbar navbar-expand-lg navbar-light bg-light">
+      <span class="navbar-brand mb-0 h1">{% trans "Nabaztag configuration" %}</span>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li><a class="nav-link{% if request.path == '/' %} active{% endif %}" href="{% if request.path == '/' %}#{% else %}/{% endif %}">{% trans "Home" %}{% if request.path == '/' %} <span class="sr-only">{% trans "(current)" %}{% endif %}</span></a></li>
+          <li><a class="nav-link{% if request.path == '/services/' %} active{% endif %}" href="{% if request.path == '/services/' %}#{% else %}/services/{% endif %}">{% trans "Services" %}{% if request.path == '/services/' %}  <span class="sr-only">{% trans "(current)" %}</span>{% endif %}</a></li>
+          <li><a class="nav-link{% if request.path == '/rpi/' %} active{% endif %}" href="{% if request.path == '/rpi/' %}#{% else %}/rpi/{% endif %}">{% trans "Raspberry Pi" %}{% if request.path == '/rpi/' %}  <span class="sr-only">{% trans "(current)" %}</span>{% endif %}</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a class="nav-link pull-right" href="https://github.com/nabaztag2018/pynab" target="_blank" aria-label="GitHub"><img src="{% static "nabweb/images/GitHub-Mark-32px.png" %}" title="GitHub" width="20" height="20" /></a></li>
+          <li><a class="nav-link pull-right upgrade-link disabled" href="#">Upgrade <span class="badge badge-info"></span></a></li>
+        </ul>
+      </div>
+    </header>
+    <div class="container-fluid mt-3">
+        {% block content %}{% endblock %}
+    </div>
+    <div class="modal fade upgrade-modal" tabindex="-1" role="dialog" aria-labelledby="update-modal-title" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="update-modal-title">{% trans "Upgrading" %}</h5>
+          </div>
+          <div class="modal-body">
+            <p>{% trans "Please wait while upgrading pynab..." %}</p>
+            <div class="progress">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+      $(function() {
+        var upgradeBtn = $("a.upgrade-link");
+        var upgradeBadge = upgradeBtn.find('span.badge');
+        function doTestUpgrade(old) {
+          $.ajax({
+            url: "{% url 'nabweb.upgrade' %}",
+            beforeSend: function (xhr, settings) {
+              xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+            },
+            contentType: 'application/json',
+            method: "GET",
+            success: function (data) {
+              if (data.head == old) {
+                setTimeout(function() { doTestUpgrade(old); }, 3000);
+              } else {
+                window.location.reload();
+              }
+            },
+            error: function (data) {
+              setTimeout(function() { doTestUpgrade(old); }, 3000);
+            }
+          });
+        }
+        function do_upgrade() {
+          $.ajax({
+            url: "{% url 'nabweb.upgrade' %}",
+            beforeSend: function (xhr, settings) {
+              xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+            },
+            contentType: 'application/json',
+            method: "POST",
+            success: function (data) {
+              $('.modal.upgrade-modal').modal('show');
+              setTimeout(function() { doTestUpgrade(data.old); }, 3000);
+            },
+            error: function (data) {
+              var message = "{% trans "An unknown error occurred trying to upgrade" %}";
+              if (data.message) {
+                message = "{% trans "An error occurred trying to upgrade: " %}" + data.message;
+              }
+              $.bootstrapGrowl(message, {type: 'danger', allow_dismiss: true});
+            }
+          });
+        }
+        $.ajax({
+          url: "{% url 'nabweb.upgrade' %}",
+          beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+          },
+          contentType: 'application/json',
+          method: "GET",
+          success: function (data) {
+            if (data.status == 'ok') {
+              if (data.commit_count > 0) {
+                upgradeBtn.removeClass('disabled');
+                upgradeBadge.attr('title', data.head);
+                upgradeBadge.text(data.commit_count);
+                upgradeBtn.on('click', function() { do_upgrade(); return false; });
+              } else {
+                upgradeBtn.attr('title', data.head);
+              }
+            } else {
+              upgradeBadge.text('!');
+              upgradeBadge.removeClass('badge-info');
+              upgradeBadge.addClass('badge-danger');
+              upgradeBtn.attr('title', data.message);
+            }
+          },
+          error: function (data) {
+            upgradeBadge.text('!');
+            upgradeBadge.removeClass('badge-info');
+            upgradeBadge.addClass('badge-danger');
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
