@@ -96,7 +96,6 @@ class NabWebSytemInfoView(BaseView):
             while True:
                 line = await asyncio.wait_for(reader.readline(), 0.5)
                 packet = json.loads(line.decode("utf8"))
-                print(packet)
                 if (
                     "type" in packet and
                     packet["type"] == "response" and
