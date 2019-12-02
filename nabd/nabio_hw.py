@@ -148,6 +148,6 @@ class NabIOHW(NabIO):
         _, sound_configuration, _, = SoundAlsa.sound_configuration()
 
         if sound_configuration == SoundAlsa.MODEL_2019_CARD_NAME:
-            return NabIO.MODEL_2019_TAGTAG
+            return NabIO.MODEL_2019_TAG
         if sound_configuration == SoundAlsa.MODEL_2018_CARD_NAME:
             return NabIO.MODEL_2018
