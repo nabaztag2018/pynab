@@ -3,6 +3,7 @@ import asyncio
 import json
 import logging
 import os
+import re
 
 from django.apps import apps
 from django.views.generic import View
@@ -75,9 +76,9 @@ class NabWebServicesView(BaseView):
         context["services"] = services_names
         return context
 
-class NabWebAdminView(BaseView):
+class NabWebSytemInfoView(BaseView):
     def template_name(self):
-        return "nabweb/admin/index.html"
+        return "nabweb/system-info/index.html"
 
     async def query_gestalt(self):
         try:
@@ -110,10 +111,27 @@ class NabWebAdminView(BaseView):
                 "message":"Communication with Nabd timed out (getting info)"
             }
 
+    def get_os_info(self):
+        version = "unknown"
+        with open("/etc/os-release") as release:
+            line = release.readline()
+            matchObj = re.match(r'PRETTY_NAME="(.+)"$', line, re.M)
+            if matchObj:
+                version = matchObj.group(1)
+        with open("/etc/rpi-issue") as issue:
+            line = issue.readline()
+            matchObj = re.search(r' ([0-9-]+)$', line, re.M)
+            if matchObj:
+                version = version + ', issue ' + matchObj.group(1)
+        with open('/proc/uptime', 'r') as uptime_f:
+            uptime = int(float(uptime_f.readline().split()[0]))
+        return {'version': version, 'uptime': uptime}
+
     def get_context(self):
         context = super().get_context()
         gestalt = asyncio.run(self.query_gestalt())
         context["gestalt"] = gestalt
+        context["os"] = self.get_os_info()
         return context
 
 class NabWebUpgradeView(View):

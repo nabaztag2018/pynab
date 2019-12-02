@@ -7,6 +7,7 @@ import getopt
 import os
 import socket
 import logging
+import subprocess
 import dateutil.parser
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
@@ -396,8 +397,15 @@ class Nabd:
 
     async def process_gestalt_packet(self, packet, writer):
         """ Process a gestalt packet """
+        proc = subprocess.Popen(
+            ['ps','-o','etimes','-p',str(os.getpid()),'--no-headers'],
+            stdout=subprocess.PIPE)
+        proc.wait()
+        results = proc.stdout.readlines()
+        uptime = int(results[0].strip())
         response = {}
         response["state"] = self.state
+        response["uptime"] = uptime
         response["connections"] = len(self.service_writers)
         response["hardware"] = self.nabio.gestalt()
         self.write_response_packet(packet, response, writer)

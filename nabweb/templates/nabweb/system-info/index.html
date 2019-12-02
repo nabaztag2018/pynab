@@ -1,0 +1,77 @@
+{% extends 'nabweb/_base.html' %}
+{% load i18n %}
+{% load duration_filter %}
+{% block subtitle %}{% trans "System information" %}{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="local-settings col-md-8 mb-3">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">{% trans "Raspberry Pi (Linux)" %}</h5>
+        </div>
+        <div class="card-body">
+          <dl class="row">
+            <dt class="col-sm-4">{% trans "Version" %}</dt>
+            <dd class="col-sm-8">{{ os.version }}</dd>
+            <dt class="col-sm-4">{% trans "Uptime" %}</dt>
+            <dd class="col-sm-8">{{ os.uptime|duration }}</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row justify-content-center">
+    <div class="local-settings col-md-8 mb-3">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">{% trans "Nabd daemon" %}</h5>
+        </div>
+        <div class="card-body">
+          {% if gestalt.status == "error" %}
+          <div class="alert alert-danger" role="alert">
+            {{ gestalt.message }}
+          </div>
+          {% else %}
+          <dl class="row">
+            <dt class="col-sm-4">{% trans "State" %}</dt>
+            <dd class="col-sm-8">{{ gestalt.result.state }}</dd>
+            <dt class="col-sm-4">{% trans "Uptime" %}</dt>
+            <dd class="col-sm-8">{{ gestalt.result.uptime|duration }}</dd>
+            <dt class="col-sm-4">{% trans "Clients (including website)" %}</dt>
+            <dd class="col-sm-8">{{ gestalt.result.connections }}</dd>
+          </dl>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row justify-content-center">
+    <div class="local-settings col-md-8 mb-3">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">{% trans "Hardware" %}</h5>
+        </div>
+        <div class="card-body">
+          {% if gestalt.status == "error" %}
+          <div class="alert alert-danger" role="alert">
+            {{ gestalt.message }}
+          </div>
+          {% else %}
+          <dl class="row">
+            <dt class="col-sm-4">{% trans "Model" %}</dt>
+            <dd class="col-sm-8">{{ gestalt.result.hardware.model }}</dd>
+            <dt class="col-sm-4">{% trans "Sound card" %}</dt>
+            <dd class="col-sm-8">{{ gestalt.result.hardware.sound_card }}</dd>
+            <dt class="col-sm-4">{% trans "Sound input" %}</dt>
+            <dd class="col-sm-8">{{ gestalt.result.hardware.sound_input }}</dd>
+            <dt class="col-sm-4">{% trans "Left ear" %}</dt>
+            <dd class="col-sm-8">{{ gestalt.result.hardware.left_ear_status }}</dd>
+            <dt class="col-sm-4">{% trans "Right ear" %}</dt>
+            <dd class="col-sm-8">{{ gestalt.result.hardware.right_ear_status }}</dd>
+          </dl>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

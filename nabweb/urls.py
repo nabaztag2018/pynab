@@ -16,12 +16,12 @@ Including another URLconf
 from django.apps import apps
 from django.contrib import admin
 from django.urls import path, include
-from .views import NabWebView, NabWebServicesView, NabWebAdminView, NabWebUpgradeView
+from .views import NabWebView, NabWebServicesView, NabWebSytemInfoView, NabWebUpgradeView
 
 urlpatterns = [
     path("", NabWebView.as_view()),
     path("services/", NabWebServicesView.as_view()),
-    path("admin/", NabWebAdminView.as_view()),
+    path("system-info/", NabWebSytemInfoView.as_view()),
     path("upgrade", NabWebUpgradeView.as_view(), name="nabweb.upgrade"),
 ]
 
