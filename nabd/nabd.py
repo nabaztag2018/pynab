@@ -394,6 +394,14 @@ class Nabd:
                 writer,
             )
 
+    async def process_gestalt_packet(self, packet, writer):
+        """ Process a gestalt packet """
+        response = {}
+        response["state"] = self.state
+        response["connections"] = len(self.service_writers)
+        response["hardware"] = self.nabio.gestalt()
+        self.write_response_packet(packet, response, writer)
+
     async def process_packet(self, packet, writer):
         """ Process a packet from a service """
         logging.debug(f"packet from service: {packet}")
@@ -407,6 +415,7 @@ class Nabd:
                 "wakeup": self.process_wakeup_packet,
                 "sleep": self.process_sleep_packet,
                 "mode": self.process_mode_packet,
+                "gestalt": self.process_gestalt_packet,
             }
             if packet["type"] in processors:
                 await processors[packet["type"]](packet, writer)

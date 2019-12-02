@@ -33,6 +33,15 @@ class Ears(object, metaclass=abc.ABCMeta):
         raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
+    async def get_positions(self):
+        """
+        Get the positions of the ears.
+        Does not perform any movement to detect their positions but instead
+        return None if unknown.
+        """
+        raise NotImplementedError("Should have implemented")
+
+    @abc.abstractmethod
     async def detect_positions(self):
         """
         Get the positions of the ears after the user moved any.

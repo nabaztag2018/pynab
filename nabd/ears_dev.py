@@ -120,6 +120,13 @@ class EarsDev(Ears):
         if self.fds[1] is not None:
             os.write(self.fds[1], b".")
 
+    def get_positions(self):
+        """
+        Get the position of the ears, without running any detection
+        (simply return cached positions)
+        """
+        return (self.positions[0], self.positions[1])
+
     async def detect_positions(self):
         """
         Get the position of the ears, running a detection if required.

@@ -1,4 +1,7 @@
 import abc
+import asyncio
+import json
+import logging
 import os
 
 from django.apps import apps
@@ -8,6 +11,7 @@ from django.utils import translation
 from django.conf import settings
 from django.http import JsonResponse
 from nabd.i18n import Config
+from nabcommon.nabservice import NabService
 from django.utils.translation import to_locale, to_language
 
 
@@ -69,6 +73,47 @@ class NabWebServicesView(BaseView):
         services_sorted = sorted(services, key=lambda s: s['priority'])
         services_names = map(lambda s: s['name'], services_sorted)
         context["services"] = services_names
+        return context
+
+class NabWebAdminView(BaseView):
+    def template_name(self):
+        return "nabweb/admin/index.html"
+
+    async def query_gestalt(self):
+        try:
+            conn = asyncio.open_connection('127.0.0.1', NabService.PORT_NUMBER)
+            reader, writer = await asyncio.wait_for(conn, 0.5)
+        except ConnectionRefusedError as err:
+            return {"status":"error","message":"Nabd is not running"}
+        except asyncio.TimeoutError as err:
+            return {
+                "status":"error",
+                "message":"Communication with Nabd timed out (connecting)"
+            }
+        try:
+            writer.write(b'{"type":"gestalt","request_id":"gestalt"}\r\n')
+            while True:
+                line = await asyncio.wait_for(reader.readline(), 0.5)
+                packet = json.loads(line.decode("utf8"))
+                print(packet)
+                if (
+                    "type" in packet and
+                    packet["type"] == "response" and
+                    "request_id" in packet and
+                    packet["request_id"] == "gestalt"
+                ):
+                    writer.close()
+                    return {"status": "ok", "result": packet}
+        except asyncio.TimeoutError as err:
+            return {
+                "status":"error",
+                "message":"Communication with Nabd timed out (getting info)"
+            }
+
+    def get_context(self):
+        context = super().get_context()
+        gestalt = asyncio.run(self.query_gestalt())
+        context["gestalt"] = gestalt
         return context
 
 class NabWebUpgradeView(View):

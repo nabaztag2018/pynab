@@ -1,0 +1,57 @@
+{% extends 'nabweb/_base.html' %}
+{% load i18n %}
+{% block subtitle %}{% trans "Admin" %}{% endblock %}
+{% block content %}
+  <div class="row">
+    <div class="local-settings col-md-6 mb-3">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">{% trans "State" %}</h5>
+        </div>
+        <div class="card-body">
+          {% if gestalt.status == "error" %}
+          <div class="alert alert-danger" role="alert">
+            {{ gestalt.message }}
+          </div>
+          {% else %}
+          <dl class="row">
+            <dt class="col-sm-6">{% trans "State" %}</dt>
+            <dd class="col-sm-6">{{ gestalt.result.state }}</dd>
+            <dt class="col-sm-6">{% trans "Connections (including website)" %}</dt>
+            <dd class="col-sm-6">{{ gestalt.result.connections }}</dd>
+          </dl>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="local-settings col-md-6 mb-3">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">{% trans "Hardware Info" %}</h5>
+        </div>
+        <div class="card-body">
+          {% if gestalt.status == "error" %}
+          <div class="alert alert-danger" role="alert">
+            {{ gestalt.message }}
+          </div>
+          {% else %}
+          <dl class="row">
+            <dt class="col-sm-3">{% trans "Model" %}</dt>
+            <dd class="col-sm-9">{{ gestalt.result.hardware.model }}</dd>
+            <dt class="col-sm-3">{% trans "Sound card" %}</dt>
+            <dd class="col-sm-9">{{ gestalt.result.hardware.sound_card }}</dd>
+            <dt class="col-sm-3">{% trans "Sound input" %}</dt>
+            <dd class="col-sm-9">{{ gestalt.result.hardware.sound_input }}</dd>
+            <dt class="col-sm-3">{% trans "Left ear" %}</dt>
+            <dd class="col-sm-9">{{ gestalt.result.hardware.left_ear_status }}</dd>
+            <dt class="col-sm-3">{% trans "Right ear" %}</dt>
+            <dd class="col-sm-9">{{ gestalt.result.hardware.right_ear_status }}</dd>
+          </dl>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

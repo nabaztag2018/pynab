@@ -26,6 +26,7 @@
         <ul class="navbar-nav mr-auto">
           <li><a class="nav-link{% if request.path == '/' %} active{% endif %}" href="{% if request.path == '/' %}#{% else %}/{% endif %}">{% trans "Home" %}{% if request.path == '/' %} <span class="sr-only">{% trans "(current)" %}{% endif %}</span></a></li>
           <li><a class="nav-link{% if request.path == '/services/' %} active{% endif %}" href="{% if request.path == '/services/' %}#{% else %}/services/{% endif %}">{% trans "Services" %}{% if request.path == '/services/' %}  <span class="sr-only">{% trans "(current)" %}</span>{% endif %}</a></li>
+          <li><a class="nav-link{% if request.path == '/admin/' %} active{% endif %}" href="{% if request.path == '/admin/' %}#{% else %}/admin/{% endif %}">{% trans "Admin" %}{% if request.path == '/admin/' %}  <span class="sr-only">{% trans "(current)" %}</span>{% endif %}</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
           <li><a class="nav-link pull-right" href="https://github.com/nabaztag2018/pynab" target="_blank" aria-label="GitHub"><img src="{% static "nabweb/images/GitHub-Mark-32px.png" %}" title="GitHub" width="20" height="20" /></a></li>
