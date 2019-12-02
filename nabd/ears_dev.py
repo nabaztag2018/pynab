@@ -20,7 +20,7 @@ class EarsDev(Ears):
         for i in range(0, 2):
             ear = os.open("/dev/ear" + str(i), os.O_RDWR)
             try:
-                os.write(ear, b".")
+                os.write(ear, b"?")
                 self.fds[i] = ear
                 asyncio.get_event_loop().add_reader(ear, self._do_read, i)
             except:
