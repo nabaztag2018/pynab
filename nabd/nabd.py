@@ -114,7 +114,7 @@ class Nabd:
         except KeyboardInterrupt:
             pass
         except Exception:
-            print(traceback.format_exc())
+            logging.debug(traceback.format_exc())
         finally:
             if self.running:
                 self.loop.stop()
@@ -489,8 +489,10 @@ class Nabd:
             await writer.wait_closed()
         except ConnectionResetError:
             pass
+        except BrokenPipeError:
+            pass
         except Exception:
-            print(traceback.format_exc())
+            logging.debug(traceback.format_exc())
         finally:
             if self.interactive_service_writer == writer:
                 await self.exit_interactive()
