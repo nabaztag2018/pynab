@@ -254,7 +254,7 @@ class Nabd:
                     )
                 else:
                     self.info[packet["info_id"]] = packet["animation"]
-            else:
+            elif packet["info_id"] in self.info:
                 del self.info[packet["info_id"]]
             self.write_response_packet(packet, {"status": "ok"}, writer)
             # Signal idle loop to make sure we display updated info
