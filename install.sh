@@ -46,6 +46,7 @@ fi
 
 cd `dirname "$0"`
 root_dir=`pwd`
+owner=`stat -c '%U' ${root_dir}`
 
 if [ $travis_chroot -eq 0 -a $makerfaire2018 -eq 0 -a `aplay -L | grep -c "tagtagtagsound"` -eq 0 ]; then
   if [ `aplay -L | grep -c "hifiberry"` -gt 0 ]; then
@@ -67,6 +68,7 @@ fi
 if [ $upgrade -eq 1 -a $makerfaire2018 -eq 0 -a -d /home/pi/wm8960 ]; then
   echo "Updating sound driver" > /tmp/pynab.upgrade
   cd /home/pi/wm8960
+  sudo chown -R ${owner} .git
   pull=`git pull`
   if [ "$pull" != "Already up to date." ]; then
     make && sudo make install
@@ -83,6 +85,7 @@ if [ $upgrade -eq 1 ]; then
   echo "Updating ears driver" > /tmp/pynab.upgrade
   if [ -d /home/pi/tagtagtag-ears ]; then
     cd /home/pi/tagtagtag-ears
+    sudo chown -R ${owner} .git
     pull=`git pull`
     if [ "$pull" != "Already up to date." ]; then
       make && sudo make install
