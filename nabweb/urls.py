@@ -17,7 +17,8 @@ from django.apps import apps
 from django.contrib import admin
 from django.urls import path, include
 from .views import NabWebView, NabWebServicesView, NabWebSytemInfoView
-from .views import NabWebUpgradeView, NabWebUpgradeStatusView
+from .views import NabWebUpgradeView, NabWebUpgradeStatusView, NabWebUpgradeNowView
+from .views import NabWebUpgradeNowView
 
 urlpatterns = [
     path("", NabWebView.as_view()),
@@ -25,6 +26,7 @@ urlpatterns = [
     path("system-info/", NabWebSytemInfoView.as_view()),
     path("upgrade/", NabWebUpgradeView.as_view()),
     path("upgrade/status", NabWebUpgradeStatusView.as_view(), name="nabweb.upgrade.status"),
+    path("upgrade/now", NabWebUpgradeNowView.as_view(), name="nabweb.upgrade.now"),
 ]
 
 # Service URLs added automatically

@@ -2,6 +2,21 @@
 {% load i18n %}
 {% block subtitle %}{% trans "Home" %}{% endblock %}
 {% block content %}
+  <div class="modal" tabindex="-1" role="dialog" id="upgradeModal">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Upgrade in progress</h5>
+        </div>
+        <div class="modal-body">
+          <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+          </div>
+          <p id="upgradeStatus" class="mt-2">Upgrade is currently in progress...</p>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="row justify-content-center">
     <div class="col-xl-8 col-lg-10 col-md-10 mb-3">
       <div class="card">
@@ -42,7 +57,37 @@
     {% if updatable %}
       $(function() {
         var upgradeBtn = $(".upgrade-button");
+        function upgradeNowUpdateStatus() {
+          $.ajax({
+            url: "{% url 'nabweb.upgrade.now' %}",
+            beforeSend: function (xhr, settings) {
+              xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+            },
+            contentType: 'application/json',
+            method: "GET",
+            success: function (data) {
+              if (data.status == 'done') {
+                $("#upgradeStatus").text("Upgrade complete, reloading page");
+                setTimeout(function() { window.location.reload(true); }, 1000);
+              } else {
+                if (data.status == 'ok') {
+                  $("#upgradeStatus").text(data.message);
+                  setTimeout(function() { upgradeNowUpdateStatus(); }, 1000);
+                } else {
+                  $("#upgradeStatus").text("Unknown response from server");
+                  setTimeout(function() { upgradeNowUpdateStatus(); }, 5000);
+                }
+              }
+            },
+            error: function (data) {
+              $("#upgradeStatus").text("Server is restarting...");
+              setTimeout(function() { upgradeNowUpdateStatus(); }, 5000);
+            }
+          });
+        }
         upgradeBtn.on("click", function() {
+          $('#upgradeModal').modal();
+          upgradeNowUpdateStatus();
         });
       });
     {% endif %}

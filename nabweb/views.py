@@ -225,14 +225,16 @@ class NabWebUpgradeView(BaseView):
         ears_driver_info = GitInfo.get_repository_info("../tagtagtag-ears")
         context["ears_driver"] = ears_driver_info
         updatable = (
-            ("commits_count" in pynab_info and
-                pynab_info["commits_count"] > 0) and
-            ("local_changes" in pynab_info and
-                not pynab_info["local_changes"]) and
-            ("local_changes" in sound_driver_info and
-                not sound_driver_info["local_changes"]) and
-            ("local_changes" in ears_driver_info and
-                not ears_driver_info["local_changes"])
+            "commits_count" in pynab_info and
+            pynab_info["commits_count"] > 0 and
+            "local_commits_count" in pynab_info and
+            pynab_info["local_commits_count"] == 0 and
+            "local_changes" in pynab_info and
+            not pynab_info["local_changes"] and
+            "local_changes" in sound_driver_info and
+            not sound_driver_info["local_changes"] and
+            "local_changes" in ears_driver_info and
+            not ears_driver_info["local_changes"]
         )
         context["updatable"] = updatable
         return context
@@ -241,3 +243,41 @@ class NabWebUpgradeStatusView(View):
     def get(self, request, *args, **kwargs):
         repo_info = GitInfo.get_repository_info(".")
         return JsonResponse(repo_info)
+
+class NabWebUpgradeNowView(View):
+    def get(self, request, *args, **kwargs):
+        step = os.popen(
+            "sudo -u pi flock -n /tmp/pynab.upgrade echo 'Not upgrading' "
+            "|| cat /tmp/pynab.upgrade"
+        ).read().rstrip()
+        if step == "Not upgrading":
+            return JsonResponse({"status": "done"})
+        else:
+            return JsonResponse({"status": "ok", "message": step})
+
+    def post(self, request, *args, **kwargs):
+        root_dir = GitInfo.get_root_dir()
+        if root_dir is None:
+            return (
+                {
+                    "status": "error",
+                    "message": "Cannot find pynab installation from "
+                    "Raspbian systemd services",
+                }
+            )
+        locked = os.popen(
+            "sudo -u pi flock -n /tmp/pynab.upgrade echo 'OK' || echo 'Locked'"
+        ).read().rstrip()
+        if locked == "OK":
+            subprocess.run([
+                "/usr/bin/nohup", "sudo", "-u", "pi",
+                "flock", "/tmp/pynab.upgrade",
+                "bash", f"{root_dir}/upgrade.sh"
+            ])
+            return JsonResponse({"status": "ok"})
+        if locked == "Locked":
+            return JsonResponse({"status": "ok"})
+        return JsonResponse({
+                "status": "error",
+                "message": "Could not acquire lock, a problem occurred"
+            })
