@@ -174,30 +174,31 @@ class GitInfo:
         info = {}
         info["head"] = head_sha1
         info["branch"] = os.popen(
-            f"cd {repo_dir} && git rev-parse --abbrev-ref HEAD"
+            f"cd {repo_dir} && sudo -u pi git rev-parse --abbrev-ref HEAD"
         ).read().rstrip()
         upstream_branch = os.popen(
-            f"cd {repo_dir} && git rev-parse --abbrev-ref @{{upstream}}"
+            f"cd {repo_dir} "
+            f"&& sudo -u pi git rev-parse --abbrev-ref @{{upstream}}"
         ).read().rstrip()
         remote = upstream_branch.split('/')[0]
         info["upstream_branch"] = upstream_branch
         info["url"] = os.popen(
-            f"cd {repo_dir} && git remote get-url {remote}"
+            f"cd {repo_dir} && sudo -u pi git remote get-url {remote}"
         ).read().rstrip()
         info["local_changes"] = os.popen(
-            f"cd {repo_dir} && git diff-index --quiet HEAD -- "
+            f"cd {repo_dir} && sudo -u pi git diff-index --quiet HEAD -- "
             f"|| echo 'local_changes' "
         ).read().strip() != ""
         info["tag"] = os.popen(
-            f"cd {repo_dir} && git describe --exact-match --tags"
+            f"cd {repo_dir} && sudo -u pi git describe --exact-match --tags"
         ).read().strip()
         commits_count = os.popen(
-            f"cd {repo_dir} && git fetch "
-            f"&& git rev-list --count HEAD..{upstream_branch}"
+            f"cd {repo_dir} && sudo -u pi git fetch "
+            f"&& sudo -u pi git rev-list --count HEAD..{upstream_branch}"
         ).read().rstrip()
         local_commits_count = os.popen(
-            f"cd {repo_dir} && git fetch "
-            f"&& git rev-list --count {upstream_branch}..HEAD"
+            f"cd {repo_dir} && sudo -u pi git fetch "
+            f"&& sudo -u pi git rev-list --count {upstream_branch}..HEAD"
         ).read().rstrip()
         if commits_count == "":
             info["status"] = "error"
