@@ -1,0 +1,33 @@
+{% load i18n %}
+<div class="row px-3 py-2">
+  <div class="col-sm-12 border rounded p-3">
+    <div class="float-right">
+      {% if repo.commits_count > 0 %}
+      <span class="badge badge-{% if updatable %}primary{% else %}light{% endif %} badge-pill">{{ repo.commits_count }}</span>
+      {% else %}
+        {% if repo.commits_count == 0 %}
+          <span class="badge badge-light badge-pill">{% trans "Up to date" %}</span>
+        {% else %}
+          <span class="badge badge-danger badge-pill">!</span>
+        {% endif %}
+      {% endif %}
+    </div>
+    <h6><a href="{{ repo.url }}" target="_blank">{{ repo_name }}</a></h6>
+    {% if repo.branch %}
+      <strong>{% trans "Branch:" %}</strong> {{ repo.branch }}<br />
+    {% endif %}
+    {% if repo.tag %}
+      <strong>{% trans "Version:" %}</strong> {{ repo.tag }}<br />
+    {% endif %}
+    {% if repo.local_commits_count > 0 %}
+      <div class="text-primary">{% trans "You have unpushed local commits in this repository." %}</div>
+    {% else %}
+      {% if repo.local_changes %}
+        <div class="text-info">{% trans "You have local changes in this repository." %}</div>
+      {% endif %}
+    {% endif %}
+    {% if repo.status == "error" %}
+      <div class="text-danger">{{ repo.message }}</div>
+    {% endif %}
+  </div>
+</div>

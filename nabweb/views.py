@@ -133,8 +133,9 @@ class NabWebSytemInfoView(BaseView):
         context["os"] = self.get_os_info()
         return context
 
-class NabWebUpgradeView(View):
-    def get(self, request, *args, **kwargs):
+class GitInfo:
+    @staticmethod
+    def get_root_dir():
         root_dir = (
             os.popen(
                 "sed -nE -e 's|WorkingDirectory=(.+)|\\1|p' "
@@ -144,60 +145,98 @@ class NabWebUpgradeView(View):
             .rstrip()
         )
         if root_dir == "":
-            return JsonResponse(
+            root_dir = None
+        return root_dir
+
+    @staticmethod
+    def get_repository_info(relpath):
+        root_dir = GitInfo.get_root_dir()
+        if root_dir is None:
+            return (
                 {
                     "status": "error",
                     "message": "Cannot find pynab installation from "
                     "Raspbian systemd services",
                 }
             )
-        head_sha1 = (
-            os.popen(f"cd {root_dir} && git rev-parse HEAD").read().rstrip()
-        )
+        repo_dir = root_dir + "/" + relpath
+        head_sha1 = os.popen(
+            f"cd {repo_dir} && git rev-parse HEAD"
+        ).read().rstrip()
         if head_sha1 == "":
-            return JsonResponse(
+            return (
                 {
                     "status": "error",
                     "message": "Cannot get HEAD - not a git repository? "
                     "Check /var/log/syslog",
                 }
             )
-        commit_count = (
-            os.popen(
-                f"cd {root_dir} && git fetch "
-                f"&& git rev-list --count HEAD..origin/master"
+        info = {}
+        info["head"] = head_sha1
+        info["branch"] = os.popen(
+            f"cd {repo_dir} && git rev-parse --abbrev-ref HEAD"
+        ).read().rstrip()
+        upstream_branch = os.popen(
+            f"cd {repo_dir} && git rev-parse --abbrev-ref @{{upstream}}"
+        ).read().rstrip()
+        remote = upstream_branch.split('/')[0]
+        info["upstream_branch"] = upstream_branch
+        info["url"] = os.popen(
+            f"cd {repo_dir} && git remote get-url {remote}"
+        ).read().rstrip()
+        info["local_changes"] = os.popen(
+            f"cd {repo_dir} && git diff-index --quiet HEAD -- "
+            f"|| echo 'local_changes' "
+        ).read().strip() != ""
+        info["tag"] = os.popen(
+            f"cd {repo_dir} && git describe --exact-match --tags"
+        ).read().strip()
+        commits_count = os.popen(
+            f"cd {repo_dir} && git fetch "
+            f"&& git rev-list --count HEAD..{upstream_branch}"
+        ).read().rstrip()
+        local_commits_count = os.popen(
+            f"cd {repo_dir} && git fetch "
+            f"&& git rev-list --count {upstream_branch}..HEAD"
+        ).read().rstrip()
+        if commits_count == "":
+            info["status"] = "error"
+            info["message"] = (
+                "Cannot get number of commits from upstream. "
+                "Not connected to the internet?"
             )
-            .read()
-            .rstrip()
-        )
-        if commit_count == "":
-            return JsonResponse(
-                {
-                    "status": "error",
-                    "message": "Cannot get number of commits from upstream. "
-                    "Not connected to the internet?",
-                }
-            )
-        return JsonResponse(
-            {"status": "ok", "head": head_sha1, "commit_count": commit_count}
-        )
+        else:
+            info["status"] = "ok"
+            info["commits_count"] = int(commits_count)
+            info["local_commits_count"] = int(local_commits_count)
+        return info
 
-    def post(self, request, *args, **kwargs):
-        root_dir = (
-            os.popen(
-                "sed -nE -e 's|WorkingDirectory=(.+)|\\1|p' "
-                "< /lib/systemd/system/nabd.service"
-            )
-            .read()
-            .rstrip()
+class NabWebUpgradeView(BaseView):
+    def template_name(self):
+        return "nabweb/upgrade/index.html"
+
+    def get_context(self):
+        context = super().get_context()
+        pynab_info = GitInfo.get_repository_info("../pynab")
+        context["pynab"] = pynab_info
+        sound_driver_info = GitInfo.get_repository_info("../wm8960")
+        context["sound_driver"] = sound_driver_info
+        ears_driver_info = GitInfo.get_repository_info("../tagtagtag-ears")
+        context["ears_driver"] = ears_driver_info
+        updatable = (
+            ("commits_count" in pynab_info and
+                pynab_info["commits_count"] > 0) and
+            ("local_changes" in pynab_info and
+                not pynab_info["local_changes"]) and
+            ("local_changes" in sound_driver_info and
+                not sound_driver_info["local_changes"]) and
+            ("local_changes" in ears_driver_info and
+                not ears_driver_info["local_changes"])
         )
-        head_sha1 = (
-            os.popen(f"cd {root_dir} && git rev-parse HEAD").read().rstrip()
-        )
-        pid = os.fork()
-        if pid == 0:  # new process
-            os.system(f"nohup bash {root_dir}/upgrade.sh &")
-            exit()
-        return JsonResponse(
-            {"status": "ok", "root_dir": root_dir, "old": head_sha1}
-        )
+        context["updatable"] = updatable
+        return context
+
+class NabWebUpgradeStatusView(View):
+    def get(self, request, *args, **kwargs):
+        repo_info = GitInfo.get_repository_info(".")
+        return JsonResponse(repo_info)

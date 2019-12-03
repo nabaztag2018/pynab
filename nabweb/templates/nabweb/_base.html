@@ -27,10 +27,10 @@
           <li><a class="nav-link{% if request.path == '/' %} active{% endif %}" href="{% if request.path == '/' %}#{% else %}/{% endif %}">{% trans "Home" %}{% if request.path == '/' %} <span class="sr-only">{% trans "(current)" %}{% endif %}</span></a></li>
           <li><a class="nav-link{% if request.path == '/services/' %} active{% endif %}" href="{% if request.path == '/services/' %}#{% else %}/services/{% endif %}">{% trans "Services" %}{% if request.path == '/services/' %}  <span class="sr-only">{% trans "(current)" %}</span>{% endif %}</a></li>
           <li><a class="nav-link{% if request.path == '/system-info/' %} active{% endif %}" href="{% if request.path == '/system-info/' %}#{% else %}/system-info/{% endif %}">{% trans "System Information" %}{% if request.path == '/system-info/' %}  <span class="sr-only">{% trans "(current)" %}</span>{% endif %}</a></li>
+          <li><a class="nav-link upgrade-link{% if request.path == '/upgrade/' %} active{% endif %}" href="{% if request.path == '/upgrade/' %}#{% else %}/upgrade/{% endif %}">{% trans "Upgrade" %} <span class="badge badge-info"></span>{% if request.path == '/upgrade/' %}  <span class="sr-only">{% trans "(current)" %}</span>{% endif %}</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
           <li><a class="nav-link pull-right" href="https://github.com/nabaztag2018/pynab" target="_blank" aria-label="GitHub"><img src="{% static "nabweb/images/GitHub-Mark-32px.png" %}" title="GitHub" width="20" height="20" /></a></li>
-          <li><a class="nav-link pull-right upgrade-link disabled" href="#">Upgrade <span class="badge badge-info"></span></a></li>
         </ul>
       </div>
     </header>
@@ -54,51 +54,9 @@
     </div>
     <script type="text/javascript">
       $(function() {
-        var upgradeBtn = $("a.upgrade-link");
-        var upgradeBadge = upgradeBtn.find('span.badge');
-        function doTestUpgrade(old) {
-          $.ajax({
-            url: "{% url 'nabweb.upgrade' %}",
-            beforeSend: function (xhr, settings) {
-              xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
-            },
-            contentType: 'application/json',
-            method: "GET",
-            success: function (data) {
-              if (data.head == old) {
-                setTimeout(function() { doTestUpgrade(old); }, 3000);
-              } else {
-                window.location.reload();
-              }
-            },
-            error: function (data) {
-              setTimeout(function() { doTestUpgrade(old); }, 3000);
-            }
-          });
-        }
-        function do_upgrade() {
-          $.ajax({
-            url: "{% url 'nabweb.upgrade' %}",
-            beforeSend: function (xhr, settings) {
-              xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
-            },
-            contentType: 'application/json',
-            method: "POST",
-            success: function (data) {
-              $('.modal.upgrade-modal').modal('show');
-              setTimeout(function() { doTestUpgrade(data.old); }, 3000);
-            },
-            error: function (data) {
-              var message = "{% trans "An unknown error occurred trying to upgrade" %}";
-              if (data.message) {
-                message = "{% trans "An error occurred trying to upgrade: " %}" + data.message;
-              }
-              $.bootstrapGrowl(message, {type: 'danger', allow_dismiss: true});
-            }
-          });
-        }
+        var upgradeBadge = $("a.upgrade-link span.badge");
         $.ajax({
-          url: "{% url 'nabweb.upgrade' %}",
+          url: "{% url 'nabweb.upgrade.status' %}",
           beforeSend: function (xhr, settings) {
             xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
           },
@@ -106,25 +64,21 @@
           method: "GET",
           success: function (data) {
             if (data.status == 'ok') {
-              if (data.commit_count > 0) {
-                upgradeBtn.removeClass('disabled');
-                upgradeBadge.attr('title', data.head);
-                upgradeBadge.text(data.commit_count);
-                upgradeBtn.on('click', function() { do_upgrade(); return false; });
-              } else {
-                upgradeBtn.attr('title', data.head);
+              if (data.commits_count > 0) {
+                upgradeBadge.text(data.commits_count);
               }
             } else {
               upgradeBadge.text('!');
               upgradeBadge.removeClass('badge-info');
               upgradeBadge.addClass('badge-danger');
-              upgradeBtn.attr('title', data.message);
+              upgradeBadge.attr('title', data.message);
             }
           },
           error: function (data) {
             upgradeBadge.text('!');
             upgradeBadge.removeClass('badge-info');
             upgradeBadge.addClass('badge-danger');
+            upgradeBadge.attr('title', '{% trans "Unknown server error" %}');
           }
         });
       });

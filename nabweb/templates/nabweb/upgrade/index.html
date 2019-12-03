@@ -1,0 +1,51 @@
+{% extends 'nabweb/_base.html' %}
+{% load i18n %}
+{% block subtitle %}{% trans "Home" %}{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-10 col-md-10 mb-3">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">{% trans "Upgrade" %}</h5>
+        </div>
+        <div class="card-body">
+          <p>{% trans "Through this interface, you can upgrade your Nabaztag software (provided that it is connected to the internet)." %}</p>
+          {% if pynab.upstream_branch == "origin/master" %}
+          <p>{% trans "Your Nabaztag is apparently tracking the master branch. Please note that web-based upgrade mechanism may fail and require that you connect over SSH." %}</p>
+          {% endif %}
+          {% if pynab.upstream_branch == "origin/release" %}
+          <p class="text-secondary">{% trans "You can switch to master branch to benefit from changes between releases, however this is not for the faint-hearted and requires good command of <a href='https://www.raspberrypi.org/documentation/remote-access/ssh/' target='_blanck'>SSH</a> and <a href='https://en.wikipedia.org/wiki/Git' target='_blanck'>Git</a>." %}</p>
+          {% endif %}
+          <h5>{% trans "Current versions" %}</h5>
+          {% include "nabweb/upgrade/_repository.html" with repo=pynab repo_name="Pynab" %}
+          {% if sound_driver %}
+            {% include "nabweb/upgrade/_repository.html" with repo=sound_driver repo_name="Tagtagtag sound card driver" %}
+          {% endif %}
+          {% if ears_driver %}
+            {% include "nabweb/upgrade/_repository.html" with repo=ears_driver repo_name="Ears driver" %}
+          {% endif %}
+          {% if rfid_driver %}
+            {% include "nabweb/upgrade/_repository.html" with repo=ears_driver repo_name="RFID reader driver" %}
+          {% endif %}
+          </dl>
+        </div>  
+        <div class="card-footer">
+          <div class="row mb-2">
+            <div class="col-12">
+              <button type="submit" class="btn btn-primary{% if not updatable %} disabled{% endif %} ml-2 float-right upgrade-button">{% trans "Upgrade now" %}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+    {% if updatable %}
+      $(function() {
+        var upgradeBtn = $(".upgrade-button");
+        upgradeBtn.on("click", function() {
+        });
+      });
+    {% endif %}
+    </script>
+  </div>
+{% endblock %}
