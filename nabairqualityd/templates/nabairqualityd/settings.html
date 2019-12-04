@@ -3,7 +3,7 @@
   <form action="/nabairqualityd/settings">
     {% csrf_token %}
     <div class="card-header">
-      <h5 class="card-title">{% trans "Air quality" %}</h5>
+      <h5 class="card-title">{% trans "Air quality" %} - {{ config.localisation }}</h5>
     </div>
     <div class="card-body">
       <div class="form-group row">

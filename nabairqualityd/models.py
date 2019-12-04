@@ -4,8 +4,11 @@ from nabcommon import singleton_model
 
 # ici on defini le modele de donnes pour la config
 
+
 class Config(singleton_model.SingletonModel):
-    
+
+    airquality = models.TextField(null=True)
+    localisation = models.TextField(null=True)
     index_airquality = models.TextField(null=True)
 
     # necessaire pour declencher via le site web
@@ -13,4 +16,3 @@ class Config(singleton_model.SingletonModel):
 
     class Meta:
         app_label = "nabairqualityd"
-

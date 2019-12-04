@@ -55,7 +55,7 @@ class NabAirqualityd(NabRecurrentService):
         '{"left":"00ffff","center":"000000","right":"00ffff"},'
         '{"left":"000000","center":"00ffff","right":"000000"}]}'
     )
-    
+
     ANIMATIONS = [ANIMATION_3, ANIMATION_2, ANIMATION_1]
 
     def __init__(self):
@@ -65,11 +65,12 @@ class NabAirqualityd(NabRecurrentService):
     def get_config(self):
         from . import models
 
-        self.update_airquality()
         config = models.Config.load()
-        
         # On boot or config update, update air quality info
-        if self.index_airquality is None or self.index_airquality != config.index_airquality:
+        if (
+            self.index_airquality is None
+            or self.index_airquality != config.index_airquality
+        ):
             self.index_airquality = config.index_airquality
             return (
                 datetime.datetime.now(datetime.timezone.utc),
@@ -85,6 +86,7 @@ class NabAirqualityd(NabRecurrentService):
 
     def update_next(self, next_date, next_args):
         from . import models
+
         config = models.Config.load()
         config.next_performance_date = next_date
         config.save()
@@ -96,17 +98,18 @@ class NabAirqualityd(NabRecurrentService):
         return (next_hour, "info")
 
     def perform(self, expiration, type):
-        from . import models
+
         self.update_airquality()
-        info_animation = NabAirqualityd.ANIMATIONS[self.airquality] 
+
+        info_animation = NabAirqualityd.ANIMATIONS[self.airquality]
         packet = (
             '{"type":"info","info_id":"airquality","animation":'
             + info_animation
             + "}\r\n"
         )
-        self.writer.write(packet.encode("utf8"))        
-        
-        if type == "today": 
+        self.writer.write(packet.encode("utf8"))
+
+        if type == "today":
             message = NabAirqualityd.MESSAGES[self.airquality]
             packet = (
                 '{"type":"message",'
@@ -117,9 +120,15 @@ class NabAirqualityd(NabRecurrentService):
             self.writer.write(packet.encode("utf8"))
 
     def update_airquality(self):
+        from . import models
+
         client = aqicn.aqicnClient(self.index_airquality)
         client.update()
-        self.airquality = client.get_data()    
+        self.airquality = client.get_data()
+
+        config = models.Config.load()
+        config.localisation = client.get_city()
+        config.save()
 
     async def process_nabd_packet(self, packet):
         if (
