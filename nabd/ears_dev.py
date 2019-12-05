@@ -34,18 +34,27 @@ class EarsDev(Ears):
     def _do_read(self, ear):
         logging.debug(f"do_read from {ear}")
         byte = os.read(self.fds[ear], 1)
-        logging.debug(f"do_read from {ear} => {byte[0]}")
-        if byte == b"m":
-            logging.debug(f"do_read from {ear} => invoking callback")
-            if self.callback:
-                (loop, callback) = self.callback
-                loop.call_soon_threadsafe(lambda ear=ear: callback(ear))
-        elif byte == b"\xff":
-            logging.debug(f"do_read from {ear} => position is unknown")
+        if len(byte) == 0:
+            # EOF, ear is broken.
+            logging.error(f"ear {ear} has been declared broken")
+            fd = self.fds[ear]
+            asyncio.get_event_loop().remove_reader(fd)
+            os.close(fd)
             self.positions[ear] = None
+            self.fds[ear] = None
         else:
-            logging.debug(f"do_read from {ear} => position is {byte[0]}")
-            self.positions[ear] = byte[0]
+            logging.debug(f"do_read from {ear} => {byte[0]}")
+            if byte == b"m":
+                logging.debug(f"do_read from {ear} => invoking callback")
+                if self.callback:
+                    (loop, callback) = self.callback
+                    loop.call_soon_threadsafe(lambda ear=ear: callback(ear))
+            elif byte == b"\xff":
+                logging.debug(f"do_read from {ear} => position is unknown")
+                self.positions[ear] = None
+            else:
+                logging.debug(f"do_read from {ear} => position is {byte[0]}")
+                self.positions[ear] = byte[0]
 
     def on_move(self, loop, callback):
         """
