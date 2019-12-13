@@ -13,6 +13,7 @@ class Config(singleton_model.SingletonModel):
 
     # necessaire pour declencher via le site web
     next_performance_date = models.DateTimeField(null=True)
+    next_performance_type = models.TextField(null=True)
 
     class Meta:
         app_label = "nabairqualityd"

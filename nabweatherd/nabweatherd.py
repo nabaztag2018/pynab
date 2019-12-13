@@ -2,11 +2,11 @@ import sys
 import datetime
 import dateutil.parser
 import logging
-from nabcommon.nabservice import NabRecurrentService
+from nabcommon.nabservice import NabInfoCachedService
 from meteofrance.client import meteofranceClient
 
 
-class NabWeatherd(NabRecurrentService):
+class NabWeatherd(NabInfoCachedService):
     UNIT_CELSIUS = 1
     UNIT_FARENHEIT = 2
 
@@ -366,30 +366,15 @@ class NabWeatherd(NabRecurrentService):
         "W1_16": "J_W1_22-N_3",
     }
 
-    def __init__(self):
-        self.location = None
-        self.forecast_date = None
-        super().__init__()
-
     def get_config(self):
         from . import models
 
-        scheduled_messages = models.ScheduledMessage.objects.all()
         config = models.Config.load()
-        # On boot or config update, update weather info
-        if self.location is None or self.location != config.location:
-            self.location = config.location
-            return (
-                datetime.datetime.now(datetime.timezone.utc),
-                "info",
-                scheduled_messages,
-            )
-        else:
-            return (
-                config.next_performance_date,
-                config.next_performance_type,
-                scheduled_messages,
-            )
+        return (
+            config.next_performance_date,
+            config.next_performance_type,
+            (config.location, config.unit),
+        )
 
     def update_next(self, next_date, next_args):
         from . import models
@@ -399,17 +384,49 @@ class NabWeatherd(NabRecurrentService):
         config.next_performance_type = next_args
         config.save()
 
-    def compute_next(self, scheduled_messages):
-        # next is the earliest of an info within one hour and the next
-        # scheduled message.
-        now = datetime.datetime.now(datetime.timezone.utc)
-        next_hour = now + datetime.timedelta(seconds=3600)
-        return (next_hour, "info")
+    def fetch_info_data(self, config_t):
+        location, unit = config_t
+        if location is None:
+            return None
+        client = meteofranceClient(location, True)
+        data = client.get_data()
+        current_weather_class = self.normalize_weather_class(
+            data["weather_class"]
+        )
+        today_forecast_weather_class = self.normalize_weather_class(
+            data["forecast"][0]["weather_class"]
+        )
+        today_forecast_max_temp = data["forecast"][0]["max_temp"]
+        tomorrow_forecast_weather_class = self.normalize_weather_class(
+            data["forecast"][1]["weather_class"]
+        )
+        tomorrow_forecast_max_temp = data["forecast"][1]["max_temp"]
+        return {
+            "current_weather_class": current_weather_class,
+            "today_forecast_weather_class": today_forecast_weather_class,
+            "today_forecast_max_temp": today_forecast_max_temp,
+            "tomorrow_forecast_weather_class": tomorrow_forecast_weather_class,
+            "tomorrow_forecast_max_temp": tomorrow_forecast_max_temp,
+        }
 
-    def perform(self, expiration, type):
-        from . import models
+    def normalize_weather_class(self, weather_class):
+        if weather_class in NabWeatherd.WEATHER_CLASSES:
+            return weather_class
+        if weather_class in NabWeatherd.WEATHER_CLASSES_ALIASES:
+            return NabWeatherd.WEATHER_CLASSES_ALIASES[weather_class]
+        return self.normalize_weather_class(weather_class[:-1])
 
-        if self.location is None:
+    def get_animation(self, info_data):
+        if info_data is None:
+            return None
+        (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[
+            info_data["current_weather_class"]
+        ]
+        return info_animation
+
+    def perform_additional(self, expiration, type, info_data, config_t):
+        location, unit = config_t
+        if location is None:
             logging.debug(f"location is None (service is unconfigured)")
             if type != "info":
                 packet = (
@@ -423,35 +440,18 @@ class NabWeatherd(NabRecurrentService):
             packet = '{"type":"info","info_id":"weather"}\r\n'
             self.writer.write(packet.encode("utf8"))
         else:
-            if (
-                self.forecast_date is None
-                or (datetime.datetime.now() - self.forecast_date).seconds
-                >= 1800
-            ):
-                self.update_weather_forecast()
-            # Always update info.
-            (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[
-                self.current_weather_class
-            ]
-            packet = (
-                '{"type":"info","info_id":"weather","animation":'
-                + info_animation
-                + "}\r\n"
-            )
-            self.writer.write(packet.encode("utf8"))
             if type == "today":
                 (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[
-                    self.today_forecast_weather_class
+                    info_data["today_forecast_weather_class"]
                 ]
-                max_temp = self.today_forecast_max_temp
+                max_temp = info_data["today_forecast_max_temp"]
             if type == "tomorrow":
                 (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[
-                    self.tomorrow_forecast_weather_class
+                    info_data["tomorrow_forecast_weather_class"]
                 ]
-                max_temp = self.tomorrow_forecast_max_temp
+                max_temp = info_data["tomorrow_forecast_max_temp"]
             if type == "today" or type == "tomorrow":
-                config = models.Config.load()
-                if config.unit == NabWeatherd.UNIT_FARENHEIT:
+                if unit == NabWeatherd.UNIT_FARENHEIT:
                     max_temp = round(max_temp * 1.8 + 32.0)
                 packet = (
                     '{"type":"message",'
@@ -464,38 +464,17 @@ class NabWeatherd(NabRecurrentService):
                 )
                 self.writer.write(packet.encode("utf8"))
 
-    def update_weather_forecast(self):
-        client = meteofranceClient(self.location, True)
-        data = client.get_data()
-        self.forecast_date = dateutil.parser.parse(data["fetched_at"])
-        self.current_weather_class = self.normalize_weather_class(
-            data["weather_class"]
-        )
-        self.today_forecast_weather_class = self.normalize_weather_class(
-            data["forecast"][0]["weather_class"]
-        )
-        self.today_forecast_max_temp = data["forecast"][0]["max_temp"]
-        self.tomorrow_forecast_weather_class = self.normalize_weather_class(
-            data["forecast"][1]["weather_class"]
-        )
-        self.tomorrow_forecast_max_temp = data["forecast"][1]["max_temp"]
-
-    def normalize_weather_class(self, weather_class):
-        if weather_class in NabWeatherd.WEATHER_CLASSES:
-            return weather_class
-        if weather_class in NabWeatherd.WEATHER_CLASSES_ALIASES:
-            return NabWeatherd.WEATHER_CLASSES_ALIASES[weather_class]
-        return self.normalize_weather_class(weather_class[:-1])
-
     async def process_nabd_packet(self, packet):
         if (
             packet["type"] == "asr_event"
             and packet["nlu"]["intent"] == "weather_forecast"
         ):
+            next_date, next_args, config = self.get_config()
             # todo : detect today/tomorrow
             now = datetime.datetime.now(datetime.timezone.utc)
             expiration = now + datetime.timedelta(minutes=1)
-            self.perform(expiration, "today")
+            info_data = self.fetch_info_data(config)
+            self.perform_additional(expiration, "today", info_data, config)
 
 
 if __name__ == "__main__":

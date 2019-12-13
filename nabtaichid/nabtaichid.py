@@ -11,7 +11,7 @@ class NabTaichid(NabRandomService):
         from . import models
 
         config = models.Config.load()
-        return (config.next_taichi, config.taichi_frequency)
+        return (config.next_taichi, None, config.taichi_frequency)
 
     def update_next(self, next_date, next_args):
         from . import models
@@ -20,7 +20,7 @@ class NabTaichid(NabRandomService):
         config.next_taichi = next_date
         config.save()
 
-    def perform(self, expiration, args):
+    def perform(self, expiration, args, config):
         packet = (
             '{"type":"command",'
             '"sequence":[{"choreography":"nabtaichid/taichi.chor"}],'
@@ -38,7 +38,7 @@ class NabTaichid(NabRandomService):
         ):
             now = datetime.datetime.now(datetime.timezone.utc)
             expiration = now + datetime.timedelta(minutes=1)
-            self.perform(expiration, None)
+            self.perform(expiration, None, None)
 
 
 if __name__ == "__main__":

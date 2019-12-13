@@ -35,6 +35,7 @@ class SettingsView(TemplateView):
         config.next_performance_date = datetime.datetime.now(
             datetime.timezone.utc
         )
+        config.next_performance_type = "today"
         config.save()
         NabAirqualityd.signal_daemon()
         return JsonResponse({"status": "ok"})

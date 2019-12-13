@@ -7,6 +7,7 @@ import datetime
 import time
 import logging
 from abc import ABC, abstractmethod
+from enum import Enum
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
 from django.conf import settings
@@ -165,23 +166,45 @@ class NabService(ABC):
 
 class NabRecurrentService(NabService, ABC):
     """
-    Common class for recurrent services
+    Base class for recurrent services that can be triggered from the website.
     Next performance time is saved in database.
     Reload configuration on USR1 signal.
     """
 
+    class Reason(Enum):
+        """
+        Reason for computing next performance.
+        """
+
+        # Service just booted
+        BOOT = 1
+        # Service got a SIGUSR1
+        CONFIG_RELOADED = 2
+        # Perform was called
+        PERFORMANCE_PLAYED = 3
+
     def __init__(self):
         super().__init__()
-        self._get_config()
-        self.saved_freq_config = self.freq_config
+        self.reason = NabRecurrentService.Reason.BOOT
         self.loop_cv = asyncio.Condition()
 
     @abstractmethod
     def get_config(self):
         """
-        Return a tuple (next_date, next_args, freq_config) or (next_date,
-        freq_config) from configuration. freq_config is any value sufficient to
-        compute date and args of next performance.
+        Perform a database operation to retrieve stored data and return a tuple
+        with three values used by the service:
+
+        next_date: next time the performance should happen.
+        next_args: some service-specific argument for the performance.
+        config: some additional configuration to be used to compute any future
+        performance.
+
+        Typical implementation is:
+
+        from . import models
+        record = models.Config.load()
+        config = (record.config_a, record.config_b)
+        return (record.next_date, record.next_args, config)
         """
         pass
 
@@ -189,22 +212,40 @@ class NabRecurrentService(NabService, ABC):
     def update_next(self, next_date, next_args):
         """
         Write new next date and args to database.
+
+        Typical implementation is:
+        from . import models
+        record = models.Config.load()
+        record.next_date = next_date
+        record.next_args = next_args
+        record.save()
         """
         pass
 
     @abstractmethod
-    def compute_next(self, freq_config):
+    def compute_next(self, saved_date, saved_args, config, reason):
         """
-        Compute next performance based on freq_config.
+        Compute next performance based on reason and config.
         Return None if no further performance should be scheduled.
         Otherwise, return tuple (next_date, next_args)
+
+        reason (from enum Reason) describes why compute_next was invoked.
+        saved_date and saved_args are current database values and could be
+        returned if they are correct (typically on boot).
+        config is the third value returned by get_config.
+
+        This function should be pure (no side-effect).
         """
         pass
 
     @abstractmethod
-    def perform(self, date, args):
+    def perform(self, expiration_date, args, config):
         """
         Perform the action.
+
+        This function should not refer to the database.
+        expiration_date is to be passed in the packet(s) written to nabd.
+        args is whatever was computed by compute_next
         """
         pass
 
@@ -213,7 +254,7 @@ class NabRecurrentService(NabService, ABC):
         from django.core.cache import cache
 
         cache.clear()
-        self._get_config()
+        self.reason = NabRecurrentService.Reason.CONFIG_RELOADED
         async with self.loop_cv:
             self.loop_cv.notify()
 
@@ -221,44 +262,34 @@ class NabRecurrentService(NabService, ABC):
         try:
             async with self.loop_cv:
                 while self.running:
-                    try:
-                        now = datetime.datetime.now(datetime.timezone.utc)
-                        next_date = self.next_date
-                        next_args = self.next_args
-                        if next_date is not None and next_date <= now:
-                            self.perform(
-                                next_date + datetime.timedelta(minutes=1),
-                                next_args,
-                            )
-                            next_date = None
-                            next_args = None
-                        if (
-                            self.saved_freq_config != self.freq_config
-                            or next_date is None
-                        ):
-                            next_tuple = self.compute_next(self.freq_config)
-                            if next_tuple is None:
-                                next_date = None
-                                next_args = None
-                            else:
-                                (next_date, next_args) = next_tuple
-                        if (
-                            next_date != self.next_date
-                            or next_args != self.next_args
-                        ):
-                            self.next_date = next_date
-                            self.next_args = next_args
-                            self.update_next(next_date, next_args)
-                        self.saved_freq_config = self.freq_config
+                    # Load or reload configuration
+                    next_date, next_args, config = self._load_config()
+                    # Determine if it's time to perform
+                    now = datetime.datetime.now(datetime.timezone.utc)
+                    if next_date is not None and next_date <= now:
+                        self.perform(
+                            next_date + datetime.timedelta(minutes=1),
+                            next_args,
+                            config,
+                        )
+                        # reset date after performance
+                        self.update_next(None, None)
+                        self.reason = (
+                            NabRecurrentService.Reason.PERFORMANCE_PLAYED
+                        )
+                    else:
                         if next_date is None:
                             sleep_amount = None
                         else:
                             sleep_amount = (next_date - now).total_seconds()
-                        await asyncio.wait_for(
-                            self.loop_cv.wait(), sleep_amount
-                        )
-                    except asyncio.TimeoutError:
-                        pass
+                        try:
+                            logging.info(f"reason = {self.reason}")
+                            logging.info(f"sleep_amount = {sleep_amount}")
+                            await asyncio.wait_for(
+                                self.loop_cv.wait(), sleep_amount
+                            )
+                        except asyncio.TimeoutError:
+                            pass
         except KeyboardInterrupt:
             pass
         finally:
@@ -291,19 +322,26 @@ class NabRecurrentService(NabService, ABC):
                 )  # give canceled tasks the last chance to run
             self.loop.close()
 
-    def _get_config(self):
-        config_tuple = self.get_config()
-        if len(config_tuple) == 3:
-            (self.next_date, self.next_args, self.freq_config) = config_tuple
-        else:
-            (self.next_date, self.freq_config) = config_tuple
-            self.next_args = None
+    def _load_config(self):
+        """
+        Load or reload configuration.
+        Invokes get_config, compute_next and update_next.
+        """
+        saved_date, saved_args, config = self.get_config()
+        next_t = self.compute_next(saved_date, saved_args, config, self.reason)
+        if next_t is None:
+            next_date, next_args = None, None
+        next_date, next_args = next_t
+        if next_date != saved_date or next_args != saved_args:
+            logging.info(f"_load_config => update_next")
+            self.update_next(next_date, next_args)
+        return next_date, next_args, config
 
 
 class NabRandomService(NabRecurrentService, ABC):
     """
     Common class for Tai Chi and Surprise.
-    freq_config is an integer passed to compute_random_delta.
+    config is an integer passed to compute_random_delta.
     Next performance time is defined in database.
     There is no next_args.
     Reload configuration on USR1 signal.
@@ -326,8 +364,136 @@ class NabRandomService(NabRecurrentService, ABC):
         next_delta = self.compute_random_delta(frequency)
         return now + datetime.timedelta(seconds=next_delta)
 
-    def compute_next(self, frequency):
+    def compute_next(self, saved_date, saved_args, frequency, reason):
+        now = datetime.datetime.now(datetime.timezone.utc)
+        if saved_date is not None and saved_date < now:
+            logging.info(f"compute_next saved_date < now")
+            return saved_date, saved_args
+        if reason == NabRecurrentService.Reason.BOOT:
+            return saved_date, saved_args
         next = self.do_compute_next(frequency)
         if next is None:
             return None
-        return (next, self.next_args)
+        return (next, None)
+
+
+class NabInfoService(NabRecurrentService, ABC):
+    """
+    Base class for services that display info (animations) updated on a regular
+    basis from an external source (weather, air quality) and which can be
+    triggered from the website.
+
+    next_args is "info" for only updating infos, or any other text for messages
+    (e.g. "today" for today forecast).
+    """
+
+    def next_info_update(self, config):
+        """
+        Return the next time the info should be updated after performance was
+        played, or None if it should not be updated.
+
+        Default implementation is to update info every hour.
+        """
+        if config is None:
+            return None
+        now = datetime.datetime.now(datetime.timezone.utc)
+        next_hour = now + datetime.timedelta(seconds=3600)
+        return next_hour
+
+    @abstractmethod
+    def fetch_info_data(self, config):
+        """
+        Fetch the info data from whatever source, using config.
+        """
+        pass
+
+    @abstractmethod
+    def get_animation(self, info_data):
+        """
+        Return the new animation or None if none should be displayed.
+        """
+        pass
+
+    @abstractmethod
+    def perform_additional(self, expiration_date, type, info_data, config):
+        """
+        Perform whatever additional message, typically triggered from ASR
+        or the website.
+        """
+        pass
+
+    def perform(self, expiration_date, type, config):
+        # Always fetch info data.
+        logging.info(f"fetch_info_data type = {type}")
+        info_data = self._do_fetch_info_data(config)
+        info_animation = self.get_animation(info_data)
+        service_name = self.__class__.__name__.lower()
+        if info_animation != None:
+            info_packet = (
+                '{"type":"info","info_id":"'
+                + service_name
+                + '","animation":'
+                + info_animation
+                + "}\r\n"
+            )
+        else:
+            info_packet = '{"type":"info","info_id":"' + service_name + "}\r\n"
+        self.writer.write(info_packet.encode("utf8"))
+        if type != "info":
+            self.perform_additional(expiration_date, type, info_data, config)
+
+    def compute_next(self, saved_date, saved_args, config, reason):
+        logging.info(f"compute_next saved_date={saved_date}")
+        now = datetime.datetime.now(datetime.timezone.utc)
+        if saved_date is not None and saved_date < now:
+            logging.info(f"compute_next saved_date < now")
+            return saved_date, saved_args
+        if reason == NabRecurrentService.Reason.BOOT:
+            logging.info(f"compute_next reason == BOOT")
+            return now, "info"
+        if reason == NabRecurrentService.Reason.CONFIG_RELOADED:
+            logging.info(f"compute_next reason == CONFIG_RELOADED")
+            return now, "info"
+        next_date = self.next_info_update(config)
+        return next_date, "info"
+
+    def _do_fetch_info_data(self, config):
+        """
+        Invokes fetch_info_data, used by NabInfoCachedService subclass.
+        """
+        return self.fetch_info_data(config)
+
+
+class NabInfoCachedService(NabInfoService, ABC):
+    """
+    Base class for an info service which additionally caches the remote info
+    locally, to minimize delay for on-demand performances (voice, website).
+
+    Info is cached for 1 hour.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.cached_info = None
+        self.cached_info_config = None
+        self.cached_info_expdate = None
+
+    def _do_fetch_info_data(self, config):
+        """
+        Fetch the info data from whatever source, using config, caching it
+        locally.
+        """
+        now = datetime.datetime.now(datetime.timezone.utc)
+        if (
+            self.cached_info is not None
+            and self.cached_info_config == config
+            and self.cached_info_expdate is not None
+            and self.cached_info_expdate > now
+        ):
+            return self.cached_info
+        next_hour = now + datetime.timedelta(seconds=3600)
+        new_info = self.fetch_info_data(config)
+        self.cached_info = new_info
+        self.cached_info_config = config
+        self.cached_info_expdate = next_hour
+        return new_info

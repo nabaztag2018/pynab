@@ -1,12 +1,12 @@
 import sys
 import datetime
 import dateutil.parser
-from nabcommon.nabservice import NabRecurrentService
+from nabcommon.nabservice import NabInfoCachedService
 import logging
 from . import aqicn
 
 
-class NabAirqualityd(NabRecurrentService):
+class NabAirqualityd(NabInfoCachedService):
 
     MESSAGES = ["bad", "moderate", "good"]
     ANIMATION_1 = (
@@ -66,51 +66,45 @@ class NabAirqualityd(NabRecurrentService):
         from . import models
 
         config = models.Config.load()
-        # On boot or config update, update air quality info
-        if (
-            self.index_airquality is None
-            or self.index_airquality != config.index_airquality
-        ):
-            self.index_airquality = config.index_airquality
-            return (
-                datetime.datetime.now(datetime.timezone.utc),
-                "info",
-                None,
-            )
-        else:
-            return (
-                config.next_performance_date,
-                "today",
-                None,
-            )
+        return (
+            config.next_performance_date,
+            config.next_performance_type,
+            config.index_airquality,
+        )
 
     def update_next(self, next_date, next_args):
         from . import models
 
         config = models.Config.load()
         config.next_performance_date = next_date
+        config.next_performance_type = next_args
         config.save()
 
-    def compute_next(self, freq_config):
-        # on veut la maj des data toutes les heures + info (=leds)
-        now = datetime.datetime.now(datetime.timezone.utc)
-        next_hour = now + datetime.timedelta(seconds=3600)
-        return (next_hour, "info")
+    def fetch_info_data(self, index_airquality):
+        client = aqicn.aqicnClient(index_airquality)
+        client.update()
 
-    def perform(self, expiration, type):
+        # Save inferred localization to configuration for display on web
+        # interface
+        from . import models
 
-        self.update_airquality()
+        config = models.Config.load()
+        new_city = client.get_city()
+        if new_city != config.localisation:
+            config.localisation = new_city
+            config.save()
 
-        info_animation = NabAirqualityd.ANIMATIONS[self.airquality]
-        packet = (
-            '{"type":"info","info_id":"airquality","animation":'
-            + info_animation
-            + "}\r\n"
-        )
-        self.writer.write(packet.encode("utf8"))
+        return client.get_data()
 
+    def get_animation(self, info_data):
+        if info_data is None:
+            return None
+        info_animation = NabAirqualityd.ANIMATIONS[info_data]
+        return info_animation
+
+    def perform_additional(self, expiration, type, info_data, config_t):
         if type == "today":
-            message = NabAirqualityd.MESSAGES[self.airquality]
+            message = NabAirqualityd.MESSAGES[info_data]
             packet = (
                 '{"type":"message",'
                 '"signature":{"audio":["nabairqualityd/signature.mp3"]},'
@@ -119,25 +113,16 @@ class NabAirqualityd(NabRecurrentService):
             )
             self.writer.write(packet.encode("utf8"))
 
-    def update_airquality(self):
-        from . import models
-
-        client = aqicn.aqicnClient(self.index_airquality)
-        client.update()
-        self.airquality = client.get_data()
-
-        config = models.Config.load()
-        config.localisation = client.get_city()
-        config.save()
-
     async def process_nabd_packet(self, packet):
         if (
             packet["type"] == "asr_event"
             and packet["nlu"]["intent"] == "airquality_forecast"
         ):
+            next_date, next_args, config = self.get_config()
             now = datetime.datetime.now(datetime.timezone.utc)
             expiration = now + datetime.timedelta(minutes=1)
-            self.perform(expiration, "today")
+            info_data = self.fetch_info_data(config)
+            self.perform_additional(expiration, "today", info_data, config)
 
 
 if __name__ == "__main__":

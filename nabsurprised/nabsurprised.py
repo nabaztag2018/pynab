@@ -9,7 +9,7 @@ class NabSurprised(NabRandomService):
         from . import models
 
         config = models.Config.load()
-        return (config.next_surprise, config.surprise_frequency)
+        return (config.next_surprise, None, config.surprise_frequency)
 
     def update_next(self, next_date, next_args):
         from . import models
@@ -18,7 +18,7 @@ class NabSurprised(NabRandomService):
         config.next_surprise = next_date
         config.save()
 
-    def perform(self, expiration, args):
+    def perform(self, expiration, args, config):
         packet = (
             '{"type":"message",'
             '"signature":{"audio":["nabsurprised/respirations/*.mp3"]},'
@@ -35,7 +35,7 @@ class NabSurprised(NabRandomService):
             now = datetime.datetime.now(datetime.timezone.utc)
             expiration = now + datetime.timedelta(minutes=1)
             if packet["nlu"]["intent"] == "surprise":
-                self.perform(expiration, None)
+                self.perform(expiration, None, None)
             if packet["nlu"]["intent"] == "carot":
                 packet = (
                     '{"type":"message","signature":{'
