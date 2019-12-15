@@ -253,7 +253,7 @@ class TestMastodond(TestMastodondBase):
         self.connect_handler_called = 0
         self.service_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.service_loop)
-        self.service_loop.call_later(1, lambda: self.service_loop.stop())
+        self.service_loop.call_later(2, lambda: self.service_loop.stop())
         service = nabmastodond.NabMastodond()
         service.run()
         self.assertEqual(self.connect_handler_called, 1)
@@ -340,7 +340,7 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
     def test_process_proposal(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -370,7 +370,7 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
     def test_process_acceptation(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -405,7 +405,7 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
     def test_process_rejection(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -432,7 +432,7 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
     def test_process_divorce(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -459,7 +459,7 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
     def test_process_ears(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -510,7 +510,7 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     def test_process_matching_rejection(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -538,7 +538,7 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     def test_process_matching_divorce(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -568,7 +568,7 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     def test_process_matching_acceptation(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -599,7 +599,7 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     def test_process_matching_proposal(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -640,7 +640,7 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     def test_process_nonmatching_acceptation(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -675,7 +675,7 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     def test_process_nonmatching_divorce(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -702,7 +702,7 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     def test_process_nonmatching_rejection(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -729,7 +729,7 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     def test_process_nonmatching_proposal(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -763,7 +763,7 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     def test_process_matching_ears(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -790,7 +790,7 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     def test_process_nonmatching_ears(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -843,7 +843,7 @@ class TestMastodondPairingProtocolWaitingApproval(
     def test_process_matching_divorce(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -871,7 +871,7 @@ class TestMastodondPairingProtocolWaitingApproval(
     def test_process_matching_rejection(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -898,7 +898,7 @@ class TestMastodondPairingProtocolWaitingApproval(
     def test_process_matching_acceptation(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -935,7 +935,7 @@ class TestMastodondPairingProtocolWaitingApproval(
     def test_process_matching_proposal(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -963,7 +963,7 @@ class TestMastodondPairingProtocolWaitingApproval(
     def test_process_nonmatching_proposal(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -998,7 +998,7 @@ class TestMastodondPairingProtocolWaitingApproval(
     def test_process_nonmatching_divorce(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -1025,7 +1025,7 @@ class TestMastodondPairingProtocolWaitingApproval(
     def test_process_nonmatching_rejection(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -1052,7 +1052,7 @@ class TestMastodondPairingProtocolWaitingApproval(
     def test_process_nonmatching_acceptation(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -1087,7 +1087,7 @@ class TestMastodondPairingProtocolWaitingApproval(
     def test_process_matching_ears(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -1114,7 +1114,7 @@ class TestMastodondPairingProtocolWaitingApproval(
     def test_process_nonmatching_ears(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -1165,7 +1165,7 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
     def test_process_matching_divorce(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -1199,7 +1199,7 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
     def test_process_matching_rejection(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -1235,7 +1235,7 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
     def test_process_matching_proposal(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -1273,7 +1273,7 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
     def test_process_matching_acceptation(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -1307,7 +1307,7 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         config.save()
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -1346,7 +1346,7 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
     def test_process_nonmatching_proposal(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -1383,7 +1383,7 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
     def test_process_nonmatching_acceptation(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -1421,7 +1421,7 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
     def test_process_nonmatching_rejection(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -1451,7 +1451,7 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
     def test_process_nonmatching_divorce(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
@@ -1481,7 +1481,7 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
     def test_process_nonmatching_ears(self):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
-            1,
+            0.5,
             lambda: self.service_loop.create_task(
                 service.loop_update(
                     self,
