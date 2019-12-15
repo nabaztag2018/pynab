@@ -11,10 +11,14 @@ GPU_MEM=16
 LC_ALL=C
 
 # Replace /boot/cmdline.txt since it contains root device mapping to a PARTUUID that 
-# changed during parted resize. We try to disable the autoresize here as well.
+# changed during parted resize.
 echo "Replace /boot/cmdline.txt"
-echo "dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet" > "/boot/cmdline.txt"
+echo "dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet init=/usr/lib/raspi-config/init_resize.sh" > "/boot/cmdline.txt"
 cat "/boot/cmdline.txt"
+
+# Resize partition on first boot.
+# https://www.raspberrypi.org/forums/viewtopic.php?p=1503766#p1503766
+wget -O /etc/init.d/resize2fs_once https://github.com/RPi-Distro/pi-gen/blob/master/stage2/01-sys-tweaks/files/resize2fs_once
 
 # Replace /etc/fstab since the non existing PARTUUID has to be changed here as well.
 echo "Replace /etc/fstab"
