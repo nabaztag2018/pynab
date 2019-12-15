@@ -6,7 +6,7 @@ from pathlib import Path
 
 class Resources(object):
     @staticmethod
-    def find(type, resources):
+    async def find(type, resources):
         """
         Find a resource from its type and its name.
         Return the first found resource, resources being delimited by
@@ -30,21 +30,21 @@ class Resources(object):
                 )
             is_random = path0.name.startswith("*")
             if is_random:
-                result = Resources._find_random(
+                result = await Resources._find_random(
                     type, path0.parent.as_posix(), path0.name
                 )
             else:
-                result = Resources._find_file(type, filename)
+                result = await Resources._find_file(type, filename)
             if result is not None:
                 return result
         return None
 
     @staticmethod
-    def _find_file(type, filename):
+    async def _find_file(type, filename):
         from .i18n import get_locale
 
         basepath = Path(settings.BASE_DIR)
-        locale = get_locale()
+        locale = await get_locale()
         for app in os.listdir(basepath):
             if not os.path.isdir(app):
                 continue
@@ -57,11 +57,11 @@ class Resources(object):
         return None
 
     @staticmethod
-    def _find_random(type, parent, pattern):
+    async def _find_random(type, parent, pattern):
         from .i18n import get_locale
 
         basepath = Path(settings.BASE_DIR)
-        locale = get_locale()
+        locale = await get_locale()
         for app in os.listdir(basepath):
             if not os.path.isdir(app):
                 continue

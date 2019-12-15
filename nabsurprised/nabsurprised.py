@@ -18,7 +18,7 @@ class NabSurprised(NabRandomService):
         config.next_surprise = next_date
         config.save()
 
-    def perform(self, expiration, args, config):
+    async def perform(self, expiration, args, config):
         packet = (
             '{"type":"message",'
             '"signature":{"audio":["nabsurprised/respirations/*.mp3"]},'
@@ -26,6 +26,7 @@ class NabSurprised(NabRandomService):
             '"expiration":"' + expiration.isoformat() + '"}\r\n'
         )
         self.writer.write(packet.encode("utf8"))
+        await self.writer.drain()
 
     def compute_random_delta(self, frequency):
         return (256 - frequency) * 60 * (random.uniform(0, 255) + 64) / 128
@@ -35,7 +36,7 @@ class NabSurprised(NabRandomService):
             now = datetime.datetime.now(datetime.timezone.utc)
             expiration = now + datetime.timedelta(minutes=1)
             if packet["nlu"]["intent"] == "surprise":
-                self.perform(expiration, None, None)
+                await self.perform(expiration, None, None)
             if packet["nlu"]["intent"] == "carot":
                 packet = (
                     '{"type":"message","signature":{'
@@ -44,6 +45,7 @@ class NabSurprised(NabRandomService):
                     '"expiration":"' + expiration.isoformat() + '"}\r\n'
                 )
                 self.writer.write(packet.encode("utf8"))
+                await self.writer.drain()
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ import sys
 import datetime
 import dateutil.parser
 import logging
+from asgiref.sync import sync_to_async
 from nabcommon.nabservice import NabInfoCachedService
 from meteofrance.client import meteofranceClient
 
@@ -384,11 +385,11 @@ class NabWeatherd(NabInfoCachedService):
         config.next_performance_type = next_args
         config.save()
 
-    def fetch_info_data(self, config_t):
+    async def fetch_info_data(self, config_t):
         location, unit = config_t
         if location is None:
             return None
-        client = meteofranceClient(location, True)
+        client = await sync_to_async(meteofranceClient)(location, True)
         data = client.get_data()
         current_weather_class = self.normalize_weather_class(
             data["weather_class"]
@@ -424,7 +425,7 @@ class NabWeatherd(NabInfoCachedService):
         ]
         return info_animation
 
-    def perform_additional(self, expiration, type, info_data, config_t):
+    async def perform_additional(self, expiration, type, info_data, config_t):
         location, unit = config_t
         if location is None:
             logging.debug(f"location is None (service is unconfigured)")
@@ -463,6 +464,7 @@ class NabWeatherd(NabInfoCachedService):
                     '"expiration":"' + expiration.isoformat() + '"}\r\n'
                 )
                 self.writer.write(packet.encode("utf8"))
+        await self.writer.drain()
 
     async def process_nabd_packet(self, packet):
         if (
@@ -474,7 +476,9 @@ class NabWeatherd(NabInfoCachedService):
             now = datetime.datetime.now(datetime.timezone.utc)
             expiration = now + datetime.timedelta(minutes=1)
             info_data = self.fetch_info_data(config)
-            self.perform_additional(expiration, "today", info_data, config)
+            await self.perform_additional(
+                expiration, "today", info_data, config
+            )
 
 
 if __name__ == "__main__":

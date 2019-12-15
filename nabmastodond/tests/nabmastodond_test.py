@@ -10,6 +10,7 @@ import pytest
 import re
 import os
 from dateutil.tz import tzutc
+from asgiref.sync import async_to_sync
 from nabmastodond import nabmastodond, models
 from nabcommon import nabservice
 from mastodon import Mastodon, MastodonNotFoundError
@@ -104,7 +105,7 @@ class MockMastodonClient:
         pass
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 class TestMastodonLogic(unittest.TestCase, MockMastodonClient):
     def setUp(self):
         self.posted_statuses = []
@@ -117,7 +118,7 @@ class TestMastodonLogic(unittest.TestCase, MockMastodonClient):
         config.username = "self"
         config.save()
         service = nabmastodond.NabMastodond()
-        service.do_update(
+        async_to_sync(service.loop_update)(
             self,
             {
                 "id": 42,
@@ -144,7 +145,7 @@ class TestMastodonLogic(unittest.TestCase, MockMastodonClient):
         config.username = "self"
         config.save()
         service = nabmastodond.NabMastodond()
-        service.do_update(
+        async_to_sync(service.loop_update)(
             self,
             {
                 "id": 42,
@@ -170,7 +171,7 @@ class TestMastodonLogic(unittest.TestCase, MockMastodonClient):
         config.username = "self"
         config.save()
         service = nabmastodond.NabMastodond()
-        service.do_update(
+        async_to_sync(service.loop_update)(
             self,
             {
                 "id": 42,
@@ -241,7 +242,7 @@ class TestMastodondBase(unittest.TestCase):
         self.mock_nabd_thread.join(3)
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 class TestMastodond(TestMastodondBase):
     async def connect_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
@@ -315,6 +316,7 @@ class TestMastodondPairingProtocol(TestMastodondBase, MockMastodonClient):
 
     async def protocol_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
+        await writer.drain()
         self.protocol_handler_called += 1
         while not reader.at_eof():
             line = await reader.readline()
@@ -323,7 +325,7 @@ class TestMastodondPairingProtocol(TestMastodondBase, MockMastodonClient):
                 self.protocol_handler_packets.append(packet)
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
     def setUp(self):
         super().setUp()
@@ -339,15 +341,17 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": PROPOSAL_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": PROPOSAL_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -367,15 +371,17 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": ACCEPTATION_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": ACCEPTATION_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -400,15 +406,17 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": REJECTION_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": REJECTION_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -425,15 +433,17 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": SPLIT_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": SPLIT_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -450,15 +460,17 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": EARS_4_6_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": EARS_4_6_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -480,7 +492,7 @@ class TestMastodondPairingProtocolFree(TestMastodondPairingProtocol):
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
     def setUp(self):
         super().setUp()
@@ -499,15 +511,17 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": REJECTION_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": REJECTION_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -525,15 +539,17 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": SPLIT_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": SPLIT_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -553,15 +569,17 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": ACCEPTATION_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": ACCEPTATION_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -582,15 +600,17 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": PROPOSAL_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": PROPOSAL_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -621,15 +641,17 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": OTHER_MASTODON_ACCOUNT,
-                    "content": ACCEPTATION_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": OTHER_MASTODON_ACCOUNT,
+                        "content": ACCEPTATION_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -654,15 +676,17 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": OTHER_MASTODON_ACCOUNT,
-                    "content": SPLIT_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": OTHER_MASTODON_ACCOUNT,
+                        "content": SPLIT_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -679,15 +703,17 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": OTHER_MASTODON_ACCOUNT,
-                    "content": REJECTION_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": OTHER_MASTODON_ACCOUNT,
+                        "content": REJECTION_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -704,15 +730,17 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": OTHER_MASTODON_ACCOUNT,
-                    "content": PROPOSAL_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": OTHER_MASTODON_ACCOUNT,
+                        "content": PROPOSAL_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -736,15 +764,17 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": EARS_4_6_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": EARS_4_6_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -761,15 +791,17 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": OTHER_MASTODON_ACCOUNT,
-                    "content": EARS_4_6_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": OTHER_MASTODON_ACCOUNT,
+                        "content": EARS_4_6_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -791,7 +823,7 @@ class TestMastodondPairingProtocolProposed(TestMastodondPairingProtocol):
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 class TestMastodondPairingProtocolWaitingApproval(
     TestMastodondPairingProtocol
 ):
@@ -812,15 +844,17 @@ class TestMastodondPairingProtocolWaitingApproval(
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": SPLIT_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": SPLIT_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -838,15 +872,17 @@ class TestMastodondPairingProtocolWaitingApproval(
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": REJECTION_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": REJECTION_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -863,15 +899,17 @@ class TestMastodondPairingProtocolWaitingApproval(
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": ACCEPTATION_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": ACCEPTATION_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -898,15 +936,17 @@ class TestMastodondPairingProtocolWaitingApproval(
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": PROPOSAL_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": PROPOSAL_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -924,15 +964,17 @@ class TestMastodondPairingProtocolWaitingApproval(
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": OTHER_MASTODON_ACCOUNT,
-                    "content": PROPOSAL_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": OTHER_MASTODON_ACCOUNT,
+                        "content": PROPOSAL_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -957,15 +999,17 @@ class TestMastodondPairingProtocolWaitingApproval(
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": OTHER_MASTODON_ACCOUNT,
-                    "content": SPLIT_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": OTHER_MASTODON_ACCOUNT,
+                        "content": SPLIT_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -982,15 +1026,17 @@ class TestMastodondPairingProtocolWaitingApproval(
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": OTHER_MASTODON_ACCOUNT,
-                    "content": REJECTION_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": OTHER_MASTODON_ACCOUNT,
+                        "content": REJECTION_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -1007,15 +1053,17 @@ class TestMastodondPairingProtocolWaitingApproval(
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": OTHER_MASTODON_ACCOUNT,
-                    "content": ACCEPTATION_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": OTHER_MASTODON_ACCOUNT,
+                        "content": ACCEPTATION_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -1040,15 +1088,17 @@ class TestMastodondPairingProtocolWaitingApproval(
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": EARS_4_6_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": EARS_4_6_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -1065,15 +1115,17 @@ class TestMastodondPairingProtocolWaitingApproval(
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": OTHER_MASTODON_ACCOUNT,
-                    "content": EARS_4_6_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": OTHER_MASTODON_ACCOUNT,
+                        "content": EARS_4_6_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -1095,7 +1147,7 @@ class TestMastodondPairingProtocolWaitingApproval(
         self.assertEqual(len(self.protocol_handler_packets), 0)
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
     def setUp(self):
         super().setUp()
@@ -1114,15 +1166,17 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": SPLIT_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": SPLIT_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -1146,15 +1200,17 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": REJECTION_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": REJECTION_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -1180,15 +1236,17 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": PROPOSAL_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": PROPOSAL_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -1216,15 +1274,17 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": ACCEPTATION_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": ACCEPTATION_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -1248,15 +1308,17 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": TESTER_MASTODON_ACCOUNT,
-                    "content": EARS_4_6_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": TESTER_MASTODON_ACCOUNT,
+                        "content": EARS_4_6_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -1285,15 +1347,17 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": OTHER_MASTODON_ACCOUNT,
-                    "content": PROPOSAL_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": OTHER_MASTODON_ACCOUNT,
+                        "content": PROPOSAL_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -1320,15 +1384,17 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": OTHER_MASTODON_ACCOUNT,
-                    "content": ACCEPTATION_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": OTHER_MASTODON_ACCOUNT,
+                        "content": ACCEPTATION_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -1356,15 +1422,17 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": OTHER_MASTODON_ACCOUNT,
-                    "content": REJECTION_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": OTHER_MASTODON_ACCOUNT,
+                        "content": REJECTION_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -1384,15 +1452,17 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": OTHER_MASTODON_ACCOUNT,
-                    "content": SPLIT_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": OTHER_MASTODON_ACCOUNT,
+                        "content": SPLIT_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -1412,15 +1482,17 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         service = nabmastodond.NabMastodond()
         self.service_loop.call_later(
             1,
-            lambda: service.do_update(
-                self,
-                {
-                    "id": 42,
-                    "visibility": "direct",
-                    "account": OTHER_MASTODON_ACCOUNT,
-                    "content": EARS_4_6_CONTENT,
-                    "created_at": DATE_2,
-                },
+            lambda: self.service_loop.create_task(
+                service.loop_update(
+                    self,
+                    {
+                        "id": 42,
+                        "visibility": "direct",
+                        "account": OTHER_MASTODON_ACCOUNT,
+                        "content": EARS_4_6_CONTENT,
+                        "created_at": DATE_2,
+                    },
+                )
             ),
         )
         service.run()
@@ -1445,7 +1517,7 @@ class TestMastodondPairingProtocolMarried(TestMastodondPairingProtocol):
         self.assertEqual(self.protocol_handler_packets[0]["events"], ["ears"])
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 class TestMastodondEars(TestMastodondBase, MockMastodonClient):
     """
     Test pairing protocol
@@ -1465,6 +1537,7 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
     async def ears_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
         writer.write(b'{"type":"ears_event","left":4,"right":6}\r\n')
+        await writer.drain()
         self.ears_handler_called += 1
         while not reader.at_eof():
             line = await reader.readline()
@@ -1653,7 +1726,7 @@ class TestSendDM(unittest.TestCase, TestMastodonClientBase):
         )
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 class TestMastodonClientProposal(TestMastodondBase, TestMastodonClientBase):
     def setUp(self):
         # Give a chance to TestMastodonClientBase to skip the test before

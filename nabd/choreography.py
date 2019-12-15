@@ -361,7 +361,7 @@ class ChoreographyInterpreter:
                         Ears.RIGHT_EAR, pos, Ears.FORWARD_DIRECTION
                     )
                     chorst_oreille_chance = (chorst_oreille_chance + 1) % 4
-            file = Resources.find(
+            file = await Resources.find(
                 "choreographies",
                 ChoreographyInterpreter.STREAMING_CHOREGRAPHIES,
             )
@@ -414,7 +414,7 @@ class ChoreographyInterpreter:
                 await self.play_binary(chor)
             else:
                 # Assume a resource for now.
-                file = Resources.find("choreographies", ref)
+                file = await Resources.find("choreographies", ref)
                 chor = file.read_bytes()
                 await self.play_binary(chor)
         except asyncio.CancelledError:

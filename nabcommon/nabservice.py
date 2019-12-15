@@ -10,6 +10,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
+from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.apps import apps
 from nabcommon import nablogging
@@ -239,7 +240,7 @@ class NabRecurrentService(NabService, ABC):
         pass
 
     @abstractmethod
-    def perform(self, expiration_date, args, config):
+    async def perform(self, expiration_date, args, config):
         """
         Perform the action.
 
@@ -251,11 +252,8 @@ class NabRecurrentService(NabService, ABC):
 
     async def reload_config(self):
         logging.info("reloading configuration")
-        from django.core.cache import cache
-
-        cache.clear()
-        self.reason = NabRecurrentService.Reason.CONFIG_RELOADED
         async with self.loop_cv:
+            self.reason = NabRecurrentService.Reason.CONFIG_RELOADED
             self.loop_cv.notify()
 
     async def service_loop(self):
@@ -263,17 +261,19 @@ class NabRecurrentService(NabService, ABC):
             async with self.loop_cv:
                 while self.running:
                     # Load or reload configuration
-                    next_date, next_args, config = self._load_config()
+                    next_date, next_args, config = await sync_to_async(
+                        self._load_config
+                    )()
                     # Determine if it's time to perform
                     now = datetime.datetime.now(datetime.timezone.utc)
                     if next_date is not None and next_date <= now:
-                        self.perform(
+                        await self.perform(
                             next_date + datetime.timedelta(minutes=1),
                             next_args,
                             config,
                         )
                         # reset date after performance
-                        self.update_next(None, None)
+                        await sync_to_async(self.update_next)(None, None)
                         self.reason = (
                             NabRecurrentService.Reason.PERFORMANCE_PLAYED
                         )
@@ -333,7 +333,6 @@ class NabRecurrentService(NabService, ABC):
             next_date, next_args = None, None
         next_date, next_args = next_t
         if next_date != saved_date or next_args != saved_args:
-            logging.info(f"_load_config => update_next")
             self.update_next(next_date, next_args)
         return next_date, next_args, config
 
@@ -401,7 +400,7 @@ class NabInfoService(NabRecurrentService, ABC):
         return next_hour
 
     @abstractmethod
-    def fetch_info_data(self, config):
+    async def fetch_info_data(self, config):
         """
         Fetch the info data from whatever source, using config.
         """
@@ -415,17 +414,19 @@ class NabInfoService(NabRecurrentService, ABC):
         pass
 
     @abstractmethod
-    def perform_additional(self, expiration_date, type, info_data, config):
+    async def perform_additional(
+        self, expiration_date, type, info_data, config
+    ):
         """
         Perform whatever additional message, typically triggered from ASR
         or the website.
         """
         pass
 
-    def perform(self, expiration_date, type, config):
+    async def perform(self, expiration_date, type, config):
         # Always fetch info data.
         logging.info(f"fetch_info_data type = {type}")
-        info_data = self._do_fetch_info_data(config)
+        info_data = await self._do_fetch_info_data(config)
         info_animation = self.get_animation(info_data)
         service_name = self.__class__.__name__.lower()
         if info_animation != None:
@@ -440,7 +441,9 @@ class NabInfoService(NabRecurrentService, ABC):
             info_packet = '{"type":"info","info_id":"' + service_name + "}\r\n"
         self.writer.write(info_packet.encode("utf8"))
         if type != "info":
-            self.perform_additional(expiration_date, type, info_data, config)
+            await self.perform_additional(
+                expiration_date, type, info_data, config
+            )
 
     def compute_next(self, saved_date, saved_args, config, reason):
         logging.info(f"compute_next saved_date={saved_date}")

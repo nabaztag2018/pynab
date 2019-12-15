@@ -1,6 +1,7 @@
 import sys
 import datetime
 import dateutil.parser
+from asgiref.sync import sync_to_async
 from nabcommon.nabservice import NabInfoCachedService
 import logging
 from . import aqicn
@@ -80,19 +81,19 @@ class NabAirqualityd(NabInfoCachedService):
         config.next_performance_type = next_args
         config.save()
 
-    def fetch_info_data(self, index_airquality):
+    async def fetch_info_data(self, index_airquality):
         client = aqicn.aqicnClient(index_airquality)
-        client.update()
+        await sync_to_async(client.update)()
 
         # Save inferred localization to configuration for display on web
         # interface
         from . import models
 
-        config = models.Config.load()
+        config = await sync_to_async(models.Config.load)()
         new_city = client.get_city()
         if new_city != config.localisation:
             config.localisation = new_city
-            config.save()
+            await sync_to_async(config.save)()
 
         return client.get_data()
 
@@ -102,7 +103,7 @@ class NabAirqualityd(NabInfoCachedService):
         info_animation = NabAirqualityd.ANIMATIONS[info_data]
         return info_animation
 
-    def perform_additional(self, expiration, type, info_data, config_t):
+    async def perform_additional(self, expiration, type, info_data, config_t):
         if type == "today":
             message = NabAirqualityd.MESSAGES[info_data]
             packet = (
@@ -112,6 +113,7 @@ class NabAirqualityd(NabInfoCachedService):
                 '"expiration":"' + expiration.isoformat() + '"}\r\n'
             )
             self.writer.write(packet.encode("utf8"))
+            await self.writer.drain()
 
     async def process_nabd_packet(self, packet):
         if (
@@ -122,7 +124,9 @@ class NabAirqualityd(NabInfoCachedService):
             now = datetime.datetime.now(datetime.timezone.utc)
             expiration = now + datetime.timedelta(minutes=1)
             info_data = self.fetch_info_data(config)
-            self.perform_additional(expiration, "today", info_data, config)
+            await self.perform_additional(
+                expiration, "today", info_data, config
+            )
 
 
 if __name__ == "__main__":
