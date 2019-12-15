@@ -19,6 +19,8 @@ cat "/boot/cmdline.txt"
 # Resize partition on first boot.
 # https://www.raspberrypi.org/forums/viewtopic.php?p=1503766#p1503766
 wget -O /etc/init.d/resize2fs_once https://raw.githubusercontent.com/RPi-Distro/pi-gen/master/stage2/01-sys-tweaks/files/resize2fs_once
+chmod +x /etc/init.d/resize2fs_once
+systemctl enable resize2fs_once
 
 # Replace /etc/fstab since the non existing PARTUUID has to be changed here as well.
 echo "Replace /etc/fstab"
