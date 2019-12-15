@@ -22,18 +22,20 @@ class SoundAlsa(Sound):
 
     def __init__(self, hw_model):
 
-        card_index, sound_card, playback_device, = (
-            SoundAlsa.sound_configuration()
-        )
+        (
+            card_index,
+            self.sound_card,
+            playback_device,
+        ) = SoundAlsa.sound_configuration()
         self.playback_device = playback_device
 
-        if sound_card == SoundAlsa.MODEL_2018_CARD_NAME:
+        if self.sound_card == SoundAlsa.MODEL_2018_CARD_NAME:
             self.playback_mixer = None
             self.record_device = "null"
             self.record_mixer = None
         else:
             # do we have anyone else? either way it is not supported
-            assert sound_card == SoundAlsa.MODEL_2019_CARD_NAME
+            assert self.sound_card == SoundAlsa.MODEL_2019_CARD_NAME
 
             self.playback_mixer = alsaaudio.Mixer(
                 control="Playback", cardindex=card_index
@@ -89,6 +91,12 @@ class SoundAlsa(Sound):
         raise RuntimeError(
             "Sound card not found by ALSA (are drivers missing?)"
         )
+
+    def get_sound_card(self):
+        """
+        Get the sound card for gestalt reporting.
+        """
+        return self.sound_card
 
     def _play(self, filename):
         try:

@@ -11,7 +11,7 @@ from nabclockd import nabclockd, models
 from nabcommon import nabservice
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 class TestNabclockd(unittest.TestCase):
     async def mock_nabd_service_handler(self, reader, writer):
         self.service_writer = writer

@@ -182,3 +182,8 @@ class NabIO(object, metaclass=abc.ABCMeta):
         Cancel currently running sequence or info animation.
         """
         raise NotImplementedError("Should have implemented")
+
+    @abc.abstractmethod
+    def gestalt(self):
+        """ Return a structure representing hardware info. """
+        raise NotImplementedError("Should have implemented")

@@ -1,6 +1,7 @@
 import sys
 import asyncio
 import datetime
+from asgiref.sync import sync_to_async
 from nabcommon import nabservice
 
 
@@ -17,19 +18,16 @@ class NabClockd(nabservice.NabService):
         self.last_chime = None
 
     async def reload_config(self):
-        from django.core.cache import cache
-
-        cache.clear()
         from . import models
 
-        self.config = models.Config.load()
         async with self.loop_cv:
+            self.config = await sync_to_async(models.Config.load)()
             self.loop_cv.notify()
 
     def valid_time(self, now):
         return now > datetime.datetime(2018, 11, 1)
 
-    def chime(self, hour):
+    async def chime(self, hour):
         now = datetime.datetime.now()
         expiration = now + datetime.timedelta(minutes=3)
         # TODO: randomly play a message from all/
@@ -40,6 +38,7 @@ class NabClockd(nabservice.NabService):
             '"expiration":"' + expiration.isoformat() + '"}\r\n'
         )
         self.writer.write(packet.encode("utf8"))
+        await self.writer.drain()
 
     def clock_response(self, now):
         response = []
@@ -100,12 +99,14 @@ class NabClockd(nabservice.NabService):
                         for r in response:
                             if r == "sleep":
                                 self.writer.write(b'{"type":"sleep"}\r\n')
+                                await self.writer.drain()
                                 self.asleep = None
                             elif r == "wakeup":
                                 self.writer.write(b'{"type":"wakeup"}\r\n')
+                                await self.writer.drain()
                                 self.asleep = None
                             elif r == "chime":
-                                self.chime(now.hour)
+                                await self.chime(now.hour)
                                 self.last_chime = now.hour
                             elif r == "reset_last_chime":
                                 self.last_chime = None
@@ -127,8 +128,8 @@ class NabClockd(nabservice.NabService):
             and packet["type"] == "state"
             and "state" in packet
         ):
-            self.asleep = packet["state"] == "asleep"
             async with self.loop_cv:
+                self.asleep = packet["state"] == "asleep"
                 self.loop_cv.notify()
 
     async def stop_clock_loop(self):

@@ -7,6 +7,7 @@ import getopt
 import os
 import socket
 import logging
+import subprocess
 import dateutil.parser
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
@@ -114,7 +115,7 @@ class Nabd:
         except KeyboardInterrupt:
             pass
         except Exception:
-            print(traceback.format_exc())
+            logging.debug(traceback.format_exc())
         finally:
             if self.running:
                 self.loop.stop()
@@ -253,7 +254,7 @@ class Nabd:
                     )
                 else:
                     self.info[packet["info_id"]] = packet["animation"]
-            else:
+            elif packet["info_id"] in self.info:
                 del self.info[packet["info_id"]]
             self.write_response_packet(packet, {"status": "ok"}, writer)
             # Signal idle loop to make sure we display updated info
@@ -394,6 +395,21 @@ class Nabd:
                 writer,
             )
 
+    async def process_gestalt_packet(self, packet, writer):
+        """ Process a gestalt packet """
+        proc = subprocess.Popen(
+            ['ps','-o','etimes','-p',str(os.getpid()),'--no-headers'],
+            stdout=subprocess.PIPE)
+        proc.wait()
+        results = proc.stdout.readlines()
+        uptime = int(results[0].strip())
+        response = {}
+        response["state"] = self.state
+        response["uptime"] = uptime
+        response["connections"] = len(self.service_writers)
+        response["hardware"] = self.nabio.gestalt()
+        self.write_response_packet(packet, response, writer)
+
     async def process_packet(self, packet, writer):
         """ Process a packet from a service """
         logging.debug(f"packet from service: {packet}")
@@ -407,6 +423,7 @@ class Nabd:
                 "wakeup": self.process_wakeup_packet,
                 "sleep": self.process_sleep_packet,
                 "mode": self.process_mode_packet,
+                "gestalt": self.process_gestalt_packet,
             }
             if packet["type"] in processors:
                 await processors[packet["type"]](packet, writer)
@@ -489,8 +506,10 @@ class Nabd:
             await writer.wait_closed()
         except ConnectionResetError:
             pass
+        except BrokenPipeError:
+            pass
         except Exception:
-            print(traceback.format_exc())
+            logging.debug(traceback.format_exc())
         finally:
             if self.interactive_service_writer == writer:
                 await self.exit_interactive()

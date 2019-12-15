@@ -7,6 +7,7 @@ import time
 import datetime
 import signal
 import pytest
+from asgiref.sync import async_to_sync
 from nabweatherd.nabweatherd import NabWeatherd
 
 
@@ -17,21 +18,35 @@ class MockWriter(object):
     def write(self, packet):
         self.written.append(packet)
 
+    async def drain(self):
+        pass
+
 
 @pytest.mark.django_db
 class TestNabWeatherd(unittest.TestCase):
+    def test_fetch_info_data(self):
+        service = NabWeatherd()
+        data = async_to_sync(service.fetch_info_data)(
+            ("75005", NabWeatherd.UNIT_CELSIUS)
+        )
+        self.assertTrue("current_weather_class" in data)
+        self.assertTrue("today_forecast_weather_class" in data)
+        self.assertTrue("today_forecast_max_temp" in data)
+        self.assertTrue("tomorrow_forecast_weather_class" in data)
+        self.assertTrue("tomorrow_forecast_max_temp" in data)
+
     def test_perform(self):
         service = NabWeatherd()
         writer = MockWriter()
         service.writer = writer
-        service.location = "75005"
+        config_t = ("75005", NabWeatherd.UNIT_CELSIUS)
         expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
-        service.perform(expiration, "today")
+        async_to_sync(service.perform)(expiration, "today", config_t)
         self.assertEqual(len(writer.written), 2)
         packet = writer.written[0]
         packet_json = json.loads(packet.decode("utf8"))
         self.assertEqual(packet_json["type"], "info")
-        self.assertEqual(packet_json["info_id"], "weather")
+        self.assertEqual(packet_json["info_id"], "nabweatherd")
         self.assertTrue("animation" in packet_json)
         packet = writer.written[1]
         packet_json = json.loads(packet.decode("utf8"))

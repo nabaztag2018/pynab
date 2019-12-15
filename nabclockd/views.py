@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from pytz import common_timezones
@@ -48,3 +49,4 @@ class SettingsView(TemplateView):
         if tz != self.get_system_tz():
             with open("/etc/timezone", "w") as w:
                 w.write("%s\n" % tz)
+                os.system(f"sudo /bin/ln -fs /usr/share/zoneinfo/{tz} /etc/localtime")

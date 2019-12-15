@@ -17,6 +17,7 @@ fi
 
 case $version in
   "old")
+    echo "Stopping services" > /tmp/pynab.upgrade
     # stop services using service files.
     for service_file in */*.service ; do
       name=`basename ${service_file}`
@@ -27,6 +28,7 @@ case $version in
     sudo systemctl stop nabd.socket || echo -n ""
     sudo systemctl stop nabd.service || echo -n ""
   
+    echo "Updating code" > /tmp/pynab.upgrade
     cd ${root_dir}
     if [[ $EUID -ne ${ownerid} ]]; then
       sudo -u ${owner} git pull
@@ -39,4 +41,5 @@ case $version in
   "new")
     cd ${root_dir}
     sudo -u ${owner} bash install.sh --upgrade
+    sudo rm -f /tmp/pynab.upgrade
 esac

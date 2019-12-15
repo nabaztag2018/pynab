@@ -35,7 +35,6 @@ SESSION_COOKIE_SAMESITE = None
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -48,6 +47,7 @@ INSTALLED_APPS = [
     "nabsurprised",
     "nabtaichid",
     "nabweatherd",
+    "nabairqualityd",
     "nabweb",
 ]
 
