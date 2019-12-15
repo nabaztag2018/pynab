@@ -22,7 +22,7 @@ class TestPlaySound(unittest.TestCase):
             if SoundAlsa.sound_configuration()[1] == "sndrpihifiberry":
                 model = NabIO.MODEL_2018
             else:
-                if SoundAlsa.sound_configuration()[1] == "seeed2micvoicec":
+                if SoundAlsa.sound_configuration()[1] == "tagtagtagsound":
                     model = NabIO.MODEL_2019_TAGTAG
                 else:
                     raise unittest.SkipTest("No compatible sound card found")
@@ -89,7 +89,7 @@ class TestRecord(unittest.TestCase):
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
         try:
-            if SoundAlsa.sound_configuration()[1] != "seeed2micvoicec":
+            if SoundAlsa.sound_configuration()[1] != "tagtagtagsound":
                 raise unittest.SkipTest(
                     "Test should be run on a 2019 card only"
                 )
