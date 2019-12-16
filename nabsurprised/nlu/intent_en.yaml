@@ -8,6 +8,6 @@ utterances:
 
 ---
 type: intent
-name: carot
+name: carrot
 utterances:
-  - carot
+  - carrot

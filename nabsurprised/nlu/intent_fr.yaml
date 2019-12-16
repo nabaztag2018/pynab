@@ -14,7 +14,7 @@ utterances:
 
 ---
 type: intent
-name: carot
+name: carrot
 utterances:
   - carotte
   - tu veux une carotte
