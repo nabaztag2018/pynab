@@ -5,8 +5,8 @@ import time
 import datetime
 import pytest
 from asgiref.sync import async_to_sync
-from nabweatherd.nabweatherd import NabWeatherd
-from nabweatherd import models
+from nabairqualityd.nabairqualityd import NabAirqualityd
+from nabairqualityd import models
 
 
 class MockWriter(object):
@@ -20,30 +20,37 @@ class MockWriter(object):
         pass
 
 
-class TestNabWeatherd(unittest.TestCase):
+@pytest.mark.django_db(transaction=True)
+class TestNabAirqualityd(unittest.TestCase):
     def test_fetch_info_data(self):
-        service = NabWeatherd()
-        data = async_to_sync(service.fetch_info_data)(
-            ("75005", NabWeatherd.UNIT_CELSIUS)
-        )
-        self.assertTrue("current_weather_class" in data)
-        self.assertTrue("today_forecast_weather_class" in data)
-        self.assertTrue("today_forecast_max_temp" in data)
-        self.assertTrue("tomorrow_forecast_weather_class" in data)
-        self.assertTrue("tomorrow_forecast_max_temp" in data)
+        config = models.Config.load()
+        config.index_airquality = "aqi"
+        config.localisation = None
+        config.save()
+        service = NabAirqualityd()
+        data = async_to_sync(service.fetch_info_data)("aqi")
+        config = models.Config.load()
+        self.assertIsNotNone(data)
+        self.assertTrue(data < 3)
+        self.assertTrue(data >= 0)
+        self.assertIsNotNone(config.localisation)
 
     def test_perform(self):
-        service = NabWeatherd()
+        config = models.Config.load()
+        config.index_airquality = "aqi"
+        config.localisation = None
+        config.save()
+        service = NabAirqualityd()
         writer = MockWriter()
         service.writer = writer
-        config_t = ("75005", NabWeatherd.UNIT_CELSIUS)
+        config_t = "aqi"
         expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
         async_to_sync(service.perform)(expiration, "today", config_t)
         self.assertEqual(len(writer.written), 2)
         packet = writer.written[0]
         packet_json = json.loads(packet.decode("utf8"))
         self.assertEqual(packet_json["type"], "info")
-        self.assertEqual(packet_json["info_id"], "nabweatherd")
+        self.assertEqual(packet_json["info_id"], "nabairqualityd")
         self.assertTrue("animation" in packet_json)
         packet = writer.written[1]
         packet_json = json.loads(packet.decode("utf8"))
@@ -51,33 +58,27 @@ class TestNabWeatherd(unittest.TestCase):
         self.assertTrue("signature" in packet_json)
         self.assertTrue("body" in packet_json)
 
-    def test_aliases(self):
-        service = NabWeatherd()
-        weather_class = service.normalize_weather_class("J_W1_0-N_4")
-        self.assertEqual(weather_class, "J_W1_0-N_1")
-        weather_class = service.normalize_weather_class("J_W1_0-N_1")
-        self.assertEqual(weather_class, "J_W1_0-N_1")
-        weather_class = service.normalize_weather_class("J_W2_4-N_1")
-        self.assertEqual(weather_class, "J_W1_3-N_0")
-
-
-@pytest.mark.django_db(transaction=True)
-class TestNabWeatherdDB(unittest.TestCase):
     def test_asr(self):
         config = models.Config.load()
-        config.location = "75005"
-        config.unit = NabWeatherd.UNIT_CELSIUS
+        config.index_airquality = "aqi"
+        config.localisation = None
         config.save()
-        service = NabWeatherd()
+        service = NabAirqualityd()
         writer = MockWriter()
         service.writer = writer
-        packet = {"type": "asr_event", "nlu": {"intent": "weather_forecast"}}
+        config_t = "aqi"
+        expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
+        packet = {
+            "type": "asr_event",
+            "nlu": {"intent": "airquality_forecast"},
+        }
         async_to_sync(service.process_nabd_packet)(packet)
+        print(writer.written)
         self.assertEqual(len(writer.written), 2)
         packet = writer.written[0]
         packet_json = json.loads(packet.decode("utf8"))
         self.assertEqual(packet_json["type"], "info")
-        self.assertEqual(packet_json["info_id"], "nabweatherd")
+        self.assertEqual(packet_json["info_id"], "nabairqualityd")
         self.assertTrue("animation" in packet_json)
         packet = writer.written[1]
         packet_json = json.loads(packet.decode("utf8"))

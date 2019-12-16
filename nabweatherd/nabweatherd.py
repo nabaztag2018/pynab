@@ -429,16 +429,13 @@ class NabWeatherd(NabInfoCachedService):
         location, unit = config_t
         if location is None:
             logging.debug(f"location is None (service is unconfigured)")
-            if type != "info":
-                packet = (
-                    '{"type":"message",'
-                    '"signature":{"audio":['
-                    '"nabweatherd/signature.mp3"]},'
-                    '"body":[{"audio":["nabweatherd/no-location-error.mp3"]}],'
-                    '"expiration":"' + expiration.isoformat() + '"}\r\n'
-                )
-                self.writer.write(packet.encode("utf8"))
-            packet = '{"type":"info","info_id":"weather"}\r\n'
+            packet = (
+                '{"type":"message",'
+                '"signature":{"audio":['
+                '"nabweatherd/signature.mp3"]},'
+                '"body":[{"audio":["nabweatherd/no-location-error.mp3"]}],'
+                '"expiration":"' + expiration.isoformat() + '"}\r\n'
+            )
             self.writer.write(packet.encode("utf8"))
         else:
             if type == "today":
@@ -471,14 +468,13 @@ class NabWeatherd(NabInfoCachedService):
             packet["type"] == "asr_event"
             and packet["nlu"]["intent"] == "weather_forecast"
         ):
-            next_date, next_args, config = self.get_config()
+            next_date, next_args, config_t = await sync_to_async(
+                self.get_config
+            )()
             # todo : detect today/tomorrow
             now = datetime.datetime.now(datetime.timezone.utc)
             expiration = now + datetime.timedelta(minutes=1)
-            info_data = self.fetch_info_data(config)
-            await self.perform_additional(
-                expiration, "today", info_data, config
-            )
+            await self.perform(expiration, "today", config_t)
 
 
 if __name__ == "__main__":
