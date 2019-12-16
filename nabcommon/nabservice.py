@@ -460,11 +460,12 @@ class NabInfoService(NabRecurrentService, ABC):
         next_date = self.next_info_update(config)
         return next_date, "info"
 
-    def _do_fetch_info_data(self, config):
+    async def _do_fetch_info_data(self, config):
         """
         Invokes fetch_info_data, used by NabInfoCachedService subclass.
         """
-        return self.fetch_info_data(config)
+        info_data = await self.fetch_info_data(config)
+        return info_data
 
 
 class NabInfoCachedService(NabInfoService, ABC):
@@ -481,7 +482,7 @@ class NabInfoCachedService(NabInfoService, ABC):
         self.cached_info_config = None
         self.cached_info_expdate = None
 
-    def _do_fetch_info_data(self, config):
+    async def _do_fetch_info_data(self, config):
         """
         Fetch the info data from whatever source, using config, caching it
         locally.
@@ -495,7 +496,7 @@ class NabInfoCachedService(NabInfoService, ABC):
         ):
             return self.cached_info
         next_hour = now + datetime.timedelta(seconds=3600)
-        new_info = self.fetch_info_data(config)
+        new_info = await self.fetch_info_data(config)
         self.cached_info = new_info
         self.cached_info_config = config
         self.cached_info_expdate = next_hour

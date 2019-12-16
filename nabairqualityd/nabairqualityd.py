@@ -3,7 +3,6 @@ import datetime
 import dateutil.parser
 from asgiref.sync import sync_to_async
 from nabcommon.nabservice import NabInfoCachedService
-import logging
 from . import aqicn
 
 
@@ -120,13 +119,12 @@ class NabAirqualityd(NabInfoCachedService):
             packet["type"] == "asr_event"
             and packet["nlu"]["intent"] == "airquality_forecast"
         ):
-            next_date, next_args, config = self.get_config()
+            next_date, next_args, config_t = await sync_to_async(
+                self.get_config
+            )()
             now = datetime.datetime.now(datetime.timezone.utc)
             expiration = now + datetime.timedelta(minutes=1)
-            info_data = self.fetch_info_data(config)
-            await self.perform_additional(
-                expiration, "today", info_data, config
-            )
+            await self.perform(expiration, "today", config_t)
 
 
 if __name__ == "__main__":
