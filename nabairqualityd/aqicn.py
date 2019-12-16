@@ -61,7 +61,7 @@ class aqicnClient:
                 logging.debug("(pm25)")
             else:
                 indice_to_be_analyzed = indice_aqi
-                logging.debug("(pm25 - default)")
+                logging.debug("(pm25 - default value)")
 
 
             if indice_to_be_analyzed > 101:
