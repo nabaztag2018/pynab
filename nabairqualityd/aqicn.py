@@ -54,7 +54,7 @@ class aqicnClient:
 
             if self._indice == 0:
                 indice_to_be_analyzed = indice_aqi
-            elif self._indice == 0:
+            elif self._indice == 1:
                 indice_to_be_analyzed = indice_pm25
             else:
                 indice_to_be_analyzed = indice_aqi
