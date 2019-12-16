@@ -1,5 +1,6 @@
 import abc
 import asyncio
+import datetime
 import json
 import logging
 import os
@@ -11,6 +12,7 @@ from django.shortcuts import render
 from django.utils import translation
 from django.conf import settings
 from django.http import JsonResponse
+from django.core.cache import cache
 from nabd.i18n import Config
 from nabcommon.nabservice import NabService
 from django.utils.translation import to_locale, to_language
@@ -134,6 +136,12 @@ class NabWebSytemInfoView(BaseView):
         return context
 
 class GitInfo:
+    REPOSITORIES = {
+        "pynab": ".",
+        "sound_driver": "../wm8960",
+        "ears_driver": "../tagtagtag-ears/"
+    }
+
     @staticmethod
     def get_root_dir():
         root_dir = (
@@ -149,7 +157,22 @@ class GitInfo:
         return root_dir
 
     @staticmethod
-    def get_repository_info(relpath):
+    def get_repository_info(repository, force = False):
+        relpath = GitInfo.REPOSITORIES[repository]
+        cache_key = f"git/info/{repository}"
+        if not force:
+            info = cache.get(cache_key)
+            if info is not None:
+                return info
+        info = GitInfo.do_get_repository_info(repository, relpath)
+        timeout = 600
+        if info["status"] == "ok":
+            timeout = 86400
+        cache.set(cache_key, info, timeout)
+        return info
+
+    @staticmethod
+    def do_get_repository_info(repository, relpath):
         root_dir = GitInfo.get_root_dir()
         if root_dir is None:
             return (
@@ -197,7 +220,7 @@ class GitInfo:
             f"&& sudo -u pi git rev-list --count HEAD..{upstream_branch}"
         ).read().rstrip()
         local_commits_count = os.popen(
-            f"cd {repo_dir} && sudo -u pi git fetch "
+            f"cd {repo_dir} "
             f"&& sudo -u pi git rev-list --count {upstream_branch}..HEAD"
         ).read().rstrip()
         if commits_count == "":
@@ -210,6 +233,7 @@ class GitInfo:
             info["status"] = "ok"
             info["commits_count"] = int(commits_count)
             info["local_commits_count"] = int(local_commits_count)
+        info["info-date"] = datetime.datetime.now()
         return info
 
 class NabWebUpgradeView(BaseView):
@@ -218,30 +242,26 @@ class NabWebUpgradeView(BaseView):
 
     def get_context(self):
         context = super().get_context()
-        pynab_info = GitInfo.get_repository_info("../pynab")
-        context["pynab"] = pynab_info
-        sound_driver_info = GitInfo.get_repository_info("../wm8960")
-        context["sound_driver"] = sound_driver_info
-        ears_driver_info = GitInfo.get_repository_info("../tagtagtag-ears")
-        context["ears_driver"] = ears_driver_info
+        local_changes = False
+        for repository in GitInfo.REPOSITORIES.keys():
+            info = GitInfo.get_repository_info(repository)
+            context[repository] = info
+            if "local_changes" in info and info["local_changes"] > 0:
+                local_changes = True
+        pynab_info = context["pynab"]
         updatable = (
             "commits_count" in pynab_info and
             pynab_info["commits_count"] > 0 and
             "local_commits_count" in pynab_info and
             pynab_info["local_commits_count"] == 0 and
-            "local_changes" in pynab_info and
-            not pynab_info["local_changes"] and
-            "local_changes" in sound_driver_info and
-            not sound_driver_info["local_changes"] and
-            "local_changes" in ears_driver_info and
-            not ears_driver_info["local_changes"]
+            local_changes is False
         )
         context["updatable"] = updatable
         return context
 
 class NabWebUpgradeStatusView(View):
     def get(self, request, *args, **kwargs):
-        repo_info = GitInfo.get_repository_info(".")
+        repo_info = GitInfo.get_repository_info("pynab")
         return JsonResponse(repo_info)
 
 class NabWebUpgradeNowView(View):
