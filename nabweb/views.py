@@ -32,9 +32,6 @@ class BaseView(View, metaclass=abc.ABCMeta):
 
     def get_context(self):
         user_locale = Config.load().locale
-        user_language = to_language(user_locale)
-        translation.activate(user_language)
-        self.request.session[translation.LANGUAGE_SESSION_KEY] = user_language
         locales = self.get_locales()
         return {"current_locale": user_locale, "locales": locales}
 
@@ -52,7 +49,7 @@ class NabWebView(BaseView):
         config.save()
         user_language = to_language(config.locale)
         translation.activate(user_language)
-        self.request.session[translation.LANGUAGE_SESSION_KEY] = user_language
+        request.LANGUAGE_CODE = translation.get_language()
         locales = self.get_locales()
         return render(
             request,
