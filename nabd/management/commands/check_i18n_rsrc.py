@@ -1,5 +1,5 @@
 import os
-import glob
+import re
 
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
@@ -40,10 +40,19 @@ class Command(BaseCommand):
                         for root, dirs, files in os.walk(lang_dir):
                             relroot = root[len(lang_dir) + 1 :]
                             # Determine if it's a random list of files
-                            if self.is_random_list(files):
-                                pass
+                            rand_pattern = self.random_list_pattern(files)
+                            if rand_pattern:
+                                relpath = os.path.join(relroot, rand_pattern)
+                                if relpath in resources:
+                                    langlist = resources[relpath]
+                                else:
+                                    langlist = []
+                                langlist.append(lang)
+                                resources[relpath] = langlist                                
                             else:
                                 for file in files:
+                                    if file.startswith("."):
+                                        continue
                                     relpath = os.path.join(relroot, file)
                                     if relpath in resources:
                                         langlist = resources[relpath]
@@ -60,7 +69,19 @@ class Command(BaseCommand):
                             )
                         )
 
-    def is_random_list(self, files):
-        # every file has the same suffix
-        # and of the form [prefix][0-9]+\.suffix
-        return False
+    def random_list_pattern(self, files):
+        filtered_files = [file for file in files if not file.startswith(".")]
+        if filtered_files == []:
+            return None
+        first_file = filtered_files[0]
+        m = re.search("^([^0-9]*)(?:[0-9]+)\\.([^\\.]+)$", first_file)
+        if m:
+            prefix = m.group(1)
+            suffix = m.group(2)
+            for file in filtered_files:
+                m = re.search("^([^0-9]*)(?:[0-9]+)\\.([^.]+)$", file)
+                if not m:
+                    return None
+                if prefix != m.group(1) or suffix != m.group(2):
+                    return None
+            return prefix + "*." + suffix
