@@ -6,11 +6,14 @@
       <h5 class="card-title">{% trans "Air quality" %} - {{ config.localisation }}</h5>
     </div>
     <div class="card-body">
+        <p>{% trans "Air quality information is provided based on your IP adress. You can select the type of information you want : Agregated index or just PM 2.5" %}</p>
+		
       <div class="form-group row">
         <label for="airqualityIndexSel" class="col-6 col-form-label">{% trans "Index" %}</label>
         <div class="col-6">
           <select name="index_airquality" id="airqualityIndexSel">
-            {% if config.index_airquality is None %}<option disabled selected value></option>{% endif %}
+            {% if config.index_airquality is None %}<option value="9" selected>None</option>{% endif %}
+            <option value="9" {% if config.index_airquality == '9' %}selected{% endif %}>None</option>
             <option value="0" {% if config.index_airquality == '0' %}selected{% endif %}>AQI</option>
             <option value="1" {% if config.index_airquality == '1' %}selected{% endif %}>PM 2.5</option>
 		  </select>
