@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-22 00:17+0100\n"
+"POT-Creation-Date: 2019-12-17 10:10+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,7 +37,7 @@ msgstr "Âme sœur"
 
 #: templates/nabmastodond/settings.html:25
 msgid "friend@botsin.space"
-msgstr "ami(e)@botsin.space"
+msgstr ""
 
 #: templates/nabmastodond/settings.html:25
 msgid "Friend address"
@@ -56,26 +56,27 @@ msgid "An error occurred trying to send proposal: "
 msgstr "Une erreur est survenue en essayant d'envoyer votre demande : "
 
 #: templates/nabmastodond/settings.html:67
+#, python-format
 msgid ""
 "Really cancel proposal to <a href=\"%(profile_url)s\" target=\"_blank\">"
 "%(spouse_handle)s</a>?"
 msgstr ""
 "Souhaitez-vous réellement annuler votre demande de communion à <a href="
-"\"%(profile_url)s\" target=\"_blank\">"
-"%(spouse_handle)s</a> ?"
+"\"%(profile_url)s\" target=\"_blank\">%(spouse_handle)s</a> ?"
 
 #: templates/nabmastodond/settings.html:73
 msgid "Really cancel"
 msgstr "Annuler la demande"
 
 #: templates/nabmastodond/settings.html:78
+#, python-format
 msgid ""
 "You sent a proposal to your friend <a href=\"%(profile_url)s\" target="
 "\"_blank\">%(spouse_handle)s</a>. They have yet to accept it."
 msgstr ""
 "Vous avez envoyé une demande de communion à votre ami(e) <a href="
-"\"%(profile_url)s\" target=\"_blank\">"
-"%(spouse_handle)s</a>. Il/elle doit encore l'accepter."
+"\"%(profile_url)s\" target=\"_blank\">%(spouse_handle)s</a>. Il/elle doit "
+"encore l'accepter."
 
 #: templates/nabmastodond/settings.html:86
 msgid "Cancel proposal"
@@ -90,13 +91,13 @@ msgid "An error occurred trying to cancel proposal: "
 msgstr "Une erreur est survenue en tentant d'annuler la demande : "
 
 #: templates/nabmastodond/settings.html:125
+#, python-format
 msgid ""
 "You received a proposal from <a href=\"%(profile_url)s\" target=\"_blank\">"
 "%(spouse_handle)s</a>. Do you want to accept it?"
 msgstr ""
-"Vous avez reçu une demande de communion de <a href="
-"\"%(profile_url)s\" target=\"_blank\">"
-"%(spouse_handle)s</a>. Souhaitez-vous l'accepter ?"
+"Vous avez reçu une demande de communion de <a href=\"%(profile_url)s\" "
+"target=\"_blank\">%(spouse_handle)s</a>. Souhaitez-vous l'accepter ?"
 
 #: templates/nabmastodond/settings.html:126
 msgid "Accept"
@@ -115,13 +116,13 @@ msgid "An error occurred responding to proposal: "
 msgstr "Une erreur est survenue en répondant à cette demande : "
 
 #: templates/nabmastodond/settings.html:171
+#, python-format
 msgid ""
 "Really divorce from <a href=\"%(profile_url)s\" target=\"_blank\">"
 "%(spouse_handle)s</a>?"
 msgstr ""
-"Souhaitez-vous réellement divorcer de <a href="
-"\"%(profile_url)s\" target=\"_blank\">"
-"%(spouse_handle)s</a> ?"
+"Souhaitez-vous réellement divorcer de <a href=\"%(profile_url)s\" target="
+"\"_blank\">%(spouse_handle)s</a> ?"
 
 #: templates/nabmastodond/settings.html:177
 #: templates/nabmastodond/settings.html:321
@@ -134,14 +135,15 @@ msgid "Divorce"
 msgstr "Divorcer"
 
 #: templates/nabmastodond/settings.html:183
+#, python-format
 msgid ""
 "This Nabaztag is married to <a href=\"%(profile_url)s\" target=\"_blank\">"
 "%(spouse_handle)s</a>. Married Nabaztags have a special ear-based "
 "relationship."
 msgstr ""
-"Ce Nabaztag est en communion avec <a href=\"%(profile_url)s\" "
-"target=\"_blank\">%(spouse_handle)s</a>. Les Nabaztag en communion "
-"ont une relation spéciale au niveau des oreilles."
+"Ce Nabaztag est en communion avec <a href=\"%(profile_url)s\" target=\"_blank"
+"\">%(spouse_handle)s</a>. Les Nabaztag en communion ont une relation "
+"spéciale au niveau des oreilles."
 
 #: templates/nabmastodond/settings.html:208
 msgid "An unknown error occurred trying to divorce"
@@ -167,18 +169,27 @@ msgstr ""
 "Une erreur est survenue lors de la récupération des données du compte : "
 
 #: templates/nabmastodond/settings.html:257
-msgid "Not connected to Mastodon."
-msgstr "Pas connecté à Mastodon."
+msgid ""
+"As we don't want Nabaztag to live in the cloud we're using <a href='https://"
+"en.wikipedia.org/wiki/Mastodon_(software)'>Mastodon</a> to connect rabbits "
+"(Mastodon is a sort of decentralized Twitter - and Open Source). Currently "
+"your Nabaztag is not connected to Mastodon."
+msgstr ""
+"Comme on a décidé que Nabaztag n'habiterait plus jamais dans le cloud mais que nous aimons bien la "
+"communion d'oreilles (notamment), nous utilisons <a href='https://"
+"fr.wikipedia.org/wiki/Mastodon_(r%C3%A9seau_social)'>Mastodon</a> pour connecter les lapins entre eux. "
+"<b>En ce moment, votre Nabaztag n'est pas connecté à Mastodon</b>."
+
 
 #: templates/nabmastodond/settings.html:259
 msgid ""
 "First, <strong>create an account for your Nabaztag</strong> on a given "
-"Mastodon instance, for example <a href=\"https://botsin.space/auth/sign_up\" "
-"target=\"_blank\">botsin.space</a>."
+"Mastodon instance, for example <a href=\"https://mstdn.fr/auth/sign_up\" "
+"target=\"_blank\">mstdn.fr</a>."
 msgstr ""
 "<strong>Créez un compte pour votre Nabaztag</strong> sur une instance "
-"Mastodon, par exemple <a href=\"https://botsin.space/auth/sign_up\" target="
-"\"_blank\">botsin.space</a>."
+"Mastodon, par exemple <a href=\"https://mstdn.fr/auth/sign_up\" target="
+"\"_blank\">mstdn.fr</a>."
 
 #: templates/nabmastodond/settings.html:260
 msgid ""
@@ -219,3 +230,9 @@ msgstr "Déconnexion de Mastodon ?"
 msgctxt "button"
 msgid "Disconnect"
 msgstr "Déconnexion"
+
+#~ msgid "friend@mstdn.fr"
+#~ msgstr "ami(e)@mstdn.fr"
+
+#~ msgid "Not connected to Mastodon."
+#~ msgstr "Pas connecté à Mastodon."

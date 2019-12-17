@@ -391,6 +391,18 @@ class NabWeatherd(NabInfoCachedService):
             return None
         client = await sync_to_async(meteofranceClient)(location, True)
         data = client.get_data()
+        logging.debug(data)
+        
+        if ('next_rain') in data:
+            logging.debug(f"next_rain is available")
+            if (data["next_rain"] == 'No rain'):
+                next_rain = 'J_W1_0-N_0'
+            else :
+                next_rain = 'J_W1_32-N_0'
+        else :
+            logging.debug(f"next_rain is NOT available")
+            next_rain = None
+            
         current_weather_class = self.normalize_weather_class(
             data["weather_class"]
         )
@@ -404,6 +416,7 @@ class NabWeatherd(NabInfoCachedService):
         tomorrow_forecast_max_temp = data["forecast"][1]["max_temp"]
         return {
             "current_weather_class": current_weather_class,
+            "next_rain": next_rain,
             "today_forecast_weather_class": today_forecast_weather_class,
             "today_forecast_max_temp": today_forecast_max_temp,
             "tomorrow_forecast_weather_class": tomorrow_forecast_weather_class,
@@ -418,10 +431,11 @@ class NabWeatherd(NabInfoCachedService):
         return self.normalize_weather_class(weather_class[:-1])
 
     def get_animation(self, info_data):
-        if info_data is None:
+        if info_data is None or info_data["next_rain"] is None:
             return None
+        logging.debug(f"get_animation is not None")
         (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[
-            info_data["current_weather_class"]
+            info_data["next_rain"]
         ]
         return info_animation
 

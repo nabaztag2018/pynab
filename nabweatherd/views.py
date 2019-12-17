@@ -18,14 +18,10 @@ class SettingsView(TemplateView):
         context["scheduled_messages"] = ScheduledMessage.objects.all()
         celsius_available = True
         farenheit_available = True
-        if translation.LANGUAGE_SESSION_KEY in self.request.session:
-            user_language = self.request.session[
-                translation.LANGUAGE_SESSION_KEY
-            ]
-            if (
-                user_language == "fr-fr"
-            ):  # Sounds not available for temperatures higher than 50
-                farenheit_available = False
+        user_language = self.request.LANGUAGE_CODE
+        if user_language == "fr-fr":
+            # Sounds not available for temperatures higher than 50
+            farenheit_available = False
         context["celsius_available"] = celsius_available
         context["farenheit_available"] = farenheit_available
         return context

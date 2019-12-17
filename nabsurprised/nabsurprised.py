@@ -37,11 +37,11 @@ class NabSurprised(NabRandomService):
             expiration = now + datetime.timedelta(minutes=1)
             if packet["nlu"]["intent"] == "surprise":
                 await self.perform(expiration, None, None)
-            if packet["nlu"]["intent"] == "carot":
+            if packet["nlu"]["intent"] == "carrot":
                 packet = (
                     '{"type":"message","signature":{'
                     '"audio":["nabsurprised/respirations/*.mp3"]},'
-                    '"body":[{"audio":["nabsurprised/carot/*.mp3"]}],'
+                    '"body":[{"audio":["nabsurprised/carrot/*.mp3"]}],'
                     '"expiration":"' + expiration.isoformat() + '"}\r\n'
                 )
                 self.writer.write(packet.encode("utf8"))

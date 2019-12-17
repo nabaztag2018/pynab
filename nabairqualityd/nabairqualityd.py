@@ -4,6 +4,7 @@ import dateutil.parser
 from asgiref.sync import sync_to_async
 from nabcommon.nabservice import NabInfoCachedService
 from . import aqicn
+import logging
 
 
 class NabAirqualityd(NabInfoCachedService):
@@ -81,6 +82,9 @@ class NabAirqualityd(NabInfoCachedService):
         config.save()
 
     async def fetch_info_data(self, index_airquality):
+        logging.debug("index_airquality="+str(index_airquality))
+        if (index_airquality == "9"):
+            return None
         client = aqicn.aqicnClient(index_airquality)
         await sync_to_async(client.update)()
 

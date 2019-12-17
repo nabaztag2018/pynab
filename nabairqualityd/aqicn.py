@@ -52,12 +52,17 @@ class aqicnClient:
             )
             logging.debug("air quality index selected is " + str(self._indice))
 
-            if self._indice == 0:
+            if self._indice == "0":
                 indice_to_be_analyzed = indice_aqi
-            elif self._indice == 0:
+                logging.debug("(aqi)")
+                
+            elif self._indice == "1":
                 indice_to_be_analyzed = indice_pm25
+                logging.debug("(pm25)")
             else:
                 indice_to_be_analyzed = indice_aqi
+                logging.debug("(pm25 - default value)")
+
 
             if indice_to_be_analyzed > 101:
                 self._airquality = 0
