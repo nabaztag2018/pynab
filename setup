@@ -38,6 +38,10 @@ else
 fi
 cat /boot/config.txt | grep "gpu_mem"
 
+echo "Setting hostname."
+sed -i "s/raspberrypi/nabaztag/" /etc/hostname
+sed -i "s/raspberrypi/nabaztag/" /etc/hosts
+
 echo "Disabling onboard sound."
 if grep -q "dtparam=audio=on" /boot/config.txt
 then
