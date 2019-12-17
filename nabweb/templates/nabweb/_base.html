@@ -57,9 +57,6 @@
         var upgradeBadge = $("a.upgrade-link span.badge");
         $.ajax({
           url: "{% url 'nabweb.upgrade.status' %}",
-          beforeSend: function (xhr, settings) {
-            xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
-          },
           contentType: 'application/json',
           method: "GET",
           success: function (data) {

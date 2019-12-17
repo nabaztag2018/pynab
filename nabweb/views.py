@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import re
+import subprocess
 
 from django.apps import apps
 from django.views.generic import View
@@ -286,11 +287,16 @@ class NabWebUpgradeNowView(View):
             "sudo -u pi flock -n /tmp/pynab.upgrade echo 'OK' || echo 'Locked'"
         ).read().rstrip()
         if locked == "OK":
-            subprocess.run([
+            command = [
                 "/usr/bin/nohup", "sudo", "-u", "pi",
                 "flock", "/tmp/pynab.upgrade",
-                "bash", f"{root_dir}/upgrade.sh"
-            ])
+                "bash", f"{root_dir}/upgrade.sh",
+            ]
+            subprocess.Popen(command,
+                 stdout=open('/tmp/pynab-upgrade-stdout.log', 'w'),
+                 stderr=open('/tmp/pynab-upgrade-stderr.log', 'w'),
+                 preexec_fn=os.setpgrp
+            )
             return JsonResponse({"status": "ok"})
         if locked == "Locked":
             return JsonResponse({"status": "ok"})
