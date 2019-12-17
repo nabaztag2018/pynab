@@ -74,14 +74,14 @@ class Command(BaseCommand):
         if filtered_files == []:
             return None
         first_file = filtered_files[0]
-        m = re.search("^([^0-9]*)(?:[0-9]+)\\.([^\\.]+)$", first_file)
+        m = re.search("^([^0-9]*)(?:[0-9]+B?)\\.([^\\.]+)$", first_file)
         if m:
             prefix = m.group(1)
             suffix = m.group(2)
             for file in filtered_files:
-                m = re.search("^([^0-9]*)(?:[0-9]+)\\.([^.]+)$", file)
+                m = re.search("^([^0-9]*)(?:[0-9]+B?)\\.([^.]+)$", file)
                 if not m:
                     return None
                 if prefix != m.group(1) or suffix != m.group(2):
                     return None
-            return prefix + "*." + suffix
+            return "*." + suffix
