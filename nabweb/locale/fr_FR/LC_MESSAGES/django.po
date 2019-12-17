@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-17 10:02+0100\n"
+"POT-Creation-Date: 2019-12-17 11:38+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -121,11 +121,23 @@ msgstr ""
 "href='https://github.com/nabaztag2018/pynab'>GitHub repository</a> pour "
 "contribuer ou simplement nous reporter des bugs !"
 
-#: templates/nabweb/index.html:20 templates/nabweb/index.html:25
+#: templates/nabweb/index.html:13
+msgid ""
+"You can trigger some services with your voice. The processing is done "
+"locally and you need to push the button long enough to hear a 'bip' (keep the button pushed), then "
+"wait a couple of seconds (We'll have a look at this later!) then speak and "
+"when you're done just release the button. Your service should be played "
+"shortly!"
+msgstr ""
+"Vous pouvez aussi déclencher certains services en demandant à Nabaztag. La reconnaissance "
+"vocale est effectuée localement et il vous faut appuyer sur le bouton (en le maintenant appuyé), attendre le 'bip', attendre encore quelques secondes "
+"(oui c'est un bug) puis parler. Relacher quand vous n'avez plus rien à dire et attendez que Nabaztag vous réponde."
+
+#: templates/nabweb/index.html:24 templates/nabweb/index.html:29
 msgid "Language"
 msgstr "Langue"
 
-#: templates/nabweb/index.html:23
+#: templates/nabweb/index.html:27
 msgid ""
 "The language is used by services with recorded sounds. U.S. English and "
 "British English are based on distinct voices."
@@ -134,11 +146,11 @@ msgstr ""
 "Typiquement, l'américain et le britannique utilisent des voix différentes. "
 "le Japonais est intéressant."
 
-#: templates/nabweb/index.html:38
+#: templates/nabweb/index.html:42
 msgid "Save"
 msgstr "Enregistrer"
 
-#: templates/nabweb/index.html:39
+#: templates/nabweb/index.html:43
 msgid "Reset"
 msgstr "Annuler"
 
