@@ -220,7 +220,7 @@ fi
 psql -U pynab -c '' 2>/dev/null || {
   echo "Creating PostgreSQL database"
   sudo -u postgres psql -U postgres -c "CREATE USER pynab"
-  sudo -u postgres psql -U postgres -c "CREATE DATABASE pynab OWNER=pynab"
+  sudo -u postgres psql -U postgres -c "CREATE DATABASE pynab OWNER=pynab LC_COLLATE='C' LC_CTYPE='C' ENCODING='UTF-8'"
   sudo -u postgres psql -U postgres -c "ALTER ROLE pynab CREATEDB"
 }
 
