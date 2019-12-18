@@ -72,8 +72,6 @@ requests==2.22.0
 semantic-version==2.8.3
 six==1.13.0
 sklearn-crfsuite==0.3.6
-snips-nlu-en==0.2.2
-snips-nlu-fr==0.2.4
 soupsieve==1.9.5
 sqlparse==0.3.0
 tabulate==0.8.6
