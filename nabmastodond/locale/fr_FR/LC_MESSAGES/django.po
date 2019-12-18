@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-17 10:10+0100\n"
+"POT-Creation-Date: 2019-12-17 14:57+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -36,8 +36,8 @@ msgid "Kindred soul"
 msgstr "Âme sœur"
 
 #: templates/nabmastodond/settings.html:25
-msgid "friend@botsin.space"
-msgstr ""
+msgid "friend@mstdn.fr"
+msgstr "ami(e)@mstdn.fr"
 
 #: templates/nabmastodond/settings.html:25
 msgid "Friend address"
@@ -175,11 +175,11 @@ msgid ""
 "(Mastodon is a sort of decentralized Twitter - and Open Source). Currently "
 "your Nabaztag is not connected to Mastodon."
 msgstr ""
-"Comme on a décidé que Nabaztag n'habiterait plus jamais dans le cloud mais que nous aimons bien la "
-"communion d'oreilles (notamment), nous utilisons <a href='https://"
-"fr.wikipedia.org/wiki/Mastodon_(r%C3%A9seau_social)'>Mastodon</a> pour connecter les lapins entre eux. "
-"<b>En ce moment, votre Nabaztag n'est pas connecté à Mastodon</b>."
-
+"Comme on a décidé que Nabaztag n'habiterait plus jamais dans le cloud mais "
+"que nous aimons bien la communion d'oreilles (notamment), nous utilisons <a "
+"href='https://fr.wikipedia.org/wiki/Mastodon_(r%C3%A9seau_social)'>Mastodon</"
+"a> pour connecter les lapins entre eux. <b>En ce moment, votre Nabaztag "
+"n'est pas connecté à Mastodon</b>."
 
 #: templates/nabmastodond/settings.html:259
 msgid ""
@@ -230,9 +230,6 @@ msgstr "Déconnexion de Mastodon ?"
 msgctxt "button"
 msgid "Disconnect"
 msgstr "Déconnexion"
-
-#~ msgid "friend@mstdn.fr"
-#~ msgstr "ami(e)@mstdn.fr"
 
 #~ msgid "Not connected to Mastodon."
 #~ msgstr "Pas connecté à Mastodon."
