@@ -78,7 +78,7 @@ cd /home/pi
 sudo -u pi git clone -b release https://github.com/nabaztag2018/pynab.git
 
 echo "Installing nabblockly"
-sudo apt-get install -y erlang
+sudo apt-get install -y erlang || echo
 cd /home/pi/pynab
 git clone https://github.com/pguyot/nabblockly
 cd nabblockly
