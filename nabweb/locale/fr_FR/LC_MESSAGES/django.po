@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-22 22:34+0100\n"
+"POT-Creation-Date: 2019-12-17 11:38+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,82 +17,293 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: settings.py:123
+#: settings.py:129
 msgid "French"
 msgstr "Français"
 
-#: settings.py:124
+#: settings.py:130
 msgid "German"
 msgstr "Allemand"
 
-#: settings.py:125
+#: settings.py:131
 msgid "U.S. English"
 msgstr "Anglais des États-Unis"
 
-#: settings.py:126
+#: settings.py:132
 msgid "British English"
 msgstr "Anglais britannique"
 
-#: settings.py:127
+#: settings.py:133
 msgid "Italian"
 msgstr "Italien"
 
-#: settings.py:128
+#: settings.py:134
 msgid "Spanish"
 msgstr "Espagnol"
 
-#: settings.py:129
+#: settings.py:135
 msgid "Japanese"
 msgstr "Japonais"
 
-#: settings.py:130
+#: settings.py:136
 msgid "Brazilian Portuguese"
 msgstr "Portugais brésilien"
 
-#: templates/nabweb/index.html:11 templates/nabweb/index.html:21
+#: templates/nabweb/_base.html:11 templates/nabweb/_base.html:21
+#: templates/nabweb/index.html:7
 msgid "Nabaztag configuration"
 msgstr "Configuration du Nabaztag"
 
-#: templates/nabweb/index.html:27
+#: templates/nabweb/_base.html:27 templates/nabweb/index.html:3
+#: templates/nabweb/upgrade/index.html:3
 msgid "Home"
 msgstr "Accueil"
 
-#: templates/nabweb/index.html:27
+#: templates/nabweb/_base.html:27 templates/nabweb/_base.html:28
+#: templates/nabweb/_base.html:29 templates/nabweb/_base.html:30
 msgid "(current)"
 msgstr "(actif)"
 
-#: templates/nabweb/index.html:42 templates/nabweb/index.html:47
+#: templates/nabweb/_base.html:28 templates/nabweb/services/index.html:3
+msgid "Services"
+msgstr ""
+
+#: templates/nabweb/_base.html:29
+msgid "System Information"
+msgstr "Information système"
+
+#: templates/nabweb/_base.html:30 templates/nabweb/upgrade/index.html:24
+msgid "Upgrade"
+msgstr "Mise à jour"
+
+#: templates/nabweb/_base.html:44
+msgid "Upgrading"
+msgstr "Mise à jour"
+
+#: templates/nabweb/_base.html:47
+msgid "Please wait while upgrading pynab..."
+msgstr "Veuillez patienter pendant la mise à jour de pynab"
+
+#: templates/nabweb/_base.html:81
+#, fuzzy
+#| msgid "Unknown server error (LOL)"
+msgid "Unknown server error"
+msgstr "Erreur serveur inconnue (LOL)"
+
+#: templates/nabweb/index.html:8
+msgid "You're currently deeply connected with your inner rabbit."
+msgstr "Vous êtes actuellement en connexion avec votre lapin."
+
+#: templates/nabweb/index.html:10
+msgid ""
+"First, make sure the language is properly configured below. Maybe create an "
+"account to connect your Nabaztag to <a href='https://mstdn.fr/auth/"
+"sign_up'>Mastodon</a> where it will join fellow rabbits <small>(for now, "
+"this is only used by ear communion service)</small>."
+msgstr ""
+"Le mieux est de commencer par sélectionner la langue dans laquelle votre "
+"Nabaztag va s'exprimer. Ensuite, si vous connaissez d'autres lapins, vous "
+"pouvez aussi <a href='https://mstdn.fr/auth/sign_up'>créer un profil "
+"Mastodon</a> pour qu'il puisse dialoguer avec d'autres lapins (Mastodon est "
+"une sorte de Twitter open-source)."
+
+#: templates/nabweb/index.html:11
+msgid ""
+"Eventually, explore top navigation bar to configure <a href='/"
+"settings/'>Nabaztag services</a>, <a href='/upgrade/'>upgrade software</a> "
+"or even visit the <a target='_blank' href='https://github.com/nabaztag2018/"
+"pynab'>GitHub repository</a> to start hacking, adding features or simply "
+"report bugs."
+msgstr ""
+"Pour configurer les services, allez dans l'onglet <a href='/"
+"settings/'>Services</a>, ou <a href='/upgrade/'>Mise à jour</a> pour mettre "
+"à jour le logiciel. Vous pouvez aussi visiter le <a target='_blank' "
+"href='https://github.com/nabaztag2018/pynab'>GitHub repository</a> pour "
+"contribuer ou simplement nous reporter des bugs !"
+
+#: templates/nabweb/index.html:13
+msgid ""
+"You can trigger some services with your voice. The processing is done "
+"locally and you need to push the button long enough to hear a 'bip' (keep the button pushed), then "
+"wait a couple of seconds (We'll have a look at this later!) then speak and "
+"when you're done just release the button. Your service should be played "
+"shortly!"
+msgstr ""
+"Vous pouvez aussi déclencher certains services en demandant à Nabaztag. La reconnaissance "
+"vocale est effectuée localement et il vous faut appuyer sur le bouton (en le maintenant appuyé), attendre le 'bip', attendre encore quelques secondes "
+"(oui c'est un bug) puis parler. Relacher quand vous n'avez plus rien à dire et attendez que Nabaztag vous réponde."
+
+#: templates/nabweb/index.html:24 templates/nabweb/index.html:29
 msgid "Language"
 msgstr "Langue"
 
-#: templates/nabweb/index.html:45
+#: templates/nabweb/index.html:27
 msgid ""
 "The language is used by services with recorded sounds. U.S. English and "
 "British English are based on distinct voices."
 msgstr ""
 "La langue est utilisée par les services avec des sons enregistrés. "
-"Typiquement, l'américain et le britannique utilisent des voix différentes"
+"Typiquement, l'américain et le britannique utilisent des voix différentes. "
+"le Japonais est intéressant."
 
-#: templates/nabweb/index.html:60
+#: templates/nabweb/index.html:42
 msgid "Save"
 msgstr "Enregistrer"
 
-#: templates/nabweb/index.html:61
+#: templates/nabweb/index.html:43
 msgid "Reset"
 msgstr "Annuler"
 
-#: templates/nabweb/index.html:94
-msgid "Upgrading"
+#: templates/nabweb/system-info/index.html:4
+msgid "System information"
+msgstr "Information système"
+
+#: templates/nabweb/system-info/index.html:10
+msgid "Raspberry Pi (Linux)"
+msgstr ""
+
+#: templates/nabweb/system-info/index.html:14
+msgid "Version"
+msgstr ""
+
+#: templates/nabweb/system-info/index.html:16
+#: templates/nabweb/system-info/index.html:38
+msgid "Uptime"
+msgstr "Levé depuis"
+
+#: templates/nabweb/system-info/index.html:27
+msgid "Nabd daemon"
+msgstr "Nabd processus"
+
+#: templates/nabweb/system-info/index.html:36
+msgid "State"
+msgstr "Etat"
+
+#: templates/nabweb/system-info/index.html:40
+msgid "Clients (including website)"
+msgstr "Clients (y compris ce site Web)"
+
+#: templates/nabweb/system-info/index.html:52
+msgid "Hardware"
+msgstr ""
+
+#: templates/nabweb/system-info/index.html:61
+msgid "Model"
+msgstr "Modèle"
+
+#: templates/nabweb/system-info/index.html:63
+msgid "Sound card"
+msgstr "Carte son"
+
+#: templates/nabweb/system-info/index.html:65
+msgid "Sound input"
+msgstr "Entrée son"
+
+#: templates/nabweb/system-info/index.html:67
+msgid "Left ear"
+msgstr "Oreille gauche"
+
+#: templates/nabweb/system-info/index.html:69
+msgid "Right ear"
+msgstr "Oreille droite"
+
+#: templates/nabweb/upgrade/_repository.html:9
+msgid "Up to date"
+msgstr "A jour"
+
+#: templates/nabweb/upgrade/_repository.html:17
+msgid "Branch:"
+msgstr "Branche"
+
+#: templates/nabweb/upgrade/_repository.html:20
+msgid "Version:"
+msgstr ""
+
+#: templates/nabweb/upgrade/_repository.html:23
+msgid "You have unpushed local commits in this repository."
+msgstr "Vous avez des commits locaux non publiés"
+
+#: templates/nabweb/upgrade/_repository.html:26
+msgid "You have local changes in this repository."
+msgstr "Vous avez des changements locaux dans ce repository"
+
+#: templates/nabweb/upgrade/index.html:27
+msgid ""
+"Through this interface, you can upgrade your Nabaztag software (provided "
+"that it is connected to the internet)."
+msgstr ""
+"Grâce à cette interface, vous pouvez mettre à jour votre Nabaztag (mais il "
+"doit être connecté à Internet)."
+
+#: templates/nabweb/upgrade/index.html:29
+msgid ""
+"Your Nabaztag is apparently tracking the master branch. Please note that web-"
+"based upgrade mechanism may fail and require that you connect over SSH."
+msgstr ""
+"Attention, apparemment, votre Nabaztag est monté sur la branche master : la "
+"mise à jour avec l'interface web peut échouer. Et là, que la force soit avec "
+"vous, il faudra terminer en SSH."
+
+#: templates/nabweb/upgrade/index.html:32
+msgid ""
+"You can switch to master branch to benefit from changes between releases, "
+"however this is not for the faint-hearted and requires good command of <a "
+"href='https://www.raspberrypi.org/documentation/remote-access/ssh/' "
+"target='_blanck'>SSH</a> and <a href='https://en.wikipedia.org/wiki/Git' "
+"target='_blanck'>Git</a>."
+msgstr ""
+"Vous pouvez sauter sur la branche master pour avoir les dernières "
+"nouveautés, mais attention j'espère juste que vous n'avez pas peur de <a "
+"href='https://www.raspberrypi.org/documentation/remote-access/ssh/' "
+"target='_blanck'>SSH</a> et de  <a href='https://en.wikipedia.org/wiki/Git' "
+"target='_blanck'>Git</a>."
+
+#: templates/nabweb/upgrade/index.html:34
+msgid "Current versions"
+msgstr "Version actuelle"
+
+#: templates/nabweb/upgrade/index.html:50
+msgid "Upgrade now"
 msgstr "Mise à jour"
 
-#: templates/nabweb/index.html:97
-msgid "Please wait while upgrading pynab..."
-msgstr "Veuillez patienter pendant la mise à jour de pynab"
+#: templatetags/duration_filter.py:11
+msgid "less than one minute"
+msgstr "moins d'une minute"
 
-#: templates/nabweb/index.html:148
-msgid "An unknown error occurred trying to upgrade"
-msgstr "Une erreur inconnue est survenue en essayant de mettre à jour pynab"
+#: templatetags/duration_filter.py:13
+msgid "1 minute"
+msgstr ""
 
-#: templates/nabweb/index.html:150
-msgid "An error occurred trying to upgrade: "
-msgstr "Une erreur est survenue en essayant de mettre à jour pynab : "
+#: templatetags/duration_filter.py:15
+msgid "{} minutes"
+msgstr ""
+
+#: templatetags/duration_filter.py:17
+msgid "1 hour"
+msgstr "1 heure"
+
+#: templatetags/duration_filter.py:19
+msgid "1 hour and 1 minute"
+msgstr "1 heure et 1 minute"
+
+#: templatetags/duration_filter.py:21
+msgid "1 hour and {} minutes"
+msgstr "1 heure et {} minutes"
+
+#: templatetags/duration_filter.py:23
+msgid "{} hours"
+msgstr "{} heures"
+
+#: templatetags/duration_filter.py:25
+msgid "{} hours and 1 minute"
+msgstr ""
+
+#: templatetags/duration_filter.py:26
+msgid "{} hours and {} minutes"
+msgstr "{} heures et {} minutes"
+
+#~ msgid "An unknown error occurred trying to upgrade"
+#~ msgstr "Une erreur inconnue est survenue en essayant de mettre à jour pynab"
+
+#~ msgid "An error occurred trying to upgrade: "
+#~ msgstr "Une erreur est survenue en essayant de mettre à jour pynab : "

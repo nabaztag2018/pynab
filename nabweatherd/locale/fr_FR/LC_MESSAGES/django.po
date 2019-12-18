@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-22 20:15+0200\n"
+"POT-Creation-Date: 2019-12-17 11:27+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,53 +22,74 @@ msgid "Weather"
 msgstr "Météo"
 
 #: templates/nabweatherd/settings.html:10
+msgid ""
+"The animation displays the chance of rain within the next hour. Yellow means "
+"sun (or more precisely no rain) and blue means, well, get an unmbrella. This "
+"feature is not available for all city (if it's not available no amination "
+"will be played)"
+msgstr ""
+"L'animation lumineuse vous donne la probabilité qu'il pleuve dans l'heure. "
+"En jaune c'est qu'il ne va pas pleuvoir, en bleu c'est très probable ! "
+"(Cette fonction n'est pas disponible pour toutes les villes, si ce n'est pas "
+"le cas, aucune animation ne sera affichée  mais vous pourrez demander quand "
+"même demander la météo à votre lapin)."
+
+#: templates/nabweatherd/settings.html:11
+msgid ""
+"You can also ask Nabaztag the weather forecast by saying 'What is the "
+"weather forecast for today ?' (for example)."
+msgstr ""
+"Vous pouvez aussi demander la météo à votre lapin en disant par exemple 'Quelle est la météo aujourd'hui ?'"
+
+
+#: templates/nabweatherd/settings.html:14
 msgid "Location"
 msgstr "Ville"
 
-#: templates/nabweatherd/settings.html:12
+#: templates/nabweatherd/settings.html:16
 msgid "City, Zip code, Country"
 msgstr "Ville, code postal, pays"
 
-#: templates/nabweatherd/settings.html:16
+#: templates/nabweatherd/settings.html:20
 msgid "Unit"
 msgstr "Unité"
 
-#: templates/nabweatherd/settings.html:20
+#: templates/nabweatherd/settings.html:23
 msgid "Celsius"
 msgstr "Celsius"
 
-#: templates/nabweatherd/settings.html:21
+#: templates/nabweatherd/settings.html:24
 msgid "Farenheit"
 msgstr "Farenheit"
 
-#: templates/nabweatherd/settings.html:22
+#: templates/nabweatherd/settings.html:25
 msgid "Kelvin"
 msgstr "Kelvin"
 
-#: templates/nabweatherd/settings.html:27
+#: templates/nabweatherd/settings.html:30
 msgid "Forecast"
 msgstr "Prévision"
 
-#: templates/nabweatherd/settings.html:29
+#: templates/nabweatherd/settings.html:32
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: templates/nabweatherd/settings.html:30
+#: templates/nabweatherd/settings.html:33
 msgid "Tomorrow"
 msgstr "Demain"
 
-#: templates/nabweatherd/settings.html:37
+#: templates/nabweatherd/settings.html:40
 msgid "Save"
 msgstr "Enregistrer"
 
-#: templates/nabweatherd/settings.html:38
+#: templates/nabweatherd/settings.html:41
 msgid "Reset"
 msgstr "Annuler"
 
-#: templates/nabweatherd/settings.html:78
+#: templates/nabweatherd/settings.html:81
 msgid "Unknown server error"
 msgstr "Erreur inconnue du serveur"
 
-#: views.py:36
+#: views.py:40
 msgid "Unknown location"
 msgstr "Ville inconnue"

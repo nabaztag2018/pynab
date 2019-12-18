@@ -60,9 +60,6 @@
         function upgradeNowUpdateStatus() {
           $.ajax({
             url: "{% url 'nabweb.upgrade.now' %}",
-            beforeSend: function (xhr, settings) {
-              xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
-            },
             contentType: 'application/json',
             method: "GET",
             success: function (data) {
@@ -87,7 +84,31 @@
         }
         upgradeBtn.on("click", function() {
           $('#upgradeModal').modal();
-          upgradeNowUpdateStatus();
+          $.ajax({
+            url: "{% url 'nabweb.upgrade.now' %}",
+            beforeSend: function (xhr, settings) {
+              xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+            },
+            contentType: 'application/json',
+            method: "POST",
+            success: function (data) {
+              if (data.status == 'ok') {
+                setTimeout(function() { upgradeNowUpdateStatus(); }, 1000);
+              } else {
+                if (data.status == 'error') {
+                  $("#upgradeStatus").text(data.message);
+                  setTimeout(function() { upgradeNowUpdateStatus(); }, 1000);
+                } else {
+                  $("#upgradeStatus").text("Unknown response from server");
+                  setTimeout(function() { upgradeNowUpdateStatus(); }, 5000);
+                }
+              }
+            },
+            error: function (data) {
+              $("#upgradeStatus").text("Internal server error");
+              setTimeout(function() { upgradeNowUpdateStatus(); }, 5000);
+            }
+          });
         });
       });
     {% endif %}
