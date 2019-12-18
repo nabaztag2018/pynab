@@ -3,11 +3,11 @@ import datetime
 import dateutil.parser
 import logging
 from asgiref.sync import sync_to_async
-from nabcommon.nabservice import NabInfoCachedService
+from nabcommon.nabservice import NabInfoService
 from meteofrance.client import meteofranceClient
 
 
-class NabWeatherd(NabInfoCachedService):
+class NabWeatherd(NabInfoService):
     UNIT_CELSIUS = 1
     UNIT_FARENHEIT = 2
 
@@ -385,6 +385,13 @@ class NabWeatherd(NabInfoCachedService):
         config.next_performance_type = next_args
         config.save()
 
+    def next_info_update(self, config):
+        if config is None:
+            return None
+        now = datetime.datetime.now(datetime.timezone.utc)
+        next_5mn = now + datetime.timedelta(seconds=300)
+        return next_5mn
+
     async def fetch_info_data(self, config_t):
         location, unit = config_t
         if location is None:
@@ -394,13 +401,11 @@ class NabWeatherd(NabInfoCachedService):
         logging.debug(data)
         
         if ('next_rain') in data:
-            logging.debug(f"next_rain is available")
             if (data["next_rain"] == 'No rain'):
                 next_rain = 'J_W1_0-N_0'
             else :
                 next_rain = 'J_W1_32-N_0'
         else :
-            logging.debug(f"next_rain is NOT available")
             next_rain = None
             
         current_weather_class = self.normalize_weather_class(
@@ -409,6 +414,7 @@ class NabWeatherd(NabInfoCachedService):
         today_forecast_weather_class = self.normalize_weather_class(
             data["forecast"][0]["weather_class"]
         )
+        
         today_forecast_max_temp = data["forecast"][0]["max_temp"]
         tomorrow_forecast_weather_class = self.normalize_weather_class(
             data["forecast"][1]["weather_class"]
@@ -432,11 +438,11 @@ class NabWeatherd(NabInfoCachedService):
 
     def get_animation(self, info_data):
         if info_data is None or info_data["next_rain"] is None:
-            return None
-        logging.debug(f"get_animation is not None")
-        (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[
-            info_data["next_rain"]
-        ]
+            logging.debug("No rain info, classic weather animation will be displayed")
+            (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["today_forecast_weather_class"]]
+        else :
+            logging.debug("Rain info available")
+            (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["next_rain"]]
         return info_animation
 
     async def perform_additional(self, expiration, type, info_data, config_t):

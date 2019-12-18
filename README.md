@@ -9,13 +9,13 @@ Ce système est conçu pour deux cartes :
 - Une carte réalisée pour Maker Faire 2018, qui ne fonctionne qu'avec les Nabaztag v1 (sans micro ni RFID).
 - Une nouvelle version de la carte, proposée via la campagne Ulule en mai 2019, qui fonctionne avec les Nabaztag v1 et v2 (les micros sont sur la carte, du coup les Nabaztag v1 bénéficient aussi de la reconnaissance vocale).
 
-Les schémas et fichiers de fabrication de ces deux cartes sont dans le repository [hardware](https://github.com/nabaztag2018/hardware), respectivement [`RPI_Nabaztag`](https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF) (2018) et [`pyNab_v4.1`](https://github.com/nabaztag2018/hardware/blob/master/pyNab_V4.1_voice_reco.PDF) (2019).
+Les schémas et fichiers de fabrication de ces deux cartes sont dans le repository [hardware](https://github.com/nabaztag2018/hardware), respectivement [`RPI_Nabaztag`](https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF) (2018) et [`tagtagtag_V2.0`](https://github.com/nabaztag2018/hardware/tree/master/tagtagtag_V2.0) (2019).
 
 # Images
 
 Les [releases](https://github.com/nabaztag2018/pynab/releases) sont des images de Raspbian Buster Lite 2019-09-26 avec pynab pré-installé. Elles ont les mêmes réglages que [Raspbian](https://www.raspberrypi.org/downloads/raspbian/).
 
-La release actuelle (0.4.0) ne fonctionne que sur les cartes 2019.
+La release actuelle (0.6.x) ne fonctionne que sur les cartes 2019 (cf #44)
 
 # Installation sur Raspbian (pour développeurs !)
 
@@ -43,7 +43,7 @@ https://github.com/pguyot/tagtagtag-ears
 2. Installer PostgreSQL et les paquets requis
 
 ```
-sudo apt-get install postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3
+sudo apt-get install postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3 libopenblas-dev liblapack-dev gfortran
 ```
 
 3. Récupérer le code
@@ -74,12 +74,17 @@ cd pynab
 bash upgrade.sh
 ``` 
 
+# Nabblockly
+
+[Nabblockly](https://github.com/pguyot/nabblockly), une interface de programmation des chorégraphies du lapin par blocs, nécessite une installation supplémentaire, et quelques connaissances en configuration Nginx. De base, il est conçu pour la salle de classe et remplace le site web de configuration du Nabaztag.
+
 # Architecture
 
 Cf le document [PROTOCOL.md](PROTOCOL.md)
 
 - nabd : daemon qui gère le lapin (i/o, chorégraphies)
 - nab8balld : daemon pour le service gourou
+- nabairqualityd : daemon pour le service de qualité de l'air
 - nabclockd : daemon pour le service horloge
 - nabsurprised : daemon pour le service surprises
 - nabtaichid : daemon pour le service taichi
