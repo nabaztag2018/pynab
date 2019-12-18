@@ -55,7 +55,6 @@ num2words==0.5.10
 packaging==19.2
 pathspec==0.6.0
 pep8==1.7.1
-pkg-resources==0.0.0
 plac==1.1.3
 pluggy==0.13.1
 py==1.8.0
@@ -73,8 +72,6 @@ requests==2.22.0
 semantic-version==2.8.3
 six==1.13.0
 sklearn-crfsuite==0.3.6
-snips-nlu-en==0.2.2
-snips-nlu-fr==0.2.4
 soupsieve==1.9.5
 sqlparse==0.3.0
 tabulate==0.8.6
