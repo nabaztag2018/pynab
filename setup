@@ -73,16 +73,17 @@ cd /home/pi/tagtagtag-ears
 make
 sudo make install
 
-echo "Installing pynab release branch"
+echo "Cloning pynab release branch"
 cd /home/pi
 sudo -u pi git clone -b release https://github.com/nabaztag2018/pynab.git
-cd pynab
-sudo -u pi /bin/bash install.sh travis-chroot
 
 echo "Installing nabblockly"
-sudo apt-get install erlang
+sudo apt-get install -y erlang
 cd /home/pi/pynab
 git clone https://github.com/pguyot/nabblockly
 cd nabblockly
 wget https://s3.amazonaws.com/rebar3/rebar3 && chmod +x rebar3
 ./rebar3 release
+
+echo "Running pynab install script"
+sudo -u pi /bin/bash install.sh travis-chroot
