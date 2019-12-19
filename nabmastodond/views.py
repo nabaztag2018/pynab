@@ -176,7 +176,7 @@ class OAuthCBView(View):
             config.last_processed_status_date = timezone.now()
             config.save()
             NabMastodond.signal_daemon()
-        return HttpResponseRedirect("/services/")
+        return HttpResponseRedirect("/")
 
 
 class WeddingView(View):
