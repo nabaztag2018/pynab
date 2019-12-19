@@ -160,8 +160,7 @@ msgid ""
 "British English are based on distinct voices."
 msgstr ""
 "La langue est utilisée par les services avec des sons enregistrés. "
-"Typiquement, l'américain et le britannique utilisent des voix différentes. "
-"le Japonais est intéressant."
+"Une nouvelle façon d'apprendre des langues étrangères !"
 
 #: templates/nabweb/index.html:44
 msgid "Save"
