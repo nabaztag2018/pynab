@@ -137,7 +137,8 @@ class GitInfo:
     REPOSITORIES = {
         "pynab": ".",
         "sound_driver": "../wm8960",
-        "ears_driver": "../tagtagtag-ears/"
+        "ears_driver": "../tagtagtag-ears/",
+        "nabblockly": "nabblockly"
     }
 
     @staticmethod
