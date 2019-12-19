@@ -74,11 +74,6 @@ if [ $upgrade -eq 1 -a $makerfaire2018 -eq 0 -a -d /home/pi/wm8960 ]; then
     make && sudo make install
     sudo touch /tmp/pynab.upgrade.reboot
   fi
-else
-  if [ $travis_chroot -eq 0 -a ! -e "/dev/ear0" ]; then
-    echo "Please install ears driver https://github.com/pguyot/tagtagtag-ears"
-    exit 1
-  fi
 fi
 
 if [ $upgrade -eq 1 ]; then
@@ -101,6 +96,24 @@ else
   if [ $travis_chroot -eq 0 -a ! -e "/dev/ear0" ]; then
     echo "Please install ears driver https://github.com/pguyot/tagtagtag-ears"
     exit 1
+  fi
+fi
+
+if [ $upgrade -eq 1 ]; then
+  echo "Updating nabblockly" > /tmp/pynab.upgrade
+  if [ -d /home/pi/pynab/nabblockly ]; then
+    cd /home/pi/pynab/nabblockly
+    sudo chown -R ${owner} .
+    pull=`git pull`
+    if [ "$pull" != "Already up to date." ]; then
+      ./rebar3 release
+    fi
+  else
+    echo "You may want to install nabblockly from https://github.com/pguyot/nabblockly"
+  fi
+else
+  if [ $travis_chroot -eq 0 -a ! -d "/home/pi/pynab/nabblockly" ]; then
+    echo "You may want to install nabblockly from https://github.com/pguyot/nabblockly"
   fi
 fi
 
