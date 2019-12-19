@@ -221,6 +221,7 @@ class Nabd:
         async with self.idle_cv:
             if len(self.idle_queue) == 0:
                 await self.set_state("idle")
+                self.idle_cv.notify()
             else:
                 item = self.idle_queue.popleft()
                 await self.process_idle_item(item)
