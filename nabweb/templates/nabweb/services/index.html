@@ -13,7 +13,6 @@
   {% endfor %}
   <script type="text/javascript">
     $(function() {
-      console.log("{{ services }}");
       $("div.settings").each(function(index, element) {
         var url = $(element).data('url');
         $.get(url, function(data) {

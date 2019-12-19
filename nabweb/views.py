@@ -40,9 +40,31 @@ class BaseView(View, metaclass=abc.ABCMeta):
         context = self.get_context()
         return render(request, self.template_name(), context=context)
 
+    @staticmethod
+    def get_services(page):
+        services = []
+        for config in apps.get_app_configs():
+            if hasattr(config.module, 'NABAZTAG_SERVICE_PRIORITY'):
+                service_page = 'services'
+                if hasattr(config.module, 'NABAZTAG_SERVICE_PAGE'):
+                    service_page = config.module.NABAZTAG_SERVICE_PAGE
+                if service_page == page:
+                    services.append({
+                        'priority': config.module.NABAZTAG_SERVICE_PRIORITY,
+                        'name': config.name
+                    })
+        services_sorted = sorted(services, key=lambda s: s['priority'])
+        services_names = map(lambda s: s['name'], services_sorted)
+        return services_names
+
 class NabWebView(BaseView):
     def template_name(self):
         return "nabweb/index.html"
+
+    def get_context(self):
+        context = super().get_context()
+        context["services"] = BaseView.get_services('home')
+        return context
 
     def post(self, request, *args, **kwargs):
         config = Config.load()
@@ -64,16 +86,7 @@ class NabWebServicesView(BaseView):
 
     def get_context(self):
         context = super().get_context()
-        services = []
-        for config in apps.get_app_configs():
-            if hasattr(config.module, 'NABAZTAG_SERVICE_PRIORITY'):
-                services.append({
-                    'priority': config.module.NABAZTAG_SERVICE_PRIORITY,
-                    'name': config.name
-                })
-        services_sorted = sorted(services, key=lambda s: s['priority'])
-        services_names = map(lambda s: s['name'], services_sorted)
-        context["services"] = services_names
+        context["services"] = BaseView.get_services('services')
         return context
 
 class NabWebSytemInfoView(BaseView):
@@ -137,7 +150,8 @@ class GitInfo:
     REPOSITORIES = {
         "pynab": ".",
         "sound_driver": "../wm8960",
-        "ears_driver": "../tagtagtag-ears/"
+        "ears_driver": "../tagtagtag-ears/",
+        "nabblockly": "nabblockly"
     }
 
     @staticmethod

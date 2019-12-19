@@ -437,7 +437,9 @@ class NabWeatherd(NabInfoService):
         return self.normalize_weather_class(weather_class[:-1])
 
     def get_animation(self, info_data):
-        if info_data is None or info_data["next_rain"] is None:
+        if info_data is None:
+            return None
+        if info_data["next_rain"] is None:
             logging.debug("No rain info, classic weather animation will be displayed")
             (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["today_forecast_weather_class"]]
         else :

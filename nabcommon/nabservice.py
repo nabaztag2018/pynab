@@ -438,7 +438,7 @@ class NabInfoService(NabRecurrentService, ABC):
                 + "}\r\n"
             )
         else:
-            info_packet = '{"type":"info","info_id":"' + service_name + "}\r\n"
+            info_packet = '{"type":"info","info_id":"' + service_name + '"}\r\n'
         self.writer.write(info_packet.encode("utf8"))
         if type != "info":
             await self.perform_additional(

@@ -76,7 +76,7 @@ bash upgrade.sh
 
 # Nabblockly
 
-[Nabblockly](https://github.com/pguyot/nabblockly), une interface de programmation des chorégraphies du lapin par blocs, nécessite une installation supplémentaire, et quelques connaissances en configuration Nginx. De base, il est conçu pour la salle de classe et remplace le site web de configuration du Nabaztag.
+[Nabblockly](https://github.com/pguyot/nabblockly), une interface de programmation des chorégraphies du lapin par blocs, est installé sur les images des releases depuis la 0.6.3b et fonctionne sur le port 8080. L'installation est possible sur le port 80 en modifiant la configuration de Nginx.
 
 # Architecture
 

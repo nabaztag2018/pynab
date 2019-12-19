@@ -42,6 +42,7 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
 
     async def reload_config(self):
         await self.setup_streaming(True)
+        await self.setup_initial_state()
 
     def close_streaming(self):
         if (
@@ -421,6 +422,8 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
                     config.spouse_left_ear_position,
                     config.spouse_right_ear_position,
                 )
+        else:
+            await self.send_stop_listening_to_ears()
 
     def run(self):
         super().connect()

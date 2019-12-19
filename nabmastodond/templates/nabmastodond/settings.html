@@ -256,8 +256,8 @@
         {% csrf_token %}
         <p>{% trans "As we don't want Nabaztag to live in the cloud we're using <a href='https://en.wikipedia.org/wiki/Mastodon_(software)'>Mastodon</a> to connect rabbits (Mastodon is a sort of decentralized Twitter - and Open Source). Currently your Nabaztag is not connected to Mastodon." %}</p>
         <ol>
-          <li>{% blocktrans %}First, <strong>create an account for your Nabaztag</strong> on a given Mastodon instance, for example <a href="https://mstdn.fr/auth/sign_up" target="_blank">mstdn.fr</a>.{% endblocktrans %}</li>
-          <li>{% blocktrans %}Connect this account with the "Connect" button. If your Nabaztag's account is on a different instance, change the value in the instance box below.</li>{% endblocktrans %}
+          <li>{% blocktrans %}First, <strong>create an account for your Nabaztag</strong> on a given Mastodon instance, for example <a href="https://mstdn.fr/auth/sign_up" target="_blank">mstdn.fr</a> or <a href="https://botsin.space/auth/sign_up" target="_blank">botsin.space</a>.{% endblocktrans %}</li>
+          <li>{% blocktrans %}Indicate the instance your Nabaztag's account is on in the instance box below and connect this account with the "Connect" button.{% endblocktrans %}</li>
         </ol>
         <div class="input-group input-group mb-3">
           <div class="input-group-prepend">

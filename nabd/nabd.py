@@ -221,6 +221,7 @@ class Nabd:
         async with self.idle_cv:
             if len(self.idle_queue) == 0:
                 await self.set_state("idle")
+                self.idle_cv.notify()
             else:
                 item = self.idle_queue.popleft()
                 await self.process_idle_item(item)
@@ -483,6 +484,8 @@ class Nabd:
                         packet = json.loads(line.decode("utf8"))
                         await self.process_packet(packet, writer)
                     except UnicodeDecodeError as e:
+                        logging.debug(f"Unicode Error {e} with service packet")
+                        logging.debug(f"{packet}")
                         self.write_packet(
                             {
                                 "type": "response",
@@ -493,6 +496,8 @@ class Nabd:
                             writer,
                         )
                     except json.decoder.JSONDecodeError as e:
+                        logging.debug(f"JSON Error {e} with service packet")
+                        logging.debug(f"{packet}")
                         self.write_packet(
                             {
                                 "type": "response",
