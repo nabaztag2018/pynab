@@ -86,4 +86,5 @@ wget https://s3.amazonaws.com/rebar3/rebar3 && chmod +x rebar3
 ./rebar3 release
 
 echo "Running pynab install script"
+cd /home/pi/pynab
 sudo -u pi /bin/bash install.sh travis-chroot
