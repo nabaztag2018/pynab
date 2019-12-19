@@ -141,11 +141,11 @@ msgstr ""
 
 #: templates/nabweb/index.html:14
 msgid ""
-"And don't forget to try <a href='http://nabaztag.local:8081' "
+"And don't forget to try <a href='http://nabaztag.local:8080/' "
 "target='_new'>Nabblocky</a> and learn how to code with Nabaztag. It's "
 "fantastic."
 msgstr ""
-"Et n'oubliez pas d'essayer <a href='http://nabaztag.local:8081' "
+"Et n'oubliez pas d'essayer <a href='http://nabaztag.local:8080/' "
 "target='_new'>Nabblocky</a>. Pour tous ceux qui veulent apprendre à développer avec Nabaztag. "
 "C'est fantastique !"
 
