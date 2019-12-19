@@ -80,10 +80,10 @@ sudo -u pi git clone -b release https://github.com/nabaztag2018/pynab.git
 echo "Installing nabblockly"
 sudo apt-get install -y erlang || echo
 cd /home/pi/pynab
-git clone https://github.com/pguyot/nabblockly
+sudo -u pi git clone https://github.com/pguyot/nabblockly
 cd nabblockly
-wget https://s3.amazonaws.com/rebar3/rebar3 && chmod +x rebar3
-./rebar3 release
+sudo -u pi wget https://s3.amazonaws.com/rebar3/rebar3 && chmod +x rebar3
+sudo -u pi ./rebar3 release
 
 echo "Running pynab install script"
 cd /home/pi/pynab
