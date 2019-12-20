@@ -3,11 +3,11 @@ import datetime
 import dateutil.parser
 import logging
 from asgiref.sync import sync_to_async
-from nabcommon.nabservice import NabInfoCachedService
+from nabcommon.nabservice import NabInfoService
 from meteofrance.client import meteofranceClient
 
 
-class NabWeatherd(NabInfoCachedService):
+class NabWeatherd(NabInfoService):
     UNIT_CELSIUS = 1
     UNIT_FARENHEIT = 2
 
@@ -393,12 +393,19 @@ class NabWeatherd(NabInfoCachedService):
         return next_5mn
 
     async def fetch_info_data(self, config_t):
+        from . import models
+
         location, unit = config_t
         if location is None:
             return None
         client = await sync_to_async(meteofranceClient)(location, True)
         data = client.get_data()
         logging.debug(data)
+        
+        #saving real city in the location
+        config = await sync_to_async(models.Config.load)()
+        config.location = data["printName"]
+        await sync_to_async(config.save)()
         
         if ('next_rain') in data:
             if (data["next_rain"] == 'No rain'):
