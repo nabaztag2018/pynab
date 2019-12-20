@@ -3,11 +3,11 @@ import datetime
 import dateutil.parser
 import logging
 from asgiref.sync import sync_to_async
-from nabcommon.nabservice import NabInfoService
+from nabcommon.nabservice import NabInfoCachedService
 from meteofrance.client import meteofranceClient
 
 
-class NabWeatherd(NabInfoService):
+class NabWeatherd(NabInfoCachedService):
     UNIT_CELSIUS = 1
     UNIT_FARENHEIT = 2
 
