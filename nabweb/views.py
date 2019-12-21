@@ -2,7 +2,6 @@ import abc
 import asyncio
 import datetime
 import json
-import logging
 import os
 import re
 import subprocess
@@ -44,18 +43,21 @@ class BaseView(View, metaclass=abc.ABCMeta):
     def get_services(page):
         services = []
         for config in apps.get_app_configs():
-            if hasattr(config.module, 'NABAZTAG_SERVICE_PRIORITY'):
-                service_page = 'services'
-                if hasattr(config.module, 'NABAZTAG_SERVICE_PAGE'):
+            if hasattr(config.module, "NABAZTAG_SERVICE_PRIORITY"):
+                service_page = "services"
+                if hasattr(config.module, "NABAZTAG_SERVICE_PAGE"):
                     service_page = config.module.NABAZTAG_SERVICE_PAGE
                 if service_page == page:
-                    services.append({
-                        'priority': config.module.NABAZTAG_SERVICE_PRIORITY,
-                        'name': config.name
-                    })
-        services_sorted = sorted(services, key=lambda s: s['priority'])
-        services_names = map(lambda s: s['name'], services_sorted)
+                    services.append(
+                        {
+                            "priority": config.module.NABAZTAG_SERVICE_PRIORITY,
+                            "name": config.name,
+                        }
+                    )
+        services_sorted = sorted(services, key=lambda s: s["priority"])
+        services_names = map(lambda s: s["name"], services_sorted)
         return services_names
+
 
 class NabWebView(BaseView):
     def template_name(self):
@@ -63,7 +65,7 @@ class NabWebView(BaseView):
 
     def get_context(self):
         context = super().get_context()
-        context["services"] = BaseView.get_services('home')
+        context["services"] = BaseView.get_services("home")
         return context
 
     def post(self, request, *args, **kwargs):
@@ -80,14 +82,16 @@ class NabWebView(BaseView):
             context={"current_locale": config.locale, "locales": locales},
         )
 
+
 class NabWebServicesView(BaseView):
     def template_name(self):
         return "nabweb/services/index.html"
 
     def get_context(self):
         context = super().get_context()
-        context["services"] = BaseView.get_services('services')
+        context["services"] = BaseView.get_services("services")
         return context
+
 
 class NabWebSytemInfoView(BaseView):
     def template_name(self):
@@ -95,14 +99,14 @@ class NabWebSytemInfoView(BaseView):
 
     async def query_gestalt(self):
         try:
-            conn = asyncio.open_connection('127.0.0.1', NabService.PORT_NUMBER)
+            conn = asyncio.open_connection("127.0.0.1", NabService.PORT_NUMBER)
             reader, writer = await asyncio.wait_for(conn, 0.5)
         except ConnectionRefusedError as err:
-            return {"status":"error","message":"Nabd is not running"}
+            return {"status": "error", "message": "Nabd is not running"}
         except asyncio.TimeoutError as err:
             return {
-                "status":"error",
-                "message":"Communication with Nabd timed out (connecting)"
+                "status": "error",
+                "message": "Communication with Nabd timed out (connecting)",
             }
         try:
             writer.write(b'{"type":"gestalt","request_id":"gestalt"}\r\n')
@@ -110,17 +114,17 @@ class NabWebSytemInfoView(BaseView):
                 line = await asyncio.wait_for(reader.readline(), 0.5)
                 packet = json.loads(line.decode("utf8"))
                 if (
-                    "type" in packet and
-                    packet["type"] == "response" and
-                    "request_id" in packet and
-                    packet["request_id"] == "gestalt"
+                    "type" in packet
+                    and packet["type"] == "response"
+                    and "request_id" in packet
+                    and packet["request_id"] == "gestalt"
                 ):
                     writer.close()
                     return {"status": "ok", "result": packet}
         except asyncio.TimeoutError as err:
             return {
-                "status":"error",
-                "message":"Communication with Nabd timed out (getting info)"
+                "status": "error",
+                "message": "Communication with Nabd timed out (getting info)",
             }
 
     def get_os_info(self):
@@ -132,12 +136,12 @@ class NabWebSytemInfoView(BaseView):
                 version = matchObj.group(1)
         with open("/etc/rpi-issue") as issue:
             line = issue.readline()
-            matchObj = re.search(r' ([0-9-]+)$', line, re.M)
+            matchObj = re.search(r" ([0-9-]+)$", line, re.M)
             if matchObj:
-                version = version + ', issue ' + matchObj.group(1)
-        with open('/proc/uptime', 'r') as uptime_f:
+                version = version + ", issue " + matchObj.group(1)
+        with open("/proc/uptime", "r") as uptime_f:
             uptime = int(float(uptime_f.readline().split()[0]))
-        return {'version': version, 'uptime': uptime}
+        return {"version": version, "uptime": uptime}
 
     def get_context(self):
         context = super().get_context()
@@ -146,12 +150,13 @@ class NabWebSytemInfoView(BaseView):
         context["os"] = self.get_os_info()
         return context
 
+
 class GitInfo:
     REPOSITORIES = {
         "pynab": ".",
         "sound_driver": "../wm8960",
         "ears_driver": "../tagtagtag-ears/",
-        "nabblockly": "nabblockly"
+        "nabblockly": "nabblockly",
     }
 
     @staticmethod
@@ -169,7 +174,7 @@ class GitInfo:
         return root_dir
 
     @staticmethod
-    def get_repository_info(repository, force = False):
+    def get_repository_info(repository, force=False):
         relpath = GitInfo.REPOSITORIES[repository]
         cache_key = f"git/info/{repository}"
         if not force:
@@ -187,54 +192,79 @@ class GitInfo:
     def do_get_repository_info(repository, relpath):
         root_dir = GitInfo.get_root_dir()
         if root_dir is None:
-            return (
-                {
-                    "status": "error",
-                    "message": "Cannot find pynab installation from "
-                    "Raspbian systemd services",
-                }
-            )
+            return {
+                "status": "error",
+                "message": "Cannot find pynab installation from "
+                "Raspbian systemd services",
+            }
         repo_dir = root_dir + "/" + relpath
-        head_sha1 = os.popen(
-            f"cd {repo_dir} && git rev-parse HEAD"
-        ).read().rstrip()
+        head_sha1 = (
+            os.popen(f"cd {repo_dir} && git rev-parse HEAD").read().rstrip()
+        )
         if head_sha1 == "":
-            return (
-                {
-                    "status": "error",
-                    "message": "Cannot get HEAD - not a git repository? "
-                    "Check /var/log/syslog",
-                }
-            )
+            return {
+                "status": "error",
+                "message": "Cannot get HEAD - not a git repository? "
+                "Check /var/log/syslog",
+            }
         info = {}
         info["head"] = head_sha1
-        info["branch"] = os.popen(
-            f"cd {repo_dir} && sudo -u pi git rev-parse --abbrev-ref HEAD"
-        ).read().rstrip()
-        upstream_branch = os.popen(
-            f"cd {repo_dir} "
-            f"&& sudo -u pi git rev-parse --abbrev-ref @{{upstream}}"
-        ).read().rstrip()
-        remote = upstream_branch.split('/')[0]
+        info["branch"] = (
+            os.popen(
+                f"cd {repo_dir} && sudo -u pi git rev-parse --abbrev-ref HEAD"
+            )
+            .read()
+            .rstrip()
+        )
+        upstream_branch = (
+            os.popen(
+                f"cd {repo_dir} "
+                f"&& sudo -u pi git rev-parse --abbrev-ref @{{upstream}}"
+            )
+            .read()
+            .rstrip()
+        )
+        remote = upstream_branch.split("/")[0]
         info["upstream_branch"] = upstream_branch
-        info["url"] = os.popen(
-            f"cd {repo_dir} && sudo -u pi git remote get-url {remote}"
-        ).read().rstrip()
-        info["local_changes"] = os.popen(
-            f"cd {repo_dir} && sudo -u pi git diff-index --quiet HEAD -- "
-            f"|| echo 'local_changes' "
-        ).read().strip() != ""
-        info["tag"] = os.popen(
-            f"cd {repo_dir} && sudo -u pi git describe --exact-match --tags"
-        ).read().strip()
-        commits_count = os.popen(
-            f"cd {repo_dir} && sudo -u pi git fetch "
-            f"&& sudo -u pi git rev-list --count HEAD..{upstream_branch}"
-        ).read().rstrip()
-        local_commits_count = os.popen(
-            f"cd {repo_dir} "
-            f"&& sudo -u pi git rev-list --count {upstream_branch}..HEAD"
-        ).read().rstrip()
+        info["url"] = (
+            os.popen(
+                f"cd {repo_dir} && sudo -u pi git remote get-url {remote}"
+            )
+            .read()
+            .rstrip()
+        )
+        info["local_changes"] = (
+            os.popen(
+                f"cd {repo_dir} && sudo -u pi git diff-index --quiet HEAD -- "
+                f"|| echo 'local_changes' "
+            )
+            .read()
+            .strip()
+            != ""
+        )
+        info["tag"] = (
+            os.popen(
+                f"cd {repo_dir} && sudo -u pi git describe --exact-match --tags"
+            )
+            .read()
+            .strip()
+        )
+        commits_count = (
+            os.popen(
+                f"cd {repo_dir} && sudo -u pi git fetch "
+                f"&& sudo -u pi git rev-list --count HEAD..{upstream_branch}"
+            )
+            .read()
+            .rstrip()
+        )
+        local_commits_count = (
+            os.popen(
+                f"cd {repo_dir} "
+                f"&& sudo -u pi git rev-list --count {upstream_branch}..HEAD"
+            )
+            .read()
+            .rstrip()
+        )
         if commits_count == "":
             info["status"] = "error"
             info["message"] = (
@@ -247,6 +277,7 @@ class GitInfo:
             info["local_commits_count"] = int(local_commits_count)
         info["info-date"] = datetime.datetime.now()
         return info
+
 
 class NabWebUpgradeView(BaseView):
     def template_name(self):
@@ -262,26 +293,32 @@ class NabWebUpgradeView(BaseView):
                 local_changes = True
         pynab_info = context["pynab"]
         updatable = (
-            "commits_count" in pynab_info and
-            pynab_info["commits_count"] > 0 and
-            "local_commits_count" in pynab_info and
-            pynab_info["local_commits_count"] == 0 and
-            local_changes is False
+            "commits_count" in pynab_info
+            and pynab_info["commits_count"] > 0
+            and "local_commits_count" in pynab_info
+            and pynab_info["local_commits_count"] == 0
+            and local_changes is False
         )
         context["updatable"] = updatable
         return context
+
 
 class NabWebUpgradeStatusView(View):
     def get(self, request, *args, **kwargs):
         repo_info = GitInfo.get_repository_info("pynab")
         return JsonResponse(repo_info)
 
+
 class NabWebUpgradeNowView(View):
     def get(self, request, *args, **kwargs):
-        step = os.popen(
-            "sudo -u pi flock -n /tmp/pynab.upgrade echo 'Not upgrading' "
-            "|| cat /tmp/pynab.upgrade"
-        ).read().rstrip()
+        step = (
+            os.popen(
+                "sudo -u pi flock -n /tmp/pynab.upgrade echo 'Not upgrading' "
+                "|| cat /tmp/pynab.upgrade"
+            )
+            .read()
+            .rstrip()
+        )
         if step == "Not upgrading":
             return JsonResponse({"status": "done"})
         else:
@@ -290,31 +327,41 @@ class NabWebUpgradeNowView(View):
     def post(self, request, *args, **kwargs):
         root_dir = GitInfo.get_root_dir()
         if root_dir is None:
-            return (
-                {
-                    "status": "error",
-                    "message": "Cannot find pynab installation from "
-                    "Raspbian systemd services",
-                }
+            return {
+                "status": "error",
+                "message": "Cannot find pynab installation from "
+                "Raspbian systemd services",
+            }
+        locked = (
+            os.popen(
+                "sudo -u pi flock -n /tmp/pynab.upgrade echo 'OK' || echo 'Locked'"
             )
-        locked = os.popen(
-            "sudo -u pi flock -n /tmp/pynab.upgrade echo 'OK' || echo 'Locked'"
-        ).read().rstrip()
+            .read()
+            .rstrip()
+        )
         if locked == "OK":
             command = [
-                "/usr/bin/nohup", "sudo", "-u", "pi",
-                "flock", "/tmp/pynab.upgrade",
-                "bash", f"{root_dir}/upgrade.sh",
+                "/usr/bin/nohup",
+                "sudo",
+                "-u",
+                "pi",
+                "flock",
+                "/tmp/pynab.upgrade",
+                "bash",
+                f"{root_dir}/upgrade.sh",
             ]
-            subprocess.Popen(command,
-                 stdout=open('/tmp/pynab-upgrade-stdout.log', 'w'),
-                 stderr=open('/tmp/pynab-upgrade-stderr.log', 'w'),
-                 preexec_fn=os.setpgrp
+            subprocess.Popen(
+                command,
+                stdout=open("/tmp/pynab-upgrade-stdout.log", "w"),
+                stderr=open("/tmp/pynab-upgrade-stderr.log", "w"),
+                preexec_fn=os.setpgrp,
             )
             return JsonResponse({"status": "ok"})
         if locked == "Locked":
             return JsonResponse({"status": "ok"})
-        return JsonResponse({
+        return JsonResponse(
+            {
                 "status": "error",
-                "message": "Could not acquire lock, a problem occurred"
-            })
+                "message": "Could not acquire lock, a problem occurred",
+            }
+        )
