@@ -34,6 +34,7 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
         self.mastodon_client = None
         self.mastodon_stream_handle = None
         self.current_access_token = None
+        self.listening_to_ears = False
 
     async def __config(self):
         from . import models
@@ -314,14 +315,18 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
         await self.writer.drain()
 
     async def send_start_listening_to_ears(self):
-        packet = '{"type":"mode","mode":"idle","events":["ears"]}\r\n'
-        self.writer.write(packet.encode("utf8"))
-        await self.writer.drain()
+        if self.listening_to_ears is False:
+            packet = '{"type":"mode","mode":"idle","events":["ears"]}\r\n'
+            self.writer.write(packet.encode("utf8"))
+            await self.writer.drain()
+            self.listening_to_ears = True
 
     async def send_stop_listening_to_ears(self):
-        packet = '{"type":"mode","mode":"idle","events":[]}\r\n'
-        self.writer.write(packet.encode("utf8"))
-        await self.writer.drain()
+        if self.listening_to_ears:
+            packet = '{"type":"mode","mode":"idle","events":[]}\r\n'
+            self.writer.write(packet.encode("utf8"))
+            await self.writer.drain()
+            self.listening_to_ears = False
 
     async def send_ears(self, left_ear, right_ear):
         packet = f'{{"type":"ears","left":{left_ear},"right":{right_ear}}}\r\n'
