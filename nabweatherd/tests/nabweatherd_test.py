@@ -21,6 +21,18 @@ class MockWriter(object):
 
 
 class TestNabWeatherd(unittest.TestCase):
+    def test_aliases(self):
+        service = NabWeatherd()
+        weather_class = service.normalize_weather_class("J_W1_0-N_4")
+        self.assertEqual(weather_class, "J_W1_0-N_1")
+        weather_class = service.normalize_weather_class("J_W1_0-N_1")
+        self.assertEqual(weather_class, "J_W1_0-N_1")
+        weather_class = service.normalize_weather_class("J_W2_4-N_1")
+        self.assertEqual(weather_class, "J_W1_3-N_0")
+
+
+@pytest.mark.django_db(transaction=True)
+class TestNabWeatherdDB(unittest.TestCase):
     def test_fetch_info_data(self):
         service = NabWeatherd()
         data = async_to_sync(service.fetch_info_data)(
@@ -51,18 +63,6 @@ class TestNabWeatherd(unittest.TestCase):
         self.assertTrue("signature" in packet_json)
         self.assertTrue("body" in packet_json)
 
-    def test_aliases(self):
-        service = NabWeatherd()
-        weather_class = service.normalize_weather_class("J_W1_0-N_4")
-        self.assertEqual(weather_class, "J_W1_0-N_1")
-        weather_class = service.normalize_weather_class("J_W1_0-N_1")
-        self.assertEqual(weather_class, "J_W1_0-N_1")
-        weather_class = service.normalize_weather_class("J_W2_4-N_1")
-        self.assertEqual(weather_class, "J_W1_3-N_0")
-
-
-@pytest.mark.django_db(transaction=True)
-class TestNabWeatherdDB(unittest.TestCase):
     def test_asr(self):
         config = models.Config.load()
         config.location = "75005"
