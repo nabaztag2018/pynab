@@ -33,12 +33,15 @@ Le slot `"animation"`, optionnel, indique l'animation visuelle. S'il est absent,
 
 `{"tempo":tempo, "colors":colors}`
 
-`tempo` est TBD.
+`tempo` est en ms.
 `colors` est une liste pour les couleurs des leds :
 
-`{"left":color,"center":color,"right":color,"bottom":color,"nose":color}`
+`{"left":color,"center":color,"right":color}`
 
-Tous les slots sont optionnels (`{}` = toutes les leds sont éteintes). `color` est TBD.
+Tous les slots sont optionnels (`{}` = toutes les leds sont éteintes).
+`color` peut être :
+-  un nombre de 0 à 15 représentant une valeur dans la palette originale (0 = noir, 15 = orange)
+-  un texte représentant la couleur au format HTML ('#' suivi de 3 octets en hexa) ou symbolique
 
 ## Paquets `ears`
 
@@ -216,3 +219,7 @@ Le statut `"canceled"` signifie que l'utilisateur a annulé la commande avec le 
 Le statut `"expired"` signifie que la commande est expirée.
 
 Le statut `"error"` signifie une erreur dans le protocole. `class` et `message` sont des chaînes.
+
+## Paquets `gestalt` et `config-update`
+
+Utilisés en interne pour la communication entre le site web et nabd.
