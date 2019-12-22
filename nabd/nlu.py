@@ -17,16 +17,21 @@ class NLU:
     }
     DEFAULT_LOCALE = "fr_FR"
 
+    @staticmethod
+    def get_locale(locale):
+        if locale in NLU.ENGINES:
+            return locale
+        else:
+            return NLU.DEFAULT_LOCALE
+
     def __init__(self, locale):
         self.executor = ThreadPoolExecutor(max_workers=1)
         self._load_model(locale)
 
     def _load_model(self, locale):
         try:
-            if locale in NLU.ENGINES:
-                path = NLU.ENGINES[locale]
-            else:
-                path = NLU.ENGINES[NLU.DEFAULT_LOCALE]
+            locale = NLU.get_locale(locale)
+            path = NLU.ENGINES[locale]
             basepath = Path(settings.BASE_DIR)
             fullpath = basepath.joinpath("nabd", path).as_posix()
             self.nlu_engine = SnipsNLUEngine.from_path(fullpath)

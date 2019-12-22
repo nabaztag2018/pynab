@@ -393,12 +393,19 @@ class NabWeatherd(NabInfoService):
         return next_5mn
 
     async def fetch_info_data(self, config_t):
+        from . import models
+
         location, unit = config_t
         if location is None:
             return None
         client = await sync_to_async(meteofranceClient)(location, True)
         data = client.get_data()
         logging.debug(data)
+        
+        #saving real city in the location
+        config = await sync_to_async(models.Config.load)()
+        config.location = data["printName"]
+        await sync_to_async(config.save)()
         
         if ('next_rain') in data:
             if (data["next_rain"] == 'No rain'):
@@ -437,7 +444,9 @@ class NabWeatherd(NabInfoService):
         return self.normalize_weather_class(weather_class[:-1])
 
     def get_animation(self, info_data):
-        if info_data is None or info_data["next_rain"] is None:
+        if info_data is None:
+            return None
+        if info_data["next_rain"] is None:
             logging.debug("No rain info, classic weather animation will be displayed")
             (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["today_forecast_weather_class"]]
         else :

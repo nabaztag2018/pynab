@@ -9,16 +9,17 @@ import socket
 import logging
 import subprocess
 import dateutil.parser
+import time
+import traceback
+import gc
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
+from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.apps import apps
 from nabcommon import nablogging
 from nabcommon.nabservice import NabService
 from .leds import Leds
-
-import time
-import traceback
 
 
 class Nabd:
@@ -70,14 +71,45 @@ class Nabd:
         self._ears_moved_task = None
         Nabd.leds_boot(self.nabio, 2)
         if self.nabio.has_sound_input():
+            from . import i18n
             from .asr import ASR
-
-            self.asr = ASR("fr_FR")
-            Nabd.leds_boot(self.nabio, 3)
             from .nlu import NLU
 
-            self.nlu = NLU("fr_FR")
+            config = i18n.Config.load()
+            self._asr_locale = ASR.get_locale(config.locale)
+            self.asr = ASR(self._asr_locale)
+            Nabd.leds_boot(self.nabio, 3)
+            self._nlu_locale = NLU.get_locale(config.locale)
+            self.nlu = NLU(self._nlu_locale)
             Nabd.leds_boot(self.nabio, 4)
+
+    async def reload_config(self):
+        """
+        Reload configuration.
+        """
+        if self.nabio.has_sound_input():
+            from . import i18n
+            from .asr import ASR
+            from .nlu import NLU
+
+            config = await sync_to_async(i18n.Config.load)()
+            new_asr_locale = ASR.get_locale(config.locale)
+            new_nlu_locale = NLU.get_locale(config.locale)
+            if new_asr_locale != self._asr_locale:
+                Nabd.leds_boot(self.nabio, 2)
+                self._asr_locale = new_asr_locale
+                self.asr = None
+                gc.collect()
+                self.asr = ASR(self._asr_locale)
+                Nabd.leds_boot(self.nabio, 3)
+            if new_nlu_locale != self._nlu_locale:
+                Nabd.leds_boot(self.nabio, 3)
+                self._nlu_locale = new_nlu_locale
+                self.nlu = None
+                gc.collect()
+                self.nlu = NLU(self._nlu_locale)
+                Nabd.leds_boot(self.nabio, 4)
+            self.nabio.set_leds(None, None, None, None, None)
 
     async def idle_setup(self):
         self.nabio.set_leds(None, None, None, None, None)
@@ -221,6 +253,7 @@ class Nabd:
         async with self.idle_cv:
             if len(self.idle_queue) == 0:
                 await self.set_state("idle")
+                self.idle_cv.notify()
             else:
                 item = self.idle_queue.popleft()
                 await self.process_idle_item(item)
@@ -398,8 +431,9 @@ class Nabd:
     async def process_gestalt_packet(self, packet, writer):
         """ Process a gestalt packet """
         proc = subprocess.Popen(
-            ['ps','-o','etimes','-p',str(os.getpid()),'--no-headers'],
-            stdout=subprocess.PIPE)
+            ["ps", "-o", "etimes", "-p", str(os.getpid()), "--no-headers"],
+            stdout=subprocess.PIPE,
+        )
         proc.wait()
         results = proc.stdout.readlines()
         uptime = int(results[0].strip())
@@ -409,6 +443,26 @@ class Nabd:
         response["connections"] = len(self.service_writers)
         response["hardware"] = self.nabio.gestalt()
         self.write_response_packet(packet, response, writer)
+
+    async def process_config_update_packet(self, packet, writer):
+        """ Process a config_update packet """
+        if not "service" in packet:
+            self.write_response_packet(
+                packet,
+                {
+                    "status": "error",
+                    "class": "UnknownPacket",
+                    "message": "Unknown or malformed mode packet",
+                },
+                writer,
+            )
+        else:
+            if packet["service"] == "nabd":
+                if "slot" in packet and packet["slot"] == "locale":
+                    await self.reload_config()
+                    self.write_response_packet(
+                        packet, {"status": "ok"}, writer
+                    )
 
     async def process_packet(self, packet, writer):
         """ Process a packet from a service """
@@ -424,6 +478,7 @@ class Nabd:
                 "sleep": self.process_sleep_packet,
                 "mode": self.process_mode_packet,
                 "gestalt": self.process_gestalt_packet,
+                "config-update": self.process_config_update_packet,
             }
             if packet["type"] in processors:
                 await processors[packet["type"]](packet, writer)
@@ -483,6 +538,8 @@ class Nabd:
                         packet = json.loads(line.decode("utf8"))
                         await self.process_packet(packet, writer)
                     except UnicodeDecodeError as e:
+                        logging.debug(f"Unicode Error {e} with service packet")
+                        logging.debug(f"{packet}")
                         self.write_packet(
                             {
                                 "type": "response",
@@ -493,6 +550,8 @@ class Nabd:
                             writer,
                         )
                     except json.decoder.JSONDecodeError as e:
+                        logging.debug(f"JSON Error {e} with service packet")
+                        logging.debug(f"{packet}")
                         self.write_packet(
                             {
                                 "type": "response",
@@ -550,9 +609,9 @@ class Nabd:
         now = time.time()
         decoded_str = await self.asr.get_decoded_string(True)
         # ASR model needs to be improved, log outcome.
-        logging.info(f"ASR string: {decoded_str}")
+        logging.debug(f"ASR string: {decoded_str}")
         response = await self.nlu.interpret(decoded_str)
-        logging.debug(f"NUL response: {str(response)}")
+        logging.debug(f"NLU response: {str(response)}")
         await self.set_state("idle")
         if response is None:
             # Did not understand

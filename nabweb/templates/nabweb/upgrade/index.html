@@ -42,6 +42,9 @@
           {% if rfid_driver %}
             {% include "nabweb/upgrade/_repository.html" with repo=ears_driver repo_name="RFID reader driver" %}
           {% endif %}
+          {% if nabblockly %}
+            {% include "nabweb/upgrade/_repository.html" with repo=nabblockly repo_name="Nabblockly" %}
+          {% endif %}
           </dl>
         </div>  
         <div class="card-footer">

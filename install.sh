@@ -74,11 +74,6 @@ if [ $upgrade -eq 1 -a $makerfaire2018 -eq 0 -a -d /home/pi/wm8960 ]; then
     make && sudo make install
     sudo touch /tmp/pynab.upgrade.reboot
   fi
-else
-  if [ $travis_chroot -eq 0 -a ! -e "/dev/ear0" ]; then
-    echo "Please install ears driver https://github.com/pguyot/tagtagtag-ears"
-    exit 1
-  fi
 fi
 
 if [ $upgrade -eq 1 ]; then
@@ -104,6 +99,24 @@ else
   fi
 fi
 
+if [ $upgrade -eq 1 ]; then
+  echo "Updating nabblockly" > /tmp/pynab.upgrade
+  if [ -d /home/pi/pynab/nabblockly ]; then
+    cd /home/pi/pynab/nabblockly
+    sudo chown -R ${owner} .
+    pull=`git pull`
+    if [ "$pull" != "Already up to date." ]; then
+      ./rebar3 release
+    fi
+  else
+    echo "You may want to install nabblockly from https://github.com/pguyot/nabblockly"
+  fi
+else
+  if [ $travis_chroot -eq 0 -a ! -d "/home/pi/pynab/nabblockly" ]; then
+    echo "You may want to install nabblockly from https://github.com/pguyot/nabblockly"
+  fi
+fi
+
 if [ $makerfaire2018 -eq 0 ]; then
   if [ $upgrade -eq 1 ]; then
     echo "Updating ASR models" > /tmp/pynab.upgrade
@@ -118,14 +131,14 @@ if [ $makerfaire2018 -eq 0 ]; then
 
   sudo mkdir -p "/opt/kaldi/model"
 
-  if [ ! -d "/opt/kaldi/model/kaldi-generic-en-tdnn_250-r20190609" ]; then
-    echo "Installing kaldi model for English from Zamia Speech"
-    wget -O - -q https://goofy.zamia.org/zamia-speech/asr-models/kaldi-generic-en-tdnn_250-r20190609.tar.xz | sudo tar xJ -C /opt/kaldi/model/
+  if [ ! -d "/opt/kaldi/model/kaldi-generic-en-r20191222" ]; then
+    echo "Uncompressing kaldi model for English"
+    sudo tar xJf /home/pi/pynab/asr/kaldi-nabaztag-en-adapt-r20191222.tar.xz -C /opt/kaldi/model/
   fi
 
-  if [ ! -d "/opt/kaldi/model/kaldi-nabaztag-fr-r20191001" ]; then
-    echo "Installing kaldi model for French"
-    wget -O - -q https://github.com/pguyot/zamia-speech/releases/download/20190930/kaldi-nabaztag-fr-r20191001.tar.xz | sudo tar xJ -C /opt/kaldi/model
+  if [ ! -d "/opt/kaldi/model/kaldi-nabaztag-fr-r20191222" ]; then
+    echo "Uncompressing kaldi model for French"
+    sudo tar xJf /home/pi/pynab/asr/kaldi-nabaztag-fr-adapt-r20191222.tar.xz -C /opt/kaldi/model/
   fi
 fi
 

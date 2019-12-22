@@ -1,6 +1,7 @@
 import sys
 import asyncio
 import datetime
+from dateutil import tz
 from asgiref.sync import sync_to_async
 from nabcommon import nabservice
 
@@ -16,6 +17,7 @@ class NabClockd(nabservice.NabService):
         self.loop_cv = asyncio.Condition()
         self.asleep = None
         self.last_chime = None
+        self.current_tz = self.get_system_tz()
 
     async def reload_config(self):
         from . import models
@@ -25,7 +27,7 @@ class NabClockd(nabservice.NabService):
             self.loop_cv.notify()
 
     def valid_time(self, now):
-        return now > datetime.datetime(2018, 11, 1)
+        return now > datetime.datetime(2018, 11, 1, tzinfo=tz.gettz())
 
     async def chime(self, hour):
         now = datetime.datetime.now()
@@ -94,7 +96,17 @@ class NabClockd(nabservice.NabService):
             async with self.loop_cv:
                 while self.running:
                     try:
-                        now = datetime.datetime.now()
+                        current_tz = self.get_system_tz()
+                        now = datetime.datetime.now(tz=tz.gettz(current_tz))
+                        if current_tz != self.current_tz:
+                            now_previous_tz = datetime.datetime.now(
+                                tz=tz.gettz(self.current_tz)
+                            )
+                            if self.last_chime == now_previous_tz.hour:
+                                self.last_chime = now.hour
+                            else:
+                                self.last_chime = None
+                            self.current_tz = current_tz
                         response = self.clock_response(now)
                         for r in response:
                             if r == "sleep":
@@ -121,6 +133,10 @@ class NabClockd(nabservice.NabService):
         finally:
             if self.running:
                 asyncio.get_event_loop().stop()
+
+    def get_system_tz(self):
+        with open("/etc/timezone") as w:
+            return w.read().strip()
 
     async def process_nabd_packet(self, packet):
         if (

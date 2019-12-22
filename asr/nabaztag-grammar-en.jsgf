@@ -1,0 +1,80 @@
+#JSGF V1.0;
+
+grammar en.tagtagtag;
+
+public <control> =
+    <noise> +
+    | [ <euh> ] ( <weather> | <airquality> | <8ball> | <surprise> | <taichi> | <carrot> | <clock> ) [ <euh> ];
+
+<date> = ( today | tomorrow | this afternoon | this morning | tomorrow morning | tomorrow afternoon | within next hour | right now ) ;
+<giveme> = ( could you give me | give me ) ;
+<please> = ( please | could you please ) ;
+<euh> = ( eh ) ;
+
+<noise> =
+    <euh>
+    | wait
+    | hello
+    | he
+    | rabbit
+    | nabaztag
+    ;
+    
+<weather> =
+    weather [ forecast ] [<date>]
+    | <please> <giveme> the weather forecast for <date>
+    | what kind of weather ( should i expect | should we expect | will we have) [ <date> ]
+    | will it ( be sunny | snow | rain | be hot | be cold ) [ <date> ]
+    | is it raining [<date>]
+    | what will be the weather [ today | tomorrow | this afternoon | this morning ]
+    | what's the weather like [ today | tomorrow | this afternoon | this morning ]
+    | tell me if it is going to ( rain | snow ) [<date>]
+    ;
+
+<airquality> =
+    air quality
+    | [ <giveme> an ] air quality bulletin
+    | what is the air quality [<date>]
+    | what is ( today's | tomorrow's ) air quality
+    | should i go ( outside | out ) [<date>]
+    ;
+
+<8ball> = guru
+    | ( tell me ) ( rabbit | nabaztag | guru )
+    ;
+
+<surprise> =
+    [<please>] tell me a joke
+    | [<please>] make me laugh
+    | i love your [ sense of ] humor
+    ;
+
+<carrot> =
+    carrot
+    | do you want a carrot
+    | do you like carrots
+    | would you like a carrot
+    ;
+
+<clock> =
+    clock
+    | [<please>] <giveme> the time
+    | is it time
+    | what time is it
+    | do you have the time
+    ;
+
+<taichi> =
+    tai chi
+    | tai chi time
+    | [<please>] practice your tai chi
+    | i love your tai chi would you do that again
+    | it's tai chi time
+    ;
+
+<sleep> =
+    sleep
+    | it's time to sleep
+    | it's time to bed
+    | night time
+    ;

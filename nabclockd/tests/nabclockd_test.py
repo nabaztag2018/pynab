@@ -7,6 +7,7 @@ import time
 import datetime
 import signal
 import pytest
+from dateutil import tz
 from nabclockd import nabclockd, models
 from nabcommon import nabservice
 
@@ -118,73 +119,113 @@ class TestNabclockd(unittest.TestCase):
         reload_task = this_loop.create_task(service.reload_config())
         this_loop.run_until_complete(reload_task)
         self.assertEqual(
-            service.clock_response(datetime.datetime(1970, 1, 1, 0, 0, 0)), []
-        )
-        self.assertEqual(
-            service.clock_response(datetime.datetime(1970, 1, 1, 8, 0, 0)), []
-        )
-        service.asleep = True
-        self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 0, 0, 0)), []
-        )
-        self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 7, 0, 0)),
-            ["wakeup", "chime"],
-        )
-        self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 8, 0, 0)),
-            ["wakeup", "chime"],
-        )
-        self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 8, 0, 30)),
-            ["wakeup", "chime"],
-        )
-        self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 8, 1, 0)),
-            ["wakeup"],
-        )
-        self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 8, 6, 0)),
-            ["wakeup", "reset_last_chime"],
-        )
-        self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 22, 0, 0)),
+            service.clock_response(
+                datetime.datetime(1970, 1, 1, 0, 0, 0, tzinfo=tz.gettz())
+            ),
             [],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 23, 0, 0)),
+            service.clock_response(
+                datetime.datetime(1970, 1, 1, 8, 0, 0, tzinfo=tz.gettz())
+            ),
+            [],
+        )
+        service.asleep = True
+        self.assertEqual(
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 0, 0, 0, tzinfo=tz.gettz())
+            ),
+            [],
+        )
+        self.assertEqual(
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 7, 0, 0, tzinfo=tz.gettz())
+            ),
+            ["wakeup", "chime"],
+        )
+        self.assertEqual(
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 8, 0, 0, tzinfo=tz.gettz())
+            ),
+            ["wakeup", "chime"],
+        )
+        self.assertEqual(
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 8, 0, 30, tzinfo=tz.gettz())
+            ),
+            ["wakeup", "chime"],
+        )
+        self.assertEqual(
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 8, 1, 0, tzinfo=tz.gettz())
+            ),
+            ["wakeup"],
+        )
+        self.assertEqual(
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 8, 6, 0, tzinfo=tz.gettz())
+            ),
+            ["wakeup", "reset_last_chime"],
+        )
+        self.assertEqual(
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 22, 0, 0, tzinfo=tz.gettz())
+            ),
+            [],
+        )
+        self.assertEqual(
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 23, 0, 0, tzinfo=tz.gettz())
+            ),
             [],
         )
         service.asleep = False
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 0, 0, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 0, 0, 0, tzinfo=tz.gettz())
+            ),
             ["sleep"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 7, 0, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 7, 0, 0, tzinfo=tz.gettz())
+            ),
             ["chime"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 8, 0, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 8, 0, 0, tzinfo=tz.gettz())
+            ),
             ["chime"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 8, 0, 30)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 8, 0, 30, tzinfo=tz.gettz())
+            ),
             ["chime"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 8, 1, 0)), []
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 8, 1, 0, tzinfo=tz.gettz())
+            ),
+            [],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 8, 6, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 8, 6, 0, tzinfo=tz.gettz())
+            ),
             ["reset_last_chime"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 22, 0, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 22, 0, 0, tzinfo=tz.gettz())
+            ),
             ["sleep"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 23, 0, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 23, 0, 0, tzinfo=tz.gettz())
+            ),
             ["sleep"],
         )
         config.wakeup_hour = 22
@@ -197,64 +238,99 @@ class TestNabclockd(unittest.TestCase):
         this_loop.run_until_complete(reload_task)
         service.asleep = True
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 0, 0, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 0, 0, 0, tzinfo=tz.gettz())
+            ),
             ["wakeup", "chime"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 1, 0, 30)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 1, 0, 30, tzinfo=tz.gettz())
+            ),
             ["wakeup", "chime"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 1, 6, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 1, 6, 0, tzinfo=tz.gettz())
+            ),
             ["wakeup", "reset_last_chime"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 7, 0, 0)), []
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 7, 0, 0, tzinfo=tz.gettz())
+            ),
+            [],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 8, 0, 0)), []
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 8, 0, 0, tzinfo=tz.gettz())
+            ),
+            [],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 8, 1, 0)), []
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 8, 1, 0, tzinfo=tz.gettz())
+            ),
+            [],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 22, 0, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 22, 0, 0, tzinfo=tz.gettz())
+            ),
             ["wakeup", "chime"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 23, 0, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 23, 0, 0, tzinfo=tz.gettz())
+            ),
             ["wakeup", "chime"],
         )
         service.asleep = False
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 0, 0, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 0, 0, 0, tzinfo=tz.gettz())
+            ),
             ["chime"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 1, 0, 30)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 1, 0, 30, tzinfo=tz.gettz())
+            ),
             ["chime"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 1, 6, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 1, 6, 0, tzinfo=tz.gettz())
+            ),
             ["reset_last_chime"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 7, 0, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 7, 0, 0, tzinfo=tz.gettz())
+            ),
             ["sleep"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 8, 0, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 8, 0, 0, tzinfo=tz.gettz())
+            ),
             ["sleep"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 8, 1, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 8, 1, 0, tzinfo=tz.gettz())
+            ),
             ["sleep"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 22, 0, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 22, 0, 0, tzinfo=tz.gettz())
+            ),
             ["chime"],
         )
         self.assertEqual(
-            service.clock_response(datetime.datetime(2018, 11, 2, 23, 0, 0)),
+            service.clock_response(
+                datetime.datetime(2018, 11, 2, 23, 0, 0, tzinfo=tz.gettz())
+            ),
             ["chime"],
         )

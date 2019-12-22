@@ -8,13 +8,10 @@
       <p class="lead">{% trans "You're currently deeply connected with your inner rabbit." %}</p>
       <hr class="my-4">
       <p>{% trans "First, make sure the language is properly configured below. Maybe create an account to connect your Nabaztag to <a href='https://mstdn.fr/auth/sign_up'>Mastodon</a> where it will join fellow rabbits <small>(for now, this is only used by ear communion service)</small>." %}</p>
-      <p>{% trans "Eventually, explore top navigation bar to configure <a href='/settings/'>Nabaztag services</a>, <a href='/upgrade/'>upgrade software</a> or even visit the <a target='_blank' href='https://github.com/nabaztag2018/pynab'>GitHub repository</a> to start hacking, adding features or simply report bugs." %}</p>
+      <p>{% trans "Eventually, explore top navigation bar to configure <a href='/services/'>Nabaztag services</a>, <a href='/upgrade/'>upgrade software</a> or even visit the <a target='_blank' href='https://github.com/nabaztag2018/pynab'>GitHub repository</a> to start hacking, adding features or simply report bugs." %}</p>
 
       <p>{% trans "You can trigger some services with your voice. The processing is done locally and you need to push the button long enough to hear a 'bip' (keep the button pushed), then wait a couple of seconds (We'll have a look at this later!) then speak and when you're done just release the button. Your service should be played shortly!" %}</p>
-      <p>{% trans "And don't forget to try <a href='http://nabaztag.local:8081' target='_new'>Nabblocky</a> and learn how to code with Nabaztag. It's fantastic." %}</p>
-	  
-
-
+      <p>{% trans "And don't forget to try <a href='http://nabaztag.local:8080/' target='_new'>Nabblocky</a> and learn how to code with Nabaztag. It's fantastic." %}</p>
     </div>
   </div>
   <div class="row justify-content-center">
@@ -47,19 +44,30 @@
             </div>
           </div>
         </form>
-        <script type="text/javascript">
-        $(function() {
-          var form = $('#language-settings form');
-          var saveBtn = form.find('button.save-button');
-          var resetBtn = form.find('button.reset-button');
-          var url = form.attr('action');
-          form.find('select').on('change', function() {
-            saveBtn.removeClass('disabled');
-            resetBtn.removeClass('disabled');
-          });
-        });
-        </script>
       </div>
     </div>
   </div>
+  {% for service in services %}
+    <div class="row justify-content-center">
+      <div class="settings col-xl-8 col-lg-10 col-md-10 mb-3" data-url="/{{ service }}/settings"></div>
+    </div>
+  {% endfor %}
+  <script type="text/javascript">
+  $(function() {
+    var form = $('#language-settings form');
+    var saveBtn = form.find('button.save-button');
+    var resetBtn = form.find('button.reset-button');
+    var url = form.attr('action');
+    form.find('select').on('change', function() {
+      saveBtn.removeClass('disabled');
+      resetBtn.removeClass('disabled');
+    });
+    $("div.settings").each(function(index, element) {
+      var url = $(element).data('url');
+      $.get(url, function(data) {
+        $(element).html(data);
+      });
+    });
+  });
+  </script>
 {% endblock %}
