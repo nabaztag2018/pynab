@@ -10,18 +10,27 @@ class ASR:
     Class handling automatic speech recognition.
     """
 
-    MODELS = {"fr_FR": "/opt/kaldi/model/kaldi-nabaztag-fr-r20191001"}
+    MODELS = {
+        "fr_FR": "/opt/kaldi/model/kaldi-nabaztag-fr-adapt-r20191222",
+        "en_GB": "/opt/kaldi/model/kaldi-nabaztag-en-adapt-r20191222",
+        "en_US": "/opt/kaldi/model/kaldi-nabaztag-en-adapt-r20191222",
+    }
     DEFAULT_LOCALE = "fr_FR"
+
+    @staticmethod
+    def get_locale(locale):
+        if locale in ASR.MODELS:
+            return locale
+        else:
+            return ASR.DEFAULT_LOCALE
 
     def __init__(self, locale):
         self.executor = ThreadPoolExecutor(max_workers=1)
         self._load_model(locale)
 
     def _load_model(self, locale):
-        if locale in ASR.MODELS:
-            path = ASR.MODELS[locale]
-        else:
-            path = ASR.MODELS[ASR.DEFAULT_LOCALE]
+        locale = ASR.get_locale(locale)
+        path = ASR.MODELS[locale]
         self.model = KaldiNNet3OnlineModel(path)
         self.decoder = KaldiNNet3OnlineDecoder(self.model)
 

@@ -72,6 +72,7 @@ class NabWebView(BaseView):
         config = Config.load()
         config.locale = request.POST["locale"]
         config.save()
+        asyncio.run(self.notify_config_update("nabd", "locale"))
         user_language = to_language(config.locale)
         translation.activate(user_language)
         request.LANGUAGE_CODE = translation.get_language()
@@ -81,6 +82,20 @@ class NabWebView(BaseView):
             self.template_name(),
             context={"current_locale": config.locale, "locales": locales},
         )
+
+    async def notify_config_update(self, service, slot):
+        try:
+            conn = asyncio.open_connection("127.0.0.1", NabService.PORT_NUMBER)
+            reader, writer = await asyncio.wait_for(conn, 0.5)
+            packet = (
+                f'{{"type":"config-update","service":"{service}",'
+                f'"slot":"{slot}"}}\r\n'
+            )
+            writer.write(packet.encode("utf-8"))
+            await writer.drain()
+            writer.close()
+        except:
+            pass
 
 
 class NabWebServicesView(BaseView):
