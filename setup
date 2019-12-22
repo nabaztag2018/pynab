@@ -73,9 +73,13 @@ cd /home/pi/tagtagtag-ears
 make
 sudo make install
 
-echo "Cloning pynab release branch"
+branch=release
+if [ $TRAVIS_BRANCH = "releng" ]; then
+    branch=releng
+fi
+echo "Cloning pynab ${branch} branch"
 cd /home/pi
-sudo -u pi git clone -b release https://github.com/nabaztag2018/pynab.git
+sudo -u pi git clone -b ${branch} https://github.com/nabaztag2018/pynab.git
 
 echo "Installing nabblockly"
 sudo apt-get install -y erlang || echo
