@@ -27,3 +27,7 @@ deploy:
     repo: nabaztag2018/pynab
     branch: release
     tags: true
+  on:
+    repo: nabaztag2018/pynab
+    branch: releng
+    draft: true
