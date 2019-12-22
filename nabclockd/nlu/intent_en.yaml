@@ -1,0 +1,18 @@
+---
+type: intent
+name: clock
+utterances:
+  - clock
+  - give me the time
+  - what time is it
+  - do you have the time
+
+---
+type: intent
+name: sleep
+utterances:
+  - it's time to sleep
+  - it's time to bed
+  - night time
+  - it's bed time
+  - sleep

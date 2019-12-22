@@ -131,14 +131,14 @@ if [ $makerfaire2018 -eq 0 ]; then
 
   sudo mkdir -p "/opt/kaldi/model"
 
-  if [ ! -d "/opt/kaldi/model/kaldi-generic-en-tdnn_250-r20190609" ]; then
-    echo "Installing kaldi model for English from Zamia Speech"
-    wget -O - -q https://goofy.zamia.org/zamia-speech/asr-models/kaldi-generic-en-tdnn_250-r20190609.tar.xz | sudo tar xJ -C /opt/kaldi/model/
+  if [ ! -d "/opt/kaldi/model/kaldi-generic-en-r20191222" ]; then
+    echo "Uncompressing kaldi model for English"
+    sudo tar xJf /home/pi/pynab/asr/kaldi-nabaztag-en-adapt-r20191222.tar.xz -C /opt/kaldi/model/
   fi
 
-  if [ ! -d "/opt/kaldi/model/kaldi-nabaztag-fr-r20191001" ]; then
-    echo "Installing kaldi model for French"
-    wget -O - -q https://github.com/pguyot/zamia-speech/releases/download/20190930/kaldi-nabaztag-fr-r20191001.tar.xz | sudo tar xJ -C /opt/kaldi/model
+  if [ ! -d "/opt/kaldi/model/kaldi-nabaztag-fr-r20191222" ]; then
+    echo "Uncompressing kaldi model for French"
+    sudo tar xJf /home/pi/pynab/asr/kaldi-nabaztag-fr-adapt-r20191222.tar.xz -C /opt/kaldi/model/
   fi
 fi
 

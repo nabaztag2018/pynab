@@ -1,0 +1,7 @@
+---
+type: intent
+name: 8ball
+utterances:
+  - tell me rabbit
+  - tell me nabaztag
+  - tell me guru

@@ -1,0 +1,23 @@
+---
+type: intent
+name: clock
+utterances:
+  - horloge
+  - donne-moi l'heure
+  - est-ce que c'est l'heure
+  - il est quelle heure
+  - quelle heure est-il
+  - aurais-tu l'heure
+
+---
+type: intent
+name: sleep
+utterances:
+  - dodo
+  - c'est l'heure d'aller au lit
+  - c'est l'heure de dormir
+  - au lit
+  - dormir
+
+
+
