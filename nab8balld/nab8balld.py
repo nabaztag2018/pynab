@@ -1,5 +1,6 @@
 import sys
 import asyncio
+from asgiref.sync import sync_to_async
 from nabcommon.nabservice import NabService
 
 
@@ -10,21 +11,19 @@ class Nab8Balld(NabService):
         super().__init__()
         self.interactive = False
 
-    def __config(self):
+    async def __config(self):
         from . import models
 
-        return models.Config.load()
+        config = await sync_to_async(models.Config.load)()
+        return config
 
     async def reload_config(self):
-        from django.core.cache import cache
-
-        cache.clear()
         from . import models
 
         await self.setup_listener()
 
-    def setup_listener(self):
-        config = self.__config()
+    async def setup_listener(self):
+        config = await self.__config()
         if config.enabled:
             packet = (
                 '{"type":"mode","mode":"idle","events":["button"],'
@@ -62,7 +61,7 @@ class Nab8Balld(NabService):
                     )
                     self.writer.write(resp.encode("utf8"))
                     self.interactive = False
-                    self.setup_listener()
+                    await self.setup_listener()
         if (
             packet["type"] == "response"
             and "request_id" in packet
@@ -79,7 +78,7 @@ class Nab8Balld(NabService):
     def run(self):
         super().connect()
         self.loop = asyncio.get_event_loop()
-        self.setup_listener()
+        self.loop.run_until_complete(self.setup_listener())
         try:
             self.loop.run_forever()
         except KeyboardInterrupt:
@@ -89,9 +88,8 @@ class Nab8Balld(NabService):
             self.writer.close()
             tasks = asyncio.all_tasks(self.loop)
             for t in [t for t in tasks if not (t.done() or t.cancelled())]:
-                self.loop.run_until_complete(
-                    t
-                )  # give canceled tasks the last chance to run
+                # give canceled tasks the last chance to run
+                self.loop.run_until_complete(t)
             self.loop.close()
 
 
