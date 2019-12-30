@@ -60,7 +60,7 @@ class NabAirqualityd(NabInfoCachedService):
     ANIMATIONS = [ANIMATION_3, ANIMATION_2, ANIMATION_1]
 
     def __init__(self):
-        self.index_airquality = 0
+        self.index_airquality = 9
         super().__init__()
 
     def get_config(self):
