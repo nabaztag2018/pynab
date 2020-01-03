@@ -109,13 +109,31 @@ class NabClockd(nabservice.NabService):
                             self.current_tz = current_tz
                         response = self.clock_response(now)
                         for r in response:
-                            if r == "sleep":
+                            if r == "sleep":                       
+                                now = datetime.datetime.now()
+                                expiration = now + datetime.timedelta(minutes=1)
+                                packet = (
+                                    '{"type":"message",'
+                                    '"body":[{"audio":["nabclockd/veille_on.mp3"]}],'
+                                    '"expiration":"' + expiration.isoformat() + '"}\r\n'
+                                )
+                                self.writer.write(packet.encode("utf8"))
+
                                 self.writer.write(b'{"type":"sleep"}\r\n')
                                 await self.writer.drain()
                                 self.asleep = None
                             elif r == "wakeup":
                                 self.writer.write(b'{"type":"wakeup"}\r\n')
+                                
+                                expiration = now + datetime.timedelta(minutes=1)
+                                packet = (
+                                    '{"type":"message",'
+                                    '"body":[{"audio":["nabclockd/veille_off.mp3"]}],'
+                                    '"expiration":"' + expiration.isoformat() + '"}\r\n'
+                                )
+                                self.writer.write(packet.encode("utf8"))
                                 await self.writer.drain()
+                                
                                 self.asleep = None
                             elif r == "chime":
                                 await self.chime(now.hour)
