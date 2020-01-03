@@ -31,6 +31,14 @@ class NabWeatherd(NabInfoService):
         '{"left":"0000ff","center":"000000","right":"0000ff"}]}'
     )
 
+
+    WHITE_INFO_ANIMATION = (
+        '{"tempo":125,"colors":['
+        '{"left":"ffffff","center":"ffffff","right":"ffffff"},'
+        '{"left":"000000","center":"000000","right":"000000"}]}'
+    )
+
+
     # [25 {4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 0 0 0}] // brouillard
     FOGGY_INFO_ANIMATION = (
         '{"tempo":25,"colors":['
@@ -409,9 +417,9 @@ class NabWeatherd(NabInfoService):
         
         if ('next_rain') in data:
             if (data["next_rain"] == 'No rain'):
-                next_rain = 'J_W1_0-N_0'
+                next_rain = self.WHITE_INFO_ANIMATION
             else :
-                next_rain = 'J_W1_32-N_0'
+                next_rain = self.RAINY_INFO_ANIMATION
         else :
             next_rain = None
             
@@ -451,7 +459,7 @@ class NabWeatherd(NabInfoService):
             (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["today_forecast_weather_class"]]
         else :
             logging.debug("Rain info available")
-            (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["next_rain"]]
+            info_animation= info_data["next_rain"]
         return info_animation
 
     async def perform_additional(self, expiration, type, info_data, config_t):
