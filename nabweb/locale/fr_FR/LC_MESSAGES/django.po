@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-02 14:56+0100\n"
+"POT-Creation-Date: 2020-01-07 15:33+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -156,25 +156,16 @@ msgstr "Langue"
 #: templates/nabweb/index.html:26
 msgid ""
 "The language is used by services with recorded sounds. U.S. English and "
-"British English are based on distinct voices. If you choose Multilingual, "
-"services will be played in a random language but the configuration and the "
-"voice recognition will be set to english."
+"British English are based on distinct voices."
 msgstr ""
 "La langue est utilisée par les services avec des sons enregistrés. Une "
-"nouvelle façon d'apprendre des langues étrangères ! Si vous choisissez "
-"Polyglotte, les services seront joués dans une langue au hasard (en "
-"revanche, le site de configuration et la langue de reconnaissance vocale "
-"sera l'anglais)"
+"nouvelle façon d'apprendre des langues étrangères !"
 
-#: templates/nabweb/index.html:31
-msgid "Multilingual"
-msgstr "Polyglotte"
-
-#: templates/nabweb/index.html:42
+#: templates/nabweb/index.html:41
 msgid "Save"
 msgstr "Enregistrer"
 
-#: templates/nabweb/index.html:43
+#: templates/nabweb/index.html:42
 msgid "Reset"
 msgstr "Annuler"
 
@@ -254,10 +245,12 @@ msgstr "Vous avez des changements locaux dans ce repository"
 #: templates/nabweb/upgrade/index.html:27
 msgid ""
 "Through this interface, you can upgrade your Nabaztag software (provided "
-"that it is connected to the internet)."
+"that it is connected to the internet). This can take up a while depending on "
+"the size and the scope of the update : <b>don't restart your rabbit before "
+"the process is finished</b>."
 msgstr ""
 "Grâce à cette interface, vous pouvez mettre à jour votre Nabaztag (mais il "
-"doit être connecté à Internet)."
+"doit être connecté à Internet). Attention, le process peut être assez long en fonction de qu'il y a à faire. <b>Attendez la fin de la mise à jour sinon on ne répond plus de rien</b>."
 
 #: templates/nabweb/upgrade/index.html:29
 msgid ""
@@ -325,6 +318,9 @@ msgstr ""
 #: templatetags/duration_filter.py:26
 msgid "{} hours and {} minutes"
 msgstr "{} heures et {} minutes"
+
+#~ msgid "Multilingual"
+#~ msgstr "Polyglotte"
 
 #~ msgid "An unknown error occurred trying to upgrade"
 #~ msgstr "Une erreur inconnue est survenue en essayant de mettre à jour pynab"

@@ -66,7 +66,7 @@ if [ $makerfaire2018 -eq 1 ]; then
 fi
 
 if [ $upgrade -eq 1 -a $makerfaire2018 -eq 0 -a -d /home/pi/wm8960 ]; then
-  echo "Updating sound driver" > /tmp/pynab.upgrade
+  echo "1/12 - Updating sound driver" > /tmp/pynab.upgrade
   cd /home/pi/wm8960
   sudo chown -R ${owner} .git
   pull=`git pull`
@@ -77,7 +77,7 @@ if [ $upgrade -eq 1 -a $makerfaire2018 -eq 0 -a -d /home/pi/wm8960 ]; then
 fi
 
 if [ $upgrade -eq 1 ]; then
-  echo "Updating ears driver" > /tmp/pynab.upgrade
+  echo "2/12 - Updating ears driver" > /tmp/pynab.upgrade
   if [ -d /home/pi/tagtagtag-ears ]; then
     cd /home/pi/tagtagtag-ears
     sudo chown -R ${owner} .git
@@ -100,7 +100,7 @@ else
 fi
 
 if [ $upgrade -eq 1 ]; then
-  echo "Updating nabblockly" > /tmp/pynab.upgrade
+  echo "3/12 - Updating nabblockly" > /tmp/pynab.upgrade
   if [ -d /home/pi/pynab/nabblockly ]; then
     cd /home/pi/pynab/nabblockly
     sudo chown -R ${owner} .
@@ -119,7 +119,7 @@ fi
 
 if [ $makerfaire2018 -eq 0 ]; then
   if [ $upgrade -eq 1 ]; then
-    echo "Updating ASR models" > /tmp/pynab.upgrade
+    echo "4/12 - Updating ASR models" > /tmp/pynab.upgrade
   fi
 
   # maker faire card has no mic, no need to install kaldi
@@ -155,7 +155,7 @@ fi
 
 echo "Installing PyPi requirements"
 if [ $upgrade -eq 1 ]; then
-  echo "Updating Python requirements" > /tmp/pynab.upgrade
+  echo "5/12 - Updating Python requirements" > /tmp/pynab.upgrade
 fi
 # Start with wheel which is required to compile some of the other requirements
 venv/bin/pip install wheel
@@ -163,7 +163,7 @@ venv/bin/pip install -r requirements.txt
 
 if [ $makerfaire2018 -eq 0 ]; then
   if [ $upgrade -eq 1 ]; then
-    echo "Updating NLU models" > /tmp/pynab.upgrade
+    echo "6/12 - Updating NLU models" > /tmp/pynab.upgrade
   fi
 
   # maker faire card has no mic, no need to install snips
@@ -223,7 +223,7 @@ if [ $upgrade -eq 0 ]; then
     fi
   fi
 else
-  echo "Restarting Nginx" > /tmp/pynab.upgrade
+  echo "7/12 - Restarting Nginx" > /tmp/pynab.upgrade
   if [ -e '/etc/nginx/sites-enabled/pynab' ]; then
     sudo cp nabweb/nginx-site.conf /etc/nginx/sites-enabled/pynab
     sudo systemctl restart nginx
@@ -238,14 +238,14 @@ psql -U pynab -c '' 2>/dev/null || {
 }
 
 if [ $upgrade -eq 1 ]; then
-  echo "Updating data models" > /tmp/pynab.upgrade
+  echo "8/12 - Updating data models" > /tmp/pynab.upgrade
 fi
 venv/bin/python manage.py migrate
 
 if [ $upgrade -eq 0 ]; then
   venv/bin/django-admin compilemessages
 else
-  echo "Updating localization messages" > /tmp/pynab.upgrade
+  echo "9/12 - Updating localization messages" > /tmp/pynab.upgrade
   for module in nab*/locale; do
     (
       cd `dirname ${module}`
@@ -265,7 +265,7 @@ fi
 
 # copy service files
 if [ $upgrade -eq 1 ]; then
-  echo "Installing service files" > /tmp/pynab.upgrade
+  echo "10/12 - Installing service files" > /tmp/pynab.upgrade
 fi
 for service_file in nabd/nabd.socket */*.service ; do
   name=`basename ${service_file}`
@@ -276,14 +276,14 @@ for service_file in nabd/nabd.socket */*.service ; do
 done
 
 if [ -e /tmp/pynab.upgrade.reboot ]; then
-  echo "Upgrade requires reboot, rebooting now"
+  echo "12/12 - Upgrade requires reboot, rebooting now"
   sudo rm -f /tmp/pynab.upgrade
   sudo rm -f /tmp/pynab.upgrade.reboot
   sudo reboot
 else
   if [ $travis_chroot -eq 0 ]; then
     if [ $upgrade -eq 1 ]; then
-      echo "Restarting services" > /tmp/pynab.upgrade
+      echo "11/12 Restarting services" > /tmp/pynab.upgrade
     fi
     sudo systemctl start nabd.socket
     sudo systemctl start nabd.service
@@ -297,7 +297,7 @@ else
     done
 
     if [ $upgrade -eq 1 ]; then
-      echo "Restarting website" > /tmp/pynab.upgrade
+      echo "12/12 - Restarting website" > /tmp/pynab.upgrade
       sudo systemctl restart nabweb.service
     else
       sudo systemctl start nabweb.service

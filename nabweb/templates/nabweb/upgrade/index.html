@@ -24,7 +24,7 @@
           <h5 class="card-title">{% trans "Upgrade" %}</h5>
         </div>
         <div class="card-body">
-          <p>{% trans "Through this interface, you can upgrade your Nabaztag software (provided that it is connected to the internet)." %}</p>
+          <p>{% trans "Through this interface, you can upgrade your Nabaztag software (provided that it is connected to the internet). This can take up a while depending on the size and the scope of the update : <b>don't restart your rabbit before the process is finished</b>." %}</p>
           {% if pynab.upstream_branch == "origin/master" %}
           <p>{% trans "Your Nabaztag is apparently tracking the master branch. Please note that web-based upgrade mechanism may fail and require that you connect over SSH." %}</p>
           {% endif %}

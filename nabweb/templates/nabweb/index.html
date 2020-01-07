@@ -23,12 +23,11 @@
             <h5 class="card-title">{% trans "Language" %}</h5>
           </div>
           <div class="card-body">
-            <p>{% trans "The language is used by services with recorded sounds. U.S. English and British English are based on distinct voices. If you choose Multilingual, services will be played in a random language but the configuration and the voice recognition will be set to english." %}</p>
+            <p>{% trans "The language is used by services with recorded sounds. U.S. English and British English are based on distinct voices." %}</p>
             <div class="form-group row">
               <label for="localeSel" class="col-6 col-form-label">{% trans "Language" %}</label>
               <div class="col-6">
                 <select name="locale" id="localeSel">
-                  <option value="*">{% trans "Multilingual" %}</option>
                   {% for locale, name, selected in locales %}
                   <option value="{{ locale }}" {% if selected %}selected{% endif %}>{{ name }}</option>
                   {% endfor %}
