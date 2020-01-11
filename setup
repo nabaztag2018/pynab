@@ -42,6 +42,10 @@ echo "Setting hostname."
 sed -i "s/raspberrypi/nabaztag/" /etc/hostname
 sed -i "s/raspberrypi/nabaztag/" /etc/hosts
 
+echo "Setting timezone."
+echo "Europe/Paris" > /etc/timezone
+ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime
+
 echo "Disabling onboard sound."
 if grep -q "dtparam=audio=on" /boot/config.txt
 then
