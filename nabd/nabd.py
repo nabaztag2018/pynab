@@ -622,7 +622,11 @@ class Nabd:
             )
 
     async def _shutdown(self):
-        await self.sleep_setup()
+        await self.stop_idle_worker()
+        Nabd.leds_boot(self.nabio, 0)
+        await self.nabio.move_ears(
+            Nabd.SLEEP_EAR_POSITION, Nabd.SLEEP_EAR_POSITION
+        )
         os.system("/sbin/halt")
 
     def ears_callback(self, ear):
@@ -717,6 +721,16 @@ class Nabd:
         Animation to indicate boot progress.
         Useful as loading ASR/NLU model takes some time.
         """
+        # Step 0 is actually used for shutdown. Same values are in nabboot.py
+        # for startup led values.
+        if step == 0:
+            nabio.set_leds(
+                (255, 0, 255),
+                (255, 0, 255),
+                (255, 0, 255),
+                (255, 0, 255),
+                (255, 0, 255),
+            )
         if step == 1:
             nabio.set_leds(
                 (255, 0, 255),
@@ -740,7 +754,7 @@ class Nabd:
                 (255, 255, 255),
                 (255, 0, 255),
                 (255, 0, 255),
-           )
+            )
         if step == 4:
             nabio.set_leds(
                 (255, 0, 255),
@@ -748,7 +762,7 @@ class Nabd:
                 (255, 255, 255),
                 (255, 255, 255),
                 (255, 0, 255),
-             )
+            )
 
     @staticmethod
     def main(argv):

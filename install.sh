@@ -274,6 +274,10 @@ for service_file in nabd/nabd.socket */*.service ; do
   sudo chown root /lib/systemd/system/${name}
   sudo systemctl enable ${name}
 done
+sudo sed -e "s|/home/pi/pynab|${root_dir}|g" < nabboot/nabboot.py > /tmp/nabboot.py
+sudo mv /tmp/nabboot.py /lib/systemd/system-shutdown/nabboot.py
+sudo chown root /lib/systemd/system-shutdown/nabboot.py
+sudo chmod +x /lib/systemd/system-shutdown/nabboot.py
 
 if [ -e /tmp/pynab.upgrade.reboot ]; then
   echo "12/12 - Upgrade requires reboot, rebooting now"

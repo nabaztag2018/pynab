@@ -5,9 +5,7 @@ Description=Nabaztag boot script, initializing leds and motors
 Type=oneshot
 User=root
 WorkingDirectory=/home/pi/pynab
-ExecStart=/home/pi/pynab/venv/bin/python -m nabboot.nabboot
-ExecStop=/home/pi/pynab/venv/bin/python -m nabboot.nabboot shutdown
-RemainAfterExit=yes
+ExecStart=/home/pi/pynab/venv/bin/python -m nabboot.nabboot start
 
 [Install]
 WantedBy=multi-user.target
