@@ -382,7 +382,7 @@ class NabWeatherd(NabInfoService):
         return (
             config.next_performance_date,
             config.next_performance_type,
-            (config.location, config.unit),
+            (config.location, config.unit, config.weather_animation_type),
         )
 
     def update_next(self, next_date, next_args):
@@ -403,7 +403,7 @@ class NabWeatherd(NabInfoService):
     async def fetch_info_data(self, config_t):
         from . import models
 
-        location, unit = config_t
+        location, unit, weather_animation_type = config_t
         if location is None:
             return None
         client = await sync_to_async(meteofranceClient)(location, True)
@@ -436,6 +436,7 @@ class NabWeatherd(NabInfoService):
         )
         tomorrow_forecast_max_temp = data["forecast"][1]["max_temp"]
         return {
+            "weather_animation_type": weather_animation_type,
             "current_weather_class": current_weather_class,
             "next_rain": next_rain,
             "today_forecast_weather_class": today_forecast_weather_class,
@@ -452,18 +453,22 @@ class NabWeatherd(NabInfoService):
         return self.normalize_weather_class(weather_class[:-1])
 
     def get_animation(self, info_data):
+
+            
+        logging.debug(f"weather_animation_type: {info_data['weather_animation_type']}")
+
         if info_data is None:
             return None
-        if info_data["next_rain"] is None:
-            logging.debug("No rain info, classic weather animation will be displayed")
+        if info_data["next_rain"] is None or info_data["weather_animation_type"] == 'weather':
+            logging.debug("No rain info or classic selected")
             (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["today_forecast_weather_class"]]
         else :
-            logging.debug("Rain info available")
+            logging.debug("rain info selected")
             info_animation= info_data["next_rain"]
         return info_animation
 
     async def perform_additional(self, expiration, type, info_data, config_t):
-        location, unit = config_t
+        location, unit, weather_animation_type  = config_t
         if location is None:
             logging.debug(f"location is None (service is unconfigured)")
             packet = (
