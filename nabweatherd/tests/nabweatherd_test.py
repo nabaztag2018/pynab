@@ -36,7 +36,7 @@ class TestNabWeatherdDB(unittest.TestCase):
     def test_fetch_info_data(self):
         service = NabWeatherd()
         data = async_to_sync(service.fetch_info_data)(
-            ("75005", NabWeatherd.UNIT_CELSIUS)
+            ("75005", NabWeatherd.UNIT_CELSIUS, "rain")
         )
         self.assertTrue("current_weather_class" in data)
         self.assertTrue("today_forecast_weather_class" in data)
