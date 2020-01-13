@@ -457,7 +457,8 @@ class NabWeatherd(NabInfoService):
             
         logging.debug(f"weather_animation_type: {info_data['weather_animation_type']}")
 
-        if info_data is None:
+        if info_data is None or info_data["weather_animation_type"] == 'None':
+            logging.debug(f"returning None")
             return None
         if info_data["next_rain"] is None or info_data["weather_animation_type"] == 'weather':
             logging.debug("No rain info or classic selected")

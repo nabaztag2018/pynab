@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-12 09:30+0100\n"
+"POT-Creation-Date: 2020-01-13 11:39+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,8 +27,9 @@ msgid ""
 "hour (White blinking means no rain and blue means get an umbrella) or the "
 "current weather forecast."
 msgstr ""
-"L'animation lumineuse peut vous donner, si l'information est disponible, la probabilité qu'il pleuve dans l'heure "
-"(Blanc c'est qu'il ne va pas pleuvoir, bleu c'est très probable !) ou les prévisions pour les prochaines heures."
+"L'animation lumineuse peut vous donner, si l'information est disponible, la "
+"probabilité qu'il pleuve dans l'heure (Blanc c'est qu'il ne va pas pleuvoir, "
+"bleu c'est très probable !) ou les prévisions pour les prochaines heures."
 
 #: templates/nabweatherd/settings.html:11
 msgid ""
@@ -74,36 +75,39 @@ msgstr "Prévision météo"
 msgid "Will it rain in the next hour?"
 msgstr "Va t-il pleuvoir dans l'heure ?"
 
-#: templates/nabweatherd/settings.html:43
+#: templates/nabweatherd/settings.html:36
+msgid "No visual animation"
+msgstr "Aucune information visuelle"
+
+#: templates/nabweatherd/settings.html:44
 msgid "Forecast"
 msgstr "Prévision"
 
-#: templates/nabweatherd/settings.html:45
+#: templates/nabweatherd/settings.html:46
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: templates/nabweatherd/settings.html:46
+#: templates/nabweatherd/settings.html:47
 msgid "Tomorrow"
 msgstr "Demain"
 
-#: templates/nabweatherd/settings.html:51
-#, fuzzy
-#| msgid "Weather"
-msgid "Weather playtime"
-msgstr "Météo"
-
-#: templates/nabweatherd/settings.html:65
+#: templates/nabweatherd/settings.html:55
 msgid "Save"
 msgstr "Enregistrer"
 
-#: templates/nabweatherd/settings.html:66
+#: templates/nabweatherd/settings.html:56
 msgid "Reset"
 msgstr "Annuler"
 
-#: templates/nabweatherd/settings.html:106
+#: templates/nabweatherd/settings.html:96
 msgid "Unknown server error"
 msgstr "Erreur inconnue du serveur"
 
 #: views.py:40
 msgid "Unknown location"
 msgstr "Ville inconnue"
+
+#, fuzzy
+#~| msgid "Weather"
+#~ msgid "Weather playtime"
+#~ msgstr "Météo"
