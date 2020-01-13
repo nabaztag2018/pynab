@@ -36,7 +36,7 @@ msgid ""
 "weather forecast for today ?' (for example)."
 msgstr ""
 "Vous pouvez aussi demander la météo à votre lapin en disant par exemple "
-"'Quelle est la météo aujourd'hui ?'"
+"'Météo'."
 
 #: templates/nabweatherd/settings.html:14
 msgid "Location"

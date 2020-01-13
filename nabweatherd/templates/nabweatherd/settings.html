@@ -46,18 +46,7 @@
           <button type="button" class="btn btn-primary now-button" data-forecast-day='tomorrow'>{% trans "Tomorrow" %}</button>
         </div>
       </div>
-	  
-      <div class="form-group row">
-        <label for="playWeatherTime" class="col-6 col-form-label">{% trans "Weather playtime" %}</label>
-        <div class="col-6">
-          <div class="input-group clockpicker" data-autoclose="true">
-            <input id="weather_playtime" name="weather_playtime" type="text" class="form-control" value="{% if config.weather_playtime_hour < 10 %}0{% endif %}{{ config.weather_playtime_hour }}:{% if config.weather_playtime_min < 10 %}0{% endif %}{{ config.weather_playtime_min }}">
-            <span class="input-group-addon">
-              <span class="glyphicon glyphicon-time"></span>
-            </span>
-          </div>
-        </div>
-	  
+	  	  
     </div>
     <div class="card-footer">
       <div class="row mb-2">
