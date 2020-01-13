@@ -35,8 +35,7 @@ msgid ""
 "You can also ask your rabbit by saying such things as 'What is the air "
 "quality today ?'"
 msgstr ""
-"Vous pouvez aussi demander à votre lapin 'Quelle est la qualité de l'air "
-"aujourd'hui'"
+"Vous pouvez aussi demander à votre lapin en disant 'Qualité de l'air'."
 
 #: templates/nabairqualityd/settings.html:13
 msgid "Index"
