@@ -7,7 +7,7 @@
     </div>
     <div class="card-body">
 		
-        <p>{% trans "The animation displays the chance of rain within the next hour. Yellow means sun (or more precisely no rain) and blue means, well, get an unmbrella. This feature is not available for all city (if it's not available no amination will be played)" %}</p>
+        <p>{% trans "The animation can display, if available, the chance of rain within the next hour (White blinking means no rain and blue means get an umbrella) or the current weather forecast." %}</p>
         <p>{% trans "You can also ask Nabaztag the weather forecast by saying 'What is the weather forecast for today ?' (for example)." %}</p>
 		
       <div class="form-group row">
@@ -26,6 +26,20 @@
             </select>
         </div>
       </div>
+	  
+      <div class="form-group row">
+        <label for="weatherAnimationType" class="col-6 col-form-label">{% trans "Visual animation" %}</label>
+        <div class="col-6">
+          <select name="weather_animation_type" id="weatherAnimationType">
+            <option value="weather" {% if config.weather_animation_type == 'weather' %}selected{% endif %}>{% trans "Current weather forecast" %}</option>
+            <option value="rain" {% if config.weather_animation_type == 'rain' %}selected{% endif %}>{% trans "Will it rain in the next hour?" %}</option>
+            <option value="None" {% if config.weather_animation_type == 'None' %}selected{% endif %}>{% trans "No visual animation" %}</option>
+		  </select>
+        </div>
+      </div>
+	  
+	  
+	  
       <div class="form-group row">
         <label class="col-6 col-form-label">{% trans "Forecast" %}</label>
         <div class="col-6">
@@ -33,6 +47,7 @@
           <button type="button" class="btn btn-primary now-button" data-forecast-day='tomorrow'>{% trans "Tomorrow" %}</button>
         </div>
       </div>
+	  	  
     </div>
     <div class="card-footer">
       <div class="row mb-2">

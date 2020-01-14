@@ -42,7 +42,7 @@ class aqicnClient:
             indice_aqi = json_data["data"]["aqi"]
             indice_pm25 = json_data["data"]["iaqi"]["pm25"]["v"]
             logging.debug(
-                "air quality form aqicn and for "
+                "air quality from aqicn.org and for "
                 + str(city)
                 + " is "
                 + str(indice_aqi)
@@ -50,18 +50,13 @@ class aqicnClient:
                 + str(indice_pm25)
                 + " (PM25)"
             )
-            logging.debug("air quality index selected is " + str(self._indice))
 
             if self._indice == "0":
                 indice_to_be_analyzed = indice_aqi
-                logging.debug("(aqi)")
-                
             elif self._indice == "1":
                 indice_to_be_analyzed = indice_pm25
-                logging.debug("(pm25)")
             else:
                 indice_to_be_analyzed = indice_aqi
-                logging.debug("(pm25 - default value)")
 
 
             if indice_to_be_analyzed > 101:

@@ -36,19 +36,21 @@ class TestNabWeatherdDB(unittest.TestCase):
     def test_fetch_info_data(self):
         service = NabWeatherd()
         data = async_to_sync(service.fetch_info_data)(
-            ("75005", NabWeatherd.UNIT_CELSIUS)
+            ("75005", NabWeatherd.UNIT_CELSIUS, "rain")
         )
         self.assertTrue("current_weather_class" in data)
         self.assertTrue("today_forecast_weather_class" in data)
         self.assertTrue("today_forecast_max_temp" in data)
         self.assertTrue("tomorrow_forecast_weather_class" in data)
         self.assertTrue("tomorrow_forecast_max_temp" in data)
+        self.assertTrue("next_rain" in data)
+        self.assertTrue("weather_animation_type" in data)
 
     def test_perform(self):
         service = NabWeatherd()
         writer = MockWriter()
         service.writer = writer
-        config_t = ("75005", NabWeatherd.UNIT_CELSIUS)
+        config_t = ("75005", NabWeatherd.UNIT_CELSIUS, "rain")
         expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
         async_to_sync(service.perform)(expiration, "today", config_t)
         self.assertEqual(len(writer.written), 2)

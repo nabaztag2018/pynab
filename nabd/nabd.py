@@ -12,6 +12,7 @@ import dateutil.parser
 import time
 import traceback
 import gc
+from enum import Enum
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
 from asgiref.sync import sync_to_async
@@ -20,6 +21,14 @@ from django.apps import apps
 from nabcommon import nablogging
 from nabcommon.nabservice import NabService
 from .leds import Leds
+
+
+class State(Enum):
+    IDLE = "idle"
+    ASLEEP = "asleep"
+    INTERACTIVE = "interactive"
+    PLAYING = "playing"
+    RECORDING = "recording"
 
 
 class Nabd:
@@ -56,16 +65,13 @@ class Nabd:
             "right": Nabd.INIT_EAR_POSITION,
         }
         self.info = {}  # Info persists across service connections.
-        self.state = (
-            "idle"  # 'asleep'/'idle'/'interactive'/'playing'/'recording'
-        )
+        self.state = State.IDLE
         # Dictionary of writers, i.e. connected services
         # For each writer, value is the list of registered events
         self.service_writers = {}
         self.interactive_service_writer = None
-        self.interactive_service_events = (
-            []
-        )  # Events registered in interactive mode
+        # Events registered in interactive mode
+        self.interactive_service_events = []
         self.running = True
         self.loop = None
         self._ears_moved_task = None
@@ -131,11 +137,14 @@ class Nabd:
             async with self.idle_cv:
                 while self.running:
                     # Check if we have something to do.
-                    if self.state == "idle" and len(self.idle_queue) > 0:
+                    if self.state == State.IDLE and len(self.idle_queue) > 0:
                         item = self.idle_queue.popleft()
                         await self.process_idle_item(item)
                     else:
-                        if self.state == "idle" and len(self.info.items()) > 0:
+                        if (
+                            self.state == State.IDLE
+                            and len(self.info.items()) > 0
+                        ):
                             for key, value in self.info.copy().items():
                                 await self.nabio.play_info(
                                     self.idle_cv,
@@ -178,30 +187,30 @@ class Nabd:
                     item[0], {"status": "expired"}, item[1]
                 )
                 if len(self.idle_queue) == 0:
-                    await self.set_state("idle")
+                    await self.set_state(State.IDLE)
                     break
                 else:
                     item = self.idle_queue.popleft()
             else:
                 if item[0]["type"] == "command":
-                    await self.set_state("playing")
+                    await self.set_state(State.PLAYING)
                     await self.perform_command(item[0])
                     self.write_response_packet(
                         item[0], {"status": "ok"}, item[1]
                     )
                     if len(self.idle_queue) == 0:
-                        await self.set_state("idle")
+                        await self.set_state(State.IDLE)
                         break
                     else:
                         item = self.idle_queue.popleft()
                 elif item[0]["type"] == "message":
-                    await self.set_state("playing")
+                    await self.set_state(State.PLAYING)
                     await self.perform_message(item[0])
                     self.write_response_packet(
                         item[0], {"status": "ok"}, item[1]
                     )
                     if len(self.idle_queue) == 0:
-                        await self.set_state("idle")
+                        await self.set_state(State.IDLE)
                         break
                     else:
                         item = self.idle_queue.popleft()
@@ -218,7 +227,7 @@ class Nabd:
                         self.write_response_packet(
                             item[0], {"status": "ok"}, item[1]
                         )
-                        await self.set_state("asleep")
+                        await self.set_state(State.ASLEEP)
                         break
                 elif (
                     item[0]["type"] == "mode"
@@ -227,7 +236,7 @@ class Nabd:
                     self.write_response_packet(
                         item[0], {"status": "ok"}, item[1]
                     )
-                    await self.set_state("interactive")
+                    await self.set_state(State.INTERACTIVE)
                     self.interactive_service_writer = item[1]
                     if "events" in item[0]:
                         self.interactive_service_events = item[0]["events"]
@@ -252,7 +261,7 @@ class Nabd:
         """
         async with self.idle_cv:
             if len(self.idle_queue) == 0:
-                await self.set_state("idle")
+                await self.set_state(State.IDLE)
                 self.idle_cv.notify()
             else:
                 item = self.idle_queue.popleft()
@@ -260,9 +269,9 @@ class Nabd:
 
     async def set_state(self, new_state):
         if new_state != self.state:
-            if new_state == "idle":
+            if new_state == State.IDLE:
                 await self.idle_setup()
-            if new_state == "asleep":
+            if new_state == State.ASLEEP:
                 await self.sleep_setup()
             self.state = new_state
             self.broadcast_state()
@@ -310,7 +319,7 @@ class Nabd:
             self.ears["left"] = packet["left"]
         if "right" in packet:
             self.ears["right"] = packet["right"]
-        if self.state == "idle":
+        if self.state == State.IDLE:
             await self.nabio.move_ears(self.ears["left"], self.ears["right"])
         self.write_response_packet(packet, {"status": "ok"}, writer)
 
@@ -373,12 +382,12 @@ class Nabd:
     async def process_wakeup_packet(self, packet, writer):
         """ Process a wakeup packet """
         self.write_response_packet(packet, {"status": "ok"}, writer)
-        if self.state == "asleep":
+        if self.state == State.ASLEEP:
             await self.transition_to_idle()
 
     async def process_sleep_packet(self, packet, writer):
         """ Process a sleep packet """
-        if self.state == "asleep":
+        if self.state == State.ASLEEP:
             self.write_response_packet(packet, {"status": "ok"}, writer)
         else:
             async with self.idle_cv:
@@ -408,7 +417,7 @@ class Nabd:
                 async with self.idle_cv:
                     self.idle_queue.append((packet, writer))
                     self.idle_cv.notify()
-        elif "mode" in packet and packet["mode"] == "idle":
+        elif "mode" in packet and packet["mode"] == State.IDLE:
             if "events" in packet:
                 self.service_writers[writer] = packet["events"]
             else:
@@ -438,7 +447,7 @@ class Nabd:
         results = proc.stdout.readlines()
         uptime = int(results[0].strip())
         response = {}
-        response["state"] = self.state
+        response["state"] = self.state.value
         response["uptime"] = uptime
         response["connections"] = len(self.service_writers)
         response["hardware"] = self.nabio.gestalt()
@@ -524,7 +533,7 @@ class Nabd:
             self.write_state_packet(sw)
 
     def write_state_packet(self, writer):
-        self.write_packet({"type": "state", "state": self.state}, writer)
+        self.write_packet({"type": "state", "state": self.state.value}, writer)
 
     # Handle service through TCP/IP protocol
     async def service_loop(self, reader, writer):
@@ -584,9 +593,9 @@ class Nabd:
         await self.nabio.play_message(signature, packet["body"])
 
     def button_callback(self, button_event, event_time):
-        if button_event == "hold" and self.state == "idle":
+        if button_event == "hold" and self.state == State.IDLE:
             asyncio.ensure_future(self.start_asr())
-        if button_event == "up" and self.state == "recording":
+        if button_event == "up" and self.state == State.RECORDING:
             asyncio.ensure_future(self.stop_asr())
         elif button_event == "triple_click":
             asyncio.ensure_future(self._shutdown())
@@ -601,7 +610,7 @@ class Nabd:
             )
 
     async def start_asr(self):
-        await self.set_state("recording")
+        await self.set_state(State.RECORDING)
         await self.nabio.start_acquisition(self.asr.decode_chunk)
 
     async def stop_asr(self):
@@ -612,7 +621,7 @@ class Nabd:
         logging.debug(f"ASR string: {decoded_str}")
         response = await self.nlu.interpret(decoded_str)
         logging.debug(f"NLU response: {str(response)}")
-        await self.set_state("idle")
+        await self.set_state(State.IDLE)
         if response is None:
             # Did not understand
             await self.nabio.asr_failed()
@@ -622,7 +631,11 @@ class Nabd:
             )
 
     async def _shutdown(self):
-        await self.sleep_setup()
+        await self.stop_idle_worker()
+        Nabd.leds_boot(self.nabio, 0)
+        await self.nabio.move_ears(
+            Nabd.SLEEP_EAR_POSITION, Nabd.SLEEP_EAR_POSITION
+        )
         os.system("/sbin/halt")
 
     def ears_callback(self, ear):
@@ -653,7 +666,7 @@ class Nabd:
             (left, right) = await self.nabio.detect_ears_positions()
             self.ears["left"] = left
             self.ears["right"] = right
-            if self.state != "asleep":
+            if self.state != State.ASLEEP:
                 self.broadcast_event(
                     "ears",
                     {"type": "ears_event", "left": left, "right": right},
@@ -717,37 +730,47 @@ class Nabd:
         Animation to indicate boot progress.
         Useful as loading ASR/NLU model takes some time.
         """
+        # Step 0 is actually used for shutdown. Same values are in nabboot.py
+        # for startup led values.
+        if step == 0:
+            nabio.set_leds(
+                (255, 0, 255),
+                (255, 0, 255),
+                (255, 0, 255),
+                (255, 0, 255),
+                (255, 0, 255),
+            )
         if step == 1:
             nabio.set_leds(
-                (0, 255, 0),
-                (255, 128, 0),
-                (255, 128, 0),
-                (255, 128, 0),
-                (255, 128, 0),
+                (255, 0, 255),
+                (255, 255, 255),
+                (255, 0, 255),
+                (255, 0, 255),
+                (255, 0, 255),
             )
         if step == 2:
             nabio.set_leds(
-                (0, 255, 0),
-                (0, 255, 0),
-                (255, 128, 0),
-                (255, 128, 0),
-                (255, 128, 0),
+                (255, 0, 255),
+                (255, 255, 255),
+                (255, 0, 255),
+                (255, 0, 255),
+                (255, 0, 255),
             )
         if step == 3:
             nabio.set_leds(
-                (0, 255, 0),
-                (0, 255, 0),
-                (0, 255, 0),
-                (255, 128, 0),
-                (255, 128, 0),
+                (255, 0, 255),
+                (255, 255, 255),
+                (255, 255, 255),
+                (255, 0, 255),
+                (255, 0, 255),
             )
         if step == 4:
             nabio.set_leds(
-                (0, 255, 0),
-                (0, 255, 0),
-                (0, 255, 0),
-                (0, 255, 0),
-                (255, 128, 0),
+                (255, 0, 255),
+                (255, 255, 255),
+                (255, 255, 255),
+                (255, 255, 255),
+                (255, 0, 255),
             )
 
     @staticmethod

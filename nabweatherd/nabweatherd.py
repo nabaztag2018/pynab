@@ -31,6 +31,14 @@ class NabWeatherd(NabInfoService):
         '{"left":"0000ff","center":"000000","right":"0000ff"}]}'
     )
 
+
+    WHITE_INFO_ANIMATION = (
+        '{"tempo":125,"colors":['
+        '{"left":"ffffff","center":"ffffff","right":"ffffff"},'
+        '{"left":"000000","center":"000000","right":"000000"}]}'
+    )
+
+
     # [25 {4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 0 0 0}] // brouillard
     FOGGY_INFO_ANIMATION = (
         '{"tempo":25,"colors":['
@@ -374,7 +382,7 @@ class NabWeatherd(NabInfoService):
         return (
             config.next_performance_date,
             config.next_performance_type,
-            (config.location, config.unit),
+            (config.location, config.unit, config.weather_animation_type),
         )
 
     def update_next(self, next_date, next_args):
@@ -395,7 +403,7 @@ class NabWeatherd(NabInfoService):
     async def fetch_info_data(self, config_t):
         from . import models
 
-        location, unit = config_t
+        location, unit, weather_animation_type = config_t
         if location is None:
             return None
         client = await sync_to_async(meteofranceClient)(location, True)
@@ -409,9 +417,9 @@ class NabWeatherd(NabInfoService):
         
         if ('next_rain') in data:
             if (data["next_rain"] == 'No rain'):
-                next_rain = 'J_W1_0-N_0'
+                next_rain = self.WHITE_INFO_ANIMATION
             else :
-                next_rain = 'J_W1_32-N_0'
+                next_rain = self.RAINY_INFO_ANIMATION
         else :
             next_rain = None
             
@@ -428,6 +436,7 @@ class NabWeatherd(NabInfoService):
         )
         tomorrow_forecast_max_temp = data["forecast"][1]["max_temp"]
         return {
+            "weather_animation_type": weather_animation_type,
             "current_weather_class": current_weather_class,
             "next_rain": next_rain,
             "today_forecast_weather_class": today_forecast_weather_class,
@@ -444,18 +453,23 @@ class NabWeatherd(NabInfoService):
         return self.normalize_weather_class(weather_class[:-1])
 
     def get_animation(self, info_data):
-        if info_data is None:
+
+            
+        logging.debug(f"weather_animation_type: {info_data['weather_animation_type']}")
+
+        if info_data is None or info_data["weather_animation_type"] == 'None':
+            logging.debug(f"returning None")
             return None
-        if info_data["next_rain"] is None:
-            logging.debug("No rain info, classic weather animation will be displayed")
+        if info_data["next_rain"] is None or info_data["weather_animation_type"] == 'weather':
+            logging.debug("No rain info or classic selected")
             (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["today_forecast_weather_class"]]
         else :
-            logging.debug("Rain info available")
-            (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["next_rain"]]
+            logging.debug("rain info selected")
+            info_animation= info_data["next_rain"]
         return info_animation
 
     async def perform_additional(self, expiration, type, info_data, config_t):
-        location, unit = config_t
+        location, unit, weather_animation_type  = config_t
         if location is None:
             logging.debug(f"location is None (service is unconfigured)")
             packet = (

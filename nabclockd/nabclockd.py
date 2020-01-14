@@ -109,13 +109,13 @@ class NabClockd(nabservice.NabService):
                             self.current_tz = current_tz
                         response = self.clock_response(now)
                         for r in response:
-                            if r == "sleep":
+                            if r == "sleep":                       
                                 self.writer.write(b'{"type":"sleep"}\r\n')
                                 await self.writer.drain()
                                 self.asleep = None
                             elif r == "wakeup":
                                 self.writer.write(b'{"type":"wakeup"}\r\n')
-                                await self.writer.drain()
+                                await self.writer.drain()                                
                                 self.asleep = None
                             elif r == "chime":
                                 await self.chime(now.hour)

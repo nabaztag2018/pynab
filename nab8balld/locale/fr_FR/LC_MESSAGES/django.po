@@ -1,0 +1,78 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-01-13 10:53+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/nab8balld/settings.html:6
+msgid "Magic 8 Ball"
+msgstr "Gourou"
+
+#: templates/nab8balld/settings.html:10
+msgid "Enable"
+msgstr "Réveiller"
+
+#: templates/nab8balld/settings.html:16
+msgid ""
+"To use Magic 8 Ball, click and hold the button, ask your question while "
+"holding and release the button for the answer."
+msgstr "Pour poser une question (courte !) au Gourou : appuyez sur le bouton et posez votre question puis relachez et attendez que le Gourou vous réponde."
+
+#: templates/nab8balld/settings.html:21
+msgid "Save"
+msgstr "Enregistrer"
+
+#: templates/nab8balld/settings.html:22
+msgid "Reset"
+msgstr "Annuler"
+
+#~ msgid "Air quality"
+#~ msgstr "Qualité de l'air"
+
+#~ msgid ""
+#~ "Air quality information is provided based on your IP adress. You can "
+#~ "select the type of information you want : Agregated index or just PM 2.5"
+#~ msgstr ""
+#~ "La qualité de l'air est donnée en fonction de votre adresse IP. Vous "
+#~ "pouvez sélectionner le type d'information que vous souhaitez utiliser : "
+#~ "Index agrégé ou simplement les particules fines (PM 2.5)"
+
+#~ msgid ""
+#~ "You can also ask your rabbit by saying such things as 'What is the air "
+#~ "quality today ?'"
+#~ msgstr ""
+#~ "Vous pouvez aussi demander à votre lapin en disant 'Qualité de l'air'."
+
+#~ msgid "Index"
+#~ msgstr "Indice"
+
+#~ msgid "Do not display"
+#~ msgstr "Ne pas afficher"
+
+#~ msgid "AQI"
+#~ msgstr "AQI"
+
+#~ msgid "PM 2.5"
+#~ msgstr "PM 2.5"
+
+#~ msgid "Forecast"
+#~ msgstr "Prévision"
+
+#~ msgid "Today"
+#~ msgstr "Aujourd'hui"
+
+#~ msgid "Unknown server error"
+#~ msgstr "Erreur inconnue du serveur"

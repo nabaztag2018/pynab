@@ -44,6 +44,11 @@ class SettingsView(TemplateView):
         if "unit" in request.POST:
             unit = request.POST["unit"]
             config.unit = int(unit)
+
+        if "weather_animation_type" in request.POST:
+            weather_animation_type = request.POST["weather_animation_type"]
+            config.weather_animation_type = weather_animation_type
+
         config.save()
         NabWeatherd.signal_daemon()
         context = self.get_context_data(**kwargs)

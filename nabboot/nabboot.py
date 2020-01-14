@@ -1,3 +1,5 @@
+#!/home/pi/pynab/venv/bin/python
+
 # Script executed at boot and at shutdown.
 # At boot, set leds to orange.
 # At shutdown, turn leds off.
@@ -30,7 +32,7 @@ def set_leds(shutdown):
     if shutdown:
         color = Color(0, 0, 0)
     else:
-        color = Color(255, 128, 0)
+        color = Color(255, 0, 255)
 
     for led in range(6):
         strip.setPixelColor(led, color)
@@ -39,5 +41,5 @@ def set_leds(shutdown):
 
 
 if __name__ == "__main__":
-    shutdown = len(sys.argv) > 1 and sys.argv[1] == "shutdown"
+    shutdown = len(sys.argv) > 1 and sys.argv[1] != "start"
     set_leds(shutdown)
