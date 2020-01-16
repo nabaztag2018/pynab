@@ -13,7 +13,7 @@
         <label for="airqualityIndexSel" class="col-6 col-form-label">{% trans "Index" %}</label>
         <div class="col-6">
           <select name="index_airquality" id="airqualityIndexSel">
-            <option value="9" {% if config.index_airquality == '9' %}selected{% endif %}>{% trans "Do not display" %}</option>
+            <option value="9" {% if config.index_airquality == '9' %}selected{% endif %}>{% trans "Disable" %}</option>
             <option value="0" {% if config.index_airquality == '0' %}selected{% endif %}>{% trans "AQI" %}</option>
             <option value="1" {% if config.index_airquality == '1' %}selected{% endif %}>{% trans "PM 2.5" %}</option>
 		  </select>

@@ -107,6 +107,9 @@ class NabAirqualityd(NabInfoCachedService):
         return info_animation
 
     async def perform_additional(self, expiration, type, info_data, config_t):
+        if (info_data is None):
+            return
+        
         if type == "today":
             message = NabAirqualityd.MESSAGES[info_data]
             packet = (
