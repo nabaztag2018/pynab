@@ -29,6 +29,11 @@ echo "/dev/mmcblk0p1  /boot           vfat    defaults          0       2" >> "/
 echo "/dev/mmcblk0p2  /               ext4    defaults,noatime  0       1" >> "/etc/fstab"
 cat "/etc/fstab"
 
+echo "Changing swap size"
+dphys-swapfile swapoff
+sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=310/' /etc/dphys-swapfile
+dphys-swapfile swapon
+
 echo "Setting gpu_mem."
 if grep -q "gpu_mem" /boot/config.txt
 then
