@@ -30,6 +30,7 @@ echo "/dev/mmcblk0p2  /               ext4    defaults,noatime  0       1" >> "/
 cat "/etc/fstab"
 
 echo "Changing swap size"
+/sbin/dphys-swapfile setup
 dphys-swapfile swapoff
 sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=310/' /etc/dphys-swapfile
 dphys-swapfile swapon
