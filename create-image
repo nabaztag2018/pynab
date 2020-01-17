@@ -102,7 +102,7 @@ chroot "${mount}" "/tmp/${script}"
 mv "${mount}/etc/_ld.so.preload" "${mount}/etc/ld.so.preload"
 
 if [ $TRAVIS_BRANCH = "releng" ]; then
-    zip -v pynab-prelease.img.zip pynab.img
+    zip -v pynab-prerelease.img.zip pynab.img
 else
     zip -v pynab.img.zip pynab.img
 fi
