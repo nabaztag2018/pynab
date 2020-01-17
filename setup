@@ -100,3 +100,5 @@ sudo -u pi /bin/bash install.sh travis-chroot
 echo "Changing swap size"
 /sbin/dphys-swapfile setup
 sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=310/' /etc/dphys-swapfile
+/sbin/dphys-swapfile swapoff
+/sbin/dphys-swapfile swapon
