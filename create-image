@@ -16,7 +16,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # Some useful constants
-image="pynab.img"
+image="pynab-${TRAVIS_BRANCH}.img"
 mount="mnt"
 script="setup"
 rpi_zip="2019-09-26-raspbian-buster-lite.zip"
