@@ -101,8 +101,12 @@ chroot "${mount}" "/tmp/${script}"
 # Put back the old ld.so.preload script.
 mv "${mount}/etc/_ld.so.preload" "${mount}/etc/ld.so.preload"
 
+# Unmount the image
+cleanup
+
+# Compress the image
 if [ $TRAVIS_BRANCH = "releng" ]; then
-    zip -v pynab-prerelease.img.zip pynab.img
+    zip -v pynab-prerelease.img.zip "${image}"
 else
-    zip -v pynab.img.zip pynab.img
+    zip -v pynab.img.zip "${image}"
 fi
