@@ -1,5 +1,6 @@
 import asyncio
 import os
+import inspect
 import json
 import getopt
 import signal
@@ -62,6 +63,10 @@ class NabService(ABC):
 
     async def client_loop(self):
         try:
+            service_dir = os.path.dirname(inspect.getfile(self.__class__))
+            if os.path.isdir(os.path.join(service_dir, "nlu")):
+                idle_packet = '{"type":"idle","events":["asr"]}\r\n'
+                self.writer.write(idle_packet.encode("utf8"))
             while self.running and not self.reader.at_eof():
                 line = await self.reader.readline()
                 if line != b"" and line != b"\r\n":
