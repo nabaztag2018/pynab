@@ -74,12 +74,11 @@ class TestNabclockd(unittest.TestCase):
             line = await reader.readline()
             if line != b"":
                 packet = json.loads(line.decode("utf8"))
-                self.wakeup_handler_packet = packet
-                break
+                self.wakeup_handler_packets.append(packet)
 
     def test_wakeup(self):
         self.mock_connection_handler = self.wakeup_handler
-        self.wakeup_handler_packet = None
+        self.wakeup_handler_packets = []
         self.wakeup_handler_called = 0
         this_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(this_loop)
@@ -101,9 +100,12 @@ class TestNabclockd(unittest.TestCase):
         )
         service.run()
         self.assertEqual(self.wakeup_handler_called, 1)
-        self.assertIsNot(self.wakeup_handler_packet, None)
-        self.assertTrue("type" in self.wakeup_handler_packet)
-        self.assertEqual(self.wakeup_handler_packet["type"], "wakeup")
+        self.assertEqual(len(self.wakeup_handler_packets), 2)
+        # NLU packet
+        self.assertTrue("type" in self.wakeup_handler_packets[0])
+        self.assertEqual(self.wakeup_handler_packets[0]["type"], "idle")
+        self.assertTrue("type" in self.wakeup_handler_packets[1])
+        self.assertEqual(self.wakeup_handler_packets[1]["type"], "wakeup")
 
     def test_clock_response(self):
         service = nabclockd.NabClockd()

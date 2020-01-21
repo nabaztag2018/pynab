@@ -165,12 +165,23 @@ Le slot `"mode"` peut être:
 - `"interactive"`
 
 Le slot `"events"`, optionnel, est une liste avec:
+- `"asr"`
 - `"button"`
 - `"ears"`
 
-Pour le mode `"idle"`, si `"events"` n'est pas précisé, cela est équivalent à la liste vide : le service ne reçoit aucun événement. Si `"button"` ou `"ears" ` sont précisés, le service reçoit les événements correspondants lorsque le lapin est éveillé et n'est pas en mode `"interactive"` avec un autre service. Par défaut, le mode est `"idle"`, sans événements.
+Pour le mode `"idle"`, si `"events"` n'est pas précisé, cela est équivalent à la liste vide: le service ne reçoit aucun événement. Si `"asr"`, `"button"` ou `"ears" ` sont précisés, le service reçoit les événements correspondants lorsque le lapin est éveillé et n'est pas en mode `"interactive"` avec un autre service. Par défaut, le mode est `"idle"`, sans événements.
 
 Dans le mode `"interactive"`, le service prend la main sur le lapin et reçoit les événéments précisés. Le lapin cesse d'afficher les infos. Un seul service peut être en mode interactif. Si non précisé, le service reçoit tous les événements. Les autres services ne reçoivent pas les événements, le lapin ne joue pas les commmandes et ne s'endort pas. Le mode interactif s'achève lorsque le service envoie un paquet `"mode"` avec le mode `"idle"` (ou lorsque la connexion est rompue).
+
+## Paquets `asr_event`
+
+Émetteur: nabd
+
+Signifie aux services qu'une commande vocale a été comprise.
+Le slot "nlu" contient le détail de la commande comprise, à partir du moteur de NLU.
+En particulier, le slot "intent" contient l'intention détectée.
+
+`{'type': 'asr_event', 'nlu': {'intent': intent}}`
 
 ## Paquets `ears_event`
 

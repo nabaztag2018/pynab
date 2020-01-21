@@ -27,12 +27,12 @@ class Nab8Balld(NabService):
         config = await self.__config()
         if config.enabled:
             packet = (
-                '{"type":"mode","mode":"idle","events":["button"],'
+                '{"type":"mode","mode":"idle","events":["button","asr"],'
                 '"request_id":"idle-button"}\r\n'
             )
         else:
             packet = (
-                '{"type":"mode","mode":"idle","events":[],'
+                '{"type":"mode","mode":"idle","events":["asr"],'
                 '"request_id":"idle-disabled"}\r\n'
             )
         self.writer.write(packet.encode("utf8"))

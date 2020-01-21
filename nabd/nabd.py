@@ -421,7 +421,7 @@ class Nabd:
             if "events" in packet:
                 self.service_writers[writer] = packet["events"]
             else:
-                self.service_writers[writer] = ["asr"]
+                self.service_writers[writer] = []
             if writer == self.interactive_service_writer:
                 # exit interactive mode.
                 await self.exit_interactive()
