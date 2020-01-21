@@ -417,7 +417,7 @@ class Nabd:
                 async with self.idle_cv:
                     self.idle_queue.append((packet, writer))
                     self.idle_cv.notify()
-        elif "mode" in packet and packet["mode"] == State.IDLE:
+        elif "mode" in packet and packet["mode"] == "idle":
             if "events" in packet:
                 self.service_writers[writer] = packet["events"]
             else:
@@ -427,6 +427,7 @@ class Nabd:
                 await self.exit_interactive()
             self.write_response_packet(packet, {"status": "ok"}, writer)
         else:
+            logging.debug(f"unknown mode packet from service: {packet}")
             self.write_response_packet(
                 packet,
                 {
