@@ -65,7 +65,9 @@ class NabService(ABC):
         try:
             service_dir = os.path.dirname(inspect.getfile(self.__class__))
             if os.path.isdir(os.path.join(service_dir, "nlu")):
-                idle_packet = '{"type":"idle","events":["asr"]}\r\n'
+                idle_packet = (
+                    '{"type":"mode","mode":"idle","events":["asr"]}\r\n'
+                )
                 self.writer.write(idle_packet.encode("utf8"))
             while self.running and not self.reader.at_eof():
                 line = await self.reader.readline()
@@ -443,7 +445,9 @@ class NabInfoService(NabRecurrentService, ABC):
                 + "}\r\n"
             )
         else:
-            info_packet = '{"type":"info","info_id":"' + service_name + '"}\r\n'
+            info_packet = (
+                '{"type":"info","info_id":"' + service_name + '"}\r\n'
+            )
         self.writer.write(info_packet.encode("utf8"))
         if type != "info":
             await self.perform_additional(

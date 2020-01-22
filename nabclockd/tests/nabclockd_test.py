@@ -103,7 +103,7 @@ class TestNabclockd(unittest.TestCase):
         self.assertEqual(len(self.wakeup_handler_packets), 2)
         # NLU packet
         self.assertTrue("type" in self.wakeup_handler_packets[0])
-        self.assertEqual(self.wakeup_handler_packets[0]["type"], "idle")
+        self.assertEqual(self.wakeup_handler_packets[0]["type"], "mode")
         self.assertTrue("type" in self.wakeup_handler_packets[1])
         self.assertEqual(self.wakeup_handler_packets[1]["type"], "wakeup")
 
