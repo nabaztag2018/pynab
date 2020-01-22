@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-13 10:53+0100\n"
+"POT-Creation-Date: 2020-01-22 09:59+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,9 +27,11 @@ msgstr "Réveiller"
 
 #: templates/nab8balld/settings.html:16
 msgid ""
-"To use Magic 8 Ball, click and hold the button, ask your question while "
-"holding and release the button for the answer."
-msgstr "Pour poser une question (courte !) au Gourou : appuyez sur le bouton et posez votre question puis relachez et attendez que le Gourou vous réponde."
+"To use Magic 8 Ball, click and hold the button, says 'Tell me rabbit' then "
+"ask your question and release the button for the answer."
+msgstr ""
+"Pour poser une question (courte !) au Gourou : appuyez sur le bouton, dites 'Dis lapin' puis "
+"posez votre question, relachez et attendez que le Gourou vous réponde."
 
 #: templates/nab8balld/settings.html:21
 msgid "Save"
