@@ -73,6 +73,11 @@ class NabIOHW(NabIO):
                 index = (index + 1) % len(animation)
             else:
                 break
+        self.clear_info()
+
+    def clear_info(self):
+        for led in (Leds.LED_LEFT, Leds.LED_CENTER, Leds.LED_RIGHT):
+            self.leds.set1(led, 0, 0, 0)
 
     @staticmethod
     async def _wait_on_condvar(condvar, ms):
