@@ -2,7 +2,6 @@ from django.db import models
 from asgiref.sync import sync_to_async
 from nabcommon import singleton_model
 from datetime import date
-import logging
 
 class Config(singleton_model.SingletonModel):
     

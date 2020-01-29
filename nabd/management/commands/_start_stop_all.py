@@ -19,7 +19,6 @@ class StartStopCommand(BaseCommand):
                         failed_count += 1
                     else:
                         self.stdout.write(self.style.SUCCESS(f" OK"))
-                    r = os.system(f"service {app} {command}")
         self.stdout.write("nabd", ending='')
         r = os.system(f"service nabd {command}")
         if r != 0:
