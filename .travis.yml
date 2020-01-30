@@ -9,7 +9,7 @@ dist: bionic
 sudo: true
 script:
   - sh /home/travis/build/nabaztag2018/pynab/.travis_build_nlu_engines.sh
-  - sudo mkdir -p /run/systemd/timesync/ && touch /run/systemd/timesync/synchronized
+  - sudo mkdir -p /run/systemd/timesync/ && sudo touch /run/systemd/timesync/synchronized
   - pytest
 addons:
   postgresql: "10"
