@@ -1,6 +1,8 @@
 import sys
 import asyncio
 import datetime
+import subprocess
+import logging
 from dateutil import tz
 from asgiref.sync import sync_to_async
 from nabcommon import nabservice
@@ -18,6 +20,8 @@ class NabClockd(nabservice.NabService):
         self.asleep = None
         self.last_chime = None
         self.current_tz = self.get_system_tz()
+        self.__synchronized_since_boot = False
+        self.__boot_date = None
 
     async def reload_config(self):
         from . import models
@@ -26,8 +30,34 @@ class NabClockd(nabservice.NabService):
             self.config = await sync_to_async(models.Config.load)()
             self.loop_cv.notify()
 
-    def valid_time(self, now):
-        return now > datetime.datetime(2018, 11, 1, tzinfo=tz.gettz())
+    def synchronized_since_boot(self):
+        """
+        Determine whether the clock was synchronized since boot using uptime
+        and /run/systemd/timesync/synchronized
+        see systemd-timesyncd.service(8)
+        Both dates start with ISO 8601 strings and we can compare them
+        lexically.
+        """
+        if self.__synchronized_since_boot:
+            return True
+        first_run = False
+        if self.__boot_date is None:
+            first_run = True
+            self.__boot_date = subprocess.run(
+                ["uptime", "-s"], stdout=subprocess.PIPE
+            ).stdout
+        synchronized_date = subprocess.run(
+            ["stat", "-c", "%y", "/run/systemd/timesync/synchronized"],
+            stdout=subprocess.PIPE,
+        ).stdout
+        if synchronized_date > self.__boot_date:
+            self.__synchronized_since_boot = True
+            if not first_run:
+                logging.debug("Clock has been synchronized")
+            return True
+        if first_run:
+            logging.debug("Clock is not synchronized, disabling chime & sleep")
+        return False
 
     async def chime(self, hour):
         now = datetime.datetime.now()
@@ -44,7 +74,7 @@ class NabClockd(nabservice.NabService):
 
     def clock_response(self, now):
         response = []
-        if self.valid_time(now):
+        if self.synchronized_since_boot():
             should_sleep = None
             if (
                 self.config.wakeup_hour is not None
@@ -109,13 +139,13 @@ class NabClockd(nabservice.NabService):
                             self.current_tz = current_tz
                         response = self.clock_response(now)
                         for r in response:
-                            if r == "sleep":                       
+                            if r == "sleep":
                                 self.writer.write(b'{"type":"sleep"}\r\n')
                                 await self.writer.drain()
                                 self.asleep = None
                             elif r == "wakeup":
                                 self.writer.write(b'{"type":"wakeup"}\r\n')
-                                await self.writer.drain()                                
+                                await self.writer.drain()
                                 self.asleep = None
                             elif r == "chime":
                                 await self.chime(now.hour)
