@@ -46,6 +46,15 @@ class NabSurprised(NabRandomService):
                 )
                 self.writer.write(packet.encode("utf8"))
                 await self.writer.drain()
+            if packet["nlu"]["intent"] == "autopromo":
+                packet = (
+                  '{"type":"message","signature":{'
+                  '"audio":["nabsurprised/respirations/*.mp3"]},'
+                  '"body":[{"audio":["nabsurprised/autopromo/*.mp3"]}],'
+                  '"expiration":"' + expiration.isoformat() + '"}\r\n'
+                )
+                self.writer.write(packet.encode("utf8"))
+                await self.writer.drain()
 
 
 if __name__ == "__main__":
