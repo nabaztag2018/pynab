@@ -67,11 +67,14 @@ public <control> =
     | aimes-tu les carottes
     ;
 
+<petit_nom> =
+    nabaztag
+    | lapin
+    ;
+
 <autopromo> =
-    que sais tu faire
-    | que sais tu faire ( lapin | nabaztag )
-    | tu sais faire quoi
-    | tu sais faire quoi ( nabaztag | lapin )
+    que sais-tu faire [ <petit_nom> ]
+    | tu sais faire quoi [ <petit_nom> ]
     ;
 
 

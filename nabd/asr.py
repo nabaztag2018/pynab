@@ -11,7 +11,7 @@ class ASR:
     """
 
     MODELS = {
-        "fr_FR": "/opt/kaldi/model/kaldi-nabaztag-fr-adapt-r20191222",
+        "fr_FR": "/opt/kaldi/model/kaldi-nabaztag-fr-adapt-r20200201",
         "en_GB": "/opt/kaldi/model/kaldi-nabaztag-en-adapt-r20191222",
         "en_US": "/opt/kaldi/model/kaldi-nabaztag-en-adapt-r20191222",
     }

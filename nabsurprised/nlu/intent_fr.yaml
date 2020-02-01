@@ -24,9 +24,9 @@ utterances:
 type: intent
 name: autopromo
 utterances:
-  - que sais tu faire
-  - que sais tu faire nabaztag
-  - que sais tu faire lapin
+  - que sais-tu faire
+  - que sais-tu faire nabaztag
+  - que sais-tu faire lapin
   - tu sais faire quoi
   - tu sais faire quoi lapin
   - tu sais faire quoi nabaztag
