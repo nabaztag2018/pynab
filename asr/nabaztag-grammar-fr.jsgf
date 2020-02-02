@@ -4,7 +4,7 @@ grammar fr.tagtagtag;
 
 public <control> =
     <noise> +
-    | [ <euh> ] ( <weather> | <airquality> | <8ball> | <surprise> | <taichi> | <carrot> | <clock> ) [ <euh> ];
+    | [ <euh> ] ( <weather> | <airquality> | <8ball> | <surprise> | <taichi> | <carrot> | <clock> | <autopromo> ) [ <euh> ];
 
 <date> = ( aujourd'hui | demain | ce matin | demain matin | cet après-midi | dans l'heure ) ;
 <giveme> = ( tu me donnerais | donne-moi | tu peux me donner | tu pourrais me donner | est-ce que tu peux me donner | est-ce que tu pourrais me donner ) ;
@@ -66,6 +66,17 @@ public <control> =
     | tu veux une carotte
     | aimes-tu les carottes
     ;
+
+<petit_nom> =
+    nabaztag
+    | lapin
+    ;
+
+<autopromo> =
+    que sais-tu faire [ <petit_nom> ]
+    | tu sais faire quoi [ <petit_nom> ]
+    ;
+
 
 <clock> =
     horloge
