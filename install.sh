@@ -131,7 +131,7 @@ if [ $makerfaire2018 -eq 0 ]; then
 
   sudo mkdir -p "/opt/kaldi/model"
 
-  if [ ! -d "/opt/kaldi/model/kaldi-generic-en-r20191222" ]; then
+  if [ ! -d "/opt/kaldi/model/kaldi-nabaztag-en-adapt-r20191222" ]; then
     echo "Uncompressing kaldi model for English"
     sudo tar xJf /home/pi/pynab/asr/kaldi-nabaztag-en-adapt-r20191222.tar.xz -C /opt/kaldi/model/
   fi
