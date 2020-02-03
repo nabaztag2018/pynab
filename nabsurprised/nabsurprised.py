@@ -5,6 +5,8 @@ from nabcommon.nabservice import NabRandomService
 
 
 class NabSurprised(NabRandomService):
+    EASTER_EGGS = frozenset(["autopromo", "birthday", "carrot"])
+
     def get_config(self):
         from . import models
 
@@ -37,21 +39,15 @@ class NabSurprised(NabRandomService):
             expiration = now + datetime.timedelta(minutes=1)
             if packet["nlu"]["intent"] == "surprise":
                 await self.perform(expiration, None, None)
-            if packet["nlu"]["intent"] == "carrot":
+            if packet["nlu"]["intent"] in NabSurprised.EASTER_EGGS:
+                easter_egg = packet["nlu"]["intent"]
                 packet = (
                     '{"type":"message","signature":{'
                     '"audio":["nabsurprised/respirations/*.mp3"]},'
-                    '"body":[{"audio":["nabsurprised/carrot/*.mp3"]}],'
+                    '"body":[{"audio":['
+                    '"nabsurprised/' + easter_egg + '/*.mp3"'
+                    ']}],'
                     '"expiration":"' + expiration.isoformat() + '"}\r\n'
-                )
-                self.writer.write(packet.encode("utf8"))
-                await self.writer.drain()
-            if packet["nlu"]["intent"] == "autopromo":
-                packet = (
-                  '{"type":"message","signature":{'
-                  '"audio":["nabsurprised/respirations/*.mp3"]},'
-                  '"body":[{"audio":["nabsurprised/autopromo/*.mp3"]}],'
-                  '"expiration":"' + expiration.isoformat() + '"}\r\n'
                 )
                 self.writer.write(packet.encode("utf8"))
                 await self.writer.drain()

@@ -4,7 +4,7 @@ grammar fr.tagtagtag;
 
 public <control> =
     <noise> +
-    | [ <euh> ] ( <weather> | <airquality> | <8ball> | <surprise> | <taichi> | <carrot> | <clock> | <autopromo> ) [ <euh> ];
+    | [ <euh> ] ( <weather> | <airquality> | <8ball> | <surprise> | <taichi> | <easteregg> | <clock> | <sleep> ) [ <euh> ];
 
 <date> = ( aujourd'hui | demain | ce matin | demain matin | cet après-midi | dans l'heure ) ;
 <giveme> = ( tu me donnerais | donne-moi | tu peux me donner | tu pourrais me donner | est-ce que tu peux me donner | est-ce que tu pourrais me donner ) ;
@@ -28,7 +28,7 @@ public <control> =
     | dis-moi s'il ( pleuvra | va pleuvoir | ( va faire | fera ) ( chaud | froid ) | va faire beau | y aura des éclaircies ) [<date>] [<please>]
     | est-ce ( qu'il | que il ) ( pleuvra | va pleuvoir | ( va faire | fera ) ( chaud | froid ) | va faire beau | y aura des éclaircies ) [<date>]
     | est-ce qu'il ( pleut | fait chaud | fait froid ) [<date>]
-    | est-ce que ( j'ai | j'aurai ) besoin d'un [ parapluie | pull | imper | k-way | imperméable | blouson ] [<date>]
+    | est-ce que ( j'ai | j'aurai ) besoin d'un ( parapluie | pull | imper | k-way | imperméable | blouson ) [<date>]
     | est-ce que je peux sortir en t-shirt | chemise | short [<date>]
     | quel temps ( fera-t-il | fait-il | il ( fait | va faire ) ) [ dehors | à l'extérieur ] [<date>]
     | quelle ( est | sera ) la météo [<date>]
@@ -41,12 +41,19 @@ public <control> =
     | [ <giveme> le ] taux de CO2 [ <date> ]
     | quelle est la qualité de l'air [<date>] [ dehors | à l'extérieur ]
     | quel est le taux de CO2 [<date>] [ dehors | à l'extérieur ]
-    | est-ce que je peux aller [ dehors | à l'extérieur ] ou c'est trop pollué
+    | est-ce que je peux aller ( dehors | à l'extérieur ) ou c'est trop pollué
     | c'est pas un peu pollué [<date>]
     ;
 
 <8ball> = gourou
     | ( dis | dis-moi ) ( lapin | nabaztag | gourou )
+    | dis ( gourou | lapin | nabaztag ) qu'est-ce que t'en penses
+    | et toi ( gourou | lapin | nabaztag ) qu'en penses-tu
+    | t'en penses quoi ( gourou | lapin | nabaztag )
+    | ( dis | à ton avis ) ( gourou | lapin | nabaztag ) est-ce que c'est une bonne idée
+    | dis ( gourou | lapin | nabaztag ) tu y crois ou pas
+    | ( dis | à ton avis ) ( gourou | lapin | nabaztag ) j'y vais ou j'y vais pas
+    | ( dis | à ton avis ) ( gourou | lapin | nabaztag ) ( je le | j'le ) fais ou ( je ne le | je le | j'le ) fais pas
     ;
 
 <surprise> =
@@ -59,6 +66,12 @@ public <control> =
     | surprise
     | surprise surprise
     | humeur
+    ;
+
+<easteregg> =
+    <carrot>
+    | <autopromo>
+    | <birthday>
     ;
 
 <carrot> =
@@ -77,6 +90,396 @@ public <control> =
     | tu sais faire quoi [ <petit_nom> ]
     ;
 
+<birthday> =
+    anniversaire
+    | c'est ( mon | son | ton ) anniversaire
+    | c'est l'anniversaire <de_prenom>
+    ;
+
+<de_prenom> =
+    d'adrien
+    | d'agnès
+    | d'alain
+    | d'alan
+    | d'alban
+    | d'albert
+    | d'alex
+    | d'alexander
+    | d'alexandre
+    | d'alexis
+    | d'alice
+    | d'alix
+    | d'alyson
+    | d'amanda
+    | d'amar
+    | d'amaury
+    | d'anaïs
+    | d'andré
+    | d'andrée
+    | d'anna
+    | d'anne
+    | d'annick
+    | d'annie
+    | d'anthony
+    | d'antoine
+    | d'antonin
+    | d'armand
+    | d'armando
+    | d'arnaud
+    | d'arthur
+    | d'audrey
+    | d'aurélie
+    | d'aurélien
+    | d'axel
+    | d'élisabeth
+    | d'émile
+    | d'émile
+    | d'émilie
+    | d'emma
+    | d'emmanuelle
+    | d'éric
+    | d'étienne
+    | d'évelyne
+    | d'hélène
+    | d'henri
+    | d'henriette
+    | d'hervé
+    | d'hugo
+    | d'inès
+    | d'isa
+    | d'isabelle
+    | d'iskander
+    | d'ivor
+    | d'odette
+    | d'olivier
+    | d'olivier
+    | d'oskar
+    | d'yves
+    | d'yvette
+    | d'yvonne
+    | de <prenom>
+    ;
+
+<prenom> =
+    adrien
+    | agnès
+    | alain
+    | alan
+    | alban
+    | albert
+    | alex
+    | alexander
+    | alexandre
+    | alexis
+    | alice
+    | alix
+    | alyson
+    | amanda
+    | amar
+    | amaury
+    | anaïs
+    | andré
+    | andrée
+    | anna
+    | anne
+    | annick
+    | annie
+    | anthony
+    | antoine
+    | antonin
+    | armand
+    | armando
+    | arnaud
+    | arthur
+    | audrey
+    | aurélie
+    | aurélien
+    | axel
+    | bastien
+    | béatrice
+    | benjamin
+    | benoît
+    | bernadette
+    | bernard
+    | bertrand
+    | blaise
+    | boris
+    | brian
+    | brice
+    | brigitte
+    | brize
+    | bruce
+    | bruno
+    | camille
+    | candice
+    | carine
+    | carole
+    | caroline
+    | catherine
+    | cécile
+    | cécilien
+    | cédric
+    | célia
+    | céline
+    | chantal
+    | charles
+    | charles-édouard
+    | charlotte
+    | chloé
+    | christelle
+    | christian
+    | christiane
+    | christine
+    | christophe
+    | claire
+    | clara
+    | claude
+    | claudine
+    | clément
+    | clothilde
+    | colette
+    | corinne
+    | coumba
+    | cyrielle
+    | cyril
+    | cyrille
+    | damien
+    | daniel
+    | danielle
+    | dante
+    | david
+    | delphine
+    | denis
+    | denise
+    | diane
+    | didier
+    | dimitri
+    | dirk
+    | dominique
+    | ed
+    | éliane
+    | élie
+    | élisa
+    | élisabeth
+    | élise
+    | elsa
+    | émeline
+    | émile
+    | émilie
+    | emma
+    | emmanuel
+    | emmanuelle
+    | enzo
+    | éric
+    | étienne
+    | évelyne
+    | fabien
+    | fabrice
+    | fernand
+    | flavien
+    | florence
+    | florent
+    | florian
+    | france
+    | francis
+    | francisco
+    | franck
+    | fred
+    | gabriel
+    | gabriel
+    | gaël
+    | gaëtan
+    | geneviève
+    | georges
+    | georgette
+    | gérard
+    | germaine
+    | gerry
+    | ghislain
+    | gilbert
+    | gilles
+    | ginette
+    | gisèle
+    | greg
+    | guillaume
+    | guy
+    | harold
+    | hélène
+    | henri
+    | henriette
+    | hervé
+    | hugo
+    | isa
+    | isabelle
+    | jacqueline
+    | jacques
+    | james
+    | jan
+    | jean
+    | jean-baptiste
+    | jean-christophe
+    | jean-claude
+    | jean-jacques
+    | jean-luc
+    | jean-marc
+    | jean-michel
+    | jean-pascal
+    | jean-philippe
+    | jean-pierre
+    | jean-yves
+    | jeanne
+    | jeannine
+    | jennifer
+    | jérémie
+    | jérémy
+    | jocelyn
+    | jocelyne
+    | joël
+    | johnny
+    | jonathan
+    | joseph
+    | josette
+    | josiane
+    | jules
+    | julie
+    | julien
+    | juliette
+    | kari
+    | karine
+    | kevin
+    | laetitia
+    | laura
+    | laurence
+    | laurent
+    | léa
+    | léon
+    | léonard
+    | liliane
+    | lionel
+    | loïc
+    | louis
+    | louise
+    | luc
+    | lucas
+    | lucie
+    | lucien
+    | lucienne
+    | ludivine
+    | ludovic
+    | madeleine
+    | maeva
+    | manon
+    | manuel
+    | marc
+    | marcel
+    | marcelle
+    | marco
+    | marguerite
+    | maria
+    | marie
+    | marine
+    | marion
+    | mark
+    | marthe
+    | martin
+    | martine
+    | mathias
+    | mathieu
+    | mathilde
+    | matthieu
+    | maud
+    | maurice
+    | max
+    | maxime
+    | maÿlis
+    | mélanie
+    | michaël
+    | michel
+    | michèle
+    | michelle
+    | mickael
+    | mickaël
+    | mireille
+    | monique
+    | muriel
+    | nadine
+    | natacha
+    | nathalie
+    | nicolas
+    | nicole
+    | nils
+    | odette
+    | olivier
+    | pascal
+    | patrice
+    | patricia
+    | patrick
+    | paul
+    | paul
+    | paulette
+    | pauline
+    | philémon
+    | philippe
+    | pierre
+    | pierre-olivier
+    | quentin
+    | rafi
+    | raymond
+    | raymonde
+    | rémi
+    | renaud
+    | rené
+    | renée
+    | richard
+    | robert
+    | rodolphe
+    | roger
+    | roland
+    | romain
+    | romuald
+    | ronan
+    | sandrine
+    | sarah
+    | serge
+    | séverine
+    | simon
+    | simon
+    | simone
+    | sonia
+    | sophie
+    | steve
+    | steven
+    | suzanne
+    | sylvain
+    | sylvie
+    | tanguy
+    | théo
+    | thérèse
+    | thibault
+    | thibaut
+    | thierry
+    | thomas
+    | tony
+    | tristan
+    | valentin
+    | valérie
+    | véronique
+    | victor
+    | vincent
+    | violette
+    | virginie
+    | vivien
+    | xavier
+    | yann
+    | yannick
+    | yoann
+    | yolande
+    | yvan
+    | yves
+    | yvette
+    | yvonne
+    | zélie
+    ;
 
 <clock> =
     horloge
@@ -90,7 +493,7 @@ public <control> =
     tai-chi
     | c'est l'heure ( du | de ton ) tai-chi
     | tu me referais ( le | ton ) tai-chi
-    | j'adore le tai-chi tu me le referais
+    | j'adore ( le | ton ) tai-chi tu me le referais
     ;
 
 <sleep> =
