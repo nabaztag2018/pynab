@@ -31,7 +31,7 @@ class ASR:
     def _load_model(self, locale):
         locale = ASR.get_locale(locale)
         path = ASR.MODELS[locale]
-        self.model = KaldiNNet3OnlineModel(path)
+        self.model = KaldiNNet3OnlineModel(path, max_mem=20000)
         self.decoder = KaldiNNet3OnlineDecoder(self.model)
 
     def decode_chunk(self, samples, finalize):
