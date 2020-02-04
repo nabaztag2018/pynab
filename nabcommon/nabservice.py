@@ -338,7 +338,8 @@ class NabRecurrentService(NabService, ABC):
         next_t = self.compute_next(saved_date, saved_args, config, self.reason)
         if next_t is None:
             next_date, next_args = None, None
-        next_date, next_args = next_t
+        else:
+            next_date, next_args = next_t
         if next_date != saved_date or next_args != saved_args:
             self.update_next(next_date, next_args)
         return next_date, next_args, config

@@ -63,15 +63,7 @@ class Resources(object):
         
         from .i18n import get_locale
                 
-        head_tail = os.path.split(parent)
-        if (head_tail[0] == ''):
-            first_parent = head_tail[1]
-        else:
-            first_parent = head_tail[0]     
-        
-
         basepath = Path(settings.BASE_DIR)
-        logging.debug(basepath)
         locale = await get_locale()
         
         for app in os.listdir(basepath):

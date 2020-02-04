@@ -64,6 +64,7 @@ class NabIOHW(NabIO):
         step_ms = tempo * 10
         start = time.time()
         index = 0
+        notified = False
         while time.time() - start < NabIO.INFO_LOOP_LENGTH:
             step = animation[index]
             for led_ix, rgb in step:
@@ -72,7 +73,14 @@ class NabIOHW(NabIO):
             if await NabIOHW._wait_on_condvar(condvar, step_ms):
                 index = (index + 1) % len(animation)
             else:
+                notified = True
                 break
+        self.clear_info()
+        return notified
+
+    def clear_info(self):
+        for led in (Leds.LED_LEFT, Leds.LED_CENTER, Leds.LED_RIGHT):
+            self.leds.set1(led, 0, 0, 0)
 
     @staticmethod
     async def _wait_on_condvar(condvar, ms):

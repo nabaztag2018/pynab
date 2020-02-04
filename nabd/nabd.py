@@ -146,11 +146,13 @@ class Nabd:
                             and len(self.info.items()) > 0
                         ):
                             for key, value in self.info.copy().items():
-                                await self.nabio.play_info(
+                                notified = await self.nabio.play_info(
                                     self.idle_cv,
                                     value["tempo"],
                                     value["colors"],
                                 )
+                                if notified:
+                                    break
                         else:
                             await self.idle_cv.wait()
         except KeyboardInterrupt:

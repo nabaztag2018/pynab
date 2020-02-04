@@ -1,6 +1,5 @@
 import sys
 import datetime
-import dateutil.parser
 import logging
 from asgiref.sync import sync_to_async
 from nabcommon.nabservice import NabInfoService
@@ -249,7 +248,7 @@ class NabWeatherd(NabInfoService):
         "J_W1_18-N_3": "J_W1_9-N_3",
         "J_W1_18-N": "J_W1_9-N_0",
         "J_W1_19-N": "J_W1_10-N_0",
-        "J_W1_19-N": "J_W2_14",
+#       "J_W1_19-N": "J_W2_14",
         "J_W1_20-N_3": "J_W1_14-N_3",
         "J_W1_20": "J_W1_14-N_0",
         "J_W1_21-N_3": "J_W1_13-N_3",
@@ -321,7 +320,7 @@ class NabWeatherd(NabInfoService):
         "N_W1_18-N_3": "J_W1_9-N_3",
         "N_W1_18-N": "N_W1_9-N_0",
         "N_W1_19-N": "J_W1_10-N_0",
-        "N_W1_19-N": "N_W2_14",
+#       "N_W1_19-N": "N_W2_14",
         "N_W1_20-N_3": "J_W1_14-N_3",
         "N_W1_20": "N_W1_14-N_0",
         "N_W1_21-N_3": "J_W1_13-N_3",

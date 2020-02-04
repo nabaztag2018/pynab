@@ -120,18 +120,6 @@ class TestNabclockd(unittest.TestCase):
         asyncio.set_event_loop(this_loop)
         reload_task = this_loop.create_task(service.reload_config())
         this_loop.run_until_complete(reload_task)
-        self.assertEqual(
-            service.clock_response(
-                datetime.datetime(1970, 1, 1, 0, 0, 0, tzinfo=tz.gettz())
-            ),
-            [],
-        )
-        self.assertEqual(
-            service.clock_response(
-                datetime.datetime(1970, 1, 1, 8, 0, 0, tzinfo=tz.gettz())
-            ),
-            [],
-        )
         service.asleep = True
         self.assertEqual(
             service.clock_response(

@@ -11,7 +11,7 @@ class ASR:
     """
 
     MODELS = {
-        "fr_FR": "/opt/kaldi/model/kaldi-nabaztag-fr-adapt-r20191222",
+        "fr_FR": "/opt/kaldi/model/kaldi-nabaztag-fr-adapt-r20200203",
         "en_GB": "/opt/kaldi/model/kaldi-nabaztag-en-adapt-r20191222",
         "en_US": "/opt/kaldi/model/kaldi-nabaztag-en-adapt-r20191222",
     }
@@ -31,7 +31,7 @@ class ASR:
     def _load_model(self, locale):
         locale = ASR.get_locale(locale)
         path = ASR.MODELS[locale]
-        self.model = KaldiNNet3OnlineModel(path)
+        self.model = KaldiNNet3OnlineModel(path, max_mem=20000)
         self.decoder = KaldiNNet3OnlineDecoder(self.model)
 
     def decode_chunk(self, samples, finalize):
