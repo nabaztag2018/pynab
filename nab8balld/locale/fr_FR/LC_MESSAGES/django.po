@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-22 09:59+0100\n"
+"POT-Creation-Date: 2020-02-04 12:17+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,16 +22,18 @@ msgid "Magic 8 Ball"
 msgstr "Gourou"
 
 #: templates/nab8balld/settings.html:10
-msgid "Enable"
-msgstr "Réveiller"
+msgid "Wake up the guru"
+msgstr "Réveiller le gourou"
 
 #: templates/nab8balld/settings.html:16
 msgid ""
-"To use Magic 8 Ball, click and hold the button, says 'Tell me rabbit' then "
-"ask your question and release the button for the answer."
+"To use Magic 8 Ball, think about something you want to ask to the rabbit, "
+"then click and hold the button, say 'Tell me rabbit' and release the button "
+"for the answer."
 msgstr ""
-"Pour poser une question (courte !) au Gourou : appuyez sur le bouton, dites 'Dis lapin' puis "
-"posez votre question, relachez et attendez que le Gourou vous réponde."
+"Pour poser une question au Gourou : réflechissez à votre question, puis quand vous êtes prêt, appuyez sur le bouton, dites "
+"'T'en penses quoi Nabaztag ?', relachez et attendez la "
+"réponse."
 
 #: templates/nab8balld/settings.html:21
 msgid "Save"
@@ -41,40 +43,3 @@ msgstr "Enregistrer"
 msgid "Reset"
 msgstr "Annuler"
 
-#~ msgid "Air quality"
-#~ msgstr "Qualité de l'air"
-
-#~ msgid ""
-#~ "Air quality information is provided based on your IP adress. You can "
-#~ "select the type of information you want : Agregated index or just PM 2.5"
-#~ msgstr ""
-#~ "La qualité de l'air est donnée en fonction de votre adresse IP. Vous "
-#~ "pouvez sélectionner le type d'information que vous souhaitez utiliser : "
-#~ "Index agrégé ou simplement les particules fines (PM 2.5)"
-
-#~ msgid ""
-#~ "You can also ask your rabbit by saying such things as 'What is the air "
-#~ "quality today ?'"
-#~ msgstr ""
-#~ "Vous pouvez aussi demander à votre lapin en disant 'Qualité de l'air'."
-
-#~ msgid "Index"
-#~ msgstr "Indice"
-
-#~ msgid "Do not display"
-#~ msgstr "Ne pas afficher"
-
-#~ msgid "AQI"
-#~ msgstr "AQI"
-
-#~ msgid "PM 2.5"
-#~ msgstr "PM 2.5"
-
-#~ msgid "Forecast"
-#~ msgstr "Prévision"
-
-#~ msgid "Today"
-#~ msgstr "Aujourd'hui"
-
-#~ msgid "Unknown server error"
-#~ msgstr "Erreur inconnue du serveur"
