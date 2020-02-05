@@ -26,13 +26,31 @@ urlpatterns = [
     path("services/", NabWebServicesView.as_view()),
     path("system-info/", NabWebSytemInfoView.as_view()),
     path("upgrade/", NabWebUpgradeView.as_view()),
-    path("upgrade/info/<repository>", NabWebUpgradeRepositoryInfoView.as_view(), name="nabweb.upgrade.info"),
-    path("upgrade/status", NabWebUpgradeStatusView.as_view(), name="nabweb.upgrade.status"),
-    path("upgrade/now", NabWebUpgradeNowView.as_view(), name="nabweb.upgrade.now"),
-    path("upgrade/checknow", NabWebUpgradeCheckNowView.as_view(), name="nabweb.upgrade.checknow"),
+    path(
+        "upgrade/info/<repository>",
+        NabWebUpgradeRepositoryInfoView.as_view(),
+        name="nabweb.upgrade.info",
+    ),
+    path(
+        "upgrade/status",
+        NabWebUpgradeStatusView.as_view(),
+        name="nabweb.upgrade.status",
+    ),
+    path(
+        "upgrade/now",
+        NabWebUpgradeNowView.as_view(),
+        name="nabweb.upgrade.now",
+    ),
+    path(
+        "upgrade/checknow",
+        NabWebUpgradeCheckNowView.as_view(),
+        name="nabweb.upgrade.checknow",
+    ),
 ]
 
 # Service URLs added automatically
 for config in apps.get_app_configs():
-    if hasattr(config.module, 'NABAZTAG_SERVICE_PRIORITY'):
-        urlpatterns.append(path(config.name + "/", include(config.name + ".urls")))
+    if hasattr(config.module, "NABAZTAG_SERVICE_PRIORITY"):
+        urlpatterns.append(
+            path(config.name + "/", include(config.name + ".urls"))
+        )

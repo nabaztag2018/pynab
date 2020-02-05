@@ -337,7 +337,7 @@ class NabWebUpgradeView(BaseView):
 
 class NabWebUpgradeRepositoryInfoView(View):
     def get(self, request, *args, **kwargs):
-        repository = kwargs.get('repository')
+        repository = kwargs.get("repository")
         repo_info = GitInfo.get_repository_info(repository)
         pynab_info = GitInfo.get_repository_info("pynab", cached=True)
         updatable = (
