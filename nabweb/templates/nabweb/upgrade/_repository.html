@@ -1,5 +1,5 @@
 {% load i18n %}
-<div class="row px-3 py-2">
+<div class="row px-3 py-2 repository-info" {% if repo.local_changes %}data-local-changes="yes"{% endif %}>
   <div class="col-sm-12 border rounded p-3">
     <div class="float-right">
       {% if repo.commits_count > 0 %}
@@ -12,7 +12,7 @@
         {% endif %}
       {% endif %}
     </div>
-    <h6><a href="{{ repo.url }}" target="_blank">{{ repo_name }}</a></h6>
+    <h6><a href="{{ repo.url }}" target="_blank">{{ repo.name }}</a></h6>
     {% if repo.branch %}
       <strong>{% trans "Branch:" %}</strong> {{ repo.branch }}<br />
     {% endif %}
