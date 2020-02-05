@@ -355,7 +355,7 @@ class NabWebUpgradeRepositoryInfoView(View):
 class NabWebUpgradeCheckNowView(View):
     def post(self, request, *args, **kwargs):
         for repository in GitInfo.REPOSITORIES.keys():
-            info = GitInfo.get_repository_info(repository, force=True)
+            GitInfo.get_repository_info(repository, force=True)
         return JsonResponse({"status": "ok"})
 
 
