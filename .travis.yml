@@ -8,7 +8,7 @@ python:
 dist: bionic
 sudo: true
 script:
-  - sh /home/travis/build/nabaztag2018/pynab/.travis_build_nlu_engines.sh
+  - sh .travis_build_nlu_engines.sh
   - sudo mkdir -p /run/systemd/timesync/ && sudo touch /run/systemd/timesync/synchronized
   - pytest
 addons:
