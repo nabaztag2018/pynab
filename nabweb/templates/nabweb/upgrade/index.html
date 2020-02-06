@@ -65,8 +65,8 @@
             <div data-repository="nabblockly" class="async-repository-info"></div>
           {% endif %}
           </dl>
-          <strong>{% trans "Last check:" %}</strong> {{ last_check }}
-        </div>  
+          <strong>{% trans "Last check:" %}</strong> {% blocktrans with last_check_since=last_check|timesince %}{{ last_check_since }} ago{% endblocktrans %}
+        </div>
         <div class="card-footer">
           <div class="row mb-2">
             <div class="col-12">
@@ -82,6 +82,7 @@
       var checkNowBtn = $(".check-now-button");
       var upgradeBtn = $(".upgrade-button");
       var confirmedUpgradeBtn = $(".confirmed-upgrade-button");
+      var upgradeStep = 0;
       {% if partial %}
         $(".check-now-button .spinner").removeClass("d-none");
         checkNowBtn.addClass("disabled");
@@ -150,15 +151,17 @@
             method: "GET",
             success: function (data) {
               if (data.status == 'done') {
-                reportProgress("Waiting for HTTP server to restart");
-                setTimeout(function() {
+                if (upgradeStep == 1) {
+                  reportProgress("Waiting for web server to restart");
+                  upgradeStep = 2;
+                  setTimeout(function() { upgradeNowUpdateStatus(); }, 15000);
+                } else {
                   reportProgress("Upgrade complete, reloading page");
-                  setTimeout(function() {
-                    window.location.reload(true);
-                  }, 1000);
-                }, 5000);
+                  setTimeout(function() { window.location.reload(true); }, 1000);
+                }
               } else {
                 if (data.status == 'ok') {
+                  upgradeStep = 1;
                   reportProgress(data.message);
                   setTimeout(function() { upgradeNowUpdateStatus(); }, 1000);
                 } else {
@@ -168,7 +171,7 @@
               }
             },
             error: function (data) {
-              $("#upgradeStatus").text("Server is restarting...");
+              reportProgress("Web server is restarting");
               setTimeout(function() { upgradeNowUpdateStatus(); }, 5000);
             }
           });
