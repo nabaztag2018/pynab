@@ -245,6 +245,13 @@ class Nabd:
                     else:
                         self.interactive_service_events = ["ears", "button"]
                     break
+                elif item[0]["type"] == "test":
+                    await self.do_process_test_packet(item[0], item[1])
+                    if len(self.idle_queue) == 0:
+                        await self.set_state(State.IDLE)
+                        break
+                    else:
+                        item = self.idle_queue.popleft()
                 else:
                     raise RuntimeError(f"Unexpected packet {item[0]}")
 
@@ -476,6 +483,36 @@ class Nabd:
                         packet, {"status": "ok"}, writer
                     )
 
+    async def process_test_packet(self, packet, writer):
+        """ Process a test packet (for hardware tests) """
+        if self.state == State.ASLEEP:
+            await self.do_process_test_packet(packet, writer)
+        else:
+            async with self.idle_cv:
+                self.idle_queue.append((packet, writer))
+                self.idle_cv.notify()
+
+    async def do_process_test_packet(self, packet, writer):
+        if "test" in packet:
+            response = {}
+            result = await self.nabio.test(packet["test"])
+            if result:
+                response["status"] = "ok"
+            else:
+                response["status"] = "failure"
+            self.write_response_packet(packet, response, writer)
+        else:
+            logging.debug(f"unknown test packet from service: {packet}")
+            self.write_response_packet(
+                packet,
+                {
+                    "status": "error",
+                    "class": "UnknownPacket",
+                    "message": "Unknown or malformed test packet",
+                },
+                writer,
+            )
+
     async def process_packet(self, packet, writer):
         """ Process a packet from a service """
         logging.debug(f"packet from service: {packet}")
@@ -491,6 +528,7 @@ class Nabd:
                 "mode": self.process_mode_packet,
                 "gestalt": self.process_gestalt_packet,
                 "config-update": self.process_config_update_packet,
+                "test": self.process_test_packet,
             }
             if packet["type"] in processors:
                 await processors[packet["type"]](packet, writer)

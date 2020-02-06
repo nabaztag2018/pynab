@@ -188,3 +188,8 @@ class NabIO(object, metaclass=abc.ABCMeta):
     def gestalt(self):
         """ Return a structure representing hardware info. """
         raise NotImplementedError("Should have implemented")
+
+    @abc.abstractmethod
+    async def test(self, test):
+        """ Run a given hardware test, returning True if everything is ok """
+        raise NotImplementedError("Should have implemented")
