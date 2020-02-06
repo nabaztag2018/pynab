@@ -19,11 +19,16 @@ from django.urls import path, include
 from .views import NabWebView, NabWebServicesView, NabWebSytemInfoView
 from .views import NabWebUpgradeView, NabWebUpgradeStatusView
 from .views import NabWebUpgradeNowView, NabWebUpgradeCheckNowView
-from .views import NabWebUpgradeRepositoryInfoView
+from .views import NabWebUpgradeRepositoryInfoView, NabWebHardwareTestView
 
 urlpatterns = [
     path("", NabWebView.as_view()),
     path("services/", NabWebServicesView.as_view()),
+    path(
+        "system-info/test/<test>",
+        NabWebHardwareTestView.as_view(),
+        name="nabweb.test",
+    ),
     path("system-info/", NabWebSytemInfoView.as_view()),
     path("upgrade/", NabWebUpgradeView.as_view()),
     path(

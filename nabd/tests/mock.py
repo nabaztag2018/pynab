@@ -85,6 +85,9 @@ class NabIOMock(NabIO):
     def gestalt(self):
         return {"model": "Test mock"}
 
+    def test(self, test):
+        return True
+
 
 class EarsMock(Ears):
     def __init__(self):
