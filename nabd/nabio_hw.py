@@ -120,9 +120,9 @@ class NabIOHW(NabIO):
 
     def gestalt(self):
         MODEL_NAMES = {
-            NabIO.MODEL_2018:"2018",
-            NabIO.MODEL_2019_TAG:"2019_TAG",
-            NabIO.MODEL_2019_TAGTAG:"2019_TAGTAG",
+            NabIO.MODEL_2018: "2018",
+            NabIO.MODEL_2019_TAG: "2019_TAG",
+            NabIO.MODEL_2019_TAGTAG: "2019_TAGTAG",
         }
         if self.model in MODEL_NAMES:
             model_name = MODEL_NAMES[self.model]
