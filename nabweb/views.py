@@ -166,6 +166,50 @@ class NabWebSytemInfoView(BaseView):
         return context
 
 
+class NabWebHardwareTestView(View):
+    TEST_TIMEOUT = 30.0
+
+    async def hardware_test(self, test, timeout):
+        try:
+            conn = asyncio.open_connection("127.0.0.1", NabService.PORT_NUMBER)
+            reader, writer = await asyncio.wait_for(conn, 0.5)
+        except ConnectionRefusedError as err:
+            return {"status": "error", "message": "Nabd is not running"}
+        except asyncio.TimeoutError as err:
+            return {
+                "status": "error",
+                "message": "Communication with Nabd timed out (connecting)",
+            }
+        try:
+            packet = (
+                f'{{"type":"test","test":"{test}","request_id":"test"}}\r\n'
+            )
+            writer.write(packet.encode("utf8"))
+            while True:
+                line = await asyncio.wait_for(reader.readline(), timeout)
+                packet = json.loads(line.decode("utf8"))
+                if (
+                    "type" in packet
+                    and packet["type"] == "response"
+                    and "request_id" in packet
+                    and packet["request_id"] == "test"
+                ):
+                    writer.close()
+                    return {"status": "ok", "result": packet}
+        except asyncio.TimeoutError as err:
+            return {
+                "status": "error",
+                "message": "Communication with Nabd timed out (running test)",
+            }
+
+    def post(self, request, *args, **kwargs):
+        test = kwargs.get("test")
+        test_result = asyncio.run(
+            self.hardware_test(test, NabWebHardwareTestView.TEST_TIMEOUT)
+        )
+        return JsonResponse(test_result)
+
+
 class GitInfo:
     REPOSITORIES = {
         "pynab": ".",
