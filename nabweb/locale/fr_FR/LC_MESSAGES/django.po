@@ -66,7 +66,7 @@ msgstr "(actif)"
 
 #: templates/nabweb/_base.html:28 templates/nabweb/services/index.html:3
 msgid "Services"
-msgstr ""
+msgstr "Services"
 
 #: templates/nabweb/_base.html:29
 msgid "System Information"
@@ -167,14 +167,6 @@ msgstr "Enregistrer"
 msgid "Reset"
 msgstr "Annuler"
 
-#: templates/nabweb/system-info/index.html:4
-msgid "System information"
-msgstr "Information système"
-
-#: templates/nabweb/system-info/index.html:10
-msgid "Raspberry Pi (Linux)"
-msgstr ""
-
 #: templates/nabweb/system-info/index.html:14
 msgid "Version"
 msgstr "Version"
@@ -184,13 +176,21 @@ msgstr "Version"
 msgid "Uptime"
 msgstr "Levé depuis"
 
+#: templates/nabweb/system-info/index.html:4
+msgid "System information"
+msgstr "Information système"
+
+#: templates/nabweb/system-info/index.html:10
+msgid "Raspberry Pi (Linux)"
+msgstr "Raspberry Pi (Linux)"
+
 #: templates/nabweb/system-info/index.html:27
 msgid "Nabd daemon"
-msgstr "Nabd processus"
+msgstr "Processus Nabd"
 
 #: templates/nabweb/system-info/index.html:36
 msgid "State"
-msgstr "Etat"
+msgstr "État"
 
 #: templates/nabweb/system-info/index.html:40
 msgid "Clients (including website)"
@@ -269,8 +269,8 @@ msgid ""
 "Local changes have been detected in at least one repository. Automatic "
 "upgrade may fail. Are you sure you want to proceed?"
 msgstr ""
-"Des modifications locales ont été détectées dans au moins un repository. "
-"La mise à jour automatique risque d'échouer. Souhaitez-vous néanmoins "
+"Des modifications locales ont été détectées dans au moins un repository. La "
+"mise à jour automatique risque d'échouer. Souhaitez-vous néanmoins "
 "continuer ?"
 
 #: templates/nabweb/upgrade/index.html:30
@@ -332,38 +332,38 @@ msgstr "Vérifier maintenant"
 msgid "Upgrade now"
 msgstr "Mise à jour"
 
-#: templatetags/duration_filter.py:11
+#: templatetags/duration_filter.py:12
 msgid "less than one minute"
 msgstr "moins d'une minute"
 
-#: templatetags/duration_filter.py:13
+#: templatetags/duration_filter.py:14
 msgid "1 minute"
 msgstr "1 minute"
 
-#: templatetags/duration_filter.py:15
+#: templatetags/duration_filter.py:16
 msgid "{} minutes"
 msgstr "{} minutes"
 
-#: templatetags/duration_filter.py:17
+#: templatetags/duration_filter.py:18
 msgid "1 hour"
 msgstr "1 heure"
 
-#: templatetags/duration_filter.py:19
+#: templatetags/duration_filter.py:20
 msgid "1 hour and 1 minute"
 msgstr "1 heure et 1 minute"
 
-#: templatetags/duration_filter.py:21
+#: templatetags/duration_filter.py:22
 msgid "1 hour and {} minutes"
 msgstr "1 heure et {} minutes"
 
-#: templatetags/duration_filter.py:23
+#: templatetags/duration_filter.py:24
 msgid "{} hours"
 msgstr "{} heures"
 
-#: templatetags/duration_filter.py:25
+#: templatetags/duration_filter.py:26
 msgid "{} hours and 1 minute"
 msgstr "{} heures et 1 minute"
 
-#: templatetags/duration_filter.py:26
+#: templatetags/duration_filter.py:27
 msgid "{} hours and {} minutes"
 msgstr "{} heures et {} minutes"
