@@ -40,6 +40,21 @@ def set_leds(shutdown):
     strip.show()
 
 
+def set_system_led(shutdown):
+    # No need to set it at shutdown.
+    # It will still blink multiple time after system halt even if it has been
+    # disabled in Linux.
+    if shutdown:
+        return
+
+    with open("/sys/class/leds/led0/trigger", "w") as f:
+        f.write("none")
+
+    with open("/sys/class/leds/led0/brightness", "w") as f:
+        f.write("255")
+
+
 if __name__ == "__main__":
     shutdown = len(sys.argv) > 1 and sys.argv[1] != "start"
+    set_system_led(shutdown)
     set_leds(shutdown)
