@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-06 10:15+0100\n"
+"POT-Creation-Date: 2020-02-06 15:54+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -167,6 +167,14 @@ msgstr "Enregistrer"
 msgid "Reset"
 msgstr "Annuler"
 
+#: templates/nabweb/system-info/index.html:4
+msgid "System information"
+msgstr "Information système"
+
+#: templates/nabweb/system-info/index.html:10
+msgid "Raspberry Pi (Linux)"
+msgstr "Raspberry Pi (Linux)"
+
 #: templates/nabweb/system-info/index.html:14
 msgid "Version"
 msgstr "Version"
@@ -175,14 +183,6 @@ msgstr "Version"
 #: templates/nabweb/system-info/index.html:38
 msgid "Uptime"
 msgstr "Levé depuis"
-
-#: templates/nabweb/system-info/index.html:4
-msgid "System information"
-msgstr "Information système"
-
-#: templates/nabweb/system-info/index.html:10
-msgid "Raspberry Pi (Linux)"
-msgstr "Raspberry Pi (Linux)"
 
 #: templates/nabweb/system-info/index.html:27
 msgid "Nabd daemon"
@@ -323,6 +323,11 @@ msgstr "Version actuelle"
 #: templates/nabweb/upgrade/index.html:68
 msgid "Last check:"
 msgstr "Dernière vérification :"
+
+#: templates/nabweb/upgrade/index.html:68
+#, python-format
+msgid "%(last_check_since)s ago"
+msgstr "il y a %(last_check_since)s"
 
 #: templates/nabweb/upgrade/index.html:73
 msgid "Check now"
