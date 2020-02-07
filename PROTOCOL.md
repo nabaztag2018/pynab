@@ -80,12 +80,11 @@ Chaque son peut être :
 - une liste de ressources, séparées par des ";", la première trouvée est celle qui sera jouée.
 Chaque ressource est un chemin vers un son tel que `"nabmastodon/communion.wav"`. L'algorithme essaie d'abord dans le sous-répertoire de chaque application correspondant à la langue actuelle du lapin (`"sounds/fr_FR"`) puis dans le répertoire `"sounds"`, les applications dans l'ordre de `"settings.py"`. Si la ressource termine par `"*"` ou `"*.suffixe"`, le son est choisi au hasard dans les éléments du répertoire correspondant.
 
-- une chaîne à lire sous la forme `"tts:<langue>,<texte>"` pour la synthèse vocale (pas encore codé).
-
 `choreography` peut être :
 - une liste de ressources vers les chorégraphies sur le même mécanisme que les sons, dans les répertoires `choreographies` des différentes applications.
 - `"urn:x-chor:streaming"` pour la chorégraphie de streaming avec palette aléatoire.
 - `"urn:x-chor:streaming:N"` pour la chorégraphie de streaming avec palette N.
+- `"data:application/x-nabaztag-mtl-choreography;base64,<BASE64>"` pour une chorégraphie fournie en Base64
 
 La chorégraphie est jouée pendant la lecture des différents fichiers audios de la liste et est interrompue à la fin de l'audio.
 Si aucun son n'est joué, la chorégraphie est jouée jusqu'au bout.
@@ -231,6 +230,6 @@ Le statut `"expired"` signifie que la commande est expirée.
 
 Le statut `"error"` signifie une erreur dans le protocole. `class` et `message` sont des chaînes.
 
-## Paquets `gestalt` et `config-update`
+## Paquets `gestalt`, `test` et `config-update`
 
 Utilisés en interne pour la communication entre le site web et nabd.
