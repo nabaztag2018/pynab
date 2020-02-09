@@ -10,7 +10,7 @@ RestartSec=1
 User=root
 WorkingDirectory=/home/pi/pynab
 ExecStart=/home/pi/pynab/venv/bin/python -m nabweatherd.nabweatherd
-PIDFile=/var/run/nabweatherd.pid
+PIDFile=/run/nabweatherd.pid
 
 [Install]
 WantedBy=multi-user.target

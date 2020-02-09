@@ -8,7 +8,7 @@ from operator import attrgetter
 
 
 class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
-    DAEMON_PIDFILE = "/var/run/nabmastodond.pid"
+    DAEMON_PIDFILE = "/run/nabmastodond.pid"
 
     RETRY_DELAY = 15 * 60  # Retry to reconnect every 15 minutes.
     NABPAIRING_MESSAGE_RE = (

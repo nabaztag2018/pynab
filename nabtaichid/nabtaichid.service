@@ -10,7 +10,7 @@ RestartSec=1
 User=root
 WorkingDirectory=/home/pi/pynab
 ExecStart=/home/pi/pynab/venv/bin/python -m nabtaichid.nabtaichid
-PIDFile=/var/run/nabtaichid.pid
+PIDFile=/run/nabtaichid.pid
 
 [Install]
 WantedBy=multi-user.target

@@ -5,7 +5,7 @@ from nabcommon.nabservice import NabService
 
 
 class Nab8Balld(NabService):
-    DAEMON_PIDFILE = "/var/run/nab8balld.pid"
+    DAEMON_PIDFILE = "/run/nab8balld.pid"
 
     def __init__(self):
         super().__init__()
