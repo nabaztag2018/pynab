@@ -6,13 +6,29 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Upgrade in progress</h5>
+          <h5 class="modal-title">{% trans "Upgrade in progress" %}</h5>
         </div>
         <div class="modal-body">
           <div class="progress">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
           </div>
-          <p id="upgradeStatus" class="mt-2">Upgrade is currently in progress...</p>
+          <p id="upgradeStatus" class="mt-2">{% trans "Upgrade is currently in progress..." %}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal" tabindex="-1" role="dialog" id="upgradeLocalChangesWarningModal">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{% trans "Local changes" %}</h5>
+        </div>
+        <div class="modal-body">
+          {% trans "Local changes have been detected in at least one repository. Automatic upgrade may fail. Are you sure you want to proceed?" %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger confirmed-upgrade-button" data-dismiss="modal">{% trans "Yes" %}</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "No" %}</button>
         </div>
       </div>
     </div>
@@ -32,34 +48,102 @@
           <p class="text-secondary">{% trans "You can switch to master branch to benefit from changes between releases, however this is not for the faint-hearted and requires good command of <a href='https://www.raspberrypi.org/documentation/remote-access/ssh/' target='_blanck'>SSH</a> and <a href='https://en.wikipedia.org/wiki/Git' target='_blanck'>Git</a>." %}</p>
           {% endif %}
           <h5>{% trans "Current versions" %}</h5>
-          {% include "nabweb/upgrade/_repository.html" with repo=pynab repo_name="Pynab" %}
+          {% include "nabweb/upgrade/_repository.html" with repo=pynab %}
           {% if sound_driver %}
-            {% include "nabweb/upgrade/_repository.html" with repo=sound_driver repo_name="Tagtagtag sound card driver" %}
+            {% include "nabweb/upgrade/_repository.html" with repo=sound_driver %}
+          {% else %}
+            <div data-repository="sound_driver" class="async-repository-info"></div>
           {% endif %}
           {% if ears_driver %}
-            {% include "nabweb/upgrade/_repository.html" with repo=ears_driver repo_name="Ears driver" %}
-          {% endif %}
-          {% if rfid_driver %}
-            {% include "nabweb/upgrade/_repository.html" with repo=ears_driver repo_name="RFID reader driver" %}
+            {% include "nabweb/upgrade/_repository.html" with repo=ears_driver %}
+          {% else %}
+            <div data-repository="ears_driver" class="async-repository-info"></div>
           {% endif %}
           {% if nabblockly %}
-            {% include "nabweb/upgrade/_repository.html" with repo=nabblockly repo_name="Nabblockly" %}
+            {% include "nabweb/upgrade/_repository.html" with repo=nabblockly %}
+          {% else %}
+            <div data-repository="nabblockly" class="async-repository-info"></div>
           {% endif %}
           </dl>
-        </div>  
+          <strong>{% trans "Last check:" %}</strong> {% blocktrans with last_check_since=last_check|timesince %}{{ last_check_since }} ago{% endblocktrans %}
+        </div>
         <div class="card-footer">
           <div class="row mb-2">
             <div class="col-12">
-              <button type="submit" class="btn btn-primary{% if not updatable %} disabled{% endif %} ml-2 float-right upgrade-button">{% trans "Upgrade now" %}</button>
+              <button type="submit" class="btn btn-primary ml-2 check-now-button">{% trans "Check now" %}<span class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span></button>
+              <button type="submit" class="btn btn-primary{% if partial or not updatable %} disabled{% endif %} ml-2 float-right upgrade-button">{% trans "Upgrade now" %}<span class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span></button>
             </div>
           </div>
         </div>
       </div>
     </div>
     <script type="text/javascript">
-    {% if updatable %}
-      $(function() {
-        var upgradeBtn = $(".upgrade-button");
+    $(function() {
+      var checkNowBtn = $(".check-now-button");
+      var upgradeBtn = $(".upgrade-button");
+      var confirmedUpgradeBtn = $(".confirmed-upgrade-button");
+      var upgradeStep = 0;
+      {% if partial %}
+        $(".check-now-button .spinner").removeClass("d-none");
+        checkNowBtn.addClass("disabled");
+        $(".async-repository-info").each(function(i, element) {
+          $.ajax({
+            url: "{% url 'nabweb.upgrade.info' repository='REPOSITORY' %}".replace("REPOSITORY", $(element).data("repository")),
+            method: "GET",
+            success: function(data) {
+              $(element).replaceWith(data);
+              if ($(".async-repository-info").length == 0) {
+                $(".check-now-button .spinner").addClass("d-none");
+                checkNowBtn.removeClass("disabled");
+                {% if updatable %}
+                  $(".upgrade-button").removeClass("disabled");
+                {% endif %}
+              }
+            }
+          });
+        });
+      {% endif %}
+      function checkNow() {
+        $.ajax({
+          url: "{% url 'nabweb.upgrade.checknow' %}",
+          beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+          },
+          contentType: 'application/json',
+          method: "POST",
+          success: function (data) {
+            setTimeout(function() { window.location.reload(true); }, 1);
+          },
+          error: function (data) {
+            setTimeout(function() { window.location.reload(true); }, 1);
+          }
+        });
+      }
+      checkNowBtn.on("click", function() {
+        checkNowBtn.addClass("disabled");
+        $(".check-now-button .spinner").removeClass("d-none");
+        upgradeBtn.addClass("disabled");
+        checkNow();
+      });
+      {% if updatable %}
+        function reportProgress(text) {
+          var matches = /(.+) - ([0-9]+)\/([0-9]+|\?)/.exec(text);
+          if (matches) {
+            $("#upgradeStatus").text(matches[1]);
+            if (matches[3] == '?') {
+              $("#upgradeModal .progress-bar").addClass("progress-bar-striped");
+              $("#upgradeModal .progress-bar").css("width", "100%");
+            } else {
+              $("#upgradeModal .progress-bar").removeClass("progress-bar-striped");
+              ratio = 100 * parseInt(matches[2]) / parseInt(matches[3]);
+              $("#upgradeModal .progress-bar").css("width", ratio + "%");
+            }
+          } else {
+            $("#upgradeStatus").text(text);
+            $("#upgradeModal .progress-bar").addClass("progress-bar-striped");
+            $("#upgradeModal .progress-bar").css("width", "100%");
+          }
+        }
         function upgradeNowUpdateStatus() {
           $.ajax({
             url: "{% url 'nabweb.upgrade.now' %}",
@@ -67,25 +151,34 @@
             method: "GET",
             success: function (data) {
               if (data.status == 'done') {
-                $("#upgradeStatus").text("Upgrade complete, reloading page");
-                setTimeout(function() { window.location.reload(true); }, 1000);
+                if (upgradeStep == 1) {
+                  reportProgress("Waiting for web server to restart");
+                  upgradeStep = 2;
+                  setTimeout(function() { upgradeNowUpdateStatus(); }, 15000);
+                } else {
+                  reportProgress("Upgrade complete, reloading page");
+                  setTimeout(function() { window.location.reload(true); }, 1000);
+                }
               } else {
                 if (data.status == 'ok') {
-                  $("#upgradeStatus").text(data.message);
+                  upgradeStep = 1;
+                  reportProgress(data.message);
                   setTimeout(function() { upgradeNowUpdateStatus(); }, 1000);
                 } else {
-                  $("#upgradeStatus").text("Unknown response from server");
+                  reportProgress("Unknown response from server");
                   setTimeout(function() { upgradeNowUpdateStatus(); }, 5000);
                 }
               }
             },
             error: function (data) {
-              $("#upgradeStatus").text("Server is restarting...");
+              reportProgress("Web server is restarting");
               setTimeout(function() { upgradeNowUpdateStatus(); }, 5000);
             }
           });
         }
-        upgradeBtn.on("click", function() {
+        function doUpgrade() {
+          upgradeBtn.addClass("disabled");
+          upgradeBtn.find(".spinner").removeClass("d-none");
           $('#upgradeModal').modal();
           $.ajax({
             url: "{% url 'nabweb.upgrade.now' %}",
@@ -112,9 +205,19 @@
               setTimeout(function() { upgradeNowUpdateStatus(); }, 5000);
             }
           });
+        }
+        upgradeBtn.on("click", function() {
+          if ($(".repository-info[data-local-changes='yes']").length == 0) {
+            doUpgrade();
+          } else {
+            $('#upgradeLocalChangesWarningModal').modal();
+          }
         });
-      });
-    {% endif %}
+        confirmedUpgradeBtn.on("click", function() {
+          doUpgrade();
+        });
+      {% endif %}
+    });
     </script>
   </div>
 {% endblock %}

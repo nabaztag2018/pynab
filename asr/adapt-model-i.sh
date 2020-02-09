@@ -27,9 +27,13 @@ if [ ! -e /nabaztag-asr/$DICTIONARY ]; then
     "$DICTIONARY not found in /nabaztag-asr/"
     exit 1
 fi
-
-echo "Downloading and installing $INPUT_MODEL_NAME"
-mkdir -p /opt/kaldi/model/ && cd /opt/kaldi/model/ && wget -qO - $BASE_MODEL_URL | tar xJ || exit 1
+if [ -e /nabaztag-asr/$INPUT_MODEL_NAME.tar.xz ]; then
+    echo "Installing $INPUT_MODEL_NAME"
+    mkdir -p /opt/kaldi/model/ && cd /opt/kaldi/model/ && tar xJf /nabaztag-asr/$INPUT_MODEL_NAME.tar.xz || exit 1
+else
+    echo "Downloading and installing $INPUT_MODEL_NAME"
+    mkdir -p /opt/kaldi/model/ && cd /opt/kaldi/model/ && wget -qO - $BASE_MODEL_URL | tar xJ || exit 1
+fi
 
 if [ ! -e /opt/kaldi/model/$INPUT_MODEL_NAME/ ]; then
     "model $INPUT_MODEL_NAME not found in /opt/kaldi/model/"

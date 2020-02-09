@@ -17,19 +17,45 @@ from django.apps import apps
 from django.contrib import admin
 from django.urls import path, include
 from .views import NabWebView, NabWebServicesView, NabWebSytemInfoView
-from .views import NabWebUpgradeView, NabWebUpgradeStatusView, NabWebUpgradeNowView
-from .views import NabWebUpgradeNowView
+from .views import NabWebUpgradeView, NabWebUpgradeStatusView
+from .views import NabWebUpgradeNowView, NabWebUpgradeCheckNowView
+from .views import NabWebUpgradeRepositoryInfoView, NabWebHardwareTestView
 
 urlpatterns = [
     path("", NabWebView.as_view()),
     path("services/", NabWebServicesView.as_view()),
+    path(
+        "system-info/test/<test>",
+        NabWebHardwareTestView.as_view(),
+        name="nabweb.test",
+    ),
     path("system-info/", NabWebSytemInfoView.as_view()),
     path("upgrade/", NabWebUpgradeView.as_view()),
-    path("upgrade/status", NabWebUpgradeStatusView.as_view(), name="nabweb.upgrade.status"),
-    path("upgrade/now", NabWebUpgradeNowView.as_view(), name="nabweb.upgrade.now"),
+    path(
+        "upgrade/info/<repository>",
+        NabWebUpgradeRepositoryInfoView.as_view(),
+        name="nabweb.upgrade.info",
+    ),
+    path(
+        "upgrade/status",
+        NabWebUpgradeStatusView.as_view(),
+        name="nabweb.upgrade.status",
+    ),
+    path(
+        "upgrade/now",
+        NabWebUpgradeNowView.as_view(),
+        name="nabweb.upgrade.now",
+    ),
+    path(
+        "upgrade/checknow",
+        NabWebUpgradeCheckNowView.as_view(),
+        name="nabweb.upgrade.checknow",
+    ),
 ]
 
 # Service URLs added automatically
 for config in apps.get_app_configs():
-    if hasattr(config.module, 'NABAZTAG_SERVICE_PRIORITY'):
-        urlpatterns.append(path(config.name + "/", include(config.name + ".urls")))
+    if hasattr(config.module, "NABAZTAG_SERVICE_PRIORITY"):
+        urlpatterns.append(
+            path(config.name + "/", include(config.name + ".urls"))
+        )

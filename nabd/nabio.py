@@ -85,6 +85,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
         or until condvar is notified
 
         If 'left'/'center'/'right' slots are absent, the light is off.
+        Return true if condvar was notified
         """
         raise NotImplementedError("Should have implemented")
 
@@ -186,4 +187,9 @@ class NabIO(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def gestalt(self):
         """ Return a structure representing hardware info. """
+        raise NotImplementedError("Should have implemented")
+
+    @abc.abstractmethod
+    async def test(self, test):
+        """ Run a given hardware test, returning True if everything is ok """
         raise NotImplementedError("Should have implemented")

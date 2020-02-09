@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-07 15:33+0100\n"
+"POT-Creation-Date: 2020-02-06 15:54+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -66,13 +66,13 @@ msgstr "(actif)"
 
 #: templates/nabweb/_base.html:28 templates/nabweb/services/index.html:3
 msgid "Services"
-msgstr ""
+msgstr "Services"
 
 #: templates/nabweb/_base.html:29
 msgid "System Information"
 msgstr "Information système"
 
-#: templates/nabweb/_base.html:30 templates/nabweb/upgrade/index.html:24
+#: templates/nabweb/_base.html:30 templates/nabweb/upgrade/index.html:40
 msgid "Upgrade"
 msgstr "Mise à jour"
 
@@ -89,10 +89,8 @@ msgid "Please wait while upgrading pynab..."
 msgstr "Veuillez patienter pendant la mise à jour de pynab"
 
 #: templates/nabweb/_base.html:79
-#, fuzzy
-#| msgid "Unknown server error (LOL)"
 msgid "Unknown server error"
-msgstr "Erreur serveur inconnue (LOL)"
+msgstr "Erreur serveur inconnue"
 
 #: templates/nabweb/index.html:8
 msgid "You're currently deeply connected with your inner rabbit."
@@ -175,11 +173,11 @@ msgstr "Information système"
 
 #: templates/nabweb/system-info/index.html:10
 msgid "Raspberry Pi (Linux)"
-msgstr ""
+msgstr "Raspberry Pi (Linux)"
 
 #: templates/nabweb/system-info/index.html:14
 msgid "Version"
-msgstr ""
+msgstr "Version"
 
 #: templates/nabweb/system-info/index.html:16
 #: templates/nabweb/system-info/index.html:38
@@ -188,11 +186,11 @@ msgstr "Levé depuis"
 
 #: templates/nabweb/system-info/index.html:27
 msgid "Nabd daemon"
-msgstr "Nabd processus"
+msgstr "Processus Nabd"
 
 #: templates/nabweb/system-info/index.html:36
 msgid "State"
-msgstr "Etat"
+msgstr "État"
 
 #: templates/nabweb/system-info/index.html:40
 msgid "Clients (including website)"
@@ -200,7 +198,7 @@ msgstr "Clients (y compris ce site Web)"
 
 #: templates/nabweb/system-info/index.html:52
 msgid "Hardware"
-msgstr ""
+msgstr "Matériel"
 
 #: templates/nabweb/system-info/index.html:61
 msgid "Model"
@@ -222,9 +220,21 @@ msgstr "Oreille gauche"
 msgid "Right ear"
 msgstr "Oreille droite"
 
+#: templates/nabweb/system-info/index.html:74
+msgid "Hardware test"
+msgstr "Test matériel"
+
+#: templates/nabweb/system-info/index.html:76
+msgid "LEDs"
+msgstr "LEDs"
+
+#: templates/nabweb/system-info/index.html:77
+msgid "Ears"
+msgstr "Oreilles"
+
 #: templates/nabweb/upgrade/_repository.html:9
 msgid "Up to date"
-msgstr "A jour"
+msgstr "À jour"
 
 #: templates/nabweb/upgrade/_repository.html:17
 msgid "Branch:"
@@ -232,7 +242,7 @@ msgstr "Branche"
 
 #: templates/nabweb/upgrade/_repository.html:20
 msgid "Version:"
-msgstr ""
+msgstr "Version"
 
 #: templates/nabweb/upgrade/_repository.html:23
 msgid "You have unpushed local commits in this repository."
@@ -240,9 +250,38 @@ msgstr "Vous avez des commits locaux non publiés"
 
 #: templates/nabweb/upgrade/_repository.html:26
 msgid "You have local changes in this repository."
-msgstr "Vous avez des changements locaux dans ce repository"
+msgstr "Vous avez des modifications locales dans ce repository"
+
+#: templates/nabweb/upgrade/index.html:9
+msgid "Upgrade in progress"
+msgstr "Mise à jour en cours"
+
+#: templates/nabweb/upgrade/index.html:15
+msgid "Upgrade is currently in progress..."
+msgstr "La mise à jour est en cours"
+
+#: templates/nabweb/upgrade/index.html:24
+msgid "Local changes"
+msgstr "Modifications locales"
 
 #: templates/nabweb/upgrade/index.html:27
+msgid ""
+"Local changes have been detected in at least one repository. Automatic "
+"upgrade may fail. Are you sure you want to proceed?"
+msgstr ""
+"Des modifications locales ont été détectées dans au moins un repository. La "
+"mise à jour automatique risque d'échouer. Souhaitez-vous néanmoins "
+"continuer ?"
+
+#: templates/nabweb/upgrade/index.html:30
+msgid "Yes"
+msgstr "Oui"
+
+#: templates/nabweb/upgrade/index.html:31
+msgid "No"
+msgstr "Non"
+
+#: templates/nabweb/upgrade/index.html:43
 msgid ""
 "Through this interface, you can upgrade your Nabaztag software (provided "
 "that it is connected to the internet). This can take up a while depending on "
@@ -250,9 +289,11 @@ msgid ""
 "the process is finished</b>."
 msgstr ""
 "Grâce à cette interface, vous pouvez mettre à jour votre Nabaztag (mais il "
-"doit être connecté à Internet). Attention, le process peut être assez long en fonction de qu'il y a à faire. <b>Attendez la fin de la mise à jour sinon on ne répond plus de rien</b>."
+"doit être connecté à Internet). Attention, le process peut être assez long "
+"en fonction de qu'il y a à faire. <b>Attendez la fin de la mise à jour sinon "
+"on ne répond plus de rien</b>."
 
-#: templates/nabweb/upgrade/index.html:29
+#: templates/nabweb/upgrade/index.html:45
 msgid ""
 "Your Nabaztag is apparently tracking the master branch. Please note that web-"
 "based upgrade mechanism may fail and require that you connect over SSH."
@@ -261,7 +302,7 @@ msgstr ""
 "mise à jour avec l'interface web peut échouer. Et là, que la force soit avec "
 "vous, il faudra terminer en SSH."
 
-#: templates/nabweb/upgrade/index.html:32
+#: templates/nabweb/upgrade/index.html:48
 msgid ""
 "You can switch to master branch to benefit from changes between releases, "
 "however this is not for the faint-hearted and requires good command of <a "
@@ -275,55 +316,59 @@ msgstr ""
 "target='_blanck'>SSH</a> et de  <a href='https://en.wikipedia.org/wiki/Git' "
 "target='_blanck'>Git</a>."
 
-#: templates/nabweb/upgrade/index.html:34
+#: templates/nabweb/upgrade/index.html:50
 msgid "Current versions"
 msgstr "Version actuelle"
 
-#: templates/nabweb/upgrade/index.html:53
+#: templates/nabweb/upgrade/index.html:68
+msgid "Last check:"
+msgstr "Dernière vérification :"
+
+#: templates/nabweb/upgrade/index.html:68
+#, python-format
+msgid "%(last_check_since)s ago"
+msgstr "il y a %(last_check_since)s"
+
+#: templates/nabweb/upgrade/index.html:73
+msgid "Check now"
+msgstr "Vérifier maintenant"
+
+#: templates/nabweb/upgrade/index.html:74
 msgid "Upgrade now"
 msgstr "Mise à jour"
 
-#: templatetags/duration_filter.py:11
+#: templatetags/duration_filter.py:12
 msgid "less than one minute"
 msgstr "moins d'une minute"
 
-#: templatetags/duration_filter.py:13
+#: templatetags/duration_filter.py:14
 msgid "1 minute"
-msgstr ""
+msgstr "1 minute"
 
-#: templatetags/duration_filter.py:15
+#: templatetags/duration_filter.py:16
 msgid "{} minutes"
-msgstr ""
+msgstr "{} minutes"
 
-#: templatetags/duration_filter.py:17
+#: templatetags/duration_filter.py:18
 msgid "1 hour"
 msgstr "1 heure"
 
-#: templatetags/duration_filter.py:19
+#: templatetags/duration_filter.py:20
 msgid "1 hour and 1 minute"
 msgstr "1 heure et 1 minute"
 
-#: templatetags/duration_filter.py:21
+#: templatetags/duration_filter.py:22
 msgid "1 hour and {} minutes"
 msgstr "1 heure et {} minutes"
 
-#: templatetags/duration_filter.py:23
+#: templatetags/duration_filter.py:24
 msgid "{} hours"
 msgstr "{} heures"
 
-#: templatetags/duration_filter.py:25
-msgid "{} hours and 1 minute"
-msgstr ""
-
 #: templatetags/duration_filter.py:26
+msgid "{} hours and 1 minute"
+msgstr "{} heures et 1 minute"
+
+#: templatetags/duration_filter.py:27
 msgid "{} hours and {} minutes"
 msgstr "{} heures et {} minutes"
-
-#~ msgid "Multilingual"
-#~ msgstr "Polyglotte"
-
-#~ msgid "An unknown error occurred trying to upgrade"
-#~ msgstr "Une erreur inconnue est survenue en essayant de mettre à jour pynab"
-
-#~ msgid "An error occurred trying to upgrade: "
-#~ msgstr "Une erreur est survenue en essayant de mettre à jour pynab : "

@@ -70,8 +70,40 @@
             <dd class="col-sm-8">{{ gestalt.result.hardware.right_ear_status }}</dd>
           </dl>
           {% endif %}
+          <dl class="row">
+            <dt class="col-sm-4">{% trans "Hardware test"%}</dt>
+            <dd class="col-sm-8">
+                <button data-test-url="{% url 'nabweb.test' test='leds' %}" class="btn btn-outline-secondary btn-sm hardware-test-button">{% trans "LEDs"%}<span class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span></button>
+                <button data-test-url="{% url 'nabweb.test' test='ears' %}" class="btn btn-outline-secondary btn-sm hardware-test-button">{% trans "Ears"%}<span class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span></button></dd>
+          </dl>
         </div>
       </div>
     </div>
   </div>
+  <script type="text/javascript">
+    $(function() {
+      $(".hardware-test-button").each(function(i, btn) {
+        $(btn).on("click", function() {
+            $(btn).addClass("disabled");
+            $(btn).find(".spinner").removeClass("d-none");
+            $.ajax({
+              url: $(btn).data("test-url"),
+              beforeSend: function (xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+              },
+              contentType: 'application/json',
+              method: "POST",
+              success: function (data) {
+                $(btn).removeClass("disabled");
+                $(btn).find(".spinner").addClass("d-none");
+              },
+              error: function (data) {
+                $(btn).removeClass("disabled");
+                $(btn).find(".spinner").addClass("d-none");
+              }
+            });
+        });
+      });
+    });
+  </script>
 {% endblock %}

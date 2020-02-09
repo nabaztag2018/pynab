@@ -64,6 +64,7 @@ class NabIOHW(NabIO):
         step_ms = tempo * 10
         start = time.time()
         index = 0
+        notified = False
         while time.time() - start < NabIO.INFO_LOOP_LENGTH:
             step = animation[index]
             for led_ix, rgb in step:
@@ -72,8 +73,10 @@ class NabIOHW(NabIO):
             if await NabIOHW._wait_on_condvar(condvar, step_ms):
                 index = (index + 1) % len(animation)
             else:
+                notified = True
                 break
         self.clear_info()
+        return notified
 
     def clear_info(self):
         for led in (Leds.LED_LEFT, Leds.LED_CENTER, Leds.LED_RIGHT):
@@ -117,9 +120,9 @@ class NabIOHW(NabIO):
 
     def gestalt(self):
         MODEL_NAMES = {
-            NabIO.MODEL_2018:"2018",
-            NabIO.MODEL_2019_TAG:"2019_TAG",
-            NabIO.MODEL_2019_TAGTAG:"2019_TAGTAG",
+            NabIO.MODEL_2018: "2018",
+            NabIO.MODEL_2019_TAG: "2019_TAG",
+            NabIO.MODEL_2019_TAGTAG: "2019_TAGTAG",
         }
         if self.model in MODEL_NAMES:
             model_name = MODEL_NAMES[self.model]
@@ -147,6 +150,66 @@ class NabIOHW(NabIO):
             "left_ear_status": left_ear_status,
             "right_ear_status": right_ear_status,
         }
+
+    async def test(self, test):
+        if test == "ears":
+            left_ear_position, right_ear_position = self.ears.get_positions()
+            await self.ears.go(Ears.LEFT_EAR, 8, Ears.BACKWARD_DIRECTION)
+            await self.ears.go(Ears.RIGHT_EAR, 8, Ears.BACKWARD_DIRECTION)
+            await self.ears.wait_while_running()
+            for x in range(0, 17):
+                await self.ears.move(Ears.LEFT_EAR, 1, Ears.FORWARD_DIRECTION)
+                await self.ears.move(
+                    Ears.RIGHT_EAR, 1, Ears.BACKWARD_DIRECTION
+                )
+                await self.ears.wait_while_running()
+                await asyncio.sleep(0.2)
+            for x in range(0, 17):
+                await self.ears.move(Ears.LEFT_EAR, 1, Ears.BACKWARD_DIRECTION)
+                await self.ears.move(Ears.RIGHT_EAR, 1, Ears.FORWARD_DIRECTION)
+                await self.ears.wait_while_running()
+                await asyncio.sleep(0.2)
+            await self.ears.go(Ears.LEFT_EAR, 0, Ears.FORWARD_DIRECTION)
+            await self.ears.go(Ears.RIGHT_EAR, 0, Ears.FORWARD_DIRECTION)
+            await self.ears.wait_while_running()
+            if left_ear_position is not None:
+                await self.ears.go(
+                    Ears.LEFT_EAR, left_ear_position, Ears.FORWARD_DIRECTION
+                )
+            if right_ear_position is not None:
+                await self.ears.go(
+                    Ears.RIGHT_EAR, right_ear_position, Ears.FORWARD_DIRECTION
+                )
+            await self.ears.wait_while_running()
+            if self.ears.is_broken(Ears.LEFT_EAR):
+                return False
+            if self.ears.is_broken(Ears.RIGHT_EAR):
+                return False
+            return True
+        elif test == "leds":
+            for color in [
+                (0, 0, 0),
+                (255, 0, 0),
+                (0, 255, 0),
+                (0, 0, 255),
+                (255, 255, 255),
+                (127, 127, 127),
+                (0, 0, 0),
+            ]:
+                r, g, b = color
+                for led_ix in [
+                    Leds.LED_NOSE,
+                    Leds.LED_LEFT,
+                    Leds.LED_CENTER,
+                    Leds.LED_RIGHT,
+                    Leds.LED_BOTTOM,
+                ]:
+                    self.leds.set1(led_ix, r, g, b)
+                    await asyncio.sleep(0.2)
+                await asyncio.sleep(1.0)
+            return True
+        else:
+            return False
 
     @staticmethod
     def detect_model():

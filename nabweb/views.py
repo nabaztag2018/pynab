@@ -166,12 +166,62 @@ class NabWebSytemInfoView(BaseView):
         return context
 
 
+class NabWebHardwareTestView(View):
+    TEST_TIMEOUT = 30.0
+
+    async def hardware_test(self, test, timeout):
+        try:
+            conn = asyncio.open_connection("127.0.0.1", NabService.PORT_NUMBER)
+            reader, writer = await asyncio.wait_for(conn, 0.5)
+        except ConnectionRefusedError as err:
+            return {"status": "error", "message": "Nabd is not running"}
+        except asyncio.TimeoutError as err:
+            return {
+                "status": "error",
+                "message": "Communication with Nabd timed out (connecting)",
+            }
+        try:
+            packet = (
+                f'{{"type":"test","test":"{test}","request_id":"test"}}\r\n'
+            )
+            writer.write(packet.encode("utf8"))
+            while True:
+                line = await asyncio.wait_for(reader.readline(), timeout)
+                packet = json.loads(line.decode("utf8"))
+                if (
+                    "type" in packet
+                    and packet["type"] == "response"
+                    and "request_id" in packet
+                    and packet["request_id"] == "test"
+                ):
+                    writer.close()
+                    return {"status": "ok", "result": packet}
+        except asyncio.TimeoutError as err:
+            return {
+                "status": "error",
+                "message": "Communication with Nabd timed out (running test)",
+            }
+
+    def post(self, request, *args, **kwargs):
+        test = kwargs.get("test")
+        test_result = asyncio.run(
+            self.hardware_test(test, NabWebHardwareTestView.TEST_TIMEOUT)
+        )
+        return JsonResponse(test_result)
+
+
 class GitInfo:
     REPOSITORIES = {
         "pynab": ".",
         "sound_driver": "../wm8960",
         "ears_driver": "../tagtagtag-ears/",
         "nabblockly": "nabblockly",
+    }
+    NAMES = {
+        "pynab": "Pynab",
+        "sound_driver": "Tagtagtag sound card driver",
+        "ears_driver": "Ears driver",
+        "nabblockly": "Nabblockly",
     }
 
     @staticmethod
@@ -189,13 +239,15 @@ class GitInfo:
         return root_dir
 
     @staticmethod
-    def get_repository_info(repository, force=False):
+    def get_repository_info(repository, cached=False, force=False):
         relpath = GitInfo.REPOSITORIES[repository]
         cache_key = f"git/info/{repository}"
         if not force:
             info = cache.get(cache_key)
             if info is not None:
                 return info
+        if cached:
+            return None
         info = GitInfo.do_get_repository_info(repository, relpath)
         timeout = 600
         if info["status"] == "ok":
@@ -250,7 +302,8 @@ class GitInfo:
         )
         info["local_changes"] = (
             os.popen(
-                f"cd {repo_dir} && sudo -u pi git diff-index --quiet HEAD -- "
+                f"cd {repo_dir} && (sudo -u pi git status -s) > /dev/null "
+                f"&& sudo -u pi git diff-index --quiet HEAD -- "
                 f"|| echo 'local_changes' "
             )
             .read()
@@ -290,7 +343,8 @@ class GitInfo:
             info["status"] = "ok"
             info["commits_count"] = int(commits_count)
             info["local_commits_count"] = int(local_commits_count)
-        info["info-date"] = datetime.datetime.now()
+        info["info_date"] = datetime.datetime.now()
+        info["name"] = GitInfo.NAMES[repository]
         return info
 
 
@@ -300,22 +354,53 @@ class NabWebUpgradeView(BaseView):
 
     def get_context(self):
         context = super().get_context()
-        local_changes = False
+        last_check = None
+        partial = False
+        pynab_info = GitInfo.get_repository_info("pynab")
         for repository in GitInfo.REPOSITORIES.keys():
-            info = GitInfo.get_repository_info(repository)
+            info = GitInfo.get_repository_info(repository, cached=True)
+            if info is None:
+                partial = True
+                continue
             context[repository] = info
-            if "local_changes" in info and info["local_changes"] > 0:
-                local_changes = True
-        pynab_info = context["pynab"]
+            if last_check is None:
+                last_check = info["info_date"]
+            else:
+                last_check = min(last_check, info["info_date"])
         updatable = (
             "commits_count" in pynab_info
             and pynab_info["commits_count"] > 0
             and "local_commits_count" in pynab_info
             and pynab_info["local_commits_count"] == 0
-            and local_changes is False
         )
+        context["partial"] = partial
         context["updatable"] = updatable
+        context["last_check"] = last_check
         return context
+
+
+class NabWebUpgradeRepositoryInfoView(View):
+    def get(self, request, *args, **kwargs):
+        repository = kwargs.get("repository")
+        repo_info = GitInfo.get_repository_info(repository)
+        pynab_info = GitInfo.get_repository_info("pynab", cached=True)
+        updatable = (
+            pynab_info is not None
+            and "commits_count" in pynab_info
+            and pynab_info["commits_count"] > 0
+            and "local_commits_count" in pynab_info
+            and pynab_info["local_commits_count"] == 0
+        )
+        template_name = "nabweb/upgrade/_repository.html"
+        context = {"repo": repo_info, "updatable": updatable}
+        return render(request, template_name, context=context)
+
+
+class NabWebUpgradeCheckNowView(View):
+    def post(self, request, *args, **kwargs):
+        for repository in GitInfo.REPOSITORIES.keys():
+            GitInfo.get_repository_info(repository, force=True)
+        return JsonResponse({"status": "ok"})
 
 
 class NabWebUpgradeStatusView(View):
