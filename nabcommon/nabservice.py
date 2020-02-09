@@ -120,7 +120,7 @@ class NabService(ABC):
     @classmethod
     def signal_daemon(cls):
         service_name = cls.__name__.lower()
-        pidfilepath = f"/var/run/{service_name}.pid"
+        pidfilepath = f"/run/{service_name}.pid"
         try:
             with open(pidfilepath, "r") as f:
                 pidstr = f.read()
@@ -133,7 +133,7 @@ class NabService(ABC):
     def main(cls, argv):
         service_name = cls.__name__.lower()
         nablogging.setup_logging(service_name)
-        pidfilepath = f"/var/run/{service_name}.pid"
+        pidfilepath = f"/run/{service_name}.pid"
         usage = (
             f"{service_name} [options]\n"
             f" -h                   display this message\n"

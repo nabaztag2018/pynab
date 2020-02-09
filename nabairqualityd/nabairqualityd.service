@@ -10,7 +10,7 @@ RestartSec=1
 User=root
 WorkingDirectory=/home/pi/pynab
 ExecStart=/home/pi/pynab/venv/bin/python -m nabairqualityd.nabairqualityd
-PIDFile=/var/run/nabairqualityd.pid
+PIDFile=/run/nabairqualityd.pid
 
 [Install]
 WantedBy=multi-user.target

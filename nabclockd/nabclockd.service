@@ -10,7 +10,7 @@ RestartSec=1
 User=root
 WorkingDirectory=/home/pi/pynab
 ExecStart=/home/pi/pynab/venv/bin/python -m nabclockd.nabclockd
-PIDFile=/var/run/nabclockd.pid
+PIDFile=/run/nabclockd.pid
 
 [Install]
 WantedBy=multi-user.target

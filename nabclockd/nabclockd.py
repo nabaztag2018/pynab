@@ -9,7 +9,7 @@ from nabcommon import nabservice
 
 
 class NabClockd(nabservice.NabService):
-    DAEMON_PIDFILE = "/var/run/nabclockd.pid"
+    DAEMON_PIDFILE = "/run/nabclockd.pid"
 
     def __init__(self):
         super().__init__()

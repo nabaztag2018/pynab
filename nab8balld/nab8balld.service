@@ -10,7 +10,7 @@ RestartSec=1
 User=root
 WorkingDirectory=/home/pi/pynab
 ExecStart=/home/pi/pynab/venv/bin/python -m nab8balld.nab8balld
-PIDFile=/var/run/nab8balld.pid
+PIDFile=/run/nab8balld.pid
 
 [Install]
 WantedBy=multi-user.target

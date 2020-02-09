@@ -817,7 +817,7 @@ class Nabd:
     @staticmethod
     def main(argv):
         nablogging.setup_logging("nabd")
-        pidfilepath = "/var/run/nabd.pid"
+        pidfilepath = "/run/nabd.pid"
         usage = (
             f"nabd [options]\n"
             f" -h                  display this message\n"

@@ -10,7 +10,7 @@ RestartSec=1
 User=root
 WorkingDirectory=/home/pi/pynab
 ExecStart=/home/pi/pynab/venv/bin/python -m nabd.nabd
-PIDFile=/var/run/nabd.pid
+PIDFile=/run/nabd.pid
 
 [Install]
 WantedBy=multi-user.target
