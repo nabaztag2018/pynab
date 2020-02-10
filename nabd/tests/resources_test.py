@@ -55,6 +55,23 @@ class TestResources(unittest.TestCase):
         path = self.loop.run_until_complete(task)
         self.assertNotEqual(path, None)
 
+    def test_find_random_semi_colon_localized(self):
+        task = self.loop.create_task(
+            Resources.find("sounds", "nabclockd/0/*.mp3;nabclockd/1/*.mp3")
+        )
+        path = self.loop.run_until_complete(task)
+        self.assertNotEqual(path, None)
+        task = self.loop.create_task(
+            Resources.find("sounds", "nabclockd/z/*.mp3;nabclockd/1/*.mp3")
+        )
+        path = self.loop.run_until_complete(task)
+        self.assertNotEqual(path, None)
+        task = self.loop.create_task(
+            Resources.find("sounds", "nabclockd/z/*.mp3;nabclockd/y/*.mp3")
+        )
+        path = self.loop.run_until_complete(task)
+        self.assertEqual(path, None)
+
     def test_find_random_not_localized(self):
         task = self.loop.create_task(
             Resources.find("sounds", "nabsurprised/respirations/*.mp3")
