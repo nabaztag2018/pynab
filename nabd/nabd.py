@@ -608,7 +608,7 @@ class Nabd:
                         )
                     except json.decoder.JSONDecodeError as e:
                         logging.debug(f"JSON Error {e} with service packet")
-                        logging.debug(f"{packet}")
+                        logging.debug(f"{line}")
                         self.write_packet(
                             {
                                 "type": "response",
