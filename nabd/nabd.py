@@ -556,10 +556,17 @@ class Nabd:
     def write_packet(self, response, writer):
         writer.write((json.dumps(response) + "\r\n").encode("utf8"))
 
+    def _test_event_mask(self, event_type, events):
+        matching = event_type in events
+        if not matching and "/" in event_type:
+            event_type0 = event_type.split("/", 1)[0]
+            matching = event_type0 + "/*" in events
+        return matching
+
     def broadcast_event(self, event_type, response):
         logging.debug(f"broadcast event to services: {event_type}, {response}")
         for sw, events in self.service_writers.items():
-            if event_type in events:
+            if self._test_event_mask(event_type, events):
                 self.write_packet(response, sw)
 
     def write_response_packet(self, original_packet, template, writer):
@@ -579,7 +586,7 @@ class Nabd:
     # Handle service through TCP/IP protocol
     async def service_loop(self, reader, writer):
         self.write_state_packet(writer)
-        self.service_writers[writer] = ["asr"]
+        self.service_writers[writer] = []
         try:
             while not reader.at_eof():
                 line = await reader.readline()
@@ -689,10 +696,11 @@ class Nabd:
                 ear_str = "left"
             else:
                 ear_str = "right"
-            self.write_packet(
-                {"type": "ear_event", "ear": ear_str},
-                self.interactive_service_writer,
-            )
+            if self._test_event_mask("ears", self.interactive_service_events):
+                self.write_packet(
+                    {"type": "ear_event", "ear": ear_str},
+                    self.interactive_service_writer,
+                )
         else:
             # Wait a little bit for user to continue moving the ears
             # Then we'll run a detection and tell services if we're not
