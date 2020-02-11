@@ -12,7 +12,7 @@
         {% endif %}
       {% endif %}
     </div>
-    <h6><a href="{{ repo.url }}" target="_blank">{{ repo.name }}</a></h6>
+    <h6><a href="{{ repo.url }}" target="_blank" rel="noopener noreferrer">{{ repo.name }}</a></h6>
     {% if repo.branch %}
       <strong>{% trans "Branch:" %}</strong> {{ repo.branch }}<br />
     {% endif %}
