@@ -63,7 +63,7 @@
             <dt class="col-sm-4">{% trans "Sound card" %}</dt>
             <dd class="col-sm-8">{{ gestalt.result.hardware.sound_card }}</dd>
             <dt class="col-sm-4">{% trans "Sound input" %}</dt>
-            <dd class="col-sm-8">{{ gestalt.result.hardware.sound_input }}</dd>
+            <dd class="col-sm-8">{% if gestalt.result.hardware.sound_input %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
             <dt class="col-sm-4">{% trans "Left ear" %}</dt>
             <dd class="col-sm-8">{{ gestalt.result.hardware.left_ear_status }}</dd>
             <dt class="col-sm-4">{% trans "Right ear" %}</dt>
