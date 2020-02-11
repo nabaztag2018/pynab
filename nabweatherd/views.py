@@ -4,6 +4,7 @@ from django.http import JsonResponse, QueryDict
 from django.utils.translation import ugettext as _
 from .models import Config, ScheduledMessage
 from .nabweatherd import NabWeatherd
+from . import rfid_data
 from django.utils import translation
 from meteofrance.client import meteofranceClient, meteofranceError
 import datetime
@@ -64,3 +65,30 @@ class SettingsView(TemplateView):
         config.save()
         NabWeatherd.signal_daemon()
         return JsonResponse({"status": "ok"})
+
+
+class RFIDDataView(TemplateView):
+    template_name = "nabweatherd/rfid-data.html"
+
+    def get(self, request, *args, **kwargs):
+        """
+        Unserialize RFID application data
+        """
+        type = "today"
+        data = request.GET.get("data", None)
+        if data:
+            type = rfid_data.unserialize(data.encode("utf8"))
+        context = self.get_context_data(**kwargs)
+        context["type"] = type
+        return render(request, RFIDDataView.template_name, context=context)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Serialize RFID application data
+        """
+        type = "today"
+        if "type" in request.POST:
+            type = request.POST["type"]
+        data = rfid_data.serialize(type)
+        data = data.decode("utf8")
+        return JsonResponse({"data": data})

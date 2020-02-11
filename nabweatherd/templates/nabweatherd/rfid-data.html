@@ -1,0 +1,14 @@
+{% load i18n %}
+<div class="form-group row">
+  <label class="col-sm-2 col-form-label">{% trans "Day" %}</label>
+  <div class="col-sm-10">
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="type" id="todayButton" value="today"{% if type != "tomorrow" %} checked{% endif %}>
+      <label class="form-check-label" for="todayButton">{% trans "Today" %}</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="type" id="tomorrowButton" value="tomorrow"{% if type == "tomorrow" %} checked{% endif %}>
+      <label class="form-check-label" for="tomorrowButton">{% trans "Tomorrow" %}</label>
+    </div>
+  </div>
+</div>

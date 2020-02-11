@@ -29,3 +29,19 @@ class SettingsView(TemplateView):
         config.save()
         NabTaichid.signal_daemon()
         return JsonResponse({"status": "ok"})
+
+
+class RFIDDataView(TemplateView):
+    template_name = "nabtaichid/rfid-data.html"
+
+    def get(self, request, *args, **kwargs):
+        """
+        Unserialize RFID application data
+        """
+        return render(request, RFIDDataView.template_name)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Serialize RFID application data
+        """
+        return JsonResponse({"data": ""})

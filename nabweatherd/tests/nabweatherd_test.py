@@ -7,6 +7,7 @@ import pytest
 from asgiref.sync import async_to_sync
 from nabweatherd.nabweatherd import NabWeatherd
 from nabweatherd import models
+from nabweatherd import rfid_data
 
 
 class MockWriter(object):
@@ -86,3 +87,16 @@ class TestNabWeatherdDB(unittest.TestCase):
         self.assertEqual(packet_json["type"], "message")
         self.assertTrue("signature" in packet_json)
         self.assertTrue("body" in packet_json)
+
+
+class TestRFIDData(unittest.TestCase):
+    def test_serialize(self):
+        self.assertEqual(b"\x01", rfid_data.serialize("today"))
+        self.assertEqual(b"\x02", rfid_data.serialize("tomorrow"))
+        self.assertEqual(b"\x01", rfid_data.serialize("unknown"))
+
+    def test_unserialize(self):
+        self.assertEqual("today", rfid_data.unserialize(b"\x01"))
+        self.assertEqual("tomorrow", rfid_data.unserialize(b"\x02"))
+        self.assertEqual("today", rfid_data.unserialize(b""))
+        self.assertEqual("today", rfid_data.unserialize(b"unknown"))

@@ -49,6 +49,26 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """ Set a led to pulse. """
         raise NotImplementedError("Should have implemented")
 
+    async def rfid_detected_feedback(self):
+        ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
+        await ci.start("nabd/rfid.chor")
+        await self.sound.play_list(["rfid/rfid.wav"], False)
+        await ci.stop()
+
+    def rfid_awaiting_feedback(self):
+        """
+        Turn nose red.
+        """
+        self.set_leds(
+            (255, 0, 255), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)
+        )
+
+    def rfid_done_feedback(self):
+        """
+        Turn everything off.
+        """
+        self.set_leds((0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0))
+
     @abc.abstractmethod
     def bind_button_event(self, loop, callback):
         """
@@ -70,6 +90,17 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """
         Define the callback for ears events.
         callback is cb(ear) ear being the ear moved.
+
+        Make sure the callback is called on the provided event loop, with
+        loop.call_soon_threadsafe
+        """
+        raise NotImplementedError("Should have implemented")
+
+    @abc.abstractmethod
+    def bind_rfid_event(self, loop, callback):
+        """
+        Define the callback for rfid events.
+        callback is cb(uid, picture, app, data, flags)
 
         Make sure the callback is called on the provided event loop, with
         loop.call_soon_threadsafe
@@ -195,6 +226,11 @@ class NabIO(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def has_sound_input(self):
         """ Determine if we have sound input """
+        raise NotImplementedError("Should have implemented")
+
+    @abc.abstractmethod
+    def has_rfid(self):
+        """ Determine if we have an rfid reader """
         raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod

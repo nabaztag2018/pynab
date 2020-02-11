@@ -5,6 +5,7 @@ import sys
 from .button_gpio import ButtonGPIO
 from .ears import Ears
 from .ears_dev import EarsDev
+from .rfid_dev import RfidDev
 from .leds import Leds
 from .leds_neopixel import LedsNeoPixel
 from .nabio import NabIO
@@ -21,6 +22,7 @@ class NabIOHW(NabIO):
         self.model = NabIOHW.detect_model()
         self.leds = LedsNeoPixel()
         self.ears = EarsDev()
+        self.rfid = RfidDev()
         self.sound = SoundAlsa(self.model)
         self.button = ButtonGPIO(self.model)
 
@@ -53,11 +55,17 @@ class NabIOHW(NabIO):
         (r, g, b) = color
         self.leds.pulse(led_ix, r, g, b)
 
+    def rfid_awaiting_feedback(self):
+        self.leds.set1(Leds.LED_NOSE, 255, 0, 0)
+
     def bind_button_event(self, loop, callback):
         self.button.on_event(loop, callback)
 
     def bind_ears_event(self, loop, callback):
         self.ears.on_move(loop, callback)
+
+    def bind_rfid_event(self, loop, callback):
+        self.rfid.on_detect(loop, callback)
 
     async def play_info(self, condvar, tempo, colors):
         animation = [NabIOHW._convert_info_color(color) for color in colors]
@@ -118,6 +126,9 @@ class NabIOHW(NabIO):
     def has_sound_input(self):
         return self.model != NabIOHW.MODEL_2018
 
+    def has_rfid(self):
+        return self.model == NabIOHW.MODEL_2019_TAGTAG
+
     def gestalt(self):
         MODEL_NAMES = {
             NabIO.MODEL_2018: "2018",
@@ -147,6 +158,7 @@ class NabIOHW(NabIO):
             "model": model_name,
             "sound_card": self.sound.get_sound_card(),
             "sound_input": self.has_sound_input(),
+            "rfid": self.has_rfid(),
             "left_ear_status": left_ear_status,
             "right_ear_status": right_ear_status,
         }
@@ -216,6 +228,9 @@ class NabIOHW(NabIO):
         _, sound_configuration, _, = SoundAlsa.sound_configuration()
 
         if sound_configuration == SoundAlsa.MODEL_2019_CARD_NAME:
-            return NabIO.MODEL_2019_TAG
+            if RfidDev.is_available():
+                return NabIO.MODEL_2019_TAGTAG
+            else:
+                return NabIO.MODEL_2019_TAG
         if sound_configuration == SoundAlsa.MODEL_2018_CARD_NAME:
             return NabIO.MODEL_2018

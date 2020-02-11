@@ -5,6 +5,7 @@ import json
 import os
 import re
 import subprocess
+import base64
 
 from django.apps import apps
 from django.views.generic import View
@@ -149,6 +150,173 @@ class NabWebServicesView(BaseView):
         context = super().get_context()
         context["services"] = BaseView.get_services("services")
         return context
+
+
+class NabWebRfidView(BaseView):
+    def template_name(self):
+        return "nabweb/rfid/index.html"
+
+    @staticmethod
+    def get_rfid_services():
+        services = []
+        for config in apps.get_app_configs():
+            if hasattr(config.module, "NABAZTAG_SERVICE_PRIORITY"):
+                if hasattr(config.module, "NABAZTAG_RFID_APPLICATION_NAME"):
+                    if config.module.NABAZTAG_RFID_APPLICATION_NAME:
+                        app_name = config.module.NABAZTAG_RFID_APPLICATION_NAME
+                        services.append({"app": config.name, "name": app_name})
+        services_sorted = sorted(services, key=lambda s: s["name"])
+        return services_sorted
+
+    def get_context(self):
+        context = super().get_context()
+        gestalt = asyncio.run(self.query_gestalt())
+        if gestalt["status"] == "ok":
+            rfid = {
+                "status": "ok",
+                "available": gestalt["result"]["hardware"]["rfid"],
+            }
+        else:
+            rfid = gestalt
+        context["rfid_support"] = rfid
+        context["rfid_services"] = NabWebRfidView.get_rfid_services()
+        return context
+
+
+class NabWebRfidReadView(View):
+    READ_TIMEOUT = 30.0
+
+    async def read_tag(self, timeout):
+        return await NabdConnection.transaction(self._do_read_tag, timeout)
+
+    async def _do_read_tag(self, reader, writer, timeout):
+        # Enter interactive mode to get every rfid event (instead of apps)
+        packet = (
+            '{"type":"mode","mode":"interactive","events":["rfid/*"],'
+            '"request_id":"mode"}\r\n'
+        )
+        writer.write(packet.encode("utf8"))
+        await writer.drain()
+        while True:
+            line = await asyncio.wait_for(reader.readline(), 1.0)
+            packet = json.loads(line.decode("utf8"))
+            if (
+                "type" in packet
+                and packet["type"] == "response"
+                and "request_id" in packet
+                and packet["request_id"] == "mode"
+            ):
+                # Turn nose red to mean we're expecting a tag now
+                base64chor = base64.b64encode(
+                    bytes([0, 7, 0, 255, 0, 0, 0, 0])
+                )
+                packet = (
+                    b'{"type":"command","sequence":['
+                    b'{"choreography":'
+                    b'"data:application/x-nabaztag-mtl-choreography;base64,'
+                    + base64chor
+                    + b'"}]}\r\n'
+                )
+                writer.write(packet)
+                await writer.drain()
+                try:
+                    while True:
+                        line = await asyncio.wait_for(
+                            reader.readline(), timeout
+                        )
+                        packet = json.loads(line.decode("utf8"))
+                        if (
+                            "type" in packet
+                            and packet["type"] == "rfid_event"
+                            and packet["event"] != "removed"
+                        ):
+                            return {"status": "ok", "event": packet}
+                except asyncio.TimeoutError as err:
+                    return {
+                        "status": "timeout",
+                        "message": "No RFID tag was detected",
+                    }
+
+    def post(self, request, *args, **kwargs):
+        read_result = asyncio.run(
+            self.read_tag(NabWebRfidReadView.READ_TIMEOUT)
+        )
+        return JsonResponse(read_result)
+
+
+class NabWebRfidWriteView(View):
+    WRITE_TIMEOUT = 30.0
+
+    async def write_tag(self, uid, picture, app, data, timeout):
+        return await NabdConnection.transaction(
+            self._do_write_tag, uid, picture, app, data, timeout
+        )
+
+    async def _do_write_tag(
+        self, reader, writer, uid, picture, app, data, timeout
+    ):
+        packet = {
+            "type": "rfid_write",
+            "uid": uid,
+            "picture": int(picture),
+            "app": app,
+            "data": data,
+            "request_id": "rfid_write",
+        }
+        packet_json = json.JSONEncoder().encode(packet)
+        packet = packet_json + "\r\n"
+        writer.write(packet.encode("utf8"))
+        await writer.drain()
+        while True:
+            try:
+                line = await asyncio.wait_for(reader.readline(), timeout)
+                packet = json.loads(line.decode("utf8"))
+                if (
+                    "type" in packet
+                    and packet["type"] == "response"
+                    and "request_id" in packet
+                    and packet["request_id"] == "rfid_write"
+                ):
+                    response = {
+                        "status": packet["status"],
+                        "rfid": {
+                            "uid": uid,
+                            "picture": picture,
+                            "app": app,
+                            "data": data,
+                        },
+                    }
+                    if "message" in packet:
+                        response["message"] = packet["message"]
+                    return response
+            except asyncio.TimeoutError as err:
+                return {
+                    "status": "timeout",
+                    "message": "No RFID tag was detected",
+                }
+
+    def post(self, request, *args, **kwargs):
+        if (
+            "uid" not in request.POST
+            or "picture" not in request.POST
+            or "app" not in request.POST
+        ):
+            return JsonResponse(
+                {"status": "error", "message": "Missing arguments"}, status=400
+            )
+        uid = request.POST["uid"]
+        picture = request.POST["picture"]
+        app = request.POST["app"]
+        if "data" in request.POST:
+            data = request.POST["data"]
+        else:
+            data = ""
+        write_result = asyncio.run(
+            self.write_tag(
+                uid, picture, app, data, NabWebRfidReadView.READ_TIMEOUT
+            )
+        )
+        return JsonResponse(write_result)
 
 
 class NabWebSytemInfoView(BaseView):

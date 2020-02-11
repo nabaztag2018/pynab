@@ -77,6 +77,13 @@ cd /home/pi/tagtagtag-ears
 make
 sudo make install
 
+echo "Installing cr14 driver"
+cd /home/pi
+sudo -u pi git clone https://github.com/pguyot/cr14
+cd /home/pi/cr14
+make
+sudo make install
+
 branch=release
 if [ $TRAVIS_BRANCH = "releng" ]; then
     branch=releng

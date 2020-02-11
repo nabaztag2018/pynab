@@ -7,6 +7,7 @@ import signal
 import datetime
 import time
 import logging
+import sys
 from abc import ABC, abstractmethod
 from enum import Enum
 from lockfile.pidlockfile import PIDLockFile
@@ -63,10 +64,25 @@ class NabService(ABC):
 
     async def client_loop(self):
         try:
+            package_name = inspect.getmodule(self.__class__).__package__
+            package = sys.modules[package_name]
             service_dir = os.path.dirname(inspect.getfile(self.__class__))
-            if os.path.isdir(os.path.join(service_dir, "nlu")):
+            asr_support = os.path.isdir(os.path.join(service_dir, "nlu"))
+            rfid_support = False
+            if hasattr(package, "NABAZTAG_RFID_APPLICATION_ID"):
+                rfid_support = True
+            if asr_support or rfid_support:
+                events = []
+                if asr_support:
+                    events.append('"asr"')
+                if rfid_support:
+                    service_name = self.__class__.__name__.lower()
+                    events.append(f'"rfid/{service_name}"')
+                events_str = ",".join(events)
                 idle_packet = (
-                    '{"type":"mode","mode":"idle","events":["asr"]}\r\n'
+                    '{"type":"mode","mode":"idle","events":['
+                    + events_str
+                    + "]}\r\n"
                 )
                 self.writer.write(idle_packet.encode("utf8"))
             while self.running and not self.reader.at_eof():

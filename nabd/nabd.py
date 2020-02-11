@@ -21,6 +21,12 @@ from django.apps import apps
 from nabcommon import nablogging
 from nabcommon.nabservice import NabService
 from .leds import Leds
+from .rfid import (
+    TagFlags,
+    TAG_APPLICATIONS,
+    TAG_APPLICATION_NONE,
+    DEFAULT_RFID_TIMEOUT,
+)
 
 
 class State(Enum):
@@ -247,6 +253,13 @@ class Nabd:
                     break
                 elif item[0]["type"] == "test":
                     await self.do_process_test_packet(item[0], item[1])
+                    if len(self.idle_queue) == 0:
+                        await self.set_state(State.IDLE)
+                        break
+                    else:
+                        item = self.idle_queue.popleft()
+                elif item[0]["type"] == "rfid_write":
+                    await self.do_process_rfid_write_packet(item[0], item[1])
                     if len(self.idle_queue) == 0:
                         await self.set_state(State.IDLE)
                         break
@@ -513,6 +526,72 @@ class Nabd:
                 writer,
             )
 
+    async def process_rfid_write_packet(self, packet, writer):
+        """ Process a rfid_write packet """
+        if self.state == State.ASLEEP:
+            await self.do_process_rfid_write_packet(packet, writer)
+        else:
+            async with self.idle_cv:
+                self.idle_queue.append((packet, writer))
+                self.idle_cv.notify()
+
+    async def do_process_rfid_write_packet(self, packet, writer):
+        """ Process a rfid_write packet """
+        if "uid" in packet and "picture" in packet and "app" in packet:
+            uid = bytes.fromhex(packet["uid"].replace(":", ""))
+            picture = packet["picture"]
+            app_str = packet["app"]
+            app = self._get_rfid_app_id(app_str)
+            if "data" in packet:
+                data = packet["data"].encode("utf8")
+            else:
+                data = None
+            if "timeout" in packet:
+                timeout = packet["timeout"]
+            else:
+                timeout = DEFAULT_RFID_TIMEOUT
+            self.nabio.rfid_awaiting_feedback()
+            try:
+                success = await asyncio.wait_for(
+                    self.nabio.rfid.write(uid, picture, app, data),
+                    timeout=timeout,
+                )
+                if success:
+                    self.write_response_packet(
+                        packet, {"status": "ok", "uid": packet["uid"]}, writer
+                    )
+                else:
+                    self.write_response_packet(
+                        packet,
+                        {"status": "error", "uid": packet["uid"]},
+                        writer,
+                    )
+            except asyncio.TimeoutError:
+                self.write_response_packet(
+                    packet,
+                    {
+                        "status": "timeout",
+                        "message": "RFID write timed out "
+                        "(RFID tag not found?)",
+                    },
+                    writer,
+                )
+            finally:
+                self.nabio.rfid_done_feedback()
+        else:
+            logging.debug(
+                f"Malformed rfid_write packet from service: {packet}"
+            )
+            self.write_response_packet(
+                packet,
+                {
+                    "status": "error",
+                    "class": "UnknownPacket",
+                    "message": "Unknown or malformed rfid_write packet",
+                },
+                writer,
+            )
+
     async def process_packet(self, packet, writer):
         """ Process a packet from a service """
         logging.debug(f"packet from service: {packet}")
@@ -529,6 +608,7 @@ class Nabd:
                 "gestalt": self.process_gestalt_packet,
                 "config-update": self.process_config_update_packet,
                 "test": self.process_test_packet,
+                "rfid_write": self.process_rfid_write_packet,
             }
             if packet["type"] in processors:
                 await processors[packet["type"]](packet, writer)
@@ -721,10 +801,68 @@ class Nabd:
                     {"type": "ears_event", "left": left, "right": right},
                 )
 
+    def rfid_callback(self, uid, picture, app, app_data, flags):
+        # bytes.hex(sep) is python 3.8+
+        uid_str = ":".join("{:02x}".format(c) for c in uid)
+        packet = {"type": "rfid_event", "uid": uid_str}
+        if flags & TagFlags.REMOVED:
+            packet["event"] = "removed"
+        else:
+            packet["event"] = "detected"
+            if flags & TagFlags.FORMATTED:
+                support = "formatted"
+            elif flags & TagFlags.FOREIGN_DATA:
+                support = "foreign-data"
+            elif flags & TagFlags.READONLY:
+                support = "locked"
+            elif flags & TagFlags.CLEAR:
+                support = "empty"
+            else:
+                support = "unknown"
+            packet["support"] = support
+            if flags & TagFlags.READONLY:
+                packet["locked"] = True
+        event_type = "rfid/*"
+        if picture is not None:
+            packet["picture"] = picture
+        if app is not None and app != TAG_APPLICATION_NONE:
+            app_str = self._get_rfid_app(app)
+            packet["app"] = app_str
+            if app_data is not None:
+                app_data_str_bin = app_data.split(b"\xFF", 1)[0]
+                app_data_str = app_data_str_bin.decode("utf8")
+                packet["data"] = app_data_str
+            event_type = "rfid/" + app_str
+        if self.state != State.ASLEEP and not flags & TagFlags.REMOVED:
+            asyncio.ensure_future(self.nabio.rfid_detected_feedback())
+        if self.interactive_service_writer:
+            if self._test_event_mask(
+                event_type, self.interactive_service_events
+            ):
+                self.write_packet(packet, self.interactive_service_writer)
+        else:
+            self.broadcast_event(event_type, packet)
+
+    def _get_rfid_app(self, app):
+        if app in TAG_APPLICATIONS:
+            return TAG_APPLICATIONS[app]
+        else:
+            return f"{app}"
+
+    def _get_rfid_app_id(self, app):
+        for id, name in TAG_APPLICATIONS.items():
+            if name == app:
+                return id
+        try:
+            return int(app)
+        except ValueError:
+            return TAG_APPLICATION_NONE
+
     def run(self):
         self.loop = asyncio.get_event_loop()
         self.nabio.bind_button_event(self.loop, self.button_callback)
         self.nabio.bind_ears_event(self.loop, self.ears_callback)
+        self.nabio.bind_rfid_event(self.loop, self.rfid_callback)
         setup_task = self.loop.create_task(self.idle_setup())
         idle_task = self.loop.create_task(self.idle_worker_loop())
         if os.environ.get("LISTEN_PID", None) == str(os.getpid()):

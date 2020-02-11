@@ -4,6 +4,7 @@ import logging
 from asgiref.sync import sync_to_async
 from nabcommon.nabservice import NabInfoService
 from meteofrance.client import meteofranceClient
+from . import rfid_data
 
 
 class NabWeatherd(NabInfoService):
@@ -505,18 +506,29 @@ class NabWeatherd(NabInfoService):
                 self.writer.write(packet.encode("utf8"))
         await self.writer.drain()
 
+    async def _do_perform(self, type):
+        next_date, next_args, config_t = await sync_to_async(self.get_config)()
+        now = datetime.datetime.now(datetime.timezone.utc)
+        expiration = now + datetime.timedelta(minutes=1)
+        await self.perform(expiration, type, config_t)
+
     async def process_nabd_packet(self, packet):
         if (
             packet["type"] == "asr_event"
             and packet["nlu"]["intent"] == "weather_forecast"
         ):
-            next_date, next_args, config_t = await sync_to_async(
-                self.get_config
-            )()
             # todo : detect today/tomorrow
-            now = datetime.datetime.now(datetime.timezone.utc)
-            expiration = now + datetime.timedelta(minutes=1)
-            await self.perform(expiration, "today", config_t)
+            await self._do_perform("today")
+        elif (
+            packet["type"] == "rfid_event"
+            and packet["app"] == "nabweatherd"
+            and packet["event"] == "detected"
+        ):
+            if "data" in packet:
+                type = rfid_data.unserialize(packet["data"].encode("utf8"))
+            else:
+                type = "today"
+            await self._do_perform(type)
 
 
 if __name__ == "__main__":
