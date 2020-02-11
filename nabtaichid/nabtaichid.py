@@ -40,6 +40,14 @@ class NabTaichid(NabRandomService):
             now = datetime.datetime.now(datetime.timezone.utc)
             expiration = now + datetime.timedelta(minutes=1)
             await self.perform(expiration, None, None)
+        elif (
+            packet["type"] == "rfid_event"
+            and packet["app"] == "nabtaichid"
+            and packet["event"] == "detected"
+        ):
+            now = datetime.datetime.now(datetime.timezone.utc)
+            expiration = now + datetime.timedelta(minutes=1)
+            await self.perform(expiration, None, None)
 
 
 if __name__ == "__main__":

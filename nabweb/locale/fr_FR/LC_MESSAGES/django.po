@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-11 10:30+0100\n"
+"POT-Creation-Date: 2020-02-11 15:30+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,6 +61,7 @@ msgstr "Accueil"
 
 #: templates/nabweb/_base.html:27 templates/nabweb/_base.html:28
 #: templates/nabweb/_base.html:29 templates/nabweb/_base.html:30
+#: templates/nabweb/_base.html:31
 msgid "(current)"
 msgstr "(actif)"
 
@@ -68,27 +69,33 @@ msgstr "(actif)"
 msgid "Services"
 msgstr "Services"
 
-#: templates/nabweb/_base.html:29
+#: templates/nabweb/_base.html:29 templates/nabweb/rfid/index.html:4
+#: templates/nabweb/rfid/index.html:26
+#: templates/nabweb/system-info/index.html:71
+msgid "RFID"
+msgstr ""
+
+#: templates/nabweb/_base.html:30
 msgid "System Information"
 msgstr "Information système"
 
-#: templates/nabweb/_base.html:30 templates/nabweb/upgrade/index.html:40
+#: templates/nabweb/_base.html:31 templates/nabweb/upgrade/index.html:40
 msgid "Upgrade"
 msgstr "Mise à jour"
 
-#: templates/nabweb/_base.html:31
+#: templates/nabweb/_base.html:32
 msgid "Help!"
 msgstr "Aide !"
 
-#: templates/nabweb/_base.html:45
+#: templates/nabweb/_base.html:46
 msgid "Upgrading"
 msgstr "Mise à jour"
 
-#: templates/nabweb/_base.html:48
+#: templates/nabweb/_base.html:49
 msgid "Please wait while upgrading pynab..."
 msgstr "Veuillez patienter pendant la mise à jour de pynab"
 
-#: templates/nabweb/_base.html:79
+#: templates/nabweb/_base.html:80
 msgid "Unknown server error"
 msgstr "Erreur serveur inconnue"
 
@@ -144,8 +151,8 @@ msgid ""
 "It's fantastic."
 msgstr ""
 "Et n'oubliez pas d'essayer <a href='/' onclick='javascript:event.target."
-"port=8080' target='_new'>Nabblocky</a>. Pour tous ceux qui veulent apprendre à "
-"développer avec Nabaztag. C'est fantastique !"
+"port=8080' target='_new'>Nabblocky</a>. Pour tous ceux qui veulent apprendre "
+"à développer avec Nabaztag. C'est fantastique !"
 
 #: templates/nabweb/index.html:23 templates/nabweb/index.html:28
 msgid "Language"
@@ -166,6 +173,249 @@ msgstr "Enregistrer"
 #: templates/nabweb/index.html:42
 msgid "Reset"
 msgstr "Annuler"
+
+#: templates/nabweb/rfid/index.html:10
+msgid "Tag with foreign data"
+msgstr "Tag avec des données inconnues"
+
+#: templates/nabweb/rfid/index.html:13
+msgid "This tag has foreign data. Are you sure you want to replace this data?"
+msgstr "Ce tag contient des données inconnues. Êtes-vous sûr que vous souhaitez les remplacer?"
+
+#: templates/nabweb/rfid/index.html:16
+#: templates/nabweb/system-info/index.html:66
+#: templates/nabweb/system-info/index.html:72
+#: templates/nabweb/upgrade/index.html:30
+msgid "Yes"
+msgstr "Oui"
+
+#: templates/nabweb/rfid/index.html:17
+#: templates/nabweb/system-info/index.html:66
+#: templates/nabweb/system-info/index.html:72
+#: templates/nabweb/upgrade/index.html:31
+msgid "No"
+msgstr "Non"
+
+#: templates/nabweb/rfid/index.html:36
+msgid ""
+"To be used by applications, RFID tags (including Violet's ztamp:s) must be "
+"configured. Once configured, an RFID tag will work with any Nabaztag:tag "
+"with a tagtagtag card."
+msgstr ""
+"Pour être utilisés par les applications, les tags RFID (y compris les ztamp:s "
+"de Violet) doivent être configurés. Une fois configuré, un tag fonctionnera "
+"avec n'importe quel Nabaztag:tag équipé de la carte tagtagtag."
+
+#: templates/nabweb/rfid/index.html:37
+msgid ""
+"To configure an RFID tag, start with pressing the button below and then when "
+"your Nabaztag's nose turns red, put a tag under it."
+msgstr ""
+"Pour configurer un tag RFID, commencez par appuyer sur le bouton ci-dessous "
+"puis quand le nez se met en rouge, mettez-y le tag."
+
+#: templates/nabweb/rfid/index.html:40
+msgid ""
+"Edit the configuration, then press 'Write tag' button below and put the tag "
+"under your Nabaztag's red nose."
+msgstr ""
+"Éditer la configuration, puis appuyez sur le bouton 'Écrire le tag' "
+"ci-dessous et remettez le tag sous le nez devenu rouge."
+
+#: templates/nabweb/rfid/index.html:41
+msgid ""
+"To configure another RFID tag, press the 'Configure another tag' button."
+msgstr ""
+"Pour configurer un autre tag RFID, appuyez sur le bouton 'Configurer un autre tag'."
+
+#: templates/nabweb/rfid/index.html:45
+msgid "No tag was detected."
+msgstr "Aucun tag n'a été détecté"
+
+#: templates/nabweb/rfid/index.html:46
+msgid ""
+"Nabaztag:tag RFID reader only supports ISO/IEC 14443 type B tags. Also make "
+"sure the reader is not too close from the Raspberry Pi (add some cardboard "
+"as mentioned in <a target='_blank' href='https://www.instructables.com/id/"
+"Installation-De-La-Carte-TagTagTag-Pour-Nabaztagta/'>tutorial</a>)."
+msgstr ""
+"Le lecteur RFID du Nabaztag:tag ne fonctionne qu'avez les tags ISO/IEC 14443 "
+"type B. Assurez-vous également que le lecteur n'est pas trop prêt du "
+"RaspberryPi (ajoutez du carton comme mentionné dans <a target='_blank' "
+"href='https://www.instructables.com/id/Installation-De-La-Carte-TagTagTag-Pour"
+"-Nabaztagta/'>le tutoriel</a>)."
+
+#: templates/nabweb/rfid/index.html:50
+msgid ""
+"This tag was not detected. To write it, click the 'Write tag' button and put it "
+"again under your Nabaztag's nose when it turns red. If you want to write another tag, click 'Configure' button first."
+msgstr ""
+"Le tag n'a pas été détecté. Pour l'écrire, cliquez sur le bouton 'Write tag' "
+"et mettez-le sous le nez du nabaztag lorsqu'il devient rouge. Si vous "
+"souhaitez configurer un autre tag, appuyez d'abord sur le bouton 'Configurer'."
+
+#: templates/nabweb/rfid/index.html:53
+msgid "Tag was successfully configured."
+msgstr "Le tag a été configuré avec succès."
+
+#: templates/nabweb/rfid/index.html:62
+msgid "Status"
+msgstr "Statut"
+
+#: templates/nabweb/rfid/index.html:68
+msgid "Picture"
+msgstr "Visuel"
+
+#: templates/nabweb/rfid/index.html:71
+msgid "Unknown"
+msgstr "Inconnu"
+
+#: templates/nabweb/rfid/index.html:72
+msgid "Violet Rabbit"
+msgstr "Lapin violet"
+
+#: templates/nabweb/rfid/index.html:73
+msgid "Blue note"
+msgstr "Note bleue"
+
+#: templates/nabweb/rfid/index.html:74
+msgid "Red heart"
+msgstr "Cœur rouge"
+
+#: templates/nabweb/rfid/index.html:75
+msgid "Orange apple"
+msgstr "Pomme orange"
+
+#: templates/nabweb/rfid/index.html:76
+msgid "Orange teacup"
+msgstr "Tasse orange"
+
+#: templates/nabweb/rfid/index.html:77
+msgid "Violet rocket"
+msgstr "Fusée violette"
+
+#: templates/nabweb/rfid/index.html:78
+msgid "Green cabbage"
+msgstr "Chou vert"
+
+#: templates/nabweb/rfid/index.html:79
+msgid "Blue dog"
+msgstr "Chien bleu"
+
+#: templates/nabweb/rfid/index.html:80
+msgid "Red flower"
+msgstr "Fleur rouge"
+
+#: templates/nabweb/rfid/index.html:81
+msgid "Green snail"
+msgstr "Escargot vert"
+
+#: templates/nabweb/rfid/index.html:82
+msgid "Yellow smile"
+msgstr "Sourire jaune"
+
+#: templates/nabweb/rfid/index.html:83
+msgid "Yellow gift"
+msgstr "Cadeau jaune"
+
+#: templates/nabweb/rfid/index.html:84
+msgid "Green bike"
+msgstr "Vélo vert"
+
+#: templates/nabweb/rfid/index.html:85
+msgid "Violet key"
+msgstr "Clef violette"
+
+#: templates/nabweb/rfid/index.html:86
+msgid "Blue can"
+msgstr "Boîte bleue"
+
+#: templates/nabweb/rfid/index.html:88
+msgid "Dark moderate green"
+msgstr "Vert moyennement foncé"
+
+#: templates/nabweb/rfid/index.html:89
+msgid "Grayish blue"
+msgstr "Gris qui tend vers le bleu"
+
+#: templates/nabweb/rfid/index.html:90
+msgid "Vivid orange"
+msgstr "Orange vif"
+
+#: templates/nabweb/rfid/index.html:91
+msgid "Bright yellow"
+msgstr "Jaune brillant"
+
+#: templates/nabweb/rfid/index.html:92
+msgid "Dark cyan"
+msgstr "Cyan foncé"
+
+#: templates/nabweb/rfid/index.html:93
+msgid "Vivid pink"
+msgstr "Rose vif"
+
+#: templates/nabweb/rfid/index.html:94
+msgid "Pure yellow"
+msgstr "Jaune pur"
+
+#: templates/nabweb/rfid/index.html:95
+msgid "Darker vivid orange"
+msgstr "Orange vif un peu plus foncé"
+
+#: templates/nabweb/rfid/index.html:101
+msgid "Application"
+msgstr "Application"
+
+#: templates/nabweb/rfid/index.html:104
+msgid "None"
+msgstr "Aucune"
+
+#: templates/nabweb/rfid/index.html:121
+msgid "RFID is not available (no reader detected)"
+msgstr "Le RFID n'est pas disponible (aucun lecteur détecté)"
+
+#: templates/nabweb/rfid/index.html:127
+msgid "Configure tag"
+msgstr "Configurer un tag"
+
+#: templates/nabweb/rfid/index.html:127
+msgid "Configure another tag"
+msgstr "Configurer un autre tag"
+
+#: templates/nabweb/rfid/index.html:128
+msgid "Write tag"
+msgstr "Écrire le tag"
+
+#: templates/nabweb/rfid/index.html:249
+msgid "Supported (but read-only)"
+msgstr "Géré (mais en lecture seule)"
+
+#: templates/nabweb/rfid/index.html:251 templates/nabweb/rfid/index.html:255
+msgid "Supported"
+msgstr "Géré"
+
+#: templates/nabweb/rfid/index.html:258
+msgid "Supported (but with unknown data)"
+msgstr "Géré (mais avec des données inconnues)"
+
+#: templates/nabweb/rfid/index.html:262
+msgid "Locked (cannot be used)"
+msgstr "Verrouillé (ne peut pas être utilisé)"
+
+#: templates/nabweb/rfid/index.html:264
+msgid ""
+"Unsupported PICC (file a GitHub issue with UID to see if support can be "
+"added)"
+msgstr "PICC non géré (créez un ticket sur GitHub avec le UID pour voir si cela peut se corriger)"
+
+#: templates/nabweb/rfid/index.html:321 templates/nabweb/rfid/index.html:389
+msgid "Unknown response: "
+msgstr "Réponse inconnue: "
+
+#: templates/nabweb/rfid/index.html:327 templates/nabweb/rfid/index.html:362
+#: templates/nabweb/rfid/index.html:394
+msgid "An unknown server error occurred"
+msgstr "Une erreur serveur inconnue est survenue"
 
 #: templates/nabweb/system-info/index.html:4
 msgid "System information"
@@ -220,15 +470,15 @@ msgstr "Oreille gauche"
 msgid "Right ear"
 msgstr "Oreille droite"
 
-#: templates/nabweb/system-info/index.html:74
+#: templates/nabweb/system-info/index.html:76
 msgid "Hardware test"
 msgstr "Test matériel"
 
-#: templates/nabweb/system-info/index.html:76
+#: templates/nabweb/system-info/index.html:78
 msgid "LEDs"
 msgstr "LEDs"
 
-#: templates/nabweb/system-info/index.html:77
+#: templates/nabweb/system-info/index.html:79
 msgid "Ears"
 msgstr "Oreilles"
 
@@ -272,14 +522,6 @@ msgstr ""
 "Des modifications locales ont été détectées dans au moins un repository. La "
 "mise à jour automatique risque d'échouer. Souhaitez-vous néanmoins "
 "continuer ?"
-
-#: templates/nabweb/upgrade/index.html:30
-msgid "Yes"
-msgstr "Oui"
-
-#: templates/nabweb/upgrade/index.html:31
-msgid "No"
-msgstr "Non"
 
 #: templates/nabweb/upgrade/index.html:43
 msgid ""
