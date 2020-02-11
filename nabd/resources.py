@@ -17,7 +17,7 @@ class Resources(object):
         Random lookup is performed when component is * or *.suffix
         """
         for filename in resources.split(";"):
-            path0 = Path(resources)
+            path0 = Path(filename)
             if path0.is_absolute():
                 if path0.is_file():
                     return path0  # Already found

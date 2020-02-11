@@ -10,7 +10,7 @@ RestartSec=1
 User=root
 WorkingDirectory=/home/pi/pynab
 ExecStart=/home/pi/pynab/venv/bin/python -m nabmastodond.nabmastodond
-PIDFile=/var/run/nabmastodond.pid
+PIDFile=/run/nabmastodond.pid
 
 [Install]
 WantedBy=multi-user.target

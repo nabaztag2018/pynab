@@ -1,6 +1,7 @@
 import sys
 import datetime
 import random
+import logging
 from nabcommon.nabservice import NabRandomService
 
 
@@ -21,10 +22,13 @@ class NabSurprised(NabRandomService):
         config.save()
 
     async def perform(self, expiration, args, config):
+        
+        today = datetime.date.today()
+        today_with_style = today.strftime("%m-%d")
         packet = (
             '{"type":"message",'
             '"signature":{"audio":["nabsurprised/respirations/*.mp3"]},'
-            '"body":[{"audio":["nabsurprised/*.mp3"]}],'
+            '"body":[{"audio":["nabsurprised/'+today_with_style+'/*.mp3;nabsurprised/*.mp3"]}],'
             '"expiration":"' + expiration.isoformat() + '"}\r\n'
         )
         self.writer.write(packet.encode("utf8"))

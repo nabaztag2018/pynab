@@ -5,7 +5,7 @@ from nabcommon.nabservice import NabRandomService
 
 
 class NabTaichid(NabRandomService):
-    DAEMON_PIDFILE = "/var/run/nabtaichid.pid"
+    DAEMON_PIDFILE = "/run/nabtaichid.pid"
 
     def get_config(self):
         from . import models
