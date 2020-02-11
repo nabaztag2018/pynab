@@ -193,6 +193,11 @@ class NabIO(object, metaclass=abc.ABCMeta):
         raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
+    def has_sound_input(self):
+        """ Determine if we have sound input """
+        raise NotImplementedError("Should have implemented")
+
+    @abc.abstractmethod
     async def test(self, test):
         """ Run a given hardware test, returning True if everything is ok """
         raise NotImplementedError("Should have implemented")
