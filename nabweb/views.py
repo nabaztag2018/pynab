@@ -18,10 +18,50 @@ from nabcommon.nabservice import NabService
 from django.utils.translation import to_locale, to_language
 
 
+class NabdConnection:
+    async def __aenter__(self):
+        conn = asyncio.open_connection("127.0.0.1", NabService.PORT_NUMBER)
+        self.reader, self.writer = await asyncio.wait_for(conn, 0.5)
+        return self
+
+    async def __aexit__(self, type, value, traceback):
+        self.writer.close()
+
+    @staticmethod
+    async def transaction(fun, *args):
+        try:
+            async with NabdConnection() as conn:
+                return await fun(conn.reader, conn.writer, *args)
+        except ConnectionRefusedError as err:
+            return {"status": "error", "message": "Nabd is not running"}
+        except asyncio.TimeoutError as err:
+            return {
+                "status": "error",
+                "message": "Communication with Nabd timed out",
+            }
+
+
 class BaseView(View, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def template_name(self):
         pass
+
+    async def query_gestalt(self):
+        return await NabdConnection.transaction(self._do_query_gestalt)
+
+    async def _do_query_gestalt(self, reader, writer):
+        writer.write(b'{"type":"gestalt","request_id":"gestalt"}\r\n')
+        await writer.drain()
+        while True:
+            line = await asyncio.wait_for(reader.readline(), 0.5)
+            packet = json.loads(line.decode("utf8"))
+            if (
+                "type" in packet
+                and packet["type"] == "response"
+                and "request_id" in packet
+                and packet["request_id"] == "gestalt"
+            ):
+                return {"status": "ok", "result": packet}
 
     def get_locales(self):
         config = Config.load()
@@ -84,9 +124,12 @@ class NabWebView(BaseView):
         )
 
     async def notify_config_update(self, service, slot):
+        await NabdConnection.transaction(
+            self._do_notify_config_update, service, slot
+        )
+
+    async def _do_notify_config_update(self, reader, writer, service, slot):
         try:
-            conn = asyncio.open_connection("127.0.0.1", NabService.PORT_NUMBER)
-            reader, writer = await asyncio.wait_for(conn, 0.5)
             packet = (
                 f'{{"type":"config-update","service":"{service}",'
                 f'"slot":"{slot}"}}\r\n'
@@ -111,36 +154,6 @@ class NabWebServicesView(BaseView):
 class NabWebSytemInfoView(BaseView):
     def template_name(self):
         return "nabweb/system-info/index.html"
-
-    async def query_gestalt(self):
-        try:
-            conn = asyncio.open_connection("127.0.0.1", NabService.PORT_NUMBER)
-            reader, writer = await asyncio.wait_for(conn, 0.5)
-        except ConnectionRefusedError as err:
-            return {"status": "error", "message": "Nabd is not running"}
-        except asyncio.TimeoutError as err:
-            return {
-                "status": "error",
-                "message": "Communication with Nabd timed out (connecting)",
-            }
-        try:
-            writer.write(b'{"type":"gestalt","request_id":"gestalt"}\r\n')
-            while True:
-                line = await asyncio.wait_for(reader.readline(), 0.5)
-                packet = json.loads(line.decode("utf8"))
-                if (
-                    "type" in packet
-                    and packet["type"] == "response"
-                    and "request_id" in packet
-                    and packet["request_id"] == "gestalt"
-                ):
-                    writer.close()
-                    return {"status": "ok", "result": packet}
-        except asyncio.TimeoutError as err:
-            return {
-                "status": "error",
-                "message": "Communication with Nabd timed out (getting info)",
-            }
 
     def get_os_info(self):
         version = "unknown"
@@ -170,21 +183,17 @@ class NabWebHardwareTestView(View):
     TEST_TIMEOUT = 30.0
 
     async def hardware_test(self, test, timeout):
-        try:
-            conn = asyncio.open_connection("127.0.0.1", NabService.PORT_NUMBER)
-            reader, writer = await asyncio.wait_for(conn, 0.5)
-        except ConnectionRefusedError as err:
-            return {"status": "error", "message": "Nabd is not running"}
-        except asyncio.TimeoutError as err:
-            return {
-                "status": "error",
-                "message": "Communication with Nabd timed out (connecting)",
-            }
+        return await NabdConnection.transaction(
+            self._do_hardware_test, test, timeout
+        )
+
+    async def _do_hardware_test(self, reader, writer, test, timeout):
         try:
             packet = (
                 f'{{"type":"test","test":"{test}","request_id":"test"}}\r\n'
             )
             writer.write(packet.encode("utf8"))
+            await writer.drain()
             while True:
                 line = await asyncio.wait_for(reader.readline(), timeout)
                 packet = json.loads(line.decode("utf8"))
@@ -194,7 +203,6 @@ class NabWebHardwareTestView(View):
                     and "request_id" in packet
                     and packet["request_id"] == "test"
                 ):
-                    writer.close()
                     return {"status": "ok", "result": packet}
         except asyncio.TimeoutError as err:
             return {
