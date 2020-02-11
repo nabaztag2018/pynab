@@ -57,7 +57,6 @@
     var form = $('#language-settings form');
     var saveBtn = form.find('button.save-button');
     var resetBtn = form.find('button.reset-button');
-    var url = form.attr('action');
     form.find('select').on('change', function() {
       saveBtn.removeClass('disabled');
       resetBtn.removeClass('disabled');

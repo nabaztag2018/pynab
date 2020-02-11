@@ -1,5 +1,4 @@
 from django.db import models
-import traceback
 
 
 class SingletonModel(models.Model):

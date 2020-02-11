@@ -5,7 +5,6 @@ from django.utils.translation import ugettext as _
 from .models import Config, ScheduledMessage
 from .nabweatherd import NabWeatherd
 from . import rfid_data
-from django.utils import translation
 from meteofrance.client import meteofranceClient, meteofranceError
 import datetime
 
