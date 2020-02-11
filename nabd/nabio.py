@@ -94,6 +94,9 @@ class NabIO(object, metaclass=abc.ABCMeta):
         Play listen sound and start acquisition, calling callback with sound
         samples.
         """
+        self.set_leds(
+            (255, 0, 255), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)
+        )
         await self.sound.play_list(["asr/listen.mp3"], False)
         await self.sound.start_recording(acquisition_cb)
 
