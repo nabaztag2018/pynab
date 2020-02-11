@@ -627,9 +627,9 @@ class Nabd:
         except Exception:
             logging.debug(traceback.format_exc())
         finally:
+            del self.service_writers[writer]
             if self.interactive_service_writer == writer:
                 await self.exit_interactive()
-            del self.service_writers[writer]
 
     async def perform_command(self, packet):
         await self.nabio.play_sequence(packet["sequence"])
@@ -757,16 +757,15 @@ class Nabd:
             print(traceback.format_exc())
         finally:
             self.loop.run_until_complete(self.stop_idle_worker())
+            server = server_task.result()
+            server.close()
             for writer in self.service_writers.copy():
                 writer.close()
                 self.loop.run_until_complete(writer.wait_closed())
             tasks = asyncio.all_tasks(self.loop)
             for t in [t for t in tasks if not (t.done() or t.cancelled())]:
-                self.loop.run_until_complete(
-                    t
-                )  # give canceled tasks the last chance to run
-            server = server_task.result()
-            server.close()
+                # give canceled tasks the last chance to run
+                self.loop.run_until_complete(t)
             self.loop.close()
 
     def stop(self):
