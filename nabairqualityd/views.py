@@ -1,10 +1,9 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from django.http import JsonResponse, QueryDict
+from django.http import JsonResponse
 from django.utils.translation import ugettext as _
 from .models import Config
 from .nabairqualityd import NabAirqualityd
-from django.utils import translation
 import datetime
 
 
@@ -30,7 +29,6 @@ class SettingsView(TemplateView):
 
     def put(self, request, *args, **kwargs):
         # quand on clique sur le bouton de l'intervaface pour jouer tout de suite
-        put_dict = QueryDict(request.body, encoding=request._encoding)
         config = Config.load()
         config.next_performance_date = datetime.datetime.now(
             datetime.timezone.utc

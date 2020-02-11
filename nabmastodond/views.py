@@ -221,7 +221,7 @@ class WeddingView(View):
                 config.spouse_pairing_date = status.created_at
                 config.spouse_pairing_state = "married"
             else:
-                status = NabMastodond.send_dm(
+                NabMastodond.send_dm(
                     mastodon_client, config.spouse_handle, "rejection"
                 )
                 config.spouse_pairing_date = None
@@ -246,7 +246,7 @@ class WeddingView(View):
                 access_token=config.access_token,
                 api_base_url="https://" + config.instance,
             )
-            status = NabMastodond.send_dm(
+            NabMastodond.send_dm(
                 mastodon_client, config.spouse_handle, "divorce"
             )
             config.spouse_pairing_date = None

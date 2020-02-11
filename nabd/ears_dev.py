@@ -1,8 +1,6 @@
 import asyncio
-import selectors
 import os
 import logging
-from threading import Thread
 from concurrent.futures import ThreadPoolExecutor
 from .ears import Ears
 

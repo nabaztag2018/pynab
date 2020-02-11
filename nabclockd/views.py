@@ -4,7 +4,6 @@ from django.views.generic import TemplateView
 from pytz import common_timezones
 from .models import Config
 from .nabclockd import NabClockd
-from django.utils import translation
 
 
 class SettingsView(TemplateView):
