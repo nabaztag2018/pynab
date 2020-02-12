@@ -124,306 +124,307 @@
           {% endif %}
         </div>
         <div class="card-footer">
-          <button type="submit" class="btn btn-primary configure-tag-button"><span class="first-tag">{% trans "Configure tag" %}</span><span class="another-tag d-none">{% trans "Configure another tag" %}</span><span class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span></button>
-          <button type="submit" class="btn btn-danger write-tag-button float-right d-none"><span class="first-tag">{% trans "Write tag" %}</span><span class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span></button>
+          {% if rfid_support.available %}
+            <button type="submit" class="btn btn-primary configure-tag-button"><span class="first-tag">{% trans "Configure tag" %}</span><span class="another-tag d-none">{% trans "Configure another tag" %}</span><span class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span></button>
+            <button type="submit" class="btn btn-danger write-tag-button float-right d-none"><span class="first-tag">{% trans "Write tag" %}</span><span class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span></button>
+          {% else %}
+            <button type="submit" class="btn btn-primary configure-tag-button disabled">{% trans "Configure tag" %}</button>
+          {% endif %}
         </div>
       </div>
     </div>
   </div>
-  <script type="text/javascript">
-    $(function() {
-      var configureBtn = $(".configure-tag-button");
-      var rfidPictureSelect = $("#rfidPicture");
-      var writeBtn = $(".write-tag-button");
+  {% if rfid_support.available %}
+    <script type="text/javascript">
+      $(function() {
+        var configureBtn = $(".configure-tag-button");
+        var rfidPictureSelect = $("#rfidPicture");
+        var writeBtn = $(".write-tag-button");
 
-      function initState() {
-        $(".read-error").addClass("d-none");
-        $(".read-timeout").addClass("d-none");
-        $(".read-ok").addClass("d-none");
-        configureBtn.removeClass("disabled");
-        configureBtn.find(".first-tag").removeClass("d-none");
-        configureBtn.find(".another-tag").addClass("d-none");
-        writeBtn.addClass("d-none");
-        $(".help-init").removeClass("d-none");
-        $(".help-read").addClass("d-none");
-        $(".configure-form").addClass("disabled");
-        $(".write-error").addClass("d-none");
-        $(".write-timeout").addClass("d-none");
-        $(".write-ok").addClass("d-none");
-      }
-      function readTimeoutState() {
-        $(".read-error").addClass("d-none");
-        $(".read-timeout").removeClass("d-none");
-        $(".read-ok").addClass("d-none");
-        configureBtn.removeClass("disabled");
-        configureBtn.find(".first-tag").removeClass("d-none");
-        configureBtn.find(".another-tag").addClass("d-none");
-        $(".help-init").removeClass("d-none");
-        $(".help-read").addClass("d-none");
-        $(".configure-form").addClass("disabled");
-        $(".write-error").addClass("d-none");
-        $(".write-timeout").addClass("d-none");
-        $(".write-ok").addClass("d-none");
-      }
-      function readErrorState(message) {
-        $(".read-error").removeClass("d-none");
-        $(".read-error").text(message);
-        $(".read-timeout").addClass("d-none");
-        $(".read-ok").addClass("d-none");
-        configureBtn.removeClass("disabled");
-        configureBtn.find(".first-tag").removeClass("d-none");
-        configureBtn.find(".another-tag").addClass("d-none");
-        $(".help-init").removeClass("d-none");
-        $(".help-read").addClass("d-none");
-        $(".configure-form").addClass("disabled");
-        $(".write-error").addClass("d-none");
-        $(".write-timeout").addClass("d-none");
-        $(".write-ok").addClass("d-none");
-      }
-      function readOkState() {
-        $(".read-error").addClass("d-none");
-        $(".read-timeout").addClass("d-none");
-        $(".read-ok").removeClass("d-none");
-        configureBtn.removeClass("disabled");
-        configureBtn.find(".first-tag").addClass("d-none");
-        configureBtn.find(".another-tag").removeClass("d-none");
-        $(".help-init").addClass("d-none");
-        $(".help-read").removeClass("d-none");
-        $(".configure-form").removeClass("disabled");
-        $(".write-error").addClass("d-none");
-        $(".write-timeout").addClass("d-none");
-        $(".write-ok").addClass("d-none");
-      }
-      function writeErrorState(message) {
-        $(".read-error").addClass("d-none");
-        $(".read-timeout").addClass("d-none");
-        $(".read-ok").removeClass("d-none");
-        writeBtn.removeClass("disabled");
-        configureBtn.removeClass("disabled");
-        configureBtn.find(".first-tag").addClass("d-none");
-        configureBtn.find(".another-tag").removeClass("d-none");
-        $(".help-init").addClass("d-none");
-        $(".help-read").removeClass("d-none");
-        $(".configure-form").removeClass("disabled");
-        $(".write-error").removeClass("d-none");
-        $(".write-error").text(message);
-        $(".write-timeout").addClass("d-none");
-        $(".write-ok").addClass("d-none");
-      }
-      function writeTimeoutState() {
-        $(".read-error").addClass("d-none");
-        $(".read-timeout").addClass("d-none");
-        $(".read-ok").removeClass("d-none");
-        writeBtn.removeClass("disabled");
-        configureBtn.removeClass("disabled");
-        configureBtn.find(".first-tag").addClass("d-none");
-        configureBtn.find(".another-tag").removeClass("d-none");
-        $(".help-init").addClass("d-none");
-        $(".help-read").removeClass("d-none");
-        $(".configure-form").addClass("disabled");
-        $(".write-error").addClass("d-none");
-        $(".write-timeout").removeClass("d-none");
-        $(".write-ok").addClass("d-none");
-      }
-      function writeOkState() {
-        $(".read-error").addClass("d-none");
-        $(".read-timeout").addClass("d-none");
-        $(".read-ok").removeClass("d-none");
-        writeBtn.removeClass("disabled");
-        configureBtn.removeClass("disabled");
-        configureBtn.find(".first-tag").addClass("d-none");
-        configureBtn.find(".another-tag").removeClass("d-none");
-        $(".help-init").addClass("d-none");
-        $(".help-read").removeClass("d-none");
-        $(".configure-form").removeClass("disabled");
-        $(".write-error").addClass("d-none");
-        $(".write-timeout").addClass("d-none");
-        $(".write-ok").removeClass("d-none");
-      }
-      function setupForm(rfidEvent) {
-        $("#staticUID").val(rfidEvent.uid);
-        var status;
-        var supported = false;
-        var foreignDataAlert = false;
-        if (rfidEvent.support == "formatted") {
-          if (rfidEvent.locked) {
-            status = "{% trans "Supported (but read-only)" %}";
-          } else {
-            status = "{% trans "Supported" %}";
-          }
-          supported = true;
-        } else if (rfidEvent.support == "empty") {
-          status = "{% trans "Supported" %}";
-          supported = true;
-        } else if (rfidEvent.support == "foreign-data") {
-          status = "{% trans "Supported (but with unknown data)" %}";
-          supported = true;
-          foreignDataAlert = true;
-        } else if (rfidEvent.support == "locked") {
-          status = "{% trans "Locked (cannot be used)" %}";
-        } else if (rfidEvent.support == "unknown") {
-          status = "{% trans "Unsupported PICC (file a GitHub issue with UID to see if support can be added)" %}";
+        function initState() {
+          $(".read-error").addClass("d-none");
+          $(".read-timeout").addClass("d-none");
+          $(".read-ok").addClass("d-none");
+          configureBtn.removeClass("disabled");
+          configureBtn.find(".first-tag").removeClass("d-none");
+          configureBtn.find(".another-tag").addClass("d-none");
+          writeBtn.addClass("d-none");
+          $(".help-init").removeClass("d-none");
+          $(".help-read").addClass("d-none");
+          $(".configure-form").addClass("disabled");
+          $(".write-error").addClass("d-none");
+          $(".write-timeout").addClass("d-none");
+          $(".write-ok").addClass("d-none");
         }
-        if (supported) {
-          writeBtn.removeClass("d-none");
-          $(".supported-rfid-form").removeClass("d-none");
-          if (rfidEvent.locked) {
-            writeBtn.addClass("disabled");
-          } else {
-            writeBtn.removeClass("disabled");
-          }
-          if (rfidEvent.picture && $("#rfidPicture option[value=" + rfidEvent.picture + "]").length > 0) {
-            $("#rfidPicture").val(rfidEvent.picture);
-            $("#rfidPictureImage").attr("src", "/static/nabweb/ztamps/" + rfidEvent.picture + ".jpg");
-          } else {
-            $("#rfidPicture").val(255);
-            $("#rfidPictureImage").attr("src", "/static/nabweb/ztamps/255.jpg");
-          }
-          $(".rfid-application-data").empty();
-          if (rfidEvent.app) {
-            $("#rfidApplication").val(rfidEvent.app);
-            getRFIDDataForm(rfidEvent.data);
-            console.log(rfidEvent.data);
-            console.log(encodeURIComponent(rfidEvent.data));
-          } else {
-            $("#rfidApplication").val(255);
-          }
-        } else {
-          $(".supported-rfid-form").addClass("d-none");
+        function readTimeoutState() {
+          $(".read-error").addClass("d-none");
+          $(".read-timeout").removeClass("d-none");
+          $(".read-ok").addClass("d-none");
+          configureBtn.removeClass("disabled");
+          configureBtn.find(".first-tag").removeClass("d-none");
+          configureBtn.find(".another-tag").addClass("d-none");
+          $(".help-init").removeClass("d-none");
+          $(".help-read").addClass("d-none");
+          $(".configure-form").addClass("disabled");
+          $(".write-error").addClass("d-none");
+          $(".write-timeout").addClass("d-none");
+          $(".write-ok").addClass("d-none");
         }
-        if (foreignDataAlert) {
-          writeBtn.data("foreignDataAlert", true);
-        } else {
-          writeBtn.data("foreignDataAlert", false);
+        function readErrorState(message) {
+          $(".read-error").removeClass("d-none");
+          $(".read-error").text(message);
+          $(".read-timeout").addClass("d-none");
+          $(".read-ok").addClass("d-none");
+          configureBtn.removeClass("disabled");
+          configureBtn.find(".first-tag").removeClass("d-none");
+          configureBtn.find(".another-tag").addClass("d-none");
+          $(".help-init").removeClass("d-none");
+          $(".help-read").addClass("d-none");
+          $(".configure-form").addClass("disabled");
+          $(".write-error").addClass("d-none");
+          $(".write-timeout").addClass("d-none");
+          $(".write-ok").addClass("d-none");
         }
-        $("#staticStatus").val(status);
-      }
-    
-      configureBtn.on("click", function() {
-        initState();
-        configureBtn.addClass("disabled");
-        configureBtn.find(".spinner").removeClass("d-none");
-        $.ajax({
-          url: "{% url 'rfid.read' %}",
-          beforeSend: function (xhr, settings) {
-            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
-          },
-          dataType: 'json',
-          type: "POST",
-          success: function (data) {
-            configureBtn.find(".spinner").addClass("d-none");
-            if (data.status == "timeout") {
-                readTimeoutState();
-            } else if (data.status == "error") {
-                readErrorState(data.message);
-            } else if (data.status == "ok") {
-                readOkState();
-                setupForm(data.event);
+        function readOkState() {
+          $(".read-error").addClass("d-none");
+          $(".read-timeout").addClass("d-none");
+          $(".read-ok").removeClass("d-none");
+          configureBtn.removeClass("disabled");
+          configureBtn.find(".first-tag").addClass("d-none");
+          configureBtn.find(".another-tag").removeClass("d-none");
+          $(".help-init").addClass("d-none");
+          $(".help-read").removeClass("d-none");
+          $(".configure-form").removeClass("disabled");
+          $(".write-error").addClass("d-none");
+          $(".write-timeout").addClass("d-none");
+          $(".write-ok").addClass("d-none");
+        }
+        function writeErrorState(message) {
+          $(".read-error").addClass("d-none");
+          $(".read-timeout").addClass("d-none");
+          $(".read-ok").removeClass("d-none");
+          writeBtn.removeClass("disabled");
+          configureBtn.removeClass("disabled");
+          configureBtn.find(".first-tag").addClass("d-none");
+          configureBtn.find(".another-tag").removeClass("d-none");
+          $(".help-init").addClass("d-none");
+          $(".help-read").removeClass("d-none");
+          $(".configure-form").removeClass("disabled");
+          $(".write-error").removeClass("d-none");
+          $(".write-error").text(message);
+          $(".write-timeout").addClass("d-none");
+          $(".write-ok").addClass("d-none");
+        }
+        function writeTimeoutState() {
+          $(".read-error").addClass("d-none");
+          $(".read-timeout").addClass("d-none");
+          $(".read-ok").removeClass("d-none");
+          writeBtn.removeClass("disabled");
+          configureBtn.removeClass("disabled");
+          configureBtn.find(".first-tag").addClass("d-none");
+          configureBtn.find(".another-tag").removeClass("d-none");
+          $(".help-init").addClass("d-none");
+          $(".help-read").removeClass("d-none");
+          $(".configure-form").addClass("disabled");
+          $(".write-error").addClass("d-none");
+          $(".write-timeout").removeClass("d-none");
+          $(".write-ok").addClass("d-none");
+        }
+        function writeOkState() {
+          $(".read-error").addClass("d-none");
+          $(".read-timeout").addClass("d-none");
+          $(".read-ok").removeClass("d-none");
+          writeBtn.removeClass("disabled");
+          configureBtn.removeClass("disabled");
+          configureBtn.find(".first-tag").addClass("d-none");
+          configureBtn.find(".another-tag").removeClass("d-none");
+          $(".help-init").addClass("d-none");
+          $(".help-read").removeClass("d-none");
+          $(".configure-form").removeClass("disabled");
+          $(".write-error").addClass("d-none");
+          $(".write-timeout").addClass("d-none");
+          $(".write-ok").removeClass("d-none");
+        }
+        function setupForm(rfidEvent) {
+          $("#staticUID").val(rfidEvent.uid);
+          var status;
+          var supported = false;
+          var foreignDataAlert = false;
+          if (rfidEvent.support == "formatted") {
+            if (rfidEvent.locked) {
+              status = "{% trans "Supported (but read-only)" %}";
             } else {
-                readErrorState("{% trans "Unknown response: " %}" + data.status);
+              status = "{% trans "Supported" %}";
             }
-          },
-          error: function (error) {
-            console.log(error);
-            configureBtn.find(".spinner").addClass("d-none");
-            readErrorState("{% trans "An unknown server error occurred" %}");
+            supported = true;
+          } else if (rfidEvent.support == "empty") {
+            status = "{% trans "Supported" %}";
+            supported = true;
+          } else if (rfidEvent.support == "foreign-data") {
+            status = "{% trans "Supported (but with unknown data)" %}";
+            supported = true;
+            foreignDataAlert = true;
+          } else if (rfidEvent.support == "locked") {
+            status = "{% trans "Locked (cannot be used)" %}";
+          } else if (rfidEvent.support == "unknown") {
+            status = "{% trans "Unsupported PICC (file a GitHub issue with UID to see if support can be added)" %}";
           }
-        });
-      });
-      rfidPictureSelect.on("change", function() {
-        $("#rfidPictureImage").attr("src", "/static/nabweb/ztamps/" + rfidPictureSelect.val() + ".jpg");
-      });
-      function write_tag() {
-        configureBtn.addClass("disabled");
-        writeBtn.addClass("disabled");
-        $(".read-error").addClass("d-none");
-        $(".read-timeout").addClass("d-none");
-        $(".configure-form").addClass("disabled");
-        $(".write-error").addClass("d-none");
-        $(".write-timeout").addClass("d-none");
-        $(".write-ok").addClass("d-none");
-        writeBtn.find(".spinner").removeClass("d-none");
-        var newRFIDApp = $("#rfidApplication").val();
-        var newRFIDAppDiv = $(".rfid-application-data[data-application=" + newRFIDApp + "]");
-        if (newRFIDAppDiv.length > 0) {
-          newRFIDData = $(".rfid-data-form").serialize();
+          if (supported) {
+            writeBtn.removeClass("d-none");
+            $(".supported-rfid-form").removeClass("d-none");
+            if (rfidEvent.locked) {
+              writeBtn.addClass("disabled");
+            } else {
+              writeBtn.removeClass("disabled");
+            }
+            if (rfidEvent.picture && $("#rfidPicture option[value=" + rfidEvent.picture + "]").length > 0) {
+              $("#rfidPicture").val(rfidEvent.picture);
+              $("#rfidPictureImage").attr("src", "/static/nabweb/ztamps/" + rfidEvent.picture + ".jpg");
+            } else {
+              $("#rfidPicture").val(255);
+              $("#rfidPictureImage").attr("src", "/static/nabweb/ztamps/255.jpg");
+            }
+            $(".rfid-application-data").empty();
+            if (rfidEvent.app) {
+              $("#rfidApplication").val(rfidEvent.app);
+              getRFIDDataForm(rfidEvent.data);
+            } else {
+              $("#rfidApplication").val(255);
+            }
+          } else {
+            $(".supported-rfid-form").addClass("d-none");
+          }
+          if (foreignDataAlert) {
+            writeBtn.data("foreignDataAlert", true);
+          } else {
+            writeBtn.data("foreignDataAlert", false);
+          }
+          $("#staticStatus").val(status);
+        }
+
+        configureBtn.on("click", function() {
+          initState();
+          configureBtn.addClass("disabled");
+          configureBtn.find(".spinner").removeClass("d-none");
           $.ajax({
-            url: newRFIDAppDiv.data('url'),
+            url: "{% url 'rfid.read' %}",
             beforeSend: function (xhr, settings) {
               xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
             },
             dataType: 'json',
             type: "POST",
-            data: newRFIDData,
-            success: function (result) {
-              $(".configure-form input[name='data']").val(result.data);
-              do_write_tag();
+            success: function (data) {
+              configureBtn.find(".spinner").addClass("d-none");
+              if (data.status == "timeout") {
+                  readTimeoutState();
+              } else if (data.status == "error") {
+                  readErrorState(data.message);
+              } else if (data.status == "ok") {
+                  readOkState();
+                  setupForm(data.event);
+              } else {
+                  readErrorState("{% trans "Unknown response: " %}" + data.status);
+              }
+            },
+            error: function (error) {
+              configureBtn.find(".spinner").addClass("d-none");
+              readErrorState("{% trans "An unknown server error occurred" %}");
+            }
+          });
+        });
+        rfidPictureSelect.on("change", function() {
+          $("#rfidPictureImage").attr("src", "/static/nabweb/ztamps/" + rfidPictureSelect.val() + ".jpg");
+        });
+        function write_tag() {
+          configureBtn.addClass("disabled");
+          writeBtn.addClass("disabled");
+          $(".read-error").addClass("d-none");
+          $(".read-timeout").addClass("d-none");
+          $(".configure-form").addClass("disabled");
+          $(".write-error").addClass("d-none");
+          $(".write-timeout").addClass("d-none");
+          $(".write-ok").addClass("d-none");
+          writeBtn.find(".spinner").removeClass("d-none");
+          var newRFIDApp = $("#rfidApplication").val();
+          var newRFIDAppDiv = $(".rfid-application-data[data-application=" + newRFIDApp + "]");
+          if (newRFIDAppDiv.length > 0) {
+            newRFIDData = $(".rfid-data-form").serialize();
+            $.ajax({
+              url: newRFIDAppDiv.data('url'),
+              beforeSend: function (xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+              },
+              dataType: 'json',
+              type: "POST",
+              data: newRFIDData,
+              success: function (result) {
+                $(".configure-form input[name='data']").val(result.data);
+                do_write_tag();
+              },
+              error: function () {
+                writeBtn.find(".spinner").addClass("d-none");
+                writeErrorState("{% trans "An unknown server error occurred" %}");
+              }
+            });
+          } else {
+            $(".configure-form input[name='data']").val("");
+            do_write_tag();
+          }
+        }
+        function do_write_tag() {
+          postData = $(".configure-form").serialize();
+          $.ajax({
+            url: "{% url 'rfid.write' %}",
+            beforeSend: function (xhr, settings) {
+              xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+            },
+            dataType: 'json',
+            type: "POST",
+            data: postData,
+            success: function (data) {
+              writeBtn.find(".spinner").addClass("d-none");
+              if (data.status == "timeout") {
+                  writeTimeoutState();
+              } else if (data.status == "error") {
+                  writeErrorState(data.message);
+              } else if (data.status == "ok") {
+                  writeOkState();
+              } else {
+                  writeErrorState("{% trans "Unknown response: " %}" + data.status);
+              }
             },
             error: function () {
               writeBtn.find(".spinner").addClass("d-none");
               writeErrorState("{% trans "An unknown server error occurred" %}");
-            }          
-          });
-        } else {
-          $(".configure-form input[name='data']").val("");
-          do_write_tag();
-        }
-      }
-      function do_write_tag() {
-        postData = $(".configure-form").serialize();
-        $.ajax({
-          url: "{% url 'rfid.write' %}",
-          beforeSend: function (xhr, settings) {
-            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
-          },
-          dataType: 'json',
-          type: "POST",
-          data: postData,
-          success: function (data) {
-            writeBtn.find(".spinner").addClass("d-none");
-            if (data.status == "timeout") {
-                writeTimeoutState();
-            } else if (data.status == "error") {
-                writeErrorState(data.message);
-            } else if (data.status == "ok") {
-                writeOkState();
-            } else {
-                writeErrorState("{% trans "Unknown response: " %}" + data.status);
             }
-          },
-          error: function () {
-            writeBtn.find(".spinner").addClass("d-none");
-            writeErrorState("{% trans "An unknown server error occurred" %}");
+          });
+        }
+        writeBtn.on("click", function() {
+          if (writeBtn.data("foreignDataAlert")) {
+            $('#foreignDataWarningModal').modal();
+          } else {
+            write_tag();
           }
         });
-      }
-      writeBtn.on("click", function() {
-        if (writeBtn.data("foreignDataAlert")) {
-          $('#foreignDataWarningModal').modal();
-        } else {
+        $(".confirmed-write-button").on("click", function() {
           write_tag();
+        });
+        function getRFIDDataForm(data) {
+          var val = $("#rfidApplication").val();
+          var div = $(".rfid-application-data[data-application=" + val + "]");
+          if (div.length > 0) {
+            var url = div.data("url");
+            var dataArg = "data=" + encodeURIComponent(data);
+            $.get(url, dataArg, function(html) {
+              div.html(html);
+            });
+          }
         }
+        $("#rfidApplication").on("change", function() {
+          $(".rfid-application-data").empty();
+          getRFIDDataForm("");
+        });
       });
-      $(".confirmed-write-button").on("click", function() {
-        write_tag();
-      });
-      function getRFIDDataForm(data) {
-        var val = $("#rfidApplication").val();
-        var div = $(".rfid-application-data[data-application=" + val + "]");
-        if (div.length > 0) {
-          var url = div.data("url");
-          var dataArg = "data=" + encodeURIComponent(data);
-          console.log(url);
-          console.log(dataArg);
-          $.get(url, dataArg, function(html) {
-            div.html(html);
-          });
-        }            
-      }
-      $("#rfidApplication").on("change", function() {
-        $(".rfid-application-data").empty();
-        getRFIDDataForm("");
-      });
-    });
-  </script>
+    </script>
+  {% endif %}
 {% endblock %}
