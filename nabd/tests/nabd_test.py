@@ -9,6 +9,8 @@ import pytest
 import datetime
 from nabd import nabd
 from mock import NabIOMock
+from nabd.rfid import TagFlags
+import nabtaichid
 
 
 class SocketIO(io.RawIOBase):
@@ -35,7 +37,7 @@ class SocketIO(io.RawIOBase):
         return self.sock.settimeout(timeout)
 
 
-class TestNabd(unittest.TestCase):
+class TestNabdBase(unittest.TestCase):
     def nabd_thread_loop(self, kwargs):
         nabd_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(nabd_loop)
@@ -75,6 +77,8 @@ class TestNabd(unittest.TestCase):
         s.settimeout(5.0)
         return SocketIO(s)
 
+
+class TestNabd(TestNabdBase):
     def test_state(self):
         s = self.service_socket()
         try:
@@ -386,5 +390,110 @@ class TestNabd(unittest.TestCase):
             packet_j = json.loads(packet.decode("utf8"))
             self.assertEqual(packet_j["type"], "response")
             self.assertEqual(packet_j["status"], "expired")
+        finally:
+            s1.close()
+
+
+@pytest.mark.django_db(transaction=True)
+class TestRfid(TestNabdBase):
+    def test_detect_clear_rfid(self):
+        s1 = self.service_socket()
+        try:
+            packet = s1.readline()  # state packet
+            packet = (
+                '{"type":"mode","request_id":"mode_id",'
+                '"mode":"interactive",'
+                '"events":["rfid/*"]}\r\n'
+            )
+            s1.write(packet.encode("utf8"))
+            # state & response packets
+            packet1 = s1.readline()
+            packet2 = s1.readline()
+            packet_j1 = json.loads(packet1.decode("utf8"))
+            packet_j2 = json.loads(packet2.decode("utf8"))
+            if packet_j1["type"] == "state":
+                state_packet_j = packet_j1
+                mode_packet_j = packet_j2
+            else:
+                state_packet_j = packet_j2
+                mode_packet_j = packet_j1
+            self.assertEqual(state_packet_j["type"], "state")
+            self.assertEqual(state_packet_j["state"], "interactive")
+            self.assertEqual(mode_packet_j["type"], "response")
+            self.assertEqual(mode_packet_j["request_id"], "mode_id")
+            rfid = self.nabd.nabio.rfid
+            rfid.send_detect_event(
+                b"\xd0\x02\x18\x01\x02\x03\x04\x05",
+                None,
+                None,
+                None,
+                TagFlags.CLEAR,
+            )
+            packet = s1.readline()  # response packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "rfid_event")
+            self.assertEqual(packet_j["event"], "detected")
+            self.assertEqual(packet_j["uid"], "d0:02:18:01:02:03:04:05")
+        finally:
+            s1.close()
+
+    def test_detect_taichi_rfid(self):
+        s1 = self.service_socket()
+        try:
+            packet = s1.readline()  # state packet
+            packet = (
+                '{"type":"mode","request_id":"mode_id",'
+                '"mode":"idle",'
+                '"events":["rfid/nabtaichid"]}\r\n'
+            )
+            s1.write(packet.encode("utf8"))
+            packet = s1.readline()  # response packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["request_id"], "mode_id")
+            rfid = self.nabd.nabio.rfid
+            rfid.send_detect_event(
+                b"\xd0\x02\x18\x01\x02\x03\x04\x05",
+                42,
+                nabtaichid.NABAZTAG_RFID_APPLICATION_ID,
+                b"",
+                TagFlags.FORMATTED,
+            )
+            packet = s1.readline()  # response packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "rfid_event")
+            self.assertEqual(packet_j["event"], "detected")
+            self.assertEqual(packet_j["app"], "nabtaichid")
+            self.assertEqual(packet_j["uid"], "d0:02:18:01:02:03:04:05")
+            self.assertEqual(packet_j["picture"], 42)
+        finally:
+            s1.close()
+
+    def test_write_rfid(self):
+        s1 = self.service_socket()
+        try:
+            packet = s1.readline()  # state packet
+            packet = (
+                '{"type":"rfid_write",'
+                '"uid":"d0:02:18:01:02:03:04:05",'
+                '"picture":42,'
+                '"app":"nabtaichid",'
+                '"data":"",'
+                '"request_id":"rfid_write_id"}\r\n'
+            )
+            s1.write(packet.encode("utf8"))
+            packet = s1.readline()  # response packet
+            print(f"packet={packet}")
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["request_id"], "rfid_write_id")
+            rfid = self.nabd.nabio.rfid
+            self.assertEqual(len(rfid.called_list), 2)
+            self.assertEqual(rfid.called_list[0], "on_detect()")
+            self.assertEqual(
+                rfid.called_list[1],
+                f"write(b'\\xd0\\x02\\x18\\x01\\x02\\x03\\x04\\x05',"
+                f"42,{nabtaichid.NABAZTAG_RFID_APPLICATION_ID},b'')",
+            )
         finally:
             s1.close()

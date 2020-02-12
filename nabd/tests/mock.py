@@ -1,7 +1,9 @@
 import asyncio
+import functools
 from nabd.nabio import NabIO
 from nabd.ears import Ears
 from nabd.leds import Leds
+from nabd.rfid import Rfid
 from nabd.sound import Sound
 
 
@@ -9,6 +11,7 @@ class NabIOMock(NabIO):
     def __init__(self):
         self.leds = LedsMock()
         self.ears = EarsMock()
+        self.rfid = RfidMock()
         self.sound = SoundMock()
         self.played_infos = []
         self.played_sequences = []
@@ -56,7 +59,7 @@ class NabIOMock(NabIO):
         self.ears_event_cb = {"callback": callback, "loop": loop}
 
     def bind_rfid_event(self, loop, callback):
-        self.rfid_event_cb = {"callback": callback, "loop": loop}
+        self.rfid.on_detect(loop, callback)
 
     async def play_info(self, condvar, tempo, colors):
         self.played_infos.append({"tempo": tempo, "colors": colors})
@@ -156,11 +159,44 @@ class SoundMock(Sound):
     def __init__(self):
         self.called_list = []
 
-    async def start_playing(self, filename):
-        self.called_list.append(f"start({filename})")
+    async def start_playing_preloaded(self, filename):
+        self.called_list.append(f"start_playing_preloaded({filename})")
 
     async def wait_until_done(self):
         self.called_list.append("wait_until_done()")
 
     async def stop_playing(self):
-        self.called_list.append("stop()")
+        self.called_list.append("stop_playing()")
+
+    async def start_recording(self, stream_cb):
+        self.called_list.append("start_recording()")
+
+    async def stop_recording(self):
+        self.called_list.append("stop_recording()")
+
+
+class RfidMock(Rfid):
+    def __init__(self):
+        self.called_list = []
+        self.cb = None
+
+    def on_detect(self, loop, callback):
+        self.called_list.append("on_detect()")
+        self.cb = (loop, callback)
+
+    async def write(self, uid, picture, app, data):
+        self.called_list.append(f"write({uid},{picture},{app},{data})")
+        if hasattr(self, "write_handler"):
+            return self.write_handler(uid, picture, app, data)
+        return True
+
+    def enable_polling(self):
+        self.called_list.append("enable_polling")
+
+    def disable_polling(self):
+        self.called_list.append("enable_polling")
+
+    def send_detect_event(self, uid, picture, app, data, flags):
+        (loop, callback) = self.cb
+        partial = functools.partial(callback, uid, picture, app, data, flags)
+        loop.call_soon_threadsafe(partial)
