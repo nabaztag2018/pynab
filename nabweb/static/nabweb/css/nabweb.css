@@ -1,0 +1,17 @@
+/* help links */
+a.help-link {
+  color: inherit;
+  text-decoration: inherit;
+  border-bottom: 1px dotted grey;
+  cursor: help;
+}
+
+a.help-link:link {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+a.help-link:hover {
+  color: inherit;
+  text-decoration: inherit;
+}

@@ -337,7 +337,10 @@ class NabWebSytemInfoView(BaseView):
                 version = version + ", issue " + matchObj.group(1)
         with open("/proc/uptime", "r") as uptime_f:
             uptime = int(float(uptime_f.readline().split()[0]))
-        return {"version": version, "uptime": uptime}
+        ssh_state = os.popen("systemctl is-active ssh").read().rstrip()
+        if ssh_state == "active" and os.path.isfile("/run/sshwarn"):
+            ssh_state = "sshwarn"
+        return {"version": version, "uptime": uptime, "ssh": ssh_state}
 
     def get_context(self):
         context = super().get_context()
