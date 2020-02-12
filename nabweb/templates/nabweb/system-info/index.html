@@ -15,6 +15,8 @@
             <dd class="col-sm-8">{{ os.version }}</dd>
             <dt class="col-sm-4">{% trans "Uptime" %}</dt>
             <dd class="col-sm-8">{{ os.uptime|duration }}</dd>
+            <dt class="col-sm-4"><a class="help-link" href="https://www.raspberrypi.org/documentation/remote-access/ssh/" >{% trans "SSH (Secure shell)" %}</a></dt>
+            <dd class="col-sm-8">{% if os.ssh == "sshwarn" %}<span class="text-danger">{% trans "Enabled with default password" %}</span>{% else %}{% if os.ssh == "active" %}{% trans "Enabled" %}{% else %}{% trans "Disabled" %}{% endif %}{% endif %}</dd>
           </dl>
         </div>
       </div>
