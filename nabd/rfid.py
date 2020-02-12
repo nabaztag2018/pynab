@@ -1,6 +1,7 @@
 import abc
 from enum import IntFlag
 from typing import Callable
+import nabsurprised
 import nabtaichid
 import nabweatherd
 
@@ -23,7 +24,7 @@ TAG_APPLICATIONS = {
     4: "nabbookd",
     5: "nabclockd",
     6: "nabmastodond",
-    7: "nabsurprised",
+    nabsurprised.NABAZTAG_RFID_APPLICATION_ID: "nabsurprised",
     nabtaichid.NABAZTAG_RFID_APPLICATION_ID: "nabtaichid",  # 8
     nabweatherd.NABAZTAG_RFID_APPLICATION_ID: "nabweatherd",  # 9
 }

@@ -1,4 +1,5 @@
 from django.test import TestCase, Client
+from django.http import JsonResponse
 from nabsurprised.models import Config
 import datetime
 
@@ -46,3 +47,49 @@ class TestView(TestCase):
         self.assertTrue(
             config.next_surprise > now - datetime.timedelta(seconds=15)
         )
+
+    def test_get_rfid_data(self):
+        c = Client()
+        response = c.get("/nabsurprised/rfid-data")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.templates[0].name, "nabsurprised/rfid-data.html"
+        )
+        self.assertEqual(response.context["lang"], "default")
+        self.assertEqual(response.context["type"], "surprise")
+
+    def test_get_rfid_data_param(self):
+        c = Client()
+        response = c.get("/nabsurprised/rfid-data?data=%03%02")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.templates[0].name, "nabsurprised/rfid-data.html"
+        )
+        self.assertEqual(response.context["lang"], "en_US")
+        self.assertEqual(response.context["type"], "birthday")
+
+    def test_get_rfid_data_param(self):
+        c = Client()
+        response = c.get("/nabsurprised/rfid-data?data=%ff%ff")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.templates[0].name, "nabsurprised/rfid-data.html"
+        )
+        self.assertEqual(response.context["lang"], "default")
+        self.assertEqual(response.context["type"], "surprise")
+
+    def test_post_rfid_data(self):
+        c = Client()
+        response = c.post("/nabsurprised/rfid-data")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(isinstance(response, JsonResponse))
+        self.assertEqual(response.content, b'{"data": "\\u0000\\u0000"}')
+
+    def test_post_rfid_data_param(self):
+        c = Client()
+        response = c.post(
+            "/nabsurprised/rfid-data", {"type": "02-14", "lang": "ja_JP"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(isinstance(response, JsonResponse))
+        self.assertEqual(response.content, b'{"data": "\\u0007\\u0004"}')
