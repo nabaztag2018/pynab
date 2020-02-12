@@ -219,7 +219,7 @@ class RfidDev(Rfid):
 
     def on_detect(self, loop, callback):
         self.__callback = (loop, callback)
-        if self.__state == RfidDevState.DISABLED:
+        if self.__state == RfidDevState.DISABLED and self.__fd is not None:
             self.__state = RfidDevState.POLLING_ONCE
             os.write(self.__fd, b"p")
 
