@@ -89,6 +89,7 @@ if [ $upgrade -eq 1 ]; then
   else
     cd /home/pi
     git clone https://github.com/pguyot/tagtagtag-ears
+    cd tagtagtag-ears
     make && sudo make install
     sudo touch /tmp/pynab.upgrade.reboot
   fi
@@ -112,6 +113,7 @@ if [ $upgrade -eq 1 ]; then
   else
     cd /home/pi
     git clone https://github.com/pguyot/cr14
+    cd cr14
     make && sudo make install
     sudo touch /tmp/pynab.upgrade.reboot
   fi
