@@ -32,6 +32,7 @@ class Sound(object, metaclass=abc.ABCMeta):
         if preloaded is not None:
             await self.start_playing_preloaded(preloaded)
 
+    @abc.abstractmethod
     async def start_playing_preloaded(self, filename):
         """
         Start to play a given sound.
@@ -39,18 +40,21 @@ class Sound(object, metaclass=abc.ABCMeta):
         """
         raise NotImplementedError("Should have implemented")
 
+    @abc.abstractmethod
     async def wait_until_done(self):
         """
         Wait until sound has been played.
         """
         raise NotImplementedError("Should have implemented")
 
+    @abc.abstractmethod
     async def stop_playing(self):
         """
         Stop currently playing sound.
         """
         raise NotImplementedError("Should have implemented")
 
+    @abc.abstractmethod
     async def start_recording(self, stream_cb):
         """
         Start recording sound.
@@ -58,6 +62,7 @@ class Sound(object, metaclass=abc.ABCMeta):
         """
         raise NotImplementedError("Should have implemented")
 
+    @abc.abstractmethod
     async def stop_recording(self):
         """
         Stop recording sound.

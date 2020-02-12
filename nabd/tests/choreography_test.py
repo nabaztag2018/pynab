@@ -7,7 +7,7 @@ from mock import EarsMock, LedsMock, SoundMock
 from nabd.choreography import ChoreographyInterpreter
 
 
-class TestChoreographyInterpreter(unittest.TestCase):
+class TestChoreographyBase(unittest.TestCase):
     def setUp(self):
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
@@ -16,6 +16,8 @@ class TestChoreographyInterpreter(unittest.TestCase):
         self.sound = SoundMock()
         self.ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
 
+
+class TestChoreographyInterpreter(TestChoreographyBase):
     def test_set_led_color(self):
         chor = base64.b16decode("0007020304050607")
         task = self.loop.create_task(self.ci.play_binary(chor))
@@ -55,16 +57,6 @@ class TestChoreographyInterpreter(unittest.TestCase):
         self.assertEqual(self.leds.called_list, ["set1(2,0,0,0)"])
         self.assertEqual(self.ears.called_list, [])
         self.assertEqual(self.sound.called_list, [])
-
-    def test_randmidi(self):
-        chor = base64.b16decode("0010")
-        task = self.loop.create_task(self.ci.play_binary(chor))
-        self.loop.run_until_complete(task)
-        self.assertEqual(self.leds.called_list, [])
-        self.assertEqual(self.ears.called_list, [])
-        self.assertEqual(len(self.sound.called_list), 1)
-        soundcall = self.sound.called_list[0]
-        self.assertTrue(re.match(r"start\(.+\)", soundcall))
 
     def test_avance(self):
         chor = base64.b16decode("00110102")
@@ -121,14 +113,16 @@ class TestChoreographyInterpreter(unittest.TestCase):
 
 
 @pytest.mark.django_db
-class TestTaichiChoreographies(unittest.TestCase):
-    def setUp(self):
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
-        self.leds = LedsMock()
-        self.ears = EarsMock()
-        self.sound = SoundMock()
-        self.ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
+class TestTaichiChoreographies(TestChoreographyBase):
+    def test_randmidi(self):
+        chor = base64.b16decode("0010")
+        task = self.loop.create_task(self.ci.play_binary(chor))
+        self.loop.run_until_complete(task)
+        self.assertEqual(self.leds.called_list, [])
+        self.assertEqual(self.ears.called_list, [])
+        self.assertEqual(len(self.sound.called_list), 1)
+        soundcall = self.sound.called_list[0]
+        self.assertRegex(soundcall, r"start_playing_preloaded\(.+\)")
 
     def test_taichi(self):
         for random in range(0, 29):
@@ -160,15 +154,7 @@ class TestTaichiChoreographies(unittest.TestCase):
 
 
 @pytest.mark.django_db
-class TestStreamingChoregraphy(unittest.TestCase):
-    def setUp(self):
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
-        self.leds = LedsMock()
-        self.ears = EarsMock()
-        self.sound = SoundMock()
-        self.ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
-
+class TestStreamingChoregraphy(TestChoreographyBase):
     def test_streaming(self):
         task = self.loop.create_task(
             self.ci.start(ChoreographyInterpreter.STREAMING_URN)
