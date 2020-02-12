@@ -30,7 +30,6 @@ class EarsDev(Ears):
         self.lock = asyncio.Lock()
 
     def _do_read(self, ear):
-        logging.debug(f"do_read from {ear}")
         byte = os.read(self.fds[ear], 1)
         if len(byte) == 0:
             # EOF, ear is broken.
@@ -41,17 +40,13 @@ class EarsDev(Ears):
             self.positions[ear] = None
             self.fds[ear] = None
         else:
-            logging.debug(f"do_read from {ear} => {byte[0]}")
             if byte == b"m":
-                logging.debug(f"do_read from {ear} => invoking callback")
                 if self.callback:
                     (loop, callback) = self.callback
                     loop.call_soon_threadsafe(lambda ear=ear: callback(ear))
             elif byte == b"\xff":
-                logging.debug(f"do_read from {ear} => position is unknown")
                 self.positions[ear] = None
             else:
-                logging.debug(f"do_read from {ear} => position is {byte[0]}")
                 self.positions[ear] = byte[0]
 
     def on_move(self, loop, callback):
@@ -102,7 +97,6 @@ class EarsDev(Ears):
             cmd = b"-"
         else:
             cmd = b"+"
-        logging.debug(f"_do_move")
         if self.fds[motor] is not None:
             os.write(self.fds[motor], cmd + bytes([delta]))
 
@@ -121,7 +115,6 @@ class EarsDev(Ears):
         Thread: executor
         Lock: acquired
         """
-        logging.debug(f"_do_wait_while_running")
         if self.fds[0] is not None:
             os.write(self.fds[0], b".")
         if self.fds[1] is not None:
@@ -150,7 +143,6 @@ class EarsDev(Ears):
         Thread: executor
         Lock: acquired
         """
-        logging.debug(f"do_detect_positions")
         if self.fds[0] is not None:
             os.write(self.fds[0], b"!")
         if self.fds[1] is not None:
@@ -176,7 +168,6 @@ class EarsDev(Ears):
         Actually go to a specific position.
         Lock: acquired.
         """
-        logging.debug(f"do_go {ear}")
         if direction:
             cmd = b"<"
         else:
