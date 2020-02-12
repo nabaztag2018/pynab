@@ -21,6 +21,7 @@ from django.apps import apps
 from nabcommon import nablogging
 from nabcommon.nabservice import NabService
 from .leds import Leds
+from .ears import Ears
 from .rfid import (
     TagFlags,
     TAG_APPLICATIONS,
