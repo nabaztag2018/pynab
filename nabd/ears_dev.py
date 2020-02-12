@@ -21,7 +21,7 @@ class EarsDev(Ears):
                 os.write(ear, b"?")
                 self.fds[i] = ear
                 asyncio.get_event_loop().add_reader(ear, self._do_read, i)
-            except:
+            except Exception:
                 logging.error(f"ear {i} is apparently broken")
                 os.close(ear)
         self.executor = ThreadPoolExecutor(max_workers=1)

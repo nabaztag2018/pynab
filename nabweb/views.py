@@ -138,7 +138,7 @@ class NabWebView(BaseView):
             writer.write(packet.encode("utf-8"))
             await writer.drain()
             writer.close()
-        except:
+        except Exception:
             pass
 
 
