@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-20 08:30+0100\n"
+"POT-Creation-Date: 2020-02-12 14:21+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,9 +17,66 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: templates/nabsurprised/rfid-data.html:3
+msgid "Language"
+msgstr "Langue"
+
+#: templates/nabsurprised/rfid-data.html:6
+msgid "Nabaztag's current language"
+msgstr "Langue du Nabaztag"
+
+#: templates/nabsurprised/rfid-data.html:7
+msgid "French"
+msgstr "Français"
+
+#: templates/nabsurprised/rfid-data.html:8
+msgid "German"
+msgstr "Allemand"
+
+#: templates/nabsurprised/rfid-data.html:9
+msgid "U.S. English"
+msgstr "Anglais des États-Unis"
+
+#: templates/nabsurprised/rfid-data.html:10
+msgid "British English"
+msgstr "Anglais britannique"
+
+#: templates/nabsurprised/rfid-data.html:11
+msgid "Italian"
+msgstr "Italien"
+
+#: templates/nabsurprised/rfid-data.html:12
+msgid "Japanese"
+msgstr "Japonais"
+
+#: templates/nabsurprised/rfid-data.html:13
+msgid "Brazilian Portuguese"
+msgstr "Portugais brésilien"
+
+#: templates/nabsurprised/rfid-data.html:18
+msgid "Theme"
+msgstr "Thème"
+
+#: templates/nabsurprised/rfid-data.html:21
 #: templates/nabsurprised/settings.html:6
 msgid "Surprise"
 msgstr "Humeurs"
+
+#: templates/nabsurprised/rfid-data.html:22
+msgid "Carrot"
+msgstr "Carotte"
+
+#: templates/nabsurprised/rfid-data.html:23
+msgid "Birthday"
+msgstr "Anniversaire"
+
+#: templates/nabsurprised/rfid-data.html:24
+msgid "What can you do?"
+msgstr "Que sais-tu faire ?"
+
+#: templates/nabsurprised/rfid-data.html:25
+msgid "Valentine's"
+msgstr "Saint-Valentin"
 
 #: templates/nabsurprised/settings.html:10
 msgid "Surprise Frequency"
@@ -48,3 +105,11 @@ msgstr "Jamais"
 #: templates/nabsurprised/settings.html:22
 msgid "Surprise me now!"
 msgstr "Chatouille"
+
+#: templates/nabsurprised/settings.html:29
+msgid "Save"
+msgstr "Enregistrer"
+
+#: templates/nabsurprised/settings.html:30
+msgid "Reset"
+msgstr "Annuler"
