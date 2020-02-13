@@ -55,7 +55,7 @@ If you haven't done so yet, fork the repository on GitHub, then add this fork
 to your rabbit's repository.
 
 ```
-git add remote fork https://github.com/YOUR_GITHUB_USERNAME/pynab.git
+git remote add fork https://github.com/YOUR_GITHUB_USERNAME/pynab.git
 ```
 
 To develop your code, create a local branch with a name that makes sense.
