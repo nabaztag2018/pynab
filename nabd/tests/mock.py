@@ -91,7 +91,7 @@ class NabIOMock(NabIO):
     def has_rfid(self):
         return False
 
-    def gestalt(self):
+    async def gestalt(self):
         return {"model": "Test mock"}
 
     def test(self, test):
@@ -122,7 +122,7 @@ class EarsMock(Ears):
         self.called_list.append("detect_positions()")
         return (self.left, self.right)
 
-    def get_positions(self):
+    async def get_positions(self):
         self.called_list.append("get_positions()")
         return (self.left, self.right)
 

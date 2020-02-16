@@ -120,12 +120,15 @@ class EarsDev(Ears):
         if self.fds[1] is not None:
             os.write(self.fds[1], b".")
 
-    def get_positions(self):
+    async def get_positions(self):
         """
-        Get the position of the ears, without running any detection
-        (simply return cached positions)
+        Get the position of the ears, without running any detection.
         """
-        return (self.positions[0], self.positions[1])
+        async with self.lock:
+            await asyncio.get_event_loop().run_in_executor(
+                self.executor, lambda: self._do_detect_positions(False)
+            )
+            return (self.positions[0], self.positions[1])
 
     async def detect_positions(self):
         """
@@ -133,20 +136,24 @@ class EarsDev(Ears):
         """
         async with self.lock:
             await asyncio.get_event_loop().run_in_executor(
-                self.executor, self._do_detect_positions
+                self.executor, lambda: self._do_detect_positions(True)
             )
             return (self.positions[0], self.positions[1])
 
-    def _do_detect_positions(self):
+    def _do_detect_positions(self, run_detection):
         """
-        Get the position of the ears, running a detection if required.
+        Get the position of the ears, running a detection if requested.
         Thread: executor
         Lock: acquired
         """
+        if run_detection:
+            command = b"!"
+        else:
+            command = b"?"
         if self.fds[0] is not None:
-            os.write(self.fds[0], b"!")
+            os.write(self.fds[0], command)
         if self.fds[1] is not None:
-            os.write(self.fds[1], b"!")
+            os.write(self.fds[1], command)
         self._do_wait_while_running()
 
     async def go(self, ear, position, direction):

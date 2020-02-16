@@ -128,7 +128,7 @@ class NabIOHW(NabIO):
     def has_rfid(self):
         return self.model == NabIOHW.MODEL_2019_TAGTAG
 
-    def gestalt(self):
+    async def gestalt(self):
         MODEL_NAMES = {
             NabIO.MODEL_2018: "2018",
             NabIO.MODEL_2019_TAG: "2019_TAG",
@@ -138,7 +138,7 @@ class NabIOHW(NabIO):
             model_name = MODEL_NAMES[self.model]
         else:
             model_name = f"Unknown model {self.model}"
-        left_ear_position, right_ear_position = self.ears.get_positions()
+        left_ear_position, right_ear_position = await self.ears.get_positions()
         if self.ears.is_broken(Ears.LEFT_EAR):
             left_ear_status = "broken"
         else:
@@ -164,7 +164,7 @@ class NabIOHW(NabIO):
 
     async def test(self, test):
         if test == "ears":
-            left_ear_position, right_ear_position = self.ears.get_positions()
+            left_ear_position, right_ear_position = await self.ears.get_positions()
             await self.ears.go(Ears.LEFT_EAR, 8, Ears.BACKWARD_DIRECTION)
             await self.ears.go(Ears.RIGHT_EAR, 8, Ears.BACKWARD_DIRECTION)
             await self.ears.wait_while_running()

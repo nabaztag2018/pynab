@@ -1,5 +1,6 @@
 import abc
 from .choreography import ChoreographyInterpreter
+from .ears import Ears
 
 
 class NabIO(object, metaclass=abc.ABCMeta):
@@ -37,7 +38,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
         turn LEDs off and return.
         """
         do_move = False
-        current_left, current_right = self.ears.get_positions()
+        current_left, current_right = await self.ears.get_positions()
         if current_left != new_left:
             if not self.ears.is_broken(Ears.LEFT_EAR):
                 do_move = True
@@ -167,7 +168,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
         Play a message, i.e. a signature, a body and a signature.
         """
         # Turn leds red while ears go to 0, 0
-        self.move_ears_with_leds((255, 0, 0), 0, 0)
+        await self.move_ears_with_leds((255, 0, 0), 0, 0)
         preloaded_sig = await self._preload([signature])
         preloaded_body = await self._preload(body)
         ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
@@ -239,7 +240,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
         raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
-    def gestalt(self):
+    async def gestalt(self):
         """ Return a structure representing hardware info. """
         raise NotImplementedError("Should have implemented")
 

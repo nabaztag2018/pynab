@@ -485,7 +485,7 @@ class Nabd:
         response["state"] = self.state.value
         response["uptime"] = uptime
         response["connections"] = len(self.service_writers)
-        response["hardware"] = self.nabio.gestalt()
+        response["hardware"] = await self.nabio.gestalt()
         self.write_response_packet(packet, response, writer)
 
     async def process_config_update_packet(self, packet, writer):
