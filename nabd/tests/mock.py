@@ -2,7 +2,7 @@ import asyncio
 import functools
 from nabd.nabio import NabIO
 from nabd.ears import Ears
-from nabd.leds import Leds
+from nabd.leds import Leds, Led
 from nabd.rfid import Rfid
 from nabd.sound import Sound
 
@@ -41,15 +41,15 @@ class NabIOMock(NabIO):
         self.bottom_led = bottom
 
     def pulse(self, led, color):
-        if led == Leds.LED_NOSE:
+        if led == Led.NOSE:
             self.nose_led = f"pulse({color})"
-        elif led == Leds.LED_LEFT:
+        elif led == Led.LEFT:
             self.left_led = f"pulse({color})"
-        elif led == Leds.LED_CENTER:
+        elif led == Led.CENTER:
             self.left_center = f"pulse({color})"
-        elif led == Leds.LED_RIGHT:
+        elif led == Led.RIGHT:
             self.left_right = f"pulse({color})"
-        elif led == Leds.LED_BOTTOM:
+        elif led == Led.BOTTOM:
             self.bottom_led = f"pulse({color})"
 
     def bind_button_event(self, loop, callback):

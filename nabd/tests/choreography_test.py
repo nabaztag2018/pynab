@@ -21,7 +21,7 @@ class TestChoreographyInterpreter(TestChoreographyBase):
         chor = base64.b16decode("0007020304050607")
         task = self.loop.create_task(self.ci.play_binary(chor))
         self.loop.run_until_complete(task)
-        self.assertEqual(self.leds.called_list, ["set1(2,3,4,5)"])
+        self.assertEqual(self.leds.called_list, ["set1(Led.CENTER,3,4,5)"])
         self.assertEqual(self.ears.called_list, [])
         self.assertEqual(self.sound.called_list, [])
 
@@ -45,7 +45,7 @@ class TestChoreographyInterpreter(TestChoreographyBase):
         chor = base64.b16decode("000A02")
         task = self.loop.create_task(self.ci.play_binary(chor))
         self.loop.run_until_complete(task)
-        self.assertEqual(self.leds.called_list, ["set1(2,0,0,0)"])
+        self.assertEqual(self.leds.called_list, ["set1(Led.CENTER,0,0,0)"])
         self.assertEqual(self.ears.called_list, [])
         self.assertEqual(self.sound.called_list, [])
 
@@ -53,7 +53,7 @@ class TestChoreographyInterpreter(TestChoreographyBase):
         chor = base64.b16decode("000E0203")
         task = self.loop.create_task(self.ci.play_binary(chor))
         self.loop.run_until_complete(task)
-        self.assertEqual(self.leds.called_list, ["set1(2,0,0,0)"])
+        self.assertEqual(self.leds.called_list, ["set1(Led.CENTER,0,0,0)"])
         self.assertEqual(self.ears.called_list, [])
         self.assertEqual(self.sound.called_list, [])
 
@@ -77,7 +77,7 @@ class TestChoreographyInterpreter(TestChoreographyBase):
         chor = base64.b16decode("0012000000000A02")
         task = self.loop.create_task(self.ci.play_binary(chor))
         self.loop.run_until_complete(task)
-        self.assertEqual(self.leds.called_list, ["set1(2,0,0,0)"])
+        self.assertEqual(self.leds.called_list, ["set1(Led.CENTER,0,0,0)"])
         self.assertEqual(self.ears.called_list, [])
         self.assertEqual(self.sound.called_list, [])
 
@@ -95,16 +95,16 @@ class TestChoreographyInterpreter(TestChoreographyBase):
         self.assertEqual(
             self.leds.called_list,
             [
-                "set1(3,0,0,255)",
-                "set1(2,0,0,255)",
-                "set1(1,0,0,255)",
-                "set1(3,0,0,0)",
-                "set1(2,0,0,0)",
-                "set1(1,0,0,0)",
-                "set1(4,0,0,255)",
-                "set1(4,0,0,0)",
-                "set1(4,0,0,255)",
-                "set1(4,0,0,0)",
+                "set1(Led.LEFT,0,0,255)",
+                "set1(Led.CENTER,0,0,255)",
+                "set1(Led.RIGHT,0,0,255)",
+                "set1(Led.LEFT,0,0,0)",
+                "set1(Led.CENTER,0,0,0)",
+                "set1(Led.RIGHT,0,0,0)",
+                "set1(Led.NOSE,0,0,255)",
+                "set1(Led.NOSE,0,0,0)",
+                "set1(Led.NOSE,0,0,255)",
+                "set1(Led.NOSE,0,0,0)",
             ],
         )
         self.assertEqual(self.ears.called_list, [])

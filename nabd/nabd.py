@@ -20,7 +20,7 @@ from django.conf import settings
 from django.apps import apps
 from nabcommon import nablogging
 from nabcommon.nabservice import NabService
-from .leds import Leds
+from .leds import Led
 from .ears import Ears
 from .rfid import (
     TagFlags,
@@ -126,7 +126,7 @@ class Nabd:
 
     async def idle_setup(self):
         self.nabio.set_leds(None, None, None, None, None)
-        self.nabio.pulse(Leds.LED_BOTTOM, (255, 0, 255))
+        self.nabio.pulse(Led.BOTTOM, (255, 0, 255))
         await self.nabio.move_ears(self.ears["left"], self.ears["right"])
 
     async def sleep_setup(self):
