@@ -186,9 +186,8 @@ class NabIO(object, metaclass=abc.ABCMeta):
                 await ci.stop()
             if "audio" in seq_item:
                 await self.sound.play_list(seq_item["audio"], True)
-                return True
-            else:
-                return False
+            elif "choreography" in seq_item:
+                await ci.wait_until_complete()
 
     async def _preload(self, sequence):
         preloaded_sequence = []
