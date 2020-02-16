@@ -5,7 +5,7 @@ from .button_gpio import ButtonGPIO
 from .ears import Ears
 from .ears_dev import EarsDev
 from .rfid_dev import RfidDev
-from .leds import Leds
+from .leds import Led
 from .leds_neopixel import LedsNeoPixel
 from .nabio import NabIO
 from .sound_alsa import SoundAlsa
@@ -38,11 +38,11 @@ class NabIOHW(NabIO):
 
     def set_leds(self, nose, left, center, right, bottom):
         for (led_ix, led) in [
-            (Leds.LED_NOSE, nose),
-            (Leds.LED_LEFT, left),
-            (Leds.LED_CENTER, center),
-            (Leds.LED_RIGHT, right),
-            (Leds.LED_BOTTOM, bottom),
+            (Led.NOSE, nose),
+            (Led.LEFT, left),
+            (Led.CENTER, center),
+            (Led.RIGHT, right),
+            (Led.BOTTOM, bottom),
         ]:
             if led is None:
                 (r, g, b) = (0, 0, 0)
@@ -55,7 +55,7 @@ class NabIOHW(NabIO):
         self.leds.pulse(led_ix, r, g, b)
 
     def rfid_awaiting_feedback(self):
-        self.leds.set1(Leds.LED_NOSE, 255, 0, 0)
+        self.leds.set1(Led.NOSE, 255, 0, 0)
 
     def bind_button_event(self, loop, callback):
         self.button.on_event(loop, callback)
@@ -86,7 +86,7 @@ class NabIOHW(NabIO):
         return notified
 
     def clear_info(self):
-        for led in (Leds.LED_LEFT, Leds.LED_CENTER, Leds.LED_RIGHT):
+        for led in (Led.LEFT, Led.CENTER, Led.RIGHT):
             self.leds.set1(led, 0, 0, 0)
 
     @staticmethod
@@ -102,9 +102,9 @@ class NabIOHW(NabIO):
     def _convert_info_color(color):
         animation = []
         for led_ix, led in [
-            (Leds.LED_LEFT, "left"),
-            (Leds.LED_CENTER, "center"),
-            (Leds.LED_RIGHT, "right"),
+            (Led.LEFT, "left"),
+            (Led.CENTER, "center"),
+            (Led.RIGHT, "right"),
         ]:
             values = []
             if color[led]:
@@ -209,11 +209,11 @@ class NabIOHW(NabIO):
             ]:
                 r, g, b = color
                 for led_ix in [
-                    Leds.LED_NOSE,
-                    Leds.LED_LEFT,
-                    Leds.LED_CENTER,
-                    Leds.LED_RIGHT,
-                    Leds.LED_BOTTOM,
+                    Led.NOSE,
+                    Led.LEFT,
+                    Led.CENTER,
+                    Led.RIGHT,
+                    Led.BOTTOM,
                 ]:
                     self.leds.set1(led_ix, r, g, b)
                     await asyncio.sleep(0.2)

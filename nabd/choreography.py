@@ -2,6 +2,7 @@ import random
 import time
 import asyncio
 from .resources import Resources
+from .leds import Led
 from .ears import Ears
 from contextlib import suppress
 import logging
@@ -204,6 +205,15 @@ class ChoreographyInterpreter:
         ],  # nature
     ]
 
+    # Leds in choreographies are reversed
+    LEDS = {
+        0: Led.BOTTOM,
+        1: Led.RIGHT,  # when looking at the rabbit
+        2: Led.CENTER,
+        3: Led.LEFT,
+        4: Led.NOSE,
+    }
+
     OPCODE_HANDLERS = {
         "mtl": MTL_OPCODE_HANDLDERS,
         "vasm": VASM_OPCODE_HANDLERS,
@@ -221,7 +231,7 @@ class ChoreographyInterpreter:
         return index + 1
 
     async def set_led_color(self, index, chor):
-        led = chor[index]
+        led = ChoreographyInterpreter.LEDS[chor[index]]
         r = chor[index + 1]
         g = chor[index + 2]
         b = chor[index + 3]
@@ -243,19 +253,19 @@ class ChoreographyInterpreter:
         return index + 3
 
     async def set_led_off(self, index, chor):
-        led = chor[index]
+        led = ChoreographyInterpreter.LEDS[chor[index]]
         self.leds.set1(led, 0, 0, 0)
         return index + 1
 
     async def set_led_palette(self, index, chor):
-        led = chor[index]
+        led = ChoreographyInterpreter.LEDS[chor[index]]
         palette_ix = chor[index + 1] & 7
         (r, g, b) = self.current_palette[palette_ix]
         self.leds.set1(led, r, g, b)
         return index + 2
 
     async def set_led_palette_streaming(self, index, chor):
-        led = chor[index]
+        led = ChoreographyInterpreter.LEDS[chor[index]]
         col_ix = chor[index + 1] & 3
         palette_ix = self.chorst_palettecolors[col_ix]
         (r, g, b) = self.current_palette[palette_ix]
