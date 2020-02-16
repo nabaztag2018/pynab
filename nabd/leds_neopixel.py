@@ -1,5 +1,5 @@
 from rpi_ws281x import Adafruit_NeoPixel, Color
-from .leds import LedsSoft, Led
+from .leds import LedsSoft
 
 
 class LedsNeoPixel(LedsSoft):
