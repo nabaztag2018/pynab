@@ -122,7 +122,7 @@ class EarsMock(Ears):
         self.called_list.append("detect_positions()")
         return (self.left, self.right)
 
-    async def get_positions(self):
+    def get_positions(self):
         self.called_list.append("get_positions()")
         return (self.left, self.right)
 

@@ -37,7 +37,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
         turn LEDs off and return.
         """
         do_move = False
-        current_left, current_right = await self.ears.get_positions()
+        current_left, current_right = self.ears.get_positions()
         if current_left != new_left:
             if not self.ears.is_broken(Ears.LEFT_EAR):
                 do_move = True
