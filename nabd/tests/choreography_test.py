@@ -1,8 +1,7 @@
-import unittest
 import asyncio
 import base64
-import re
 import pytest
+import unittest
 from mock import EarsMock, LedsMock, SoundMock
 from nabd.choreography import ChoreographyInterpreter
 
