@@ -217,7 +217,7 @@ class ChoreographyInterpreter:
         return index + 1
 
     async def frame_duration(self, index, chor):
-        self.timescale = chor[index]
+        self.timescale = 10 * chor[index]
         return index + 1
 
     async def set_led_color(self, index, chor):
