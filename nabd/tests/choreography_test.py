@@ -113,7 +113,7 @@ class TestChoreographyInterpreter(TestChoreographyBase):
 
 
 @pytest.mark.django_db
-class TestTaichiChoreographies(TestChoreographyBase):
+class TestRandMidi(TestChoreographyBase):
     def test_randmidi(self):
         chor = base64.b16decode("0010")
         task = self.loop.create_task(self.ci.play_binary(chor))
@@ -124,33 +124,55 @@ class TestTaichiChoreographies(TestChoreographyBase):
         soundcall = self.sound.called_list[0]
         self.assertRegex(soundcall, r"start_playing_preloaded\(.+\)")
 
+
+# Taichi choreographies are mostly about waiting, test them in parallel,
+# using asyncio
+class TaichiTestEnvironment:
+    def __init__(self, test, random):
+        super().__init__()
+        self.test = test
+        self.leds = LedsMock()
+        self.ears = EarsMock()
+        self.sound = SoundMock()
+        self.ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
+        self.ci.taichi_random = random
+
+    async def run(self):
+        self.sound.called_list = []
+        self.leds.called_list = []
+        self.ears.called_list = []
+        await self.ci.start("nabtaichid/taichi.chor")
+        await self.ci.wait_until_complete()
+        self.test.assertTrue(len(self.sound.called_list) > 0)
+        self.test.assertTrue(len(self.leds.called_list) > 0)
+        self.test.assertTrue(len(self.ears.called_list) > 0)
+        await self.ci.stop()
+        # Check at least some leds were on.
+        color_leds = 0
+        off_leds = 0
+        for ledi in self.leds.called_list:
+            if ledi.endswith("0,0,0)"):
+                off_leds = off_leds + 1
+            else:
+                color_leds = color_leds + 1
+        self.test.assertTrue(color_leds > 0)
+        self.test.assertTrue(off_leds > 0)
+
+
+@pytest.mark.django_db
+class TestTaichiChoreographies(unittest.TestCase):
+    def _do_test_task(self, random):
+        environment = TaichiTestEnvironment(self, random)
+        return environment.run()
+
+    async def _do_test_taichi(self):
+        tasks = map(lambda rnd: self._do_test_task(rnd), range(0, 29))
+        await asyncio.gather(*tasks)
+
     def test_taichi(self):
-        for random in range(0, 29):
-            self.sound.called_list = []
-            self.leds.called_list = []
-            self.ears.called_list = []
-            self.ci.taichi_random = random
-            task = self.loop.create_task(
-                self.ci.start("nabtaichid/taichi.chor")
-            )
-            self.loop.run_until_complete(task)
-            task = self.loop.create_task(self.ci.wait_until_complete())
-            self.loop.run_until_complete(task)
-            self.assertTrue(len(self.sound.called_list) > 0)
-            self.assertTrue(len(self.leds.called_list) > 0)
-            self.assertTrue(len(self.ears.called_list) > 0)
-            task = self.loop.create_task(self.ci.stop())
-            self.loop.run_until_complete(task)
-            # Check at least some leds were on.
-            color_leds = 0
-            off_leds = 0
-            for ledi in self.leds.called_list:
-                if ledi.endswith("0,0,0)"):
-                    off_leds = off_leds + 1
-                else:
-                    color_leds = color_leds + 1
-            self.assertTrue(color_leds > 0)
-            self.assertTrue(off_leds > 0)
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        asyncio.run(self._do_test_taichi())
 
 
 @pytest.mark.django_db
