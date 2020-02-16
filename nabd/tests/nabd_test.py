@@ -38,7 +38,7 @@ class SocketIO(io.RawIOBase):
 
 
 class TestNabdBase(unittest.TestCase):
-    def nabd_thread_loop(self, kwargs):
+    def nabd_thread_loop(self):
         nabd_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(nabd_loop)
         self.nabd = nabd.Nabd(self.nabio)
@@ -51,9 +51,7 @@ class TestNabdBase(unittest.TestCase):
         self.nabio = NabIOMock()
         self.nabd_cv = threading.Condition()
         with self.nabd_cv:
-            self.nabd_thread = threading.Thread(
-                target=self.nabd_thread_loop, args=[self]
-            )
+            self.nabd_thread = threading.Thread(target=self.nabd_thread_loop)
             self.nabd_thread.start()
             self.nabd_cv.wait()
         time.sleep(1)  # make sure Nabd was started
@@ -164,7 +162,15 @@ class TestNabd(TestNabdBase):
             packet = s1.readline()  # new state packet
             packet_j = json.loads(packet.decode("utf8"))
             self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "idle")
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
             self.assertEqual(packet_j["state"], "playing")
+            packet = s2.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "idle")
             packet = s2.readline()  # new state packet
             packet_j = json.loads(packet.decode("utf8"))
             self.assertEqual(packet_j["type"], "state")

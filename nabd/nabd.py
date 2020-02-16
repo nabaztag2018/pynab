@@ -124,10 +124,15 @@ class Nabd:
                 Nabd.leds_boot(self.nabio, 4)
             self.nabio.set_leds(None, None, None, None, None)
 
-    async def idle_setup(self):
-        self.nabio.set_leds(None, None, None, None, None)
+    async def _do_transition_to_idle(self):
+        """
+        Transition to idle.
+        Lock is acquired.
+        Thread: service or idle_worker_loop
+        """
+        left, right = self.ears["left"], self.ears["right"]
+        await self.nabio.move_ears_with_leds((255, 0, 255), left, right)
         self.nabio.pulse(Led.BOTTOM, (255, 0, 255))
-        await self.nabio.move_ears(self.ears["left"], self.ears["right"])
 
     async def sleep_setup(self):
         self.nabio.set_leds(None, None, None, None, None)
@@ -142,6 +147,7 @@ class Nabd:
         """
         try:
             async with self.idle_cv:
+                await self._do_transition_to_idle()
                 while self.running:
                     # Check if we have something to do.
                     if self.state == State.IDLE and len(self.idle_queue) > 0:
@@ -179,16 +185,18 @@ class Nabd:
         """
         Exit interactive mode.
         Restarts idle loop worker.
+        Thread: service_loop
         """
         # interactive -> playing or interactive -> idle depending on the
         # command queue
         self.interactive_service_writer = None
-        await self.transition_to_idle()
+        await self.transition_to(State.IDLE)
 
     async def process_idle_item(self, item):
         """
         Process an item from the idle queue.
         The lock is acquired when this function is called.
+        Thread: idle_worker_loop
         """
         while True:
             if "expiration" in item[0] and self.is_past(item[0]["expiration"]):
@@ -278,26 +286,29 @@ class Nabd:
         else:
             return parsed < datetime.datetime.now()
 
-    async def transition_to_idle(self):
-        """
-        Transition to idle from asleep.
-        """
-        async with self.idle_cv:
-            if len(self.idle_queue) == 0:
-                await self.set_state(State.IDLE)
-                self.idle_cv.notify()
-            else:
-                item = self.idle_queue.popleft()
-                await self.process_idle_item(item)
-
     async def set_state(self, new_state):
+        """
+        Thread: idle loop (only called from process_idle_item)
+        """
         if new_state != self.state:
             if new_state == State.IDLE:
-                await self.idle_setup()
+                await self._do_transition_to_idle()
             if new_state == State.ASLEEP:
                 await self.sleep_setup()
             self.state = new_state
             self.broadcast_state()
+
+    async def transition_to(self, new_state):
+        """
+        Thread: service or run (hw callbacks)
+        """
+        async with self.idle_cv:
+            if self.state != new_state:
+                self.state = new_state
+                if new_state == State.IDLE:
+                    await self._do_transition_to_idle()
+                    self.idle_cv.notify()
+                self.broadcast_state()
 
     async def process_info_packet(self, packet, writer):
         """ Process an info packet """
@@ -406,7 +417,7 @@ class Nabd:
         """ Process a wakeup packet """
         self.write_response_packet(packet, {"status": "ok"}, writer)
         if self.state == State.ASLEEP:
-            await self.transition_to_idle()
+            await self.transition_to(State.IDLE)
 
     async def process_sleep_packet(self, packet, writer):
         """ Process a sleep packet """
@@ -594,7 +605,10 @@ class Nabd:
             )
 
     async def process_packet(self, packet, writer):
-        """ Process a packet from a service """
+        """
+        Process a packet from a service
+        Thread: service_loop
+        """
         logging.debug(f"packet from service: {packet}")
         if "type" in packet:
             processors = {
@@ -645,10 +659,18 @@ class Nabd:
         return matching
 
     def broadcast_event(self, event_type, response):
-        logging.debug(f"broadcast event to services: {event_type}, {response}")
-        for sw, events in self.service_writers.items():
-            if self._test_event_mask(event_type, events):
-                self.write_packet(response, sw)
+        if self.interactive_service_writer is None:
+            logging.debug(f"broadcast event: {event_type}, {response}")
+            for sw, events in self.service_writers.items():
+                if self._test_event_mask(event_type, events):
+                    self.write_packet(response, sw)
+        elif self._test_event_mask(
+            event_type, self.interactive_service_events
+        ):
+            logging.debug(
+                f"send event to interactive service: {event_type}, {response}"
+            )
+            self.write_packet(response, self.interactive_service_writer)
 
     def write_response_packet(self, original_packet, template, writer):
         response_packet = template
@@ -722,6 +744,9 @@ class Nabd:
         await self.nabio.play_message(signature, packet["body"])
 
     def button_callback(self, button_event, event_time):
+        """
+        Thread: run_loop
+        """
         if button_event == "hold" and self.state == State.IDLE:
             asyncio.ensure_future(self.start_asr())
         if button_event == "up" and self.state == State.RECORDING:
@@ -739,7 +764,10 @@ class Nabd:
             )
 
     async def start_asr(self):
-        await self.set_state(State.RECORDING)
+        """
+        Thread: run_loop
+        """
+        await self.transition_to(State.RECORDING)
         await self.nabio.start_acquisition(self.asr.decode_chunk)
 
     async def stop_asr(self):
@@ -750,7 +778,7 @@ class Nabd:
         logging.debug(f"ASR string: {decoded_str}")
         response = await self.nlu.interpret(decoded_str)
         logging.debug(f"NLU response: {str(response)}")
-        await self.set_state(State.IDLE)
+        await self.transition_to(State.IDLE)
         if response is None:
             # Did not understand
             await self.nabio.asr_failed()
@@ -836,13 +864,7 @@ class Nabd:
             event_type = "rfid/" + app_str
         if self.state != State.ASLEEP and not flags & TagFlags.REMOVED:
             asyncio.ensure_future(self.nabio.rfid_detected_feedback())
-        if self.interactive_service_writer:
-            if self._test_event_mask(
-                event_type, self.interactive_service_events
-            ):
-                self.write_packet(packet, self.interactive_service_writer)
-        else:
-            self.broadcast_event(event_type, packet)
+        self.broadcast_event(event_type, packet)
 
     def _get_rfid_app(self, app):
         if app in TAG_APPLICATIONS:
@@ -864,7 +886,6 @@ class Nabd:
         self.nabio.bind_button_event(self.loop, self.button_callback)
         self.nabio.bind_ears_event(self.loop, self.ears_callback)
         self.nabio.bind_rfid_event(self.loop, self.rfid_callback)
-        setup_task = self.loop.create_task(self.idle_setup())
         idle_task = self.loop.create_task(self.idle_worker_loop())
         if os.environ.get("LISTEN_PID", None) == str(os.getpid()):
             server_task = self.loop.create_task(
@@ -885,7 +906,7 @@ class Nabd:
             )
         try:
             self.loop.run_forever()
-            for t in [setup_task, idle_task, server_task]:
+            for t in [idle_task, server_task]:
                 if t.done():
                     t_ex = t.exception()
                     if t_ex:

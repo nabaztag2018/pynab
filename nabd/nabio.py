@@ -31,6 +31,24 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """
         raise NotImplementedError("Should have implemented")
 
+    async def move_ears_with_leds(self, color, new_left, new_right):
+        """
+        If ears are not in given position, set LEDs to given color, move ears,
+        turn LEDs off and return.
+        """
+        do_move = False
+        current_left, current_right = await self.ears.get_positions()
+        if current_left != new_left:
+            if not self.ears.is_broken(Ears.LEFT_EAR):
+                do_move = True
+        if current_right != new_right:
+            if not self.ears.is_broken(Ears.RIGHT_EAR):
+                do_move = True
+        if do_move:
+            self.set_leds(color, color, color, color, color)
+            await self.move_ears(new_left, new_right)
+        self.set_leds(None, None, None, None, None)
+
     @abc.abstractmethod
     async def detect_ears_positions(self):
         """
@@ -148,6 +166,8 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """
         Play a message, i.e. a signature, a body and a signature.
         """
+        # Turn leds red while ears go to 0, 0
+        self.move_ears_with_leds((255, 0, 0), 0, 0)
         preloaded_sig = await self._preload([signature])
         preloaded_body = await self._preload(body)
         ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
@@ -161,6 +181,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
             ci, preloaded_sig, ChoreographyInterpreter.STREAMING_URN
         )
         await ci.stop()
+        self.set_leds(None, None, None, None, None)
 
     async def play_sequence(self, sequence):
         """
