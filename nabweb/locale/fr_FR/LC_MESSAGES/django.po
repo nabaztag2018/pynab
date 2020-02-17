@@ -558,8 +558,8 @@ msgid ""
 msgstr ""
 "Grâce à cette interface, vous pouvez mettre à jour votre Nabaztag (mais il "
 "doit être connecté à Internet). Attention, le process peut être assez long "
-"en fonction de qu'il y a à faire. <b>Attendez la fin de la mise à jour sinon "
-"on ne répond plus de rien</b>."
+"en fonction de ce qu'il y a à faire. <b>Attendez la fin de la mise à jour "
+"sinon on ne répond plus de rien</b>."
 
 #: templates/nabweb/upgrade/index.html:45
 msgid ""
