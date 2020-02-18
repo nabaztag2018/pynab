@@ -164,7 +164,10 @@ class NabIOHW(NabIO):
 
     async def test(self, test):
         if test == "ears":
-            left_ear_position, right_ear_position = await self.ears.get_positions()
+            (
+                left_ear_position,
+                right_ear_position,
+            ) = await self.ears.get_positions()
             await self.ears.go(Ears.LEFT_EAR, 8, Ears.BACKWARD_DIRECTION)
             await self.ears.go(Ears.RIGHT_EAR, 8, Ears.BACKWARD_DIRECTION)
             await self.ears.wait_while_running()
