@@ -40,7 +40,9 @@ class SocketIO(io.RawIOBase):
 class TestNabdBase(unittest.TestCase):
     def nabd_thread_loop(self):
         nabd_loop = asyncio.new_event_loop()
+        nabd_loop.set_debug(True)
         asyncio.set_event_loop(nabd_loop)
+        self.nabio = NabIOMock()
         self.nabd = nabd.Nabd(self.nabio)
         with self.nabd_cv:
             self.nabd_cv.notify()
@@ -48,7 +50,6 @@ class TestNabdBase(unittest.TestCase):
         nabd_loop.close()
 
     def setUp(self):
-        self.nabio = NabIOMock()
         self.nabd_cv = threading.Condition()
         with self.nabd_cv:
             self.nabd_thread = threading.Thread(target=self.nabd_thread_loop)
