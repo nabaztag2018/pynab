@@ -119,9 +119,6 @@ class NabIOHW(NabIO):
             animation.append((led_ix, values))
         return animation
 
-    def cancel(self):
-        pass
-
     def has_sound_input(self):
         return self.model != NabIOHW.MODEL_2018
 

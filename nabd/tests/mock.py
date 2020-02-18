@@ -73,9 +73,6 @@ class NabIOMock(NabIO):
         self.played_sequences.append(sequence)
         await super().play_sequence(sequence)
 
-    def cancel(self):
-        pass
-
     def button(self, button_event):
         self.button_event_cb.loop.call_soon_threadsafe(
             self.button_event_cb.callback, button_event
@@ -163,8 +160,15 @@ class SoundMock(Sound):
     async def start_playing_preloaded(self, filename):
         self.called_list.append(f"start_playing_preloaded({filename})")
 
-    async def wait_until_done(self):
-        self.called_list.append("wait_until_done()")
+    async def wait_until_done(self, event=None):
+        self.called_list.append("wait_until_done({event})")
+        if event:
+            try:
+                await asyncio.wait_for(event.wait(), 1.0)
+            except asyncio.TimeoutError:
+                pass
+        else:
+            await asyncio.sleep(1.0)
 
     async def stop_playing(self):
         self.called_list.append("stop_playing()")

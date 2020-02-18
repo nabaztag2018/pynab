@@ -129,7 +129,7 @@ Annule une commande en cours d'exécution (ou programmée).
 
 - `{"type":"cancel","request_id":request_id}`
 
-Le slot `"request_id"` est requis et correspond au slot `"request_id"` de la commande passée. Ne fonctionne que pour les commandes, pas pour les autres paquets.
+Le slot `"request_id"` est requis et correspond au slot `"request_id"` de la commande passée. Ne fonctionne que pour les commandes et les messages, pas pour les autres paquets.
 
 ## Paquets `wakeup`
 

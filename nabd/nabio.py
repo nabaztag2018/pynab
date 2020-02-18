@@ -1,4 +1,5 @@
 import abc
+from asyncio import Event
 from .choreography import ChoreographyInterpreter
 from .ears import Ears
 
@@ -16,6 +17,10 @@ class NabIO(object, metaclass=abc.ABCMeta):
 
     # Each info loop lasts 15 seconds
     INFO_LOOP_LENGTH = 15.0
+
+    def __init__(self):
+        super().__init__()
+        self.cancel_event = Event()
 
     @abc.abstractmethod
     async def setup_ears(self, left_ear, right_ear):
@@ -167,6 +172,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """
         Play a message, i.e. a signature, a body and a signature.
         """
+        self.cancel_event.clear()
         # Turn leds red while ears go to 0, 0
         await self.move_ears_with_leds((255, 0, 0), 0, 0)
         preloaded_sig = await self._preload([signature])
@@ -188,12 +194,15 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """
         Play a simple sequence
         """
+        self.cancel_event.clear()
         preloaded = await self._preload(sequence)
         ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
         await self._play_preloaded(ci, preloaded, None)
 
     async def _play_preloaded(self, ci, preloaded, default_chor):
         for seq_item in preloaded:
+            if self.cancel_event.is_set():
+                break
             if "choreography" in seq_item:
                 chor = seq_item["choreography"]
             else:
@@ -203,15 +212,19 @@ class NabIO(object, metaclass=abc.ABCMeta):
             else:
                 await ci.stop()
             if "audio" in seq_item:
-                await self.sound.play_list(seq_item["audio"], True)
+                await self.sound.play_list(
+                    seq_item["audio"], True, self.cancel_event
+                )
                 if chor is not None:
                     await ci.stop()
             elif "choreography" in seq_item:
-                await ci.wait_until_complete()
+                await ci.wait_until_complete(self.cancel_event)
 
     async def _preload(self, sequence):
         preloaded_sequence = []
         for seq_item in sequence:
+            if self.cancel_event.is_set():
+                break
             if "audio" in seq_item:
                 preloaded_audio_list = []
                 if isinstance(seq_item["audio"], str):
@@ -230,12 +243,13 @@ class NabIO(object, metaclass=abc.ABCMeta):
             preloaded_sequence.append(seq_item)
         return preloaded_sequence
 
-    @abc.abstractmethod
-    def cancel(self):
+    async def cancel(self, feedback=False):
         """
         Cancel currently running sequence or info animation.
         """
-        raise NotImplementedError("Should have implemented")
+        self.cancel_event.set()
+        if feedback:
+            await self.sound.play_list(["nabd/abort.wav"], False)
 
     @abc.abstractmethod
     async def gestalt(self):

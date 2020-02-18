@@ -1,4 +1,6 @@
 import asyncio
+import asynctest
+import os
 import sys
 import time
 import unittest
@@ -75,6 +77,57 @@ class TestPlaySound(unittest.TestCase):
         self.loop.run_until_complete(start_task)
         wait_task = self.loop.create_task(self.sound.wait_until_done())
         self.loop.run_until_complete(wait_task)
+
+
+@pytest.mark.skipif(
+    sys.platform != "linux", reason="Alsa is only available on Linux"
+)
+@pytest.mark.django_db
+class TestWaitUntilComplete(asynctest.TestCase):
+    def setUp(self):
+        from nabd.sound_alsa import SoundAlsa
+        from nabd.nabio import NabIO
+
+        # Workaround for asynctest bug?
+        os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "yes"
+
+        try:
+            if SoundAlsa.sound_configuration()[1] == "sndrpihifiberry":
+                model = NabIO.MODEL_2018
+            else:
+                if SoundAlsa.sound_configuration()[1] == "tagtagtagsound":
+                    model = NabIO.MODEL_2019_TAGTAG
+                else:
+                    raise unittest.SkipTest("No compatible sound card found")
+        except RuntimeError as error:
+            raise unittest.SkipTest(
+                "Runtime error getting sound card %s" % str(error)
+            )
+        self.sound = SoundAlsa(model)
+
+    async def test_wait_until_done(self):
+        before = time.time()
+        await self.sound.start_playing("fr_FR/asr/failed/5.mp3")
+        await self.sound.wait_until_done()
+        after = time.time()
+        self.assertGreater(after - before, 3.0)
+
+    async def test_wait_until_done_with_event_not_set(self):
+        before = time.time()
+        await self.sound.start_playing("fr_FR/asr/failed/5.mp3")
+        event = asyncio.Event()
+        await self.sound.wait_until_done(event)
+        after = time.time()
+        self.assertGreater(after - before, 3.0)
+
+    async def test_wait_until_done_with_event_set(self):
+        before = time.time()
+        await self.sound.start_playing("fr_FR/asr/failed/5.mp3")
+        event = asyncio.Event()
+        self.loop.call_later(1.5, lambda: event.set())
+        await self.sound.wait_until_done(event)
+        after = time.time()
+        self.assertLess(after - before, 3.0)
 
 
 @pytest.mark.skipif(
