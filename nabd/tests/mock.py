@@ -9,6 +9,7 @@ from nabd.sound import Sound
 
 class NabIOMock(NabIO):
     def __init__(self):
+        super().__init__()
         self.leds = LedsMock()
         self.ears = EarsMock()
         self.rfid = RfidMock()
@@ -70,7 +71,7 @@ class NabIOMock(NabIO):
 
     async def play_sequence(self, sequence):
         self.played_sequences.append(sequence)
-        await asyncio.sleep(3)
+        await super().play_sequence(sequence)
 
     def cancel(self):
         pass
@@ -173,6 +174,9 @@ class SoundMock(Sound):
 
     async def stop_recording(self):
         self.called_list.append("stop_recording()")
+
+    async def preload(self, res):
+        return res
 
 
 class RfidMock(Rfid):
