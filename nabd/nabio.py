@@ -190,11 +190,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """
         preloaded = await self._preload(sequence)
         ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
-        played_audio = await self._play_preloaded(ci, preloaded, None)
-        if played_audio:
-            await ci.stop()
-        else:
-            await ci.wait_until_complete()
+        await self._play_preloaded(ci, preloaded, None)
 
     async def _play_preloaded(self, ci, preloaded, default_chor):
         for seq_item in preloaded:
@@ -208,6 +204,8 @@ class NabIO(object, metaclass=abc.ABCMeta):
                 await ci.stop()
             if "audio" in seq_item:
                 await self.sound.play_list(seq_item["audio"], True)
+                if chor is not None:
+                    await ci.stop()
             elif "choreography" in seq_item:
                 await ci.wait_until_complete()
 
