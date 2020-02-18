@@ -208,7 +208,7 @@ class NabWebRfidReadView(View):
             ):
                 # Turn nose red to mean we're expecting a tag now
                 base64chor = base64.b64encode(
-                    bytes([0, 7, 0, 255, 0, 0, 0, 0])
+                    bytes([0, 7, 4, 255, 0, 0, 0, 0])
                 )
                 packet = (
                     b'{"type":"command","sequence":['
