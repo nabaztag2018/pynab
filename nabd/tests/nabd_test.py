@@ -59,7 +59,9 @@ class TestNabdBase(unittest.TestCase):
 
     def tearDown(self):
         self.nabd.stop()
-        self.nabd_thread.join(5)
+        self.nabd_thread.join(10)
+        if self.nabd_thread.is_alive():
+            raise RuntimeError("nabd_thread still running")
 
     def test_init(self):
         self.assertEqual(self.nabio.left_ear, 0)
