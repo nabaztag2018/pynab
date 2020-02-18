@@ -212,7 +212,7 @@ class SoundAlsa(Sound):
                 if not self.currently_recording:
                     finalize = True
                 if l or finalize:
-                    #self.recorded_raw.write(data)
+                    # self.recorded_raw.write(data)
                     cb(data, finalize)
         except Exception:
             print(traceback.format_exc())
