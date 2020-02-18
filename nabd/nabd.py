@@ -925,7 +925,10 @@ class Nabd:
             tasks = asyncio.all_tasks(self.loop)
             for t in [t for t in tasks if not (t.done() or t.cancelled())]:
                 # give canceled tasks the last chance to run
-                self.loop.run_until_complete(t)
+                try:
+                    self.loop.run_until_complete(t)
+                except asyncio.CancelledError:
+                    pass
             self.loop.close()
 
     def stop(self):
