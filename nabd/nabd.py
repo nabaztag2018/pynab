@@ -749,7 +749,7 @@ class Nabd:
         """
         if button_event == "hold" and self.state == State.IDLE:
             asyncio.ensure_future(self.start_asr())
-        if button_event == "up" and self.state == State.RECORDING:
+        elif button_event == "up" and self.state == State.RECORDING:
             asyncio.ensure_future(self.stop_asr())
         elif button_event == "triple_click":
             asyncio.ensure_future(self._shutdown())
