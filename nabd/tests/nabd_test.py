@@ -493,7 +493,6 @@ class TestRfid(TestNabdBase):
             )
             s1.write(packet.encode("utf8"))
             packet = s1.readline()  # response packet
-            print(f"packet={packet}")
             packet_j = json.loads(packet.decode("utf8"))
             self.assertEqual(packet_j["type"], "response")
             self.assertEqual(packet_j["request_id"], "rfid_write_id")
