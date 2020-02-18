@@ -18,6 +18,7 @@ class ChoreographyInterpreter:
         self.running_task = None
         self.running_ref = None
         self.timescale = 0
+        self.cancel_event = None
         # Random is for ifne, only used in taichi.
         # Generator based on original code yielding 0-29, not exactly
         # uniformly.
@@ -295,7 +296,7 @@ class ChoreographyInterpreter:
 
     async def attend(self, index, chor):
         await self.ears.wait_while_running()
-        await self.sound.wait_until_done()
+        await self.sound.wait_until_done(self.cancel_event)
         return index
 
     async def setmotordir(self, index, chor):
@@ -407,13 +408,27 @@ class ChoreographyInterpreter:
             self.running_task = None
             self.running_ref = None
 
-    async def wait_until_complete(self):
+    async def wait_until_complete(self, event=None):
+        self.cancel_event = event
         if self.running_task:
-            await self.running_task
+            if event:
+                event_wait_task = asyncio.create_task(event.wait())
+                wait_set = {event_wait_task, self.running_task}
+                done, pending = await asyncio.wait(
+                    wait_set, return_when=asyncio.FIRST_COMPLETED
+                )
+                if self.running_task in pending:
+                    await self.stop()
+                else:
+                    event_wait_task.cancel()
+            else:
+                await self.running_task
         self.running_task = None
         self.running_ref = None
+        self.cancel_event = None
 
     async def play(self, ref):
+        self.cancel_event = None
         try:
             if ref.startswith(ChoreographyInterpreter.STREAMING_URN):
                 await self.play_streaming(ref)

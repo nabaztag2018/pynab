@@ -355,6 +355,145 @@ class TestNabd(TestNabdBase):
         finally:
             s1.close()
 
+    def test_cancel(self):
+        s1 = self.service_socket()
+        try:
+            packet = s1.readline()  # state packet
+            s1.write(
+                b'{"type":"command","request_id":"test_id",'
+                b'"sequence":[{"audio":['
+                b'"weather/fr/signature.mp3","weather/fr/today.mp3",'
+                b'"weather/fr/sky/0.mp3","weather/fr/temp/42.mp3",'
+                b'"weather/fr/temp/degree.mp3",'
+                b'"weather/fr/temp/signature.mp3"],'
+                b'"choregraphy":"streaming"}]}\r\n'
+            )
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "playing")
+            s1.write(b'{"type":"cancel","request_id":"test_id"}\r\n')
+            packet = s1.readline()  # response packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["request_id"], "test_id")
+            self.assertEqual(packet_j["status"], "canceled")
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "idle")
+        finally:
+            s1.close()
+
+    def test_cancel_wrong_request_id(self):
+        s1 = self.service_socket()
+        try:
+            packet = s1.readline()  # state packet
+            s1.write(
+                b'{"type":"command","request_id":"test_id",'
+                b'"sequence":[{"audio":['
+                b'"weather/fr/signature.mp3","weather/fr/today.mp3",'
+                b'"weather/fr/sky/0.mp3","weather/fr/temp/42.mp3",'
+                b'"weather/fr/temp/degree.mp3",'
+                b'"weather/fr/temp/signature.mp3"],'
+                b'"choregraphy":"streaming"}]}\r\n'
+            )
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "playing")
+            s1.write(b'{"type":"cancel","request_id":"other_id"}\r\n')
+            packet = s1.readline()  # response packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["request_id"], "other_id")
+            self.assertEqual(packet_j["status"], "error")
+            s1.settimeout(15.0)
+            packet = s1.readline()  # response packet
+            s1.settimeout(5.0)
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["request_id"], "test_id")
+            self.assertEqual(packet_j["status"], "ok")
+            last_sequence = self.nabio.played_sequences.pop()
+            self.assertEqual(
+                last_sequence,
+                [
+                    {
+                        "audio": [
+                            "weather/fr/signature.mp3",
+                            "weather/fr/today.mp3",
+                            "weather/fr/sky/0.mp3",
+                            "weather/fr/temp/42.mp3",
+                            "weather/fr/temp/degree.mp3",
+                            "weather/fr/temp/signature.mp3",
+                        ],
+                        "choregraphy": "streaming",
+                    }
+                ],
+            )
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "idle")
+        finally:
+            s1.close()
+
+    def test_cancel_not_cancelable(self):
+        s1 = self.service_socket()
+        try:
+            packet = s1.readline()  # state packet
+            s1.write(
+                b'{"type":"command","request_id":"test_id",'
+                b'"sequence":[{"audio":['
+                b'"weather/fr/signature.mp3","weather/fr/today.mp3",'
+                b'"weather/fr/sky/0.mp3","weather/fr/temp/42.mp3",'
+                b'"weather/fr/temp/degree.mp3",'
+                b'"weather/fr/temp/signature.mp3"],'
+                b'"choregraphy":"streaming"}],'
+                b'"cancelable":false}\r\n'
+            )
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "playing")
+            s1.write(b'{"type":"cancel","request_id":"test_id"}\r\n')
+            packet = s1.readline()  # response packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["request_id"], "test_id")
+            self.assertEqual(packet_j["status"], "error")
+            s1.settimeout(15.0)
+            packet = s1.readline()  # response packet
+            s1.settimeout(5.0)
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["request_id"], "test_id")
+            self.assertEqual(packet_j["status"], "ok")
+            last_sequence = self.nabio.played_sequences.pop()
+            self.assertEqual(
+                last_sequence,
+                [
+                    {
+                        "audio": [
+                            "weather/fr/signature.mp3",
+                            "weather/fr/today.mp3",
+                            "weather/fr/sky/0.mp3",
+                            "weather/fr/temp/42.mp3",
+                            "weather/fr/temp/degree.mp3",
+                            "weather/fr/temp/signature.mp3",
+                        ],
+                        "choregraphy": "streaming",
+                    }
+                ],
+            )
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "idle")
+        finally:
+            s1.close()
+
     def test_expiration_not_expired(self):
         s1 = self.service_socket()
         try:

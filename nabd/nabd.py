@@ -82,6 +82,8 @@ class Nabd:
         self.running = True
         self.loop = None
         self._ears_moved_task = None
+        self.playing_cancelable = False
+        self.playing_request_id = None
         Nabd.leds_boot(self.nabio, 2)
         if self.nabio.has_sound_input():
             from . import i18n
@@ -212,9 +214,7 @@ class Nabd:
                 if item[0]["type"] == "command":
                     await self.set_state(State.PLAYING)
                     await self.perform_command(item[0])
-                    self.write_response_packet(
-                        item[0], {"status": "ok"}, item[1]
-                    )
+                    self.write_response_cancelable(item[0], item[1])
                     if len(self.idle_queue) == 0:
                         await self.set_state(State.IDLE)
                         break
@@ -223,9 +223,7 @@ class Nabd:
                 elif item[0]["type"] == "message":
                     await self.set_state(State.PLAYING)
                     await self.perform_message(item[0])
-                    self.write_response_packet(
-                        item[0], {"status": "ok"}, item[1]
-                    )
+                    self.write_response_cancelable(item[0], item[1])
                     if len(self.idle_queue) == 0:
                         await self.set_state(State.IDLE)
                         break
@@ -403,15 +401,43 @@ class Nabd:
 
     async def process_cancel_packet(self, packet, writer):
         """ Process a cancel packet """
-        self.write_response_packet(
-            packet,
-            {
-                "status": "error",
-                "class": "Unimplemented",
-                "message": "unimplemented",
-            },
-            writer,
-        )
+        if "request_id" in packet:
+            request_id = packet["request_id"]
+            if self.playing_request_id == request_id:
+                if self.playing_cancelable:
+                    self.playing_canceled = True
+                    await self.nabio.cancel()
+                else:
+                    self.write_response_packet(
+                        packet,
+                        {
+                            "status": "error",
+                            "class": "NotCancelable",
+                            "message": "Playing command is not cancelable",
+                        },
+                        writer,
+                    )
+            else:
+                self.write_response_packet(
+                    packet,
+                    {
+                        "status": "error",
+                        "class": "NotPlaying",
+                        "message": "Cancel packet does not refer to running"
+                        " command",
+                    },
+                    writer,
+                )
+        else:
+            self.write_response_packet(
+                packet,
+                {
+                    "status": "error",
+                    "class": "MalformedPacket",
+                    "message": "Missing required request_id slot",
+                },
+                writer,
+            )
 
     async def process_wakeup_packet(self, packet, writer):
         """ Process a wakeup packet """
@@ -672,6 +698,13 @@ class Nabd:
             )
             self.write_packet(response, self.interactive_service_writer)
 
+    def write_response_cancelable(self, original_packet, writer):
+        if self.playing_canceled:
+            status = "canceled"
+        else:
+            status = "ok"
+        self.write_response_packet(original_packet, {"status": status}, writer)
+
     def write_response_packet(self, original_packet, template, writer):
         response_packet = template
         if "request_id" in original_packet:
@@ -735,13 +768,29 @@ class Nabd:
                 await self.exit_interactive()
 
     async def perform_command(self, packet):
+        if "request_id" in packet:
+            self.playing_request_id = packet["request_id"]
+        self.playing_cancelable = (
+            "cancelable" not in packet or packet["cancelable"]
+        )
+        self.playing_canceled = False
         await self.nabio.play_sequence(packet["sequence"])
+        self.playing_request_id = None
+        self.playing_cancelable = False
 
     async def perform_message(self, packet):
         signature = {}
         if "signature" in packet:
             signature = packet["signature"]
+        if "request_id" in packet:
+            self.playing_request_id = packet["request_id"]
+        self.playing_cancelable = (
+            "cancelable" not in packet or packet["cancelable"]
+        )
+        self.playing_canceled = False
         await self.nabio.play_message(signature, packet["body"])
+        self.playing_request_id = None
+        self.playing_cancelable = False
 
     def button_callback(self, button_event, event_time):
         """
@@ -753,6 +802,16 @@ class Nabd:
             asyncio.ensure_future(self.stop_asr())
         elif button_event == "triple_click":
             asyncio.ensure_future(self._shutdown())
+        elif (
+            button_event == "click"
+            and (
+                self.interactive_service_writer is None
+                or "button" not in self.interactive_service_events
+            )
+            and self.playing_cancelable
+        ):
+            asyncio.ensure_future(self.nabio.cancel(True))
+            self.playing_canceled = True
         else:
             self.broadcast_event(
                 "button",

@@ -181,9 +181,20 @@ class SoundAlsa(Sound):
             self.currently_playing = False
         await self.wait_until_done()
 
-    async def wait_until_done(self):
+    async def wait_until_done(self, event=None):
         if self.future:
-            await self.future
+            if event:
+                event_wait_task = asyncio.create_task(event.wait())
+                wait_set = {event_wait_task, self.future}
+                done, pending = await asyncio.wait(
+                    wait_set, return_when=asyncio.FIRST_COMPLETED
+                )
+                if self.future in pending:
+                    await self.stop_playing()
+                else:
+                    event_wait_task.cancel()
+            else:
+                await self.future
         self.future = None
 
     async def start_recording(self, stream_cb):

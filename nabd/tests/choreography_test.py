@@ -1,4 +1,5 @@
 import asyncio
+import asynctest
 import base64
 import pytest
 import unittest
@@ -107,6 +108,59 @@ class TestChoreographyInterpreter(TestChoreographyBase):
                 "set1(Led.NOSE,0,0,0)",
             ],
         )
+        self.assertEqual(self.ears.called_list, [])
+        self.assertEqual(self.sound.called_list, [])
+
+
+class TestCancelEvent(asynctest.TestCase):
+    def setUp(self):
+        self.leds = LedsMock()
+        self.ears = EarsMock()
+        self.sound = SoundMock()
+        self.ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
+
+    async def test_wait_until_complete(self):
+        chor_bin = base64.b16decode("0001050507020304050607")
+        chor_b64 = base64.b64encode(chor_bin).decode()
+        chor = (
+            ChoreographyInterpreter.DATA_MTL_BINARY_SCHEME
+            + ";base64,"
+            + chor_b64
+        )
+        await self.ci.start(chor)
+        await self.ci.wait_until_complete()
+        self.assertEqual(self.leds.called_list, ["set1(Led.CENTER,3,4,5)"])
+        self.assertEqual(self.ears.called_list, [])
+        self.assertEqual(self.sound.called_list, [])
+
+    async def test_wait_until_complete_with_no_event(self):
+        chor_bin = base64.b16decode("0001050507020304050607")
+        chor_b64 = base64.b64encode(chor_bin).decode()
+        chor = (
+            ChoreographyInterpreter.DATA_MTL_BINARY_SCHEME
+            + ";base64,"
+            + chor_b64
+        )
+        await self.ci.start(chor)
+        event = asyncio.Event()
+        await self.ci.wait_until_complete(event)
+        self.assertEqual(self.leds.called_list, ["set1(Led.CENTER,3,4,5)"])
+        self.assertEqual(self.ears.called_list, [])
+        self.assertEqual(self.sound.called_list, [])
+
+    async def test_wait_until_complete_with_event(self):
+        chor_bin = base64.b16decode("0001050507020304050607")
+        chor_b64 = base64.b64encode(chor_bin).decode()
+        chor = (
+            ChoreographyInterpreter.DATA_MTL_BINARY_SCHEME
+            + ";base64,"
+            + chor_b64
+        )
+        await self.ci.start(chor)
+        event = asyncio.Event()
+        self.loop.call_later(0.1, lambda: event.set())
+        await self.ci.wait_until_complete(event)
+        self.assertEqual(self.leds.called_list, [])
         self.assertEqual(self.ears.called_list, [])
         self.assertEqual(self.sound.called_list, [])
 
