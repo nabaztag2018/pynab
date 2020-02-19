@@ -7,7 +7,7 @@ from enum import Enum
 from .rfid import TagFlags, Rfid
 
 
-class RfidDevState(Enum):
+class RfidDevState(Enum):  # pragma: no cover
     DISABLED = "disabled"
     POLLING_ONCE = "polling_once"
     POLLING_REPEAT = "polling_repeat"
