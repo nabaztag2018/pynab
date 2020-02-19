@@ -15,7 +15,7 @@ class RfidDevState(Enum):
     WRITING_BLOCKS = "writing"
 
 
-class RfidDev(Rfid):
+class RfidDev(Rfid):  # pragma: no cover
     """
     Implementation for rfid reader based on /dev/rfid0
     Relying on cr14 driver

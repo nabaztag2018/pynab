@@ -8,12 +8,12 @@ from threading import Timer, Lock
 
 
 @atexit.register
-def cleanup_gpio():
+def cleanup_gpio():  # pragma: no cover
     GPIO.setwarnings(False)
     GPIO.cleanup()
 
 
-class ButtonGPIO(Button):
+class ButtonGPIO(Button):  # pragma: no cover
     BUTTON_CHANNEL_2018 = 2
     BUTTON_CHANNEL_2019 = 17
     DOWN_VALUE = 0

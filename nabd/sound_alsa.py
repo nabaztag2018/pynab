@@ -11,7 +11,7 @@ from mpg123 import Mpg123
 from .sound import Sound
 
 
-class SoundAlsa(Sound):
+class SoundAlsa(Sound):  # pragma: no cover
     MODEL_2018_CARD_NAME = "sndrpihifiberry"
 
     MODEL_2019_CARD_NAME = "tagtagtagsound"
