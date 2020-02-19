@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from .ears import Ears
 
 
-class EarsDev(Ears):
+class EarsDev(Ears):  # pragma: no cover
     """
     Implementation for ears based on /dev/ear*.
     Relying on tagtagtag-ears driver.
