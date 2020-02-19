@@ -492,15 +492,18 @@ class NabWeatherd(NabInfoService):
                 ]
                 max_temp = info_data["tomorrow_forecast_max_temp"]
             if type == "today" or type == "tomorrow":
+                unit_sound_file = 'degree.mp3'
                 if unit == NabWeatherd.UNIT_FARENHEIT:
                     max_temp = round(max_temp * 1.8 + 32.0)
+                    unit_sound_file = 'degree_f.mp3'
+                    
                 packet = (
                     '{"type":"message",'
                     '"signature":{"audio":["nabweatherd/signature.mp3"]},'
                     '"body":[{"audio":["nabweatherd/' + type + '.mp3",'
                     '"nabweatherd/sky/' + weather_class + '.mp3",'
                     '"nabweatherd/temp/' + str(max_temp) + '.mp3",'
-                    '"nabweatherd/degree.mp3"]}],'
+                    '"nabweatherd/'+unit_sound_file+'"]}],'
                     '"expiration":"' + expiration.isoformat() + '"}\r\n'
                 )
                 self.writer.write(packet.encode("utf8"))
