@@ -7,11 +7,16 @@ import time
 import datetime
 import signal
 import pytest
+import os
 from dateutil import tz
 from nabclockd import nabclockd, models
 from nabcommon import nabservice
 
 
+@pytest.mark.skipif(
+    not os.path.isfile("/etc/timezone"),
+    reason="Test requires /etc/timezone to exist",
+)
 @pytest.mark.django_db(transaction=True)
 class TestNabclockd(unittest.TestCase):
     async def mock_nabd_service_handler(self, reader, writer):
