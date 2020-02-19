@@ -5,6 +5,7 @@ from .resources import Resources
 from .leds import Led
 from .ears import Ears
 from contextlib import suppress
+from .cancel import wait_with_cancel_event
 import logging
 import traceback
 import urllib.request
@@ -410,19 +411,7 @@ class ChoreographyInterpreter:
 
     async def wait_until_complete(self, event=None):
         self.cancel_event = event
-        if self.running_task:
-            if event:
-                event_wait_task = asyncio.create_task(event.wait())
-                wait_set = {event_wait_task, self.running_task}
-                done, pending = await asyncio.wait(
-                    wait_set, return_when=asyncio.FIRST_COMPLETED
-                )
-                if self.running_task in pending:
-                    await self.stop()
-                else:
-                    event_wait_task.cancel()
-            else:
-                await self.running_task
+        await wait_with_cancel_event(self.running_task, event, self.stop)
         self.running_task = None
         self.running_ref = None
         self.cancel_event = None

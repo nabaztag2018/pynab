@@ -9,6 +9,7 @@ import alsaaudio
 from mpg123 import Mpg123
 
 from .sound import Sound
+from .cancel import wait_with_cancel_event
 
 
 class SoundAlsa(Sound):  # pragma: no cover
@@ -182,19 +183,7 @@ class SoundAlsa(Sound):  # pragma: no cover
         await self.wait_until_done()
 
     async def wait_until_done(self, event=None):
-        if self.future:
-            if event:
-                event_wait_task = asyncio.create_task(event.wait())
-                wait_set = {event_wait_task, self.future}
-                done, pending = await asyncio.wait(
-                    wait_set, return_when=asyncio.FIRST_COMPLETED
-                )
-                if self.future in pending:
-                    await self.stop_playing()
-                else:
-                    event_wait_task.cancel()
-            else:
-                await self.future
+        await wait_with_cancel_event(self.future, event, self.stop_playing)
         self.future = None
 
     async def start_recording(self, stream_cb):
