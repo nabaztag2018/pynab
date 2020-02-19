@@ -10,7 +10,8 @@ sudo: true
 script:
   - sh .travis_build_nlu_engines.sh
   - sudo mkdir -p /run/systemd/timesync/ && sudo touch /run/systemd/timesync/synchronized
-  - pytest
+  - coverage run -m pytest
+  - bash <(curl -s https://codecov.io/bash)
 addons:
   postgresql: "10"
 services:

@@ -7,7 +7,7 @@ from enum import Enum
 from .rfid import TagFlags, Rfid
 
 
-class RfidDevState(Enum):
+class RfidDevState(Enum):  # pragma: no cover
     DISABLED = "disabled"
     POLLING_ONCE = "polling_once"
     POLLING_REPEAT = "polling_repeat"
@@ -15,7 +15,7 @@ class RfidDevState(Enum):
     WRITING_BLOCKS = "writing"
 
 
-class RfidDev(Rfid):
+class RfidDev(Rfid):  # pragma: no cover
     """
     Implementation for rfid reader based on /dev/rfid0
     Relying on cr14 driver

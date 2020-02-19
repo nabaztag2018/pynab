@@ -2,7 +2,7 @@ from rpi_ws281x import Adafruit_NeoPixel, Color
 from .leds import LedsSoft
 
 
-class LedsNeoPixel(LedsSoft):
+class LedsNeoPixel(LedsSoft):  # pragma: no cover
     LED_PIN = 13  # GPIO pin connected to the pixels (18 uses PWM!).
     LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
     LED_DMA = 12  # DMA channel to use for generating signal (try 10)
