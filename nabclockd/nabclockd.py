@@ -4,7 +4,6 @@ import datetime
 import subprocess
 import logging
 from dateutil import tz
-from asgiref.sync import sync_to_async
 from nabcommon import nabservice
 
 
@@ -27,7 +26,7 @@ class NabClockd(nabservice.NabService):
         from . import models
 
         async with self.loop_cv:
-            self.config = await sync_to_async(models.Config.load)()
+            self.config = await models.Config.load_async()
             self.loop_cv.notify()
 
     def synchronized_since_boot(self):

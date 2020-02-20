@@ -8,8 +8,9 @@ import io
 import pytest
 import datetime
 from nabd import nabd
-from mock import NabIOMock
 from nabd.rfid import TagFlags
+from mock import NabIOMock
+from utils import close_old_connections
 import nabtaichid
 
 
@@ -545,6 +546,10 @@ class TestNabd(TestNabdBase):
 
 @pytest.mark.django_db(transaction=True)
 class TestRfid(TestNabdBase):
+    def tearDown(self):
+        TestNabdBase.tearDown(self)
+        close_old_connections()
+
     def test_detect_clear_rfid(self):
         s1 = self.service_socket()
         try:

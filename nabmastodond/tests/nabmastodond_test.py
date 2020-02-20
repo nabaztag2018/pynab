@@ -14,6 +14,7 @@ from asgiref.sync import async_to_sync
 from nabmastodond import nabmastodond, models
 from nabcommon import nabservice
 from mastodon import Mastodon, MastodonNotFoundError
+from nabd.tests.utils import close_old_connections
 
 
 DATE_1 = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
@@ -109,6 +110,9 @@ class MockMastodonClient:
 class TestMastodonLogic(unittest.TestCase, MockMastodonClient):
     def setUp(self):
         self.posted_statuses = []
+
+    def tearDown(self):
+        close_old_connections()
 
     def test_process_status(self):
         config = models.Config.load()
@@ -244,6 +248,10 @@ class TestMastodondBase(unittest.TestCase):
 
 @pytest.mark.django_db(transaction=True)
 class TestMastodond(TestMastodondBase):
+    def tearDown(self):
+        TestMastodondBase.tearDown(self)
+        close_old_connections()
+
     async def connect_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
         self.connect_handler_called += 1
@@ -313,6 +321,10 @@ class TestMastodondPairingProtocol(TestMastodondBase, MockMastodonClient):
         self.service_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.service_loop)
         self.service_loop.call_later(2, lambda: self.service_loop.stop())
+
+    def tearDown(self):
+        TestMastodondBase.tearDown(self)
+        close_old_connections()
 
     async def protocol_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
@@ -1534,6 +1546,10 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
         asyncio.set_event_loop(self.service_loop)
         self.service_loop.call_later(2, lambda: self.service_loop.stop())
 
+    def tearDown(self):
+        TestMastodondBase.tearDown(self)
+        close_old_connections()
+
     async def ears_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
         writer.write(b'{"type":"ears_event","left":4,"right":6}\r\n')
@@ -1748,6 +1764,7 @@ class TestMastodonClientProposal(TestMastodondBase, TestMastodonClientBase):
     def tearDown(self):
         TestMastodondBase.tearDown(self)
         TestMastodonClientBase.tearDown(self)
+        close_old_connections()
 
     def test_mastodon_client_alter_proposal_before_start(self):
         config = models.Config.load()

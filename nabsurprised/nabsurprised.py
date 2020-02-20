@@ -6,18 +6,18 @@ from . import rfid_data
 
 
 class NabSurprised(NabRandomService):
-    def get_config(self):
+    async def get_config(self):
         from . import models
 
-        config = models.Config.load()
+        config = await models.Config.load_async()
         return (config.next_surprise, None, config.surprise_frequency)
 
-    def update_next(self, next_date, next_args):
+    async def update_next(self, next_date, next_args):
         from . import models
 
-        config = models.Config.load()
+        config = await models.Config.load_async()
         config.next_surprise = next_date
-        config.save()
+        await config.save_async()
 
     async def perform(self, expiration, args, config):
         await self._do_perform(expiration, None, None)

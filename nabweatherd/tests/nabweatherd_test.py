@@ -8,6 +8,7 @@ from asgiref.sync import async_to_sync
 from nabweatherd.nabweatherd import NabWeatherd
 from nabweatherd import models
 from nabweatherd import rfid_data
+from nabd.tests.utils import close_old_connections
 
 
 class MockWriter(object):
@@ -34,6 +35,9 @@ class TestNabWeatherd(unittest.TestCase):
 
 @pytest.mark.django_db(transaction=True)
 class TestNabWeatherdDB(unittest.TestCase):
+    def tearDown(self):
+        close_old_connections()
+
     def test_fetch_info_data(self):
         service = NabWeatherd()
         data = async_to_sync(service.fetch_info_data)(

@@ -62,27 +62,27 @@ class NabAirqualityd(NabInfoCachedService):
         self.index_airquality = 9
         super().__init__()
 
-    def get_config(self):
+    async def get_config(self):
         from . import models
 
-        config = models.Config.load()
+        config = await models.Config.load_async()
         return (
             config.next_performance_date,
             config.next_performance_type,
             config.index_airquality,
         )
 
-    def update_next(self, next_date, next_args):
+    async def update_next(self, next_date, next_args):
         from . import models
 
-        config = models.Config.load()
+        config = await models.Config.load_async()
         config.next_performance_date = next_date
         config.next_performance_type = next_args
-        config.save()
+        await config.save_async()
 
     async def fetch_info_data(self, index_airquality):
-        logging.debug("index_airquality="+str(index_airquality))
-        if (index_airquality == "9"):
+        logging.debug("index_airquality=" + str(index_airquality))
+        if index_airquality == "9":
             return None
         client = aqicn.aqicnClient(index_airquality)
         await sync_to_async(client.update)()
@@ -91,11 +91,11 @@ class NabAirqualityd(NabInfoCachedService):
         # interface
         from . import models
 
-        config = await sync_to_async(models.Config.load)()
+        config = await models.Config.load_async()
         new_city = client.get_city()
         if new_city != config.localisation:
             config.localisation = new_city
-            await sync_to_async(config.save)()
+            await config.save_async()
 
         return client.get_data()
 
@@ -106,9 +106,9 @@ class NabAirqualityd(NabInfoCachedService):
         return info_animation
 
     async def perform_additional(self, expiration, type, info_data, config_t):
-        if (info_data is None):
+        if info_data is None:
             return
-        
+
         if type == "today":
             message = NabAirqualityd.MESSAGES[info_data]
             packet = (
@@ -125,9 +125,7 @@ class NabAirqualityd(NabInfoCachedService):
             packet["type"] == "asr_event"
             and packet["nlu"]["intent"] == "airquality_forecast"
         ):
-            next_date, next_args, config_t = await sync_to_async(
-                self.get_config
-            )()
+            next_date, next_args, config_t = await self.get_config()
             now = datetime.datetime.now(datetime.timezone.utc)
             expiration = now + datetime.timedelta(minutes=1)
             await self.perform(expiration, "today", config_t)
