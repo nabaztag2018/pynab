@@ -12,7 +12,6 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
-from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.apps import apps
 from nabcommon import nablogging
@@ -213,7 +212,7 @@ class NabRecurrentService(NabService, ABC):
         self.loop_cv = asyncio.Condition()
 
     @abstractmethod
-    def get_config(self):
+    async def get_config(self):
         """
         Perform a database operation to retrieve stored data and return a tuple
         with three values used by the service:
@@ -226,23 +225,23 @@ class NabRecurrentService(NabService, ABC):
         Typical implementation is:
 
         from . import models
-        record = models.Config.load()
+        record = await models.Config.load_async()
         config = (record.config_a, record.config_b)
         return (record.next_date, record.next_args, config)
         """
         pass
 
     @abstractmethod
-    def update_next(self, next_date, next_args):
+    async def update_next(self, next_date, next_args):
         """
         Write new next date and args to database.
 
         Typical implementation is:
         from . import models
-        record = models.Config.load()
+        record = await models.Config.load_async()
         record.next_date = next_date
         record.next_args = next_args
-        record.save()
+        await record.save_async()
         """
         pass
 
@@ -284,9 +283,7 @@ class NabRecurrentService(NabService, ABC):
             async with self.loop_cv:
                 while self.running:
                     # Load or reload configuration
-                    next_date, next_args, config = await sync_to_async(
-                        self._load_config
-                    )()
+                    next_date, next_args, config = await self._load_config()
                     # Determine if it's time to perform
                     now = datetime.datetime.now(datetime.timezone.utc)
                     if next_date is not None and next_date <= now:
@@ -296,7 +293,7 @@ class NabRecurrentService(NabService, ABC):
                             config,
                         )
                         # reset date after performance
-                        await sync_to_async(self.update_next)(None, None)
+                        await self.update_next(None, None)
                         self.reason = (
                             NabRecurrentService.Reason.PERFORMANCE_PLAYED
                         )
@@ -345,19 +342,19 @@ class NabRecurrentService(NabService, ABC):
                 )  # give canceled tasks the last chance to run
             self.loop.close()
 
-    def _load_config(self):
+    async def _load_config(self):
         """
         Load or reload configuration.
         Invokes get_config, compute_next and update_next.
         """
-        saved_date, saved_args, config = self.get_config()
+        saved_date, saved_args, config = await self.get_config()
         next_t = self.compute_next(saved_date, saved_args, config, self.reason)
         if next_t is None:
             next_date, next_args = None, None
         else:
             next_date, next_args = next_t
         if next_date != saved_date or next_args != saved_args:
-            self.update_next(next_date, next_args)
+            await self.update_next(next_date, next_args)
         return next_date, next_args, config
 
 

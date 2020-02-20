@@ -373,23 +373,23 @@ class NabWeatherd(NabInfoService):
         "W1_16": "J_W1_22-N_3",
     }
 
-    def get_config(self):
+    async def get_config(self):
         from . import models
 
-        config = models.Config.load()
+        config = await models.Config.load_async()
         return (
             config.next_performance_date,
             config.next_performance_type,
             (config.location, config.unit, config.weather_animation_type),
         )
 
-    def update_next(self, next_date, next_args):
+    async def update_next(self, next_date, next_args):
         from . import models
 
-        config = models.Config.load()
+        config = await models.Config.load_async()
         config.next_performance_date = next_date
         config.next_performance_type = next_args
-        config.save()
+        await config.save_async()
 
     def next_info_update(self, config):
         if config is None:
@@ -409,9 +409,9 @@ class NabWeatherd(NabInfoService):
         logging.debug(data)
 
         # saving real city in the location
-        config = await sync_to_async(models.Config.load)()
+        config = await models.Config.load_async()
         config.location = data["printName"]
-        await sync_to_async(config.save)()
+        await config.save_async()
 
         if ("next_rain") in data:
             if data["next_rain"] == "No rain":
@@ -492,25 +492,25 @@ class NabWeatherd(NabInfoService):
                 ]
                 max_temp = info_data["tomorrow_forecast_max_temp"]
             if type == "today" or type == "tomorrow":
-                unit_sound_file = 'degree.mp3'
+                unit_sound_file = "degree.mp3"
                 if unit == NabWeatherd.UNIT_FARENHEIT:
                     max_temp = round(max_temp * 1.8 + 32.0)
-                    unit_sound_file = 'degree_f.mp3'
-                    
+                    unit_sound_file = "degree_f.mp3"
+
                 packet = (
                     '{"type":"message",'
                     '"signature":{"audio":["nabweatherd/signature.mp3"]},'
                     '"body":[{"audio":["nabweatherd/' + type + '.mp3",'
                     '"nabweatherd/sky/' + weather_class + '.mp3",'
                     '"nabweatherd/temp/' + str(max_temp) + '.mp3",'
-                    '"nabweatherd/'+unit_sound_file+'"]}],'
+                    '"nabweatherd/' + unit_sound_file + '"]}],'
                     '"expiration":"' + expiration.isoformat() + '"}\r\n'
                 )
                 self.writer.write(packet.encode("utf8"))
         await self.writer.drain()
 
     async def _do_perform(self, type):
-        next_date, next_args, config_t = await sync_to_async(self.get_config)()
+        next_date, next_args, config_t = await self.get_config()
         now = datetime.datetime.now(datetime.timezone.utc)
         expiration = now + datetime.timedelta(minutes=1)
         await self.perform(expiration, type, config_t)

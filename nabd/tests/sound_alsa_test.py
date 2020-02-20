@@ -5,8 +5,8 @@ import sys
 import time
 import unittest
 import wave
-
 import pytest
+from utils import close_old_connections
 
 
 @pytest.mark.skipif(
@@ -33,6 +33,9 @@ class TestPlaySound(unittest.TestCase):
                 "Runtime error getting sound card %s" % str(error)
             )
         self.sound = SoundAlsa(model)
+
+    def tearDown(self):
+        close_old_connections()
 
     def test_mp3(self):
         start_task = self.loop.create_task(

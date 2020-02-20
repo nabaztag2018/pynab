@@ -1,4 +1,5 @@
 from django.db import models
+from asgiref.sync import sync_to_async
 
 
 class SingletonModel(models.Model):
@@ -37,3 +38,13 @@ class SingletonModel(models.Model):
     def load(cls):
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
+
+    # asyncio-compatible versions, using sync_to_async
+    @classmethod
+    async def load_async(cls):
+        return await sync_to_async(cls.load, thread_sensitive=True)()
+
+    async def save_async(self, *args, **kwargs):
+        return await sync_to_async(self.save, thread_sensitive=True)(
+            *args, **kwargs
+        )

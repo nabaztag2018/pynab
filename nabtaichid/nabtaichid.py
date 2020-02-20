@@ -7,18 +7,18 @@ from nabcommon.nabservice import NabRandomService
 class NabTaichid(NabRandomService):
     DAEMON_PIDFILE = "/run/nabtaichid.pid"
 
-    def get_config(self):
+    async def get_config(self):
         from . import models
 
-        config = models.Config.load()
+        config = await models.Config.load_async()
         return (config.next_taichi, None, config.taichi_frequency)
 
-    def update_next(self, next_date, next_args):
+    async def update_next(self, next_date, next_args):
         from . import models
 
-        config = models.Config.load()
+        config = await models.Config.load_async()
         config.next_taichi = next_date
-        config.save()
+        await config.save_async()
 
     async def perform(self, expiration, args, config):
         packet = (

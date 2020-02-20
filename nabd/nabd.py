@@ -15,7 +15,6 @@ import gc
 from enum import Enum
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
-from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.apps import apps
 from nabcommon import nablogging
@@ -107,7 +106,7 @@ class Nabd:
             from .asr import ASR
             from .nlu import NLU
 
-            config = await sync_to_async(i18n.Config.load)()
+            config = await i18n.Config.load_async()
             new_asr_locale = ASR.get_locale(config.locale)
             new_nlu_locale = NLU.get_locale(config.locale)
             if new_asr_locale != self._asr_locale:
