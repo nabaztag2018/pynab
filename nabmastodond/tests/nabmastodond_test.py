@@ -14,7 +14,7 @@ from asgiref.sync import async_to_sync
 from nabmastodond import nabmastodond, models
 from nabcommon import nabservice
 from mastodon import Mastodon, MastodonNotFoundError
-from nabd.tests.utils import close_old_connections
+from nabd.tests.utils import close_old_async_connections
 
 
 DATE_1 = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
@@ -112,7 +112,7 @@ class TestMastodonLogic(unittest.TestCase, MockMastodonClient):
         self.posted_statuses = []
 
     def tearDown(self):
-        close_old_connections()
+        close_old_async_connections()
 
     def test_process_status(self):
         config = models.Config.load()
@@ -250,7 +250,7 @@ class TestMastodondBase(unittest.TestCase):
 class TestMastodond(TestMastodondBase):
     def tearDown(self):
         TestMastodondBase.tearDown(self)
-        close_old_connections()
+        close_old_async_connections()
 
     async def connect_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
@@ -324,7 +324,7 @@ class TestMastodondPairingProtocol(TestMastodondBase, MockMastodonClient):
 
     def tearDown(self):
         TestMastodondBase.tearDown(self)
-        close_old_connections()
+        close_old_async_connections()
 
     async def protocol_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
@@ -1548,7 +1548,7 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
 
     def tearDown(self):
         TestMastodondBase.tearDown(self)
-        close_old_connections()
+        close_old_async_connections()
 
     async def ears_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
@@ -1764,7 +1764,7 @@ class TestMastodonClientProposal(TestMastodondBase, TestMastodonClientBase):
     def tearDown(self):
         TestMastodondBase.tearDown(self)
         TestMastodonClientBase.tearDown(self)
-        close_old_connections()
+        close_old_async_connections()
 
     def test_mastodon_client_alter_proposal_before_start(self):
         config = models.Config.load()

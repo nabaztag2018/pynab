@@ -10,7 +10,8 @@ import datetime
 from nabd import nabd
 from nabd.rfid import TagFlags
 from mock import NabIOMock
-from utils import close_old_connections
+from utils import close_old_async_connections
+from django.db import close_old_connections
 import nabtaichid
 
 
@@ -49,6 +50,7 @@ class TestNabdBase(unittest.TestCase):
             self.nabd_cv.notify()
         self.nabd.run()
         nabd_loop.close()
+        close_old_connections()
 
     def setUp(self):
         self.nabd_cv = threading.Condition()
@@ -548,7 +550,7 @@ class TestNabd(TestNabdBase):
 class TestRfid(TestNabdBase):
     def tearDown(self):
         TestNabdBase.tearDown(self)
-        close_old_connections()
+        close_old_async_connections()
 
     def test_detect_clear_rfid(self):
         s1 = self.service_socket()

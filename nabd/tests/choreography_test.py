@@ -5,7 +5,7 @@ import pytest
 import unittest
 from nabd.choreography import ChoreographyInterpreter
 from mock import EarsMock, LedsMock, SoundMock
-from utils import close_old_connections
+from utils import close_old_async_connections
 
 
 class TestChoreographyBase(unittest.TestCase):
@@ -170,7 +170,7 @@ class TestCancelEvent(asynctest.TestCase):
 @pytest.mark.django_db
 class TestRandMidi(TestChoreographyBase):
     def tearDown(self):
-        close_old_connections()
+        close_old_async_connections()
 
     def test_randmidi(self):
         chor = base64.b16decode("0010")
@@ -220,7 +220,7 @@ class TaichiTestEnvironment:
 @pytest.mark.django_db
 class TestTaichiChoreographies(unittest.TestCase):
     def tearDown(self):
-        close_old_connections()
+        close_old_async_connections()
 
     def _do_test_task(self, random):
         environment = TaichiTestEnvironment(self, random)
@@ -240,7 +240,7 @@ class TestTaichiChoreographies(unittest.TestCase):
 @pytest.mark.django_db
 class TestStreamingChoregraphy(TestChoreographyBase):
     def tearDown(self):
-        close_old_connections()
+        close_old_async_connections()
 
     def test_streaming(self):
         task = self.loop.create_task(

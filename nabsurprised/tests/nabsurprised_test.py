@@ -9,7 +9,7 @@ import signal
 import pytest
 from asgiref.sync import async_to_sync
 from nabsurprised.nabsurprised import NabSurprised
-from nabd.tests.utils import close_old_connections
+from nabd.tests.utils import close_old_async_connections
 
 
 class MockWriter(object):
@@ -26,7 +26,7 @@ class MockWriter(object):
 @pytest.mark.django_db
 class TestNabSurprised(unittest.TestCase):
     def tearDown(self):
-        close_old_connections()
+        close_old_async_connections()
 
     def test_perform(self):
         service = NabSurprised()
@@ -45,7 +45,7 @@ class TestNabSurprised(unittest.TestCase):
 @pytest.mark.django_db
 class TestRfid(unittest.TestCase):
     def tearDown(self):
-        close_old_connections()
+        close_old_async_connections()
 
     def test_detect_language(self):
         service = NabSurprised()

@@ -7,7 +7,7 @@ import pytest
 from asgiref.sync import async_to_sync
 from nabairqualityd.nabairqualityd import NabAirqualityd
 from nabairqualityd import models
-from nabd.tests.utils import close_old_connections
+from nabd.tests.utils import close_old_async_connections
 
 
 class MockWriter(object):
@@ -24,7 +24,7 @@ class MockWriter(object):
 @pytest.mark.django_db(transaction=True)
 class TestNabAirqualityd(unittest.TestCase):
     def tearDown(self):
-        close_old_connections()
+        close_old_async_connections()
 
     def test_fetch_info_data(self):
         config = models.Config.load()

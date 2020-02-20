@@ -4,7 +4,7 @@ import pytest
 from nabd.resources import Resources
 from nabd.i18n import Config
 from nabd.choreography import ChoreographyInterpreter
-from nabd.tests.utils import close_old_connections
+from nabd.tests.utils import close_old_async_connections
 
 
 @pytest.mark.django_db(transaction=True)
@@ -14,7 +14,7 @@ class TestResources(unittest.TestCase):
         asyncio.set_event_loop(self.loop)
 
     def tearDown(self):
-        close_old_connections()
+        close_old_async_connections()
 
     def test_find_existing(self):
         task = self.loop.create_task(

@@ -9,9 +9,10 @@ import signal
 import pytest
 import os
 from dateutil import tz
+from django.db import close_old_connections
 from nabclockd import nabclockd, models
 from nabcommon import nabservice
-from nabd.tests.utils import close_old_connections
+from nabd.tests.utils import close_old_async_connections
 
 
 @pytest.mark.skipif(
@@ -20,9 +21,6 @@ from nabd.tests.utils import close_old_connections
 )
 @pytest.mark.django_db(transaction=True)
 class TestNabclockd(unittest.TestCase):
-    def tearDown(self):
-        close_old_connections()
-
     async def mock_nabd_service_handler(self, reader, writer):
         self.service_writer = writer
         if self.mock_connection_handler:
@@ -60,7 +58,11 @@ class TestNabclockd(unittest.TestCase):
         self.mock_nabd_loop.call_soon_threadsafe(
             lambda: self.mock_nabd_loop.stop()
         )
-        self.mock_nabd_thread.join(3)
+        self.mock_nabd_thread.join(10)
+        if self.mock_nabd_thread.is_alive():
+            raise RuntimeError("mock_nabd_thread still running")
+        close_old_async_connections()
+        close_old_connections()
 
     async def connect_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
@@ -116,6 +118,7 @@ class TestNabclockd(unittest.TestCase):
             config.sleep_hour -= 24
         config.sleep_min = 0
         config.save()
+        close_old_connections()
 
     def _update_wakeup_hours(self, service):
         this_loop = asyncio.get_event_loop()

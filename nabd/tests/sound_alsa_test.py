@@ -6,7 +6,7 @@ import time
 import unittest
 import wave
 import pytest
-from utils import close_old_connections
+from utils import close_old_async_connections
 
 
 @pytest.mark.skipif(
@@ -35,7 +35,7 @@ class TestPlaySound(unittest.TestCase):
         self.sound = SoundAlsa(model)
 
     def tearDown(self):
-        close_old_connections()
+        close_old_async_connections()
 
     def test_mp3(self):
         start_task = self.loop.create_task(
@@ -158,6 +158,7 @@ class TestRecord(unittest.TestCase):
 
     def tearDown(self):
         self.recorded_raw.close()
+        close_old_async_connections()
 
     def test_recording_playback(self):
         import alsaaudio
