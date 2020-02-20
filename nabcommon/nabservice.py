@@ -128,9 +128,43 @@ class NabService(ABC):
             time.sleep(1)
             self._do_connect(retry_count - 1)
 
-    @abstractmethod
     def run(self):
-        pass
+        self.connect()
+        service_task = self.start_service_loop(self.loop)
+        try:
+            self.loop.run_forever()
+            if service_task and service_task.done():
+                ex = service_task.exception()
+                if ex:
+                    raise ex
+        except KeyboardInterrupt:
+            pass
+        finally:
+            self.writer.close()
+            self.loop.run_until_complete(self.stop_service_loop())
+            tasks = asyncio.all_tasks(self.loop)
+            # give canceled tasks the last chance to run
+            for t in [t for t in tasks if not (t.done() or t.cancelled())]:
+                self.loop.run_until_complete(t)
+            self.loop.close()
+
+    def start_service_loop(self, loop):
+        """
+        Start a service loop, if any.
+        Typically:
+        return loop.create_task(self.service_loop())
+        """
+        return None
+
+    async def stop_service_loop(self):
+        """
+        Signal service loop to stop.
+        Typically:
+        async with self.loop_cv:
+            self.running = False  # signal to exit
+            self.loop_cv.notify()
+        """
+        return None
 
     @classmethod
     def signal_daemon(cls):
@@ -316,31 +350,13 @@ class NabRecurrentService(NabService, ABC):
             if self.running:
                 asyncio.get_event_loop().stop()
 
+    def start_service_loop(self, loop):
+        return loop.create_task(self.service_loop())
+
     async def stop_service_loop(self):
         async with self.loop_cv:
             self.running = False  # signal to exit
             self.loop_cv.notify()
-
-    def run(self):
-        super().connect()
-        service_task = self.loop.create_task(self.service_loop())
-        try:
-            self.loop.run_forever()
-            if service_task.done():
-                ex = service_task.exception()
-                if ex:
-                    raise ex
-        except KeyboardInterrupt:
-            pass
-        finally:
-            self.writer.close()
-            self.loop.run_until_complete(self.stop_service_loop())
-            tasks = asyncio.all_tasks(self.loop)
-            for t in [t for t in tasks if not (t.done() or t.cancelled())]:
-                self.loop.run_until_complete(
-                    t
-                )  # give canceled tasks the last chance to run
-            self.loop.close()
 
     async def _load_config(self):
         """
