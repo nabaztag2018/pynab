@@ -68,7 +68,17 @@ class TestView(TestCase):
         self.assertEqual(response.context["lang"], "en_US")
         self.assertEqual(response.context["type"], "birthday")
 
-    def test_get_rfid_data_param(self):
+    def test_get_rfid_data_invalid(self):
+        c = Client()
+        response = c.get("/nabsurprised/rfid-data?data=%00")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.templates[0].name, "nabsurprised/rfid-data.html"
+        )
+        self.assertEqual(response.context["lang"], "default")
+        self.assertEqual(response.context["type"], "surprise")
+
+    def test_get_rfid_data_also_invalid(self):
         c = Client()
         response = c.get("/nabsurprised/rfid-data?data=%ff%ff")
         self.assertEqual(response.status_code, 200)
