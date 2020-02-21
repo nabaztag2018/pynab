@@ -9,17 +9,7 @@ from nabweatherd.nabweatherd import NabWeatherd
 from nabweatherd import models
 from nabweatherd import rfid_data
 from nabd.tests.utils import close_old_async_connections
-
-
-class MockWriter(object):
-    def __init__(self):
-        self.written = []
-
-    def write(self, packet):
-        self.written.append(packet)
-
-    async def drain(self):
-        pass
+from nabd.tests.mock import MockWriter
 
 
 class TestNabWeatherd(unittest.TestCase):

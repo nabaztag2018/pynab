@@ -1,4 +1,3 @@
-import unittest
 import asyncio
 from threading import Thread
 import json
@@ -11,7 +10,7 @@ import os
 from dateutil import tz
 from django.db import close_old_connections
 from nabclockd import nabclockd, models
-from nabcommon import nabservice
+from nabd.tests.mock import NabdMockTestCase
 from nabd.tests.utils import close_old_async_connections
 
 
@@ -20,47 +19,9 @@ from nabd.tests.utils import close_old_async_connections
     reason="Test requires /etc/timezone to exist",
 )
 @pytest.mark.django_db(transaction=True)
-class TestNabclockd(unittest.TestCase):
-    async def mock_nabd_service_handler(self, reader, writer):
-        self.service_writer = writer
-        if self.mock_connection_handler:
-            await self.mock_connection_handler(reader, writer)
-
-    def mock_nabd_thread_entry_point(self):
-        self.mock_nabd_loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.mock_nabd_loop)
-        server_task = self.mock_nabd_loop.create_task(
-            asyncio.start_server(
-                self.mock_nabd_service_handler,
-                "localhost",
-                nabservice.NabService.PORT_NUMBER,
-            )
-        )
-        try:
-            self.mock_nabd_loop.run_forever()
-        finally:
-            server = server_task.result()
-            server.close()
-            if self.service_writer:
-                self.service_writer.close()
-            self.mock_nabd_loop.close()
-
-    def setUp(self):
-        self.service_writer = None
-        self.mock_nabd_loop = None
-        self.mock_nabd_thread = Thread(
-            target=self.mock_nabd_thread_entry_point
-        )
-        self.mock_nabd_thread.start()
-        time.sleep(1)
-
+class TestNabclockd(NabdMockTestCase):
     def tearDown(self):
-        self.mock_nabd_loop.call_soon_threadsafe(
-            lambda: self.mock_nabd_loop.stop()
-        )
-        self.mock_nabd_thread.join(10)
-        if self.mock_nabd_thread.is_alive():
-            raise RuntimeError("mock_nabd_thread still running")
+        NabdMockTestCase.tearDown(self)
         close_old_async_connections()
         close_old_connections()
 

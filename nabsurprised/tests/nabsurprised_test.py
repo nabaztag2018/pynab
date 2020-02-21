@@ -10,17 +10,7 @@ import pytest
 from asgiref.sync import async_to_sync
 from nabsurprised.nabsurprised import NabSurprised
 from nabd.tests.utils import close_old_async_connections
-
-
-class MockWriter(object):
-    def __init__(self):
-        self.written = []
-
-    def write(self, packet):
-        self.written.append(packet)
-
-    async def drain(self):
-        pass
+from nabd.tests.mock import MockWriter
 
 
 @pytest.mark.django_db

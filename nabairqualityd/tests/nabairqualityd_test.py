@@ -8,17 +8,7 @@ from asgiref.sync import async_to_sync
 from nabairqualityd.nabairqualityd import NabAirqualityd
 from nabairqualityd import models
 from nabd.tests.utils import close_old_async_connections
-
-
-class MockWriter(object):
-    def __init__(self):
-        self.written = []
-
-    def write(self, packet):
-        self.written.append(packet)
-
-    async def drain(self):
-        pass
+from nabd.tests.mock import MockWriter
 
 
 @pytest.mark.django_db(transaction=True)

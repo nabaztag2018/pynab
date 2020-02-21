@@ -1,5 +1,9 @@
 import asyncio
 import functools
+import threading
+import time
+from unittest import TestCase
+from nabcommon import nabservice
 from nabd.nabio import NabIO
 from nabd.ears import Ears
 from nabd.leds import Leds, Led
@@ -208,3 +212,65 @@ class RfidMock(Rfid):
         (loop, callback) = self.cb
         partial = functools.partial(callback, uid, picture, app, data, flags)
         loop.call_soon_threadsafe(partial)
+
+
+class NabdMockTestCase(TestCase):
+    """
+    Base class to test services, starting a mock nabd handler in a separate
+    thread.
+    """
+
+    async def mock_nabd_service_handler(self, reader, writer):
+        self.service_writer = writer
+        if (
+            hasattr(self, "mock_connection_handler")
+            and self.mock_connection_handler is not None
+        ):
+            await self.mock_connection_handler(reader, writer)
+
+    def mock_nabd_thread_entry_point(self, kwargs):
+        self.mock_nabd_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.mock_nabd_loop)
+        server_task = self.mock_nabd_loop.create_task(
+            asyncio.start_server(
+                self.mock_nabd_service_handler,
+                "localhost",
+                nabservice.NabService.PORT_NUMBER,
+            )
+        )
+        try:
+            self.mock_nabd_loop.run_forever()
+        finally:
+            server = server_task.result()
+            server.close()
+            if self.service_writer:
+                self.service_writer.close()
+            self.mock_nabd_loop.close()
+
+    def setUp(self):
+        self.service_writer = None
+        self.mock_nabd_loop = None
+        self.mock_nabd_thread = threading.Thread(
+            target=self.mock_nabd_thread_entry_point, args=[self]
+        )
+        self.mock_nabd_thread.start()
+        time.sleep(1)
+
+    def tearDown(self):
+        self.mock_nabd_loop.call_soon_threadsafe(
+            lambda: self.mock_nabd_loop.stop()
+        )
+        self.mock_nabd_thread.join(3)
+        if self.mock_nabd_thread.is_alive():
+            raise RuntimeError("mock_nabd_thread still running")
+
+
+class MockWriter(object):
+    def __init__(self):
+        self.written = []
+
+    def write(self, packet):
+        self.written.append(packet)
+
+    async def drain(self):
+        pass
