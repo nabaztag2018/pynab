@@ -9,7 +9,7 @@ from nabweatherd.nabweatherd import NabWeatherd
 from nabweatherd import models
 from nabweatherd import rfid_data
 from nabd.tests.utils import close_old_async_connections
-from nabd.tests.mock import MockWriter
+from nabd.tests.mock import MockWriter, NabdMockTestCase
 
 
 class TestNabWeatherd(unittest.TestCase):
@@ -94,3 +94,13 @@ class TestRFIDData(unittest.TestCase):
         self.assertEqual("tomorrow", rfid_data.unserialize(b"\x02"))
         self.assertEqual("today", rfid_data.unserialize(b""))
         self.assertEqual("today", rfid_data.unserialize(b"unknown"))
+
+
+@pytest.mark.django_db
+class TestNabWeatherdRun(NabdMockTestCase):
+    def tearDown(self):
+        NabdMockTestCase.tearDown(self)
+        close_old_async_connections()
+
+    def test_connect(self):
+        self.do_test_connect(NabWeatherd)

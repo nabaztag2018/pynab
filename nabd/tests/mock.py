@@ -264,6 +264,20 @@ class NabdMockTestCase(TestCase):
         if self.mock_nabd_thread.is_alive():
             raise RuntimeError("mock_nabd_thread still running")
 
+    async def connect_handler(self, reader, writer):
+        writer.write(b'{"type":"state","state":"idle"}\r\n')
+        self.connect_handler_called += 1
+
+    def do_test_connect(self, service_cls):
+        self.mock_connection_handler = self.connect_handler
+        self.connect_handler_called = 0
+        this_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(this_loop)
+        this_loop.call_later(1, lambda: this_loop.stop())
+        service = service_cls()
+        service.run()
+        self.assertEqual(self.connect_handler_called, 1)
+
 
 class MockWriter(object):
     def __init__(self):

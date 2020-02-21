@@ -1,5 +1,4 @@
 import unittest
-import asyncio
 import threading
 import json
 import django
@@ -10,7 +9,7 @@ import pytest
 from asgiref.sync import async_to_sync
 from nabsurprised.nabsurprised import NabSurprised
 from nabd.tests.utils import close_old_async_connections
-from nabd.tests.mock import MockWriter
+from nabd.tests.mock import MockWriter, NabdMockTestCase
 
 
 @pytest.mark.django_db
@@ -92,3 +91,13 @@ class TestRfid(unittest.TestCase):
         self.assertEqual(
             packet_json["body"][0]["audio"][0], "nabsurprised/carrot/*.mp3"
         )
+
+
+@pytest.mark.django_db
+class TestNabSurprisedRun(NabdMockTestCase):
+    def tearDown(self):
+        NabdMockTestCase.tearDown(self)
+        close_old_async_connections()
+
+    def test_connect(self):
+        self.do_test_connect(NabSurprised)

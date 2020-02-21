@@ -213,19 +213,8 @@ class TestMastodond(TestMastodondBase):
         TestMastodondBase.tearDown(self)
         close_old_async_connections()
 
-    async def connect_handler(self, reader, writer):
-        writer.write(b'{"type":"state","state":"idle"}\r\n')
-        self.connect_handler_called += 1
-
     def test_connect(self):
-        self.mock_connection_handler = self.connect_handler
-        self.connect_handler_called = 0
-        self.service_loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.service_loop)
-        self.service_loop.call_later(2, lambda: self.service_loop.stop())
-        service = nabmastodond.NabMastodond()
-        service.run()
-        self.assertEqual(self.connect_handler_called, 1)
+        self.do_test_connect(nabmastodond.NabMastodond)
 
     async def connect_with_ears_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
