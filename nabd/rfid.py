@@ -1,9 +1,11 @@
 import abc
 from enum import IntFlag
 from typing import Callable
+import nabbookd
 import nabsurprised
 import nabtaichid
 import nabweatherd
+import nabrfid2server
 
 
 class TagFlags(IntFlag):
@@ -21,12 +23,13 @@ TAG_APPLICATIONS = {
     1: "nab8balld",
     2: "nabairqualityd",
     3: "nabblockly",
-    4: "nabbookd",
+    nabbookd.NABAZTAG_RFID_APPLICATION_ID: "nabbookd",  # 4
     5: "nabclockd",
     6: "nabmastodond",
-    nabsurprised.NABAZTAG_RFID_APPLICATION_ID: "nabsurprised",
+    nabsurprised.NABAZTAG_RFID_APPLICATION_ID: "nabsurprised",  # 7
     nabtaichid.NABAZTAG_RFID_APPLICATION_ID: "nabtaichid",  # 8
     nabweatherd.NABAZTAG_RFID_APPLICATION_ID: "nabweatherd",  # 9
+    nabrfid2server.NABAZTAG_RFID_APPLICATION_ID: "rfid/*",  # 10
 }
 
 DEFAULT_RFID_TIMEOUT = 20.0
