@@ -78,6 +78,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
         await ci.start("nabd/rfid.chor")
         await self.sound.play_list(["rfid/rfid.wav"], False)
         await ci.stop()
+        self.set_leds(None, None, None, None, None)
 
     def rfid_awaiting_feedback(self):
         """
