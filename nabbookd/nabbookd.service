@@ -1,0 +1,16 @@
+[Unit]
+Description=Nabaztag interactive books
+After=nabd.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+WorkingDirectory=/home/pi/pynab
+ExecStart=/home/pi/pynab/venv/bin/python -m nabbookd.nabbookd
+PIDFile=/run/nabbookd.pid
+
+[Install]
+WantedBy=multi-user.target

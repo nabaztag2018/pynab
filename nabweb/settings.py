@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "nabd",
     "nab8balld",
+    "nabbookd",
     "nabclockd",
     "nabmastodond",
     "nabsurprised",

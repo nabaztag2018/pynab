@@ -1,0 +1,47 @@
+{% load i18n %}
+{% load static %}
+<div class="row">
+  <div class="col-sm-8">
+    <div class="form-group row">
+      <label for="bookSel" class="col-sm-3 col-form-label">{% trans "Book" %}</label>
+      <div class="col-sm-9">
+        <select class="form-control form-control-sm" id="bookSel" name="book">
+          {% for book_item in books %}
+            <option value="{{ book_item.isbn }}"{% if book == book_item.isbn %} selected{% endif %}>{% if 'title' in book_item %}{{ book_item.title }}{% else %}{% trans "Untitled" %} ({{ book_item.isbn }}){% endif %}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="voiceSel" class="col-sm-3 col-form-label">{% trans "Voice" %}</label>
+      <div class="col-sm-9">
+        {% for book_item in books %}
+          <select class="form-control form-control-sm voice-sel d-none" data-book="{{ book_item.isbn }}">
+            {% for voice_item in book_item.voices %}
+              <option value="{{ voice_item.id }}"{% if book == book_item.isbn and voice_item.id == voice %} selected{% endif %}>{% if 'description' in voice_item %}{{ voice_item.description }}{% else %}{{ voice_item.id }}{% endif %}</option>
+            {% endfor %}
+          </select>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <img class="img-thumbnail m-3" id="bookImage" src="{% static "nabbookd/books/unknown.jpg" %}" width="100" height="100"/>
+  </div>
+</div>
+<script type="text/javascript">
+$(function() {
+  var bookSel = $("#bookSel");
+  bookSel.on("change", function() {
+    $("#bookImage").attr("src", "{% static "nabbookd/books/" %}" + bookSel.val() + ".jpg");
+    $("select.voice-sel").addClass("d-none");
+    $("select.voice-sel").removeAttr("id");
+    $("select.voice-sel").removeAttr("name");
+    var voiceSel = $("select.voice-sel[data-book='" + bookSel.val() + "']");
+    voiceSel.removeClass("d-none");
+    voiceSel.attr("id", "voiceSel");
+    voiceSel.attr("name", "voice");
+  });
+  bookSel.trigger("change");
+});
+</script>
