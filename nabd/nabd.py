@@ -212,8 +212,7 @@ class Nabd:
             else:
                 if item[0]["type"] == "command":
                     await self.set_state(State.PLAYING)
-                    await self.perform_command(item[0])
-                    self.write_response_cancelable(item[0], item[1])
+                    await self.perform(item[0], item[1])
                     if len(self.idle_queue) == 0:
                         await self.set_state(State.IDLE)
                         break
@@ -221,8 +220,7 @@ class Nabd:
                         item = self.idle_queue.popleft()
                 elif item[0]["type"] == "message":
                     await self.set_state(State.PLAYING)
-                    await self.perform_message(item[0])
-                    self.write_response_cancelable(item[0], item[1])
+                    await self.perform(item[0], item[1])
                     if len(self.idle_queue) == 0:
                         await self.set_state(State.IDLE)
                         break
@@ -356,33 +354,17 @@ class Nabd:
 
     async def process_command_packet(self, packet, writer):
         """ Process a command packet """
-        if "sequence" in packet:
-            if self.interactive_service_writer == writer:
-                # interactive => play command immediately
-                await self.perform_command(packet)
-                self.write_response_packet(packet, {"status": "ok"}, writer)
-            else:
-                async with self.idle_cv:
-                    self.idle_queue.append((packet, writer))
-                    self.idle_cv.notify()
-        else:
-            self.write_response_packet(
-                packet,
-                {
-                    "status": "error",
-                    "class": "MalformedPacket",
-                    "message": "Missing required sequence slot",
-                },
-                writer,
-            )
+        await self.process_perform_packet("sequence", packet, writer)
 
     async def process_message_packet(self, packet, writer):
         """ Process a message packet """
-        if "body" in packet:
+        await self.process_perform_packet("body", packet, writer)
+
+    async def process_perform_packet(self, slot, packet, writer):
+        if slot in packet:
             if self.interactive_service_writer == writer:
-                # interactive => play command immediately
-                await self.perform_message(packet)
-                self.write_response_packet(packet, {"status": "ok"}, writer)
+                # interactive => play command immediately, asynchronously
+                self.loop.create_task(self.perform(packet, writer))
             else:
                 async with self.idle_cv:
                     self.idle_queue.append((packet, writer))
@@ -393,7 +375,7 @@ class Nabd:
                 {
                     "status": "error",
                     "class": "MalformedPacket",
-                    "message": "Missing required body slot",
+                    "message": f"Missing required {slot} slot",
                 },
                 writer,
             )
@@ -766,28 +748,21 @@ class Nabd:
             if self.interactive_service_writer == writer:
                 await self.exit_interactive()
 
-    async def perform_command(self, packet):
+    async def perform(self, packet, writer):
         if "request_id" in packet:
             self.playing_request_id = packet["request_id"]
         self.playing_cancelable = (
             "cancelable" not in packet or packet["cancelable"]
         )
         self.playing_canceled = False
-        await self.nabio.play_sequence(packet["sequence"])
-        self.playing_request_id = None
-        self.playing_cancelable = False
-
-    async def perform_message(self, packet):
-        signature = {}
-        if "signature" in packet:
-            signature = packet["signature"]
-        if "request_id" in packet:
-            self.playing_request_id = packet["request_id"]
-        self.playing_cancelable = (
-            "cancelable" not in packet or packet["cancelable"]
-        )
-        self.playing_canceled = False
-        await self.nabio.play_message(signature, packet["body"])
+        if packet["type"] == "command":
+            await self.nabio.play_sequence(packet["sequence"])
+        else:
+            signature = {}
+            if "signature" in packet:
+                signature = packet["signature"]
+            await self.nabio.play_message(signature, packet["body"])
+        self.write_response_cancelable(packet, writer)
         self.playing_request_id = None
         self.playing_cancelable = False
 
