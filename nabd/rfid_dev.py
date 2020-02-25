@@ -112,7 +112,7 @@ class RfidDev(Rfid):  # pragma: no cover
         self.__current_uid = uid
         self.__current_picture = None
         self.__current_app = None
-        if self._is_compatible(uid):
+        if RfidDev.is_compatible(uid):
             # Read system and blocks 7-15
             os.write(
                 self.__fd,
@@ -181,11 +181,14 @@ class RfidDev(Rfid):  # pragma: no cover
         system_block_int = int.from_bytes(system_block_le, byteorder="little")
         return system_block_int & 0xFF800000 != 0xFF800000
 
-    def _is_compatible(self, uid_be):
+    @staticmethod
+    def is_compatible(uid_be):  # pragma: cover
         """
         Determine if tag is compatible based on UID.
-        We currently support STMicroelectronics SRI512 (Violet ztamps) and
-        SRT512 (Lemet' contactless transport tickets)
+        We currently support:
+        - STMicroelectronics SRI512 (Violet ztamps)
+        - STMicroelectronics SRT512 (Lemet' contactless transport tickets)
+        - STMicroelectronics SRIX4K, SRI4K, SRI2K
         """
         if uid_be[0] != 0xD0:
             return False
@@ -197,6 +200,15 @@ class RfidDev(Rfid):  # pragma: no cover
             return True
         if uid_be[2] & 0xFC == 0b00110000:
             # SRT512
+            return True
+        if uid_be[2] & 0xFC == 0b00011100:
+            # SRI4K
+            return True
+        if uid_be[2] & 0xFC == 0b00001100:
+            # SRIX4K
+            return True
+        if uid_be[2] & 0xFC == 0b00111100:
+            # SRIX2K
             return True
         return False
 
