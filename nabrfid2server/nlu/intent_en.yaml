@@ -1,0 +1,13 @@
+---
+type: intent
+name: surprise
+utterances:
+  - tell me a joke
+  - make me laugh
+  - i love your humor
+
+---
+type: intent
+name: carrot
+utterances:
+  - carrot
