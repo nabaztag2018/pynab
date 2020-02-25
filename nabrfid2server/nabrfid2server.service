@@ -1,0 +1,16 @@
+[Unit]
+Description=Nabaztag Rfid to URL sender daemon
+After=nabd.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+WorkingDirectory=/home/pi/pynab
+ExecStart=/home/pi/pynab/venv/bin/python -m nabrfid2server.nabrfid2server
+PIDFile=/run/nabrfid2server.pid
+
+[Install]
+WantedBy=multi-user.target

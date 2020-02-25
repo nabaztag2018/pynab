@@ -35,7 +35,7 @@ DEFAULT_RFID_TIMEOUT = 20.0
 
 
 class Rfid(object, metaclass=abc.ABCMeta):
-    """Interface for rfid reader"""
+    """ Interface for rfid reader """
 
     @abc.abstractmethod
     def on_detect(
