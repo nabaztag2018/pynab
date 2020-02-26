@@ -26,24 +26,25 @@ class NabRfid2server(NabService):
         await self.setup_listener()
 
     async def process_nabd_packet(self, packet):
+        if ( self.config.rfid_2_server_mode==0 ): return # Never send url
         if (packet["type"] == "state")or(packet["type"] == "response"): return
         if (packet["type"] != "rfid_event"):
-            self.send_rfid_2_url(packet["type"],"Setting Test","No")
+            self.send_rfid_2_url(packet["type"],"Setting Test","No","--")
             return
-        if ( packet["event"] != "detected" or self.config.rfid_2_server_mode==0 ): return # Never send url
-        if "app" not in packet: app = 255
+        if "app" not in packet: app = "none"
         else: app = packet["app"]
         if "support" not in packet: supp = "support unknown"
         else: supp = packet["support"]
-        if (self.config.rfid_2_server_mode==1) and (supp=="formatted") and (app==255) : return # Send only unknown tags
-        self.send_rfid_2_url(packet["uid"],app,supp)
+        if "event" not in packet: _event = "no event"
+        else: _event = packet["event"]
+        if (self.config.rfid_2_server_mode==1) and (supp=="formatted") and (app=="none") : return # Send only unknown tags
+        self.send_rfid_2_url(packet["uid"],_event,app,supp)
 
-    def send_rfid_2_url(self, uid,app,supported):
-        str_uid = uid
+    def send_rfid_2_url(self, uid,_event,app,supp):
         url_message = self.config.rfid_2_server_url.replace("#RFID_TAG#",uid)
         url_message = url_message.replace("#RFID_APP#",app)
-        url_message = url_message.replace("#RFID_FLAGS#",supported)
-        #url_message = url_message.replace("#RFID_STATE#",self.__state.name)
+        url_message = url_message.replace("#RFID_FLAGS#",supp)
+        url_message = url_message.replace("#RFID_STATE#",_event)
         f = requests.get(url_message)
 
     async def client_loop(self):
