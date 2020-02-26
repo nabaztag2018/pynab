@@ -25,6 +25,5 @@ class SettingsView(TemplateView):
     def put(self, request, *args, **kwargs):
         config = Config.load()
         config.save()
-        NabRfid2server.server_test = True
-        NabRfid2server.signal_daemon()
+        NabRfid2server.send_rfid_2_url("RFID_UID_TEST","EVENT_TEST","APP_TEST","SUPPORT_TEST")
         return JsonResponse({"status": "ok"})

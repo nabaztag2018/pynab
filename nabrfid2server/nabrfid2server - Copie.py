@@ -12,13 +12,17 @@ class NabRfid2server(NabService):
         super().__init__()
         from . import models
 
-        self.server_test = False
         self.config = models.Config.load()
+
+    async def get_config(self):
+        from . import models
+
+        config = await models.Config.load_async()
+        return (None, None, config.rfid_2_server_mode,config.rfid_2_server_url)
 
     async def reload_config(self):
         from . import models
         config = await models.Config.load_async()
-        if self.server_test : send_rfid_2_url("RFID_UID_TEST","EVENT_TEST","APP_TEST","SUPPORT_TEST")
         return (None, None, config.rfid_2_server_mode,config.rfid_2_server_url)
 
     async def process_nabd_packet(self, packet):

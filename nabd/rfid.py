@@ -5,7 +5,6 @@ import nabbookd
 import nabsurprised
 import nabtaichid
 import nabweatherd
-import nabrfid2server
 
 
 class TagFlags(IntFlag):
