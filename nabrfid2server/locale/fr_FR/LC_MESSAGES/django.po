@@ -47,7 +47,7 @@ msgstr "Ne jamais transmettre de Tag"
 
 #: templates/nabrfid2server/settings.html:14
 msgid "Only for unknown tag"
-msgstr "Souvent"
+msgstr "Seulement les tags inconnus"
 
 #: templates/nabrfid2server/settings.html:15
 msgid "Always send the tag"

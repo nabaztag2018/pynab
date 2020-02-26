@@ -29,7 +29,6 @@ TAG_APPLICATIONS = {
     nabsurprised.NABAZTAG_RFID_APPLICATION_ID: "nabsurprised",  # 7
     nabtaichid.NABAZTAG_RFID_APPLICATION_ID: "nabtaichid",  # 8
     nabweatherd.NABAZTAG_RFID_APPLICATION_ID: "nabweatherd",  # 9
-    nabrfid2server.NABAZTAG_RFID_APPLICATION_ID: "rfid/*",  # 10
 }
 
 DEFAULT_RFID_TIMEOUT = 20.0
