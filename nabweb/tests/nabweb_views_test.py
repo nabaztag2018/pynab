@@ -14,6 +14,29 @@ class TestView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, "nabweb/index.html")
         self.assertTrue("services" in response.context)
+        self.assertTrue("nabmastodond" in response.context["services"])
+        self.assertTrue("current_locale" in response.context)
+        self.assertEqual(response.context["current_locale"], "fr_FR")
+
+    def test_post_home_empty(self):
+        c = Client()
+        response = c.post("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.templates[0].name, "nabweb/index.html")
+        self.assertTrue("services" in response.context)
+        self.assertTrue("nabmastodond" in response.context["services"])
+        self.assertTrue("current_locale" in response.context)
+        self.assertEqual(response.context["current_locale"], "fr_FR")
+
+    def test_post_home_set_locale(self):
+        c = Client()
+        response = c.post("/", {"locale": "en_US"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.templates[0].name, "nabweb/index.html")
+        self.assertTrue("services" in response.context)
+        self.assertTrue("nabmastodond" in response.context["services"])
+        self.assertTrue("current_locale" in response.context)
+        self.assertEqual(response.context["current_locale"], "en_US")
 
     def test_get_rfid(self):
         c = Client()
@@ -27,6 +50,18 @@ class TestView(TestCase):
             self.assertTrue("name" in item)
         self.assertTrue("rfid_support" in response.context)
         self.assertEqual(response.context["rfid_support"]["status"], "error")
+
+    def test_get_services(self):
+        c = Client()
+        response = c.get("/services/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.templates[0].name, "nabweb/services/index.html"
+        )
+        self.assertTrue("services" in response.context)
+        self.assertFalse("nabmastodond" in response.context["services"])
+        self.assertTrue("current_locale" in response.context)
+        self.assertEqual(response.context["current_locale"], "fr_FR")
 
 
 class TestNabdClientBase(TestCase):
