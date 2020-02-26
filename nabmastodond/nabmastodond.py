@@ -1,7 +1,6 @@
 import sys
 import asyncio
 import re
-from asgiref.sync import sync_to_async
 from nabcommon import nabservice
 from mastodon import Mastodon, StreamListener, MastodonError
 from operator import attrgetter
@@ -39,7 +38,7 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
     async def __config(self):
         from . import models
 
-        return await sync_to_async(models.Config.load)()
+        return await models.Config.load_async()
 
     async def reload_config(self):
         await self.setup_streaming(True)
@@ -86,7 +85,7 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
             and status_date > config.last_processed_status_date
         ):
             config.last_processed_status_date = status_date
-        await sync_to_async(config.save)()
+        await config.save_async()
 
     async def process_conversations(self, mastodon_client, conversations):
         config = await self.__config()
@@ -111,7 +110,7 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
                 max_date = status_date
         config.last_processed_status_date = max_date
         config.last_processed_status_id = max_id
-        await sync_to_async(config.save)()
+        await config.save_async()
 
     async def process_status(self, config, mastodon_client, status):
         try:
@@ -382,7 +381,7 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
                 except MastodonUnauthorizedError:
                     self.current_access_token = None
                     config.access_token = None
-                    await sync_to_async(config.save)()
+                    await config.save_async()
                 except MastodonError as e:
                     print(f"Unexpected mastodon error: {e}")
                     await asyncio.sleep(NabMastodond.RETRY_DELAY)
@@ -410,7 +409,7 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
                     await self.play_message("ears", config.spouse_handle)
                     config.spouse_left_ear_position = packet["left"]
                     config.spouse_right_ear_position = packet["right"]
-                    await sync_to_async(config.save)()
+                    await config.save_async()
                     NabMastodond.send_dm(
                         self.mastodon_client,
                         config.spouse_handle,

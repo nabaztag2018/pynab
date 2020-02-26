@@ -1,17 +1,20 @@
 import abc
 import time
+from enum import Enum, unique
 from threading import Thread, Lock, Condition
+
+
+@unique
+class Led(Enum):
+    BOTTOM = 4
+    RIGHT = 3  # when looking at the rabbit
+    CENTER = 2
+    LEFT = 1
+    NOSE = 0
 
 
 class Leds(object, metaclass=abc.ABCMeta):
     """ Interface for leds """
-
-    LED_NOSE = 0
-    LED_LEFT = 1
-    LED_CENTER = 2
-    LED_RIGHT = 3
-    LED_BOTTOM = 4
-    LED_COUNT = 5
 
     @abc.abstractmethod
     def set1(self, led, red, green, blue):
@@ -161,7 +164,7 @@ class LedsSoft(Leds, metaclass=abc.ABCMeta):
 
     def setall(self, red, green, blue):
         with self.pending_lock:
-            for led in range(Leds.LED_COUNT):
+            for led in list(Led):
                 self.pending.append(("set", led, (red, green, blue)))
         with self.condition:
             self.condition.notify()

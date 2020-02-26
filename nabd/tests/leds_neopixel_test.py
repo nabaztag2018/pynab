@@ -3,7 +3,7 @@ import time
 import pytest
 import sys
 import platform
-from nabd.leds import Leds
+from nabd.leds import Led
 
 
 @pytest.mark.skipif(
@@ -25,8 +25,14 @@ class TestLedsNeopixel(unittest.TestCase):
             (0, 255, 255),
             (0, 0, 0),
         ):
-            for i in range(0, 5):
-                leds.do_set(i, r, g, b)
+            for led in [
+                Led.NOSE,
+                Led.LEFT,
+                Led.CENTER,
+                Led.RIGHT,
+                Led.BOTTOM,
+            ]:
+                leds.do_set(led, r, g, b)
                 leds.do_show()
                 time.sleep(1)
 
@@ -44,7 +50,13 @@ class TestLedsNeopixel(unittest.TestCase):
             (0, 255, 255),
             (0, 0, 0),
         ):
-            for i in range(0, 5):
-                leds.do_set(i, r, g, b)
+            for led in [
+                Led.NOSE,
+                Led.LEFT,
+                Led.CENTER,
+                Led.RIGHT,
+                Led.BOTTOM,
+            ]:
+                leds.do_set(led, r, g, b)
             leds.do_show()
             time.sleep(1)

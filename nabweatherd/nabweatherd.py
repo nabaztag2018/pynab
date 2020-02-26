@@ -4,6 +4,7 @@ import logging
 from asgiref.sync import sync_to_async
 from nabcommon.nabservice import NabInfoService
 from meteofrance.client import meteofranceClient
+from . import rfid_data
 
 
 class NabWeatherd(NabInfoService):
@@ -30,13 +31,11 @@ class NabWeatherd(NabInfoService):
         '{"left":"0000ff","center":"000000","right":"0000ff"}]}'
     )
 
-
     WHITE_INFO_ANIMATION = (
         '{"tempo":125,"colors":['
         '{"left":"ffffff","center":"ffffff","right":"ffffff"},'
         '{"left":"000000","center":"000000","right":"000000"}]}'
     )
-
 
     # [25 {4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 0 0 0}] // brouillard
     FOGGY_INFO_ANIMATION = (
@@ -248,7 +247,7 @@ class NabWeatherd(NabInfoService):
         "J_W1_18-N_3": "J_W1_9-N_3",
         "J_W1_18-N": "J_W1_9-N_0",
         "J_W1_19-N": "J_W1_10-N_0",
-#       "J_W1_19-N": "J_W2_14",
+        #       "J_W1_19-N": "J_W2_14",
         "J_W1_20-N_3": "J_W1_14-N_3",
         "J_W1_20": "J_W1_14-N_0",
         "J_W1_21-N_3": "J_W1_13-N_3",
@@ -320,7 +319,7 @@ class NabWeatherd(NabInfoService):
         "N_W1_18-N_3": "J_W1_9-N_3",
         "N_W1_18-N": "N_W1_9-N_0",
         "N_W1_19-N": "J_W1_10-N_0",
-#       "N_W1_19-N": "N_W2_14",
+        #       "N_W1_19-N": "N_W2_14",
         "N_W1_20-N_3": "J_W1_14-N_3",
         "N_W1_20": "N_W1_14-N_0",
         "N_W1_21-N_3": "J_W1_13-N_3",
@@ -374,23 +373,23 @@ class NabWeatherd(NabInfoService):
         "W1_16": "J_W1_22-N_3",
     }
 
-    def get_config(self):
+    async def get_config(self):
         from . import models
 
-        config = models.Config.load()
+        config = await models.Config.load_async()
         return (
             config.next_performance_date,
             config.next_performance_type,
             (config.location, config.unit, config.weather_animation_type),
         )
 
-    def update_next(self, next_date, next_args):
+    async def update_next(self, next_date, next_args):
         from . import models
 
-        config = models.Config.load()
+        config = await models.Config.load_async()
         config.next_performance_date = next_date
         config.next_performance_type = next_args
-        config.save()
+        await config.save_async()
 
     def next_info_update(self, config):
         if config is None:
@@ -408,27 +407,27 @@ class NabWeatherd(NabInfoService):
         client = await sync_to_async(meteofranceClient)(location, True)
         data = client.get_data()
         logging.debug(data)
-        
-        #saving real city in the location
-        config = await sync_to_async(models.Config.load)()
+
+        # saving real city in the location
+        config = await models.Config.load_async()
         config.location = data["printName"]
-        await sync_to_async(config.save)()
-        
-        if ('next_rain') in data:
-            if (data["next_rain"] == 'No rain'):
+        await config.save_async()
+
+        if ("next_rain") in data:
+            if data["next_rain"] == "No rain":
                 next_rain = self.WHITE_INFO_ANIMATION
-            else :
+            else:
                 next_rain = self.RAINY_INFO_ANIMATION
-        else :
+        else:
             next_rain = None
-            
+
         current_weather_class = self.normalize_weather_class(
             data["weather_class"]
         )
         today_forecast_weather_class = self.normalize_weather_class(
             data["forecast"][0]["weather_class"]
         )
-        
+
         today_forecast_max_temp = data["forecast"][0]["max_temp"]
         tomorrow_forecast_weather_class = self.normalize_weather_class(
             data["forecast"][1]["weather_class"]
@@ -453,19 +452,24 @@ class NabWeatherd(NabInfoService):
 
     def get_animation(self, info_data):
 
-        if info_data is None or info_data["weather_animation_type"] == 'None':
+        if info_data is None or info_data["weather_animation_type"] == "None":
             logging.debug(f"returning None")
             return None
-        if info_data["next_rain"] is None or info_data["weather_animation_type"] == 'weather':
+        if (
+            info_data["next_rain"] is None
+            or info_data["weather_animation_type"] == "weather"
+        ):
             logging.debug("No rain info or classic selected")
-            (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["today_forecast_weather_class"]]
-        else :
+            (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[
+                info_data["today_forecast_weather_class"]
+            ]
+        else:
             logging.debug("rain info selected")
-            info_animation= info_data["next_rain"]
+            info_animation = info_data["next_rain"]
         return info_animation
 
     async def perform_additional(self, expiration, type, info_data, config_t):
-        location, unit, weather_animation_type  = config_t
+        location, unit, weather_animation_type = config_t
         if location is None:
             logging.debug(f"location is None (service is unconfigured)")
             packet = (
@@ -488,32 +492,46 @@ class NabWeatherd(NabInfoService):
                 ]
                 max_temp = info_data["tomorrow_forecast_max_temp"]
             if type == "today" or type == "tomorrow":
+                unit_sound_file = "degree.mp3"
                 if unit == NabWeatherd.UNIT_FARENHEIT:
                     max_temp = round(max_temp * 1.8 + 32.0)
+                    unit_sound_file = "degree_f.mp3"
+
                 packet = (
                     '{"type":"message",'
                     '"signature":{"audio":["nabweatherd/signature.mp3"]},'
                     '"body":[{"audio":["nabweatherd/' + type + '.mp3",'
                     '"nabweatherd/sky/' + weather_class + '.mp3",'
                     '"nabweatherd/temp/' + str(max_temp) + '.mp3",'
-                    '"nabweatherd/degree.mp3"]}],'
+                    '"nabweatherd/' + unit_sound_file + '"]}],'
                     '"expiration":"' + expiration.isoformat() + '"}\r\n'
                 )
                 self.writer.write(packet.encode("utf8"))
         await self.writer.drain()
+
+    async def _do_perform(self, type):
+        next_date, next_args, config_t = await self.get_config()
+        now = datetime.datetime.now(datetime.timezone.utc)
+        expiration = now + datetime.timedelta(minutes=1)
+        await self.perform(expiration, type, config_t)
 
     async def process_nabd_packet(self, packet):
         if (
             packet["type"] == "asr_event"
             and packet["nlu"]["intent"] == "weather_forecast"
         ):
-            next_date, next_args, config_t = await sync_to_async(
-                self.get_config
-            )()
             # todo : detect today/tomorrow
-            now = datetime.datetime.now(datetime.timezone.utc)
-            expiration = now + datetime.timedelta(minutes=1)
-            await self.perform(expiration, "today", config_t)
+            await self._do_perform("today")
+        elif (
+            packet["type"] == "rfid_event"
+            and packet["app"] == "nabweatherd"
+            and packet["event"] == "detected"
+        ):
+            if "data" in packet:
+                type = rfid_data.unserialize(packet["data"].encode("utf8"))
+            else:
+                type = "today"
+            await self._do_perform(type)
 
 
 if __name__ == "__main__":

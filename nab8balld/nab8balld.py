@@ -1,6 +1,5 @@
 import sys
 import asyncio
-from asgiref.sync import sync_to_async
 from nabcommon.nabservice import NabService
 
 
@@ -15,7 +14,7 @@ class Nab8Balld(NabService):
     async def __config(self):
         from . import models
 
-        config = await sync_to_async(models.Config.load)()
+        config = await models.Config.load_async()
         return config
 
     async def reload_config(self):

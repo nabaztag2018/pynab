@@ -7,18 +7,18 @@ from nabcommon.nabservice import NabRandomService
 class NabTaichid(NabRandomService):
     DAEMON_PIDFILE = "/run/nabtaichid.pid"
 
-    def get_config(self):
+    async def get_config(self):
         from . import models
 
-        config = models.Config.load()
+        config = await models.Config.load_async()
         return (config.next_taichi, None, config.taichi_frequency)
 
-    def update_next(self, next_date, next_args):
+    async def update_next(self, next_date, next_args):
         from . import models
 
-        config = models.Config.load()
+        config = await models.Config.load_async()
         config.next_taichi = next_date
-        config.save()
+        await config.save_async()
 
     async def perform(self, expiration, args, config):
         packet = (
@@ -36,6 +36,14 @@ class NabTaichid(NabRandomService):
         if (
             packet["type"] == "asr_event"
             and packet["nlu"]["intent"] == "taichi"
+        ):
+            now = datetime.datetime.now(datetime.timezone.utc)
+            expiration = now + datetime.timedelta(minutes=1)
+            await self.perform(expiration, None, None)
+        elif (
+            packet["type"] == "rfid_event"
+            and packet["app"] == "nabtaichid"
+            and packet["event"] == "detected"
         ):
             now = datetime.datetime.now(datetime.timezone.utc)
             expiration = now + datetime.timedelta(minutes=1)

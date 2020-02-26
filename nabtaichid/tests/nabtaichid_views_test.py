@@ -1,4 +1,5 @@
 from django.test import TestCase, Client
+from django.http import JsonResponse
 from nabtaichid.models import Config
 import datetime
 
@@ -46,3 +47,18 @@ class TestView(TestCase):
         self.assertTrue(
             config.next_taichi > now - datetime.timedelta(seconds=15)
         )
+
+    def test_get_rfid_data(self):
+        c = Client()
+        response = c.get("/nabtaichid/rfid-data")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.templates[0].name, "nabtaichid/rfid-data.html"
+        )
+
+    def test_post_rfid_data(self):
+        c = Client()
+        response = c.post("/nabtaichid/rfid-data")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(isinstance(response, JsonResponse))
+        self.assertEqual(response.content, b'{"data": ""}')

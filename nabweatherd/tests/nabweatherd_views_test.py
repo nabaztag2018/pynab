@@ -1,4 +1,5 @@
 from django.test import TestCase, Client
+from django.http import JsonResponse
 from nabweatherd.models import Config
 import datetime
 
@@ -78,3 +79,35 @@ class TestView(TestCase):
             config.next_performance_date > now - datetime.timedelta(seconds=15)
         )
         self.assertEqual(config.next_performance_type, "tomorrow")
+
+    def test_get_rfid_data(self):
+        c = Client()
+        response = c.get("/nabweatherd/rfid-data")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.templates[0].name, "nabweatherd/rfid-data.html"
+        )
+        self.assertEqual(response.context["type"], "today")
+
+    def test_get_rfid_data_param(self):
+        c = Client()
+        response = c.get("/nabweatherd/rfid-data?data=%02")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.templates[0].name, "nabweatherd/rfid-data.html"
+        )
+        self.assertEqual(response.context["type"], "tomorrow")
+
+    def test_post_rfid_data(self):
+        c = Client()
+        response = c.post("/nabweatherd/rfid-data")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(isinstance(response, JsonResponse))
+        self.assertEqual(response.content, b'{"data": "\\u0001"}')
+
+    def test_post_rfid_data_param(self):
+        c = Client()
+        response = c.post("/nabweatherd/rfid-data", {"type": "tomorrow"})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(isinstance(response, JsonResponse))
+        self.assertEqual(response.content, b'{"data": "\\u0002"}')

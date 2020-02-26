@@ -14,9 +14,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.apps import apps
-from django.contrib import admin
 from django.urls import path, include
 from .views import NabWebView, NabWebServicesView, NabWebSytemInfoView
+from .views import NabWebRfidView, NabWebRfidReadView, NabWebRfidWriteView
 from .views import NabWebUpgradeView, NabWebUpgradeStatusView
 from .views import NabWebUpgradeNowView, NabWebUpgradeCheckNowView
 from .views import NabWebUpgradeRepositoryInfoView, NabWebHardwareTestView
@@ -24,6 +24,9 @@ from .views import NabWebUpgradeRepositoryInfoView, NabWebHardwareTestView
 urlpatterns = [
     path("", NabWebView.as_view()),
     path("services/", NabWebServicesView.as_view()),
+    path("rfid/", NabWebRfidView.as_view()),
+    path("rfid/read", NabWebRfidReadView.as_view(), name="rfid.read"),
+    path("rfid/write", NabWebRfidWriteView.as_view(), name="rfid.write"),
     path(
         "system-info/test/<test>",
         NabWebHardwareTestView.as_view(),

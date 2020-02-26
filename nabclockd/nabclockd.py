@@ -4,7 +4,6 @@ import datetime
 import subprocess
 import logging
 from dateutil import tz
-from asgiref.sync import sync_to_async
 from nabcommon import nabservice
 
 
@@ -27,7 +26,7 @@ class NabClockd(nabservice.NabService):
         from . import models
 
         async with self.loop_cv:
-            self.config = await sync_to_async(models.Config.load)()
+            self.config = await models.Config.load_async()
             self.loop_cv.notify()
 
     def synchronized_since_boot(self):
@@ -178,31 +177,13 @@ class NabClockd(nabservice.NabService):
                 self.asleep = packet["state"] == "asleep"
                 self.loop_cv.notify()
 
-    async def stop_clock_loop(self):
+    def start_service_loop(self, loop):
+        return loop.create_task(self.clock_loop())
+
+    async def stop_service_loop(self):
         async with self.loop_cv:
             self.running = False  # signal to exit
             self.loop_cv.notify()
-
-    def run(self):
-        super().connect()
-        clock_task = self.loop.create_task(self.clock_loop())
-        try:
-            self.loop.run_forever()
-            if clock_task.done():
-                ex = clock_task.exception()
-                if ex:
-                    raise ex
-        except KeyboardInterrupt:
-            pass
-        finally:
-            self.writer.close()
-            self.loop.run_until_complete(self.stop_clock_loop())
-            tasks = asyncio.all_tasks(self.loop)
-            for t in [t for t in tasks if not (t.done() or t.cancelled())]:
-                self.loop.run_until_complete(
-                    t
-                )  # give canceled tasks the last chance to run
-            self.loop.close()
 
 
 if __name__ == "__main__":

@@ -3,10 +3,7 @@
 aqicn
 """
 
-import re
 import requests
-import datetime
-import string
 import json
 import logging
 

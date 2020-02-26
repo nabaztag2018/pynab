@@ -1,35 +1,52 @@
 import sys
 import datetime
 import random
-import logging
 from nabcommon.nabservice import NabRandomService
+from . import rfid_data
 
 
 class NabSurprised(NabRandomService):
-    EASTER_EGGS = frozenset(["autopromo", "birthday", "carrot"])
-
-    def get_config(self):
+    async def get_config(self):
         from . import models
 
-        config = models.Config.load()
+        config = await models.Config.load_async()
         return (config.next_surprise, None, config.surprise_frequency)
 
-    def update_next(self, next_date, next_args):
+    async def update_next(self, next_date, next_args):
         from . import models
 
-        config = models.Config.load()
+        config = await models.Config.load_async()
         config.next_surprise = next_date
-        config.save()
+        await config.save_async()
 
     async def perform(self, expiration, args, config):
-        
-        today = datetime.date.today()
-        today_with_style = today.strftime("%m-%d")
+        await self._do_perform(expiration, None, None)
+
+    async def _do_perform(self, expiration, lang, type):
+        if lang is None or lang == "default":
+            lang_prefix = ""
+        else:
+            lang_prefix = lang + "/"
+        if type is None:
+            today = datetime.date.today()
+            today_with_style = today.strftime("%m-%d")
+            today_path = f"{lang_prefix}nabsurprised/{today_with_style}/*.mp3"
+            regular_path = f"{lang_prefix}nabsurprised/*.mp3"
+            path = today_path + ";" + regular_path
+        else:
+            if type == "surprise":
+                type_subdir = ""
+            else:
+                type_subdir = type + "/"
+            path = f"{lang_prefix}nabsurprised/{type_subdir}*.mp3"
+        if expiration is None:
+            now = datetime.datetime.now(datetime.timezone.utc)
+            expiration = now + datetime.timedelta(minutes=1)
         packet = (
-            '{"type":"message",'
-            '"signature":{"audio":["nabsurprised/respirations/*.mp3"]},'
-            '"body":[{"audio":["nabsurprised/'+today_with_style+'/*.mp3;nabsurprised/*.mp3"]}],'
-            '"expiration":"' + expiration.isoformat() + '"}\r\n'
+            f'{{"type":"message",'
+            f'"signature":{{"audio":["nabsurprised/respirations/*.mp3"]}},'
+            f'"body":[{{"audio":["{path}"]}}],'
+            f'"expiration":"{expiration.isoformat()}"}}\r\n'
         )
         self.writer.write(packet.encode("utf8"))
         await self.writer.drain()
@@ -39,22 +56,21 @@ class NabSurprised(NabRandomService):
 
     async def process_nabd_packet(self, packet):
         if packet["type"] == "asr_event":
-            now = datetime.datetime.now(datetime.timezone.utc)
-            expiration = now + datetime.timedelta(minutes=1)
-            if packet["nlu"]["intent"] == "surprise":
-                await self.perform(expiration, None, None)
-            if packet["nlu"]["intent"] in NabSurprised.EASTER_EGGS:
-                easter_egg = packet["nlu"]["intent"]
-                packet = (
-                    '{"type":"message","signature":{'
-                    '"audio":["nabsurprised/respirations/*.mp3"]},'
-                    '"body":[{"audio":['
-                    '"nabsurprised/' + easter_egg + '/*.mp3"'
-                    ']}],'
-                    '"expiration":"' + expiration.isoformat() + '"}\r\n'
+            intent = packet["nlu"]["intent"]
+            await self._do_perform(None, None, intent)
+        elif (
+            packet["type"] == "rfid_event"
+            and packet["app"] == "nabsurprised"
+            and packet["event"] == "detected"
+        ):
+            if "data" in packet:
+                lang, type = rfid_data.unserialize(
+                    packet["data"].encode("utf8")
                 )
-                self.writer.write(packet.encode("utf8"))
-                await self.writer.drain()
+            else:
+                lang = "default"
+                type = "surprise"
+            await self._do_perform(None, lang, type)
 
 
 if __name__ == "__main__":

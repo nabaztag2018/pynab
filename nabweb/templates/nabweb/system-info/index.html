@@ -15,6 +15,8 @@
             <dd class="col-sm-8">{{ os.version }}</dd>
             <dt class="col-sm-4">{% trans "Uptime" %}</dt>
             <dd class="col-sm-8">{{ os.uptime|duration }}</dd>
+            <dt class="col-sm-4"><a class="help-link" href="https://www.raspberrypi.org/documentation/remote-access/ssh/" >{% trans "SSH (Secure shell)" %}</a></dt>
+            <dd class="col-sm-8">{% if os.ssh == "sshwarn" %}<span class="text-danger">{% trans "Enabled with default password" %}</span>{% else %}{% if os.ssh == "active" %}{% trans "Enabled" %}{% else %}{% trans "Disabled" %}{% endif %}{% endif %}</dd>
           </dl>
         </div>
       </div>
@@ -63,11 +65,13 @@
             <dt class="col-sm-4">{% trans "Sound card" %}</dt>
             <dd class="col-sm-8">{{ gestalt.result.hardware.sound_card }}</dd>
             <dt class="col-sm-4">{% trans "Sound input" %}</dt>
-            <dd class="col-sm-8">{{ gestalt.result.hardware.sound_input }}</dd>
+            <dd class="col-sm-8">{% if gestalt.result.hardware.sound_input %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
             <dt class="col-sm-4">{% trans "Left ear" %}</dt>
             <dd class="col-sm-8">{{ gestalt.result.hardware.left_ear_status }}</dd>
             <dt class="col-sm-4">{% trans "Right ear" %}</dt>
             <dd class="col-sm-8">{{ gestalt.result.hardware.right_ear_status }}</dd>
+            <dt class="col-sm-4">{% trans "RFID" %}</dt>
+            <dd class="col-sm-8">{% if gestalt.result.hardware.rfid %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
           </dl>
           {% endif %}
           <dl class="row">
@@ -91,8 +95,8 @@
               beforeSend: function (xhr, settings) {
                 xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
               },
-              contentType: 'application/json',
-              method: "POST",
+              dataType: 'json',
+              type: "POST",
               success: function (data) {
                 $(btn).removeClass("disabled");
                 $(btn).find(".spinner").addClass("d-none");

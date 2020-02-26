@@ -7,11 +7,11 @@ import signal
 import datetime
 import time
 import logging
+import sys
 from abc import ABC, abstractmethod
 from enum import Enum
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
-from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.apps import apps
 from nabcommon import nablogging
@@ -63,10 +63,25 @@ class NabService(ABC):
 
     async def client_loop(self):
         try:
+            package_name = inspect.getmodule(self.__class__).__package__
+            package = sys.modules[package_name]
             service_dir = os.path.dirname(inspect.getfile(self.__class__))
-            if os.path.isdir(os.path.join(service_dir, "nlu")):
+            asr_support = os.path.isdir(os.path.join(service_dir, "nlu"))
+            rfid_support = False
+            if hasattr(package, "NABAZTAG_RFID_APPLICATION_ID"):
+                rfid_support = True
+            if asr_support or rfid_support:
+                events = []
+                if asr_support:
+                    events.append('"asr"')
+                if rfid_support:
+                    service_name = self.__class__.__name__.lower()
+                    events.append(f'"rfid/{service_name}"')
+                events_str = ",".join(events)
                 idle_packet = (
-                    '{"type":"mode","mode":"idle","events":["asr"]}\r\n'
+                    '{"type":"mode","mode":"idle","events":['
+                    + events_str
+                    + "]}\r\n"
                 )
                 self.writer.write(idle_packet.encode("utf8"))
             while self.running and not self.reader.at_eof():
@@ -113,9 +128,43 @@ class NabService(ABC):
             time.sleep(1)
             self._do_connect(retry_count - 1)
 
-    @abstractmethod
     def run(self):
-        pass
+        self.connect()
+        service_task = self.start_service_loop(self.loop)
+        try:
+            self.loop.run_forever()
+            if service_task and service_task.done():
+                ex = service_task.exception()
+                if ex:
+                    raise ex
+        except KeyboardInterrupt:
+            pass
+        finally:
+            self.writer.close()
+            self.loop.run_until_complete(self.stop_service_loop())
+            tasks = asyncio.all_tasks(self.loop)
+            # give canceled tasks the last chance to run
+            for t in [t for t in tasks if not (t.done() or t.cancelled())]:
+                self.loop.run_until_complete(t)
+            self.loop.close()
+
+    def start_service_loop(self, loop):
+        """
+        Start a service loop, if any.
+        Typically:
+        return loop.create_task(self.service_loop())
+        """
+        return None
+
+    async def stop_service_loop(self):
+        """
+        Signal service loop to stop.
+        Typically:
+        async with self.loop_cv:
+            self.running = False  # signal to exit
+            self.loop_cv.notify()
+        """
+        return None
 
     @classmethod
     def signal_daemon(cls):
@@ -197,7 +246,7 @@ class NabRecurrentService(NabService, ABC):
         self.loop_cv = asyncio.Condition()
 
     @abstractmethod
-    def get_config(self):
+    async def get_config(self):
         """
         Perform a database operation to retrieve stored data and return a tuple
         with three values used by the service:
@@ -210,23 +259,23 @@ class NabRecurrentService(NabService, ABC):
         Typical implementation is:
 
         from . import models
-        record = models.Config.load()
+        record = await models.Config.load_async()
         config = (record.config_a, record.config_b)
         return (record.next_date, record.next_args, config)
         """
         pass
 
     @abstractmethod
-    def update_next(self, next_date, next_args):
+    async def update_next(self, next_date, next_args):
         """
         Write new next date and args to database.
 
         Typical implementation is:
         from . import models
-        record = models.Config.load()
+        record = await models.Config.load_async()
         record.next_date = next_date
         record.next_args = next_args
-        record.save()
+        await record.save_async()
         """
         pass
 
@@ -268,9 +317,7 @@ class NabRecurrentService(NabService, ABC):
             async with self.loop_cv:
                 while self.running:
                     # Load or reload configuration
-                    next_date, next_args, config = await sync_to_async(
-                        self._load_config
-                    )()
+                    next_date, next_args, config = await self._load_config()
                     # Determine if it's time to perform
                     now = datetime.datetime.now(datetime.timezone.utc)
                     if next_date is not None and next_date <= now:
@@ -280,7 +327,7 @@ class NabRecurrentService(NabService, ABC):
                             config,
                         )
                         # reset date after performance
-                        await sync_to_async(self.update_next)(None, None)
+                        await self.update_next(None, None)
                         self.reason = (
                             NabRecurrentService.Reason.PERFORMANCE_PLAYED
                         )
@@ -303,45 +350,27 @@ class NabRecurrentService(NabService, ABC):
             if self.running:
                 asyncio.get_event_loop().stop()
 
+    def start_service_loop(self, loop):
+        return loop.create_task(self.service_loop())
+
     async def stop_service_loop(self):
         async with self.loop_cv:
             self.running = False  # signal to exit
             self.loop_cv.notify()
 
-    def run(self):
-        super().connect()
-        service_task = self.loop.create_task(self.service_loop())
-        try:
-            self.loop.run_forever()
-            if service_task.done():
-                ex = service_task.exception()
-                if ex:
-                    raise ex
-        except KeyboardInterrupt:
-            pass
-        finally:
-            self.writer.close()
-            self.loop.run_until_complete(self.stop_service_loop())
-            tasks = asyncio.all_tasks(self.loop)
-            for t in [t for t in tasks if not (t.done() or t.cancelled())]:
-                self.loop.run_until_complete(
-                    t
-                )  # give canceled tasks the last chance to run
-            self.loop.close()
-
-    def _load_config(self):
+    async def _load_config(self):
         """
         Load or reload configuration.
         Invokes get_config, compute_next and update_next.
         """
-        saved_date, saved_args, config = self.get_config()
+        saved_date, saved_args, config = await self.get_config()
         next_t = self.compute_next(saved_date, saved_args, config, self.reason)
         if next_t is None:
             next_date, next_args = None, None
         else:
             next_date, next_args = next_t
         if next_date != saved_date or next_args != saved_args:
-            self.update_next(next_date, next_args)
+            await self.update_next(next_date, next_args)
         return next_date, next_args, config
 
 

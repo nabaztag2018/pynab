@@ -8,7 +8,11 @@ import io
 import pytest
 import datetime
 from nabd import nabd
+from nabd.rfid import TagFlags
 from mock import NabIOMock
+from utils import close_old_async_connections
+from django.db import close_old_connections
+import nabtaichid
 
 
 class SocketIO(io.RawIOBase):
@@ -35,30 +39,32 @@ class SocketIO(io.RawIOBase):
         return self.sock.settimeout(timeout)
 
 
-class TestNabd(unittest.TestCase):
-    def nabd_thread_loop(self, kwargs):
+class TestNabdBase(unittest.TestCase):
+    def nabd_thread_loop(self):
         nabd_loop = asyncio.new_event_loop()
+        nabd_loop.set_debug(True)
         asyncio.set_event_loop(nabd_loop)
+        self.nabio = NabIOMock()
         self.nabd = nabd.Nabd(self.nabio)
         with self.nabd_cv:
             self.nabd_cv.notify()
         self.nabd.run()
         nabd_loop.close()
+        close_old_connections()
 
     def setUp(self):
-        self.nabio = NabIOMock()
         self.nabd_cv = threading.Condition()
         with self.nabd_cv:
-            self.nabd_thread = threading.Thread(
-                target=self.nabd_thread_loop, args=[self]
-            )
+            self.nabd_thread = threading.Thread(target=self.nabd_thread_loop)
             self.nabd_thread.start()
             self.nabd_cv.wait()
         time.sleep(1)  # make sure Nabd was started
 
     def tearDown(self):
         self.nabd.stop()
-        self.nabd_thread.join(5)
+        self.nabd_thread.join(10)
+        if self.nabd_thread.is_alive():
+            raise RuntimeError("nabd_thread still running")
 
     def test_init(self):
         self.assertEqual(self.nabio.left_ear, 0)
@@ -75,6 +81,8 @@ class TestNabd(unittest.TestCase):
         s.settimeout(5.0)
         return SocketIO(s)
 
+
+class TestNabd(TestNabdBase):
     def test_state(self):
         s = self.service_socket()
         try:
@@ -160,7 +168,15 @@ class TestNabd(unittest.TestCase):
             packet = s1.readline()  # new state packet
             packet_j = json.loads(packet.decode("utf8"))
             self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "idle")
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
             self.assertEqual(packet_j["state"], "playing")
+            packet = s2.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "idle")
             packet = s2.readline()  # new state packet
             packet_j = json.loads(packet.decode("utf8"))
             self.assertEqual(packet_j["type"], "state")
@@ -229,6 +245,7 @@ class TestNabd(unittest.TestCase):
             self.assertEqual(packet_j["request_id"], "test_id")
             self.assertEqual(packet_j["status"], "ok")
             time.sleep(10)  # give time to play info once
+            self.assertNotEqual(self.nabio.played_infos, [])
             last_info = self.nabio.played_infos.pop()
             self.assertEqual(
                 last_info,
@@ -299,12 +316,12 @@ class TestNabd(unittest.TestCase):
             packet = s1.readline()  # state packet
             s1.write(
                 b'{"type":"command","request_id":"test_id",'
-                b'"sequence":{"audio":['
+                b'"sequence":[{"audio":['
                 b'"weather/fr/signature.mp3","weather/fr/today.mp3",'
                 b'"weather/fr/sky/0.mp3","weather/fr/temp/42.mp3",'
                 b'"weather/fr/temp/degree.mp3",'
                 b'"weather/fr/temp/signature.mp3"],'
-                b'"choregraphy":"streaming"}}\r\n'
+                b'"choregraphy":"streaming"}]}\r\n'
             )
             packet = s1.readline()  # new state packet
             packet_j = json.loads(packet.decode("utf8"))
@@ -320,17 +337,158 @@ class TestNabd(unittest.TestCase):
             last_sequence = self.nabio.played_sequences.pop()
             self.assertEqual(
                 last_sequence,
-                {
-                    "audio": [
-                        "weather/fr/signature.mp3",
-                        "weather/fr/today.mp3",
-                        "weather/fr/sky/0.mp3",
-                        "weather/fr/temp/42.mp3",
-                        "weather/fr/temp/degree.mp3",
-                        "weather/fr/temp/signature.mp3",
-                    ],
-                    "choregraphy": "streaming",
-                },
+                [
+                    {
+                        "audio": [
+                            "weather/fr/signature.mp3",
+                            "weather/fr/today.mp3",
+                            "weather/fr/sky/0.mp3",
+                            "weather/fr/temp/42.mp3",
+                            "weather/fr/temp/degree.mp3",
+                            "weather/fr/temp/signature.mp3",
+                        ],
+                        "choregraphy": "streaming",
+                    }
+                ],
+            )
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "idle")
+        finally:
+            s1.close()
+
+    def test_cancel(self):
+        s1 = self.service_socket()
+        try:
+            packet = s1.readline()  # state packet
+            s1.write(
+                b'{"type":"command","request_id":"test_id",'
+                b'"sequence":[{"audio":['
+                b'"weather/fr/signature.mp3","weather/fr/today.mp3",'
+                b'"weather/fr/sky/0.mp3","weather/fr/temp/42.mp3",'
+                b'"weather/fr/temp/degree.mp3",'
+                b'"weather/fr/temp/signature.mp3"],'
+                b'"choregraphy":"streaming"}]}\r\n'
+            )
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "playing")
+            s1.write(b'{"type":"cancel","request_id":"test_id"}\r\n')
+            packet = s1.readline()  # response packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["request_id"], "test_id")
+            self.assertEqual(packet_j["status"], "canceled")
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "idle")
+        finally:
+            s1.close()
+
+    def test_cancel_wrong_request_id(self):
+        s1 = self.service_socket()
+        try:
+            packet = s1.readline()  # state packet
+            s1.write(
+                b'{"type":"command","request_id":"test_id",'
+                b'"sequence":[{"audio":['
+                b'"weather/fr/signature.mp3","weather/fr/today.mp3",'
+                b'"weather/fr/sky/0.mp3","weather/fr/temp/42.mp3",'
+                b'"weather/fr/temp/degree.mp3",'
+                b'"weather/fr/temp/signature.mp3"],'
+                b'"choregraphy":"streaming"}]}\r\n'
+            )
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "playing")
+            s1.write(b'{"type":"cancel","request_id":"other_id"}\r\n')
+            packet = s1.readline()  # response packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["request_id"], "other_id")
+            self.assertEqual(packet_j["status"], "error")
+            s1.settimeout(15.0)
+            packet = s1.readline()  # response packet
+            s1.settimeout(5.0)
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["request_id"], "test_id")
+            self.assertEqual(packet_j["status"], "ok")
+            last_sequence = self.nabio.played_sequences.pop()
+            self.assertEqual(
+                last_sequence,
+                [
+                    {
+                        "audio": [
+                            "weather/fr/signature.mp3",
+                            "weather/fr/today.mp3",
+                            "weather/fr/sky/0.mp3",
+                            "weather/fr/temp/42.mp3",
+                            "weather/fr/temp/degree.mp3",
+                            "weather/fr/temp/signature.mp3",
+                        ],
+                        "choregraphy": "streaming",
+                    }
+                ],
+            )
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "idle")
+        finally:
+            s1.close()
+
+    def test_cancel_not_cancelable(self):
+        s1 = self.service_socket()
+        try:
+            packet = s1.readline()  # state packet
+            s1.write(
+                b'{"type":"command","request_id":"test_id",'
+                b'"sequence":[{"audio":['
+                b'"weather/fr/signature.mp3","weather/fr/today.mp3",'
+                b'"weather/fr/sky/0.mp3","weather/fr/temp/42.mp3",'
+                b'"weather/fr/temp/degree.mp3",'
+                b'"weather/fr/temp/signature.mp3"],'
+                b'"choregraphy":"streaming"}],'
+                b'"cancelable":false}\r\n'
+            )
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "playing")
+            s1.write(b'{"type":"cancel","request_id":"test_id"}\r\n')
+            packet = s1.readline()  # response packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["request_id"], "test_id")
+            self.assertEqual(packet_j["status"], "error")
+            s1.settimeout(15.0)
+            packet = s1.readline()  # response packet
+            s1.settimeout(5.0)
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["request_id"], "test_id")
+            self.assertEqual(packet_j["status"], "ok")
+            last_sequence = self.nabio.played_sequences.pop()
+            self.assertEqual(
+                last_sequence,
+                [
+                    {
+                        "audio": [
+                            "weather/fr/signature.mp3",
+                            "weather/fr/today.mp3",
+                            "weather/fr/sky/0.mp3",
+                            "weather/fr/temp/42.mp3",
+                            "weather/fr/temp/degree.mp3",
+                            "weather/fr/temp/signature.mp3",
+                        ],
+                        "choregraphy": "streaming",
+                    }
+                ],
             )
             packet = s1.readline()  # new state packet
             packet_j = json.loads(packet.decode("utf8"))
@@ -347,17 +505,16 @@ class TestNabd(unittest.TestCase):
             expiration = now + datetime.timedelta(minutes=3)
             packet = (
                 '{"type":"command","request_id":"test_id",'
-                '"sequence":{"audio":['
+                '"sequence":[{"audio":['
                 '"weather/fr/signature.mp3","weather/fr/today.mp3",'
                 '"weather/fr/sky/0.mp3","weather/fr/temp/42.mp3",'
                 '"weather/fr/temp/degree.mp3",'
                 '"weather/fr/temp/signature.mp3"],'
-                '"choregraphy":"streaming"},'
+                '"choregraphy":"streaming"}],'
                 '"expiration":"' + expiration.isoformat() + '"}\r\n'
             )
             s1.write(packet.encode("utf8"))
             packet = s1.readline()  # new state packet
-            print(f"packet={packet}")
             packet_j = json.loads(packet.decode("utf8"))
             self.assertEqual(packet_j["type"], "state")
             self.assertEqual(packet_j["state"], "playing")
@@ -372,19 +529,126 @@ class TestNabd(unittest.TestCase):
             expiration = now + datetime.timedelta(minutes=-1)
             packet = (
                 '{"type":"command","request_id":"test_id",'
-                '"sequence":{"audio":['
+                '"sequence":[{"audio":['
                 '"weather/fr/signature.mp3","weather/fr/today.mp3",'
                 '"weather/fr/sky/0.mp3","weather/fr/temp/42.mp3",'
                 '"weather/fr/temp/degree.mp3",'
                 '"weather/fr/temp/signature.mp3"],'
-                '"choregraphy":"streaming"},'
+                '"choregraphy":"streaming"}],'
                 '"expiration":"' + expiration.isoformat() + '"}\r\n'
             )
             s1.write(packet.encode("utf8"))
             packet = s1.readline()  # new state packet
-            print(f"packet={packet}")
             packet_j = json.loads(packet.decode("utf8"))
             self.assertEqual(packet_j["type"], "response")
             self.assertEqual(packet_j["status"], "expired")
+        finally:
+            s1.close()
+
+
+@pytest.mark.django_db(transaction=True)
+class TestRfid(TestNabdBase):
+    def tearDown(self):
+        TestNabdBase.tearDown(self)
+        close_old_async_connections()
+
+    def test_detect_clear_rfid(self):
+        s1 = self.service_socket()
+        try:
+            packet = s1.readline()  # state packet
+            packet = (
+                '{"type":"mode","request_id":"mode_id",'
+                '"mode":"interactive",'
+                '"events":["rfid/*"]}\r\n'
+            )
+            s1.write(packet.encode("utf8"))
+            # state & response packets
+            packet1 = s1.readline()
+            packet2 = s1.readline()
+            packet_j1 = json.loads(packet1.decode("utf8"))
+            packet_j2 = json.loads(packet2.decode("utf8"))
+            if packet_j1["type"] == "state":
+                state_packet_j = packet_j1
+                mode_packet_j = packet_j2
+            else:
+                state_packet_j = packet_j2
+                mode_packet_j = packet_j1
+            self.assertEqual(state_packet_j["type"], "state")
+            self.assertEqual(state_packet_j["state"], "interactive")
+            self.assertEqual(mode_packet_j["type"], "response")
+            self.assertEqual(mode_packet_j["request_id"], "mode_id")
+            rfid = self.nabd.nabio.rfid
+            rfid.send_detect_event(
+                b"\xd0\x02\x18\x01\x02\x03\x04\x05",
+                None,
+                None,
+                None,
+                TagFlags.CLEAR,
+            )
+            packet = s1.readline()  # response packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "rfid_event")
+            self.assertEqual(packet_j["event"], "detected")
+            self.assertEqual(packet_j["uid"], "d0:02:18:01:02:03:04:05")
+        finally:
+            s1.close()
+
+    def test_detect_taichi_rfid(self):
+        s1 = self.service_socket()
+        try:
+            packet = s1.readline()  # state packet
+            packet = (
+                '{"type":"mode","request_id":"mode_id",'
+                '"mode":"idle",'
+                '"events":["rfid/nabtaichid"]}\r\n'
+            )
+            s1.write(packet.encode("utf8"))
+            packet = s1.readline()  # response packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["request_id"], "mode_id")
+            rfid = self.nabd.nabio.rfid
+            rfid.send_detect_event(
+                b"\xd0\x02\x18\x01\x02\x03\x04\x05",
+                42,
+                nabtaichid.NABAZTAG_RFID_APPLICATION_ID,
+                b"",
+                TagFlags.FORMATTED,
+            )
+            packet = s1.readline()  # response packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "rfid_event")
+            self.assertEqual(packet_j["event"], "detected")
+            self.assertEqual(packet_j["app"], "nabtaichid")
+            self.assertEqual(packet_j["uid"], "d0:02:18:01:02:03:04:05")
+            self.assertEqual(packet_j["picture"], 42)
+        finally:
+            s1.close()
+
+    def test_write_rfid(self):
+        s1 = self.service_socket()
+        try:
+            packet = s1.readline()  # state packet
+            packet = (
+                '{"type":"rfid_write",'
+                '"uid":"d0:02:18:01:02:03:04:05",'
+                '"picture":42,'
+                '"app":"nabtaichid",'
+                '"data":"",'
+                '"request_id":"rfid_write_id"}\r\n'
+            )
+            s1.write(packet.encode("utf8"))
+            packet = s1.readline()  # response packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["request_id"], "rfid_write_id")
+            rfid = self.nabd.nabio.rfid
+            self.assertEqual(len(rfid.called_list), 2)
+            self.assertEqual(rfid.called_list[0], "on_detect()")
+            self.assertEqual(
+                rfid.called_list[1],
+                f"write(b'\\xd0\\x02\\x18\\x01\\x02\\x03\\x04\\x05',"
+                f"42,{nabtaichid.NABAZTAG_RFID_APPLICATION_ID},b'')",
+            )
         finally:
             s1.close()

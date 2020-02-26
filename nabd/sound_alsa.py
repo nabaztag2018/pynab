@@ -9,9 +9,10 @@ import alsaaudio
 from mpg123 import Mpg123
 
 from .sound import Sound
+from .cancel import wait_with_cancel_event
 
 
-class SoundAlsa(Sound):
+class SoundAlsa(Sound):  # pragma: no cover
     MODEL_2018_CARD_NAME = "sndrpihifiberry"
 
     MODEL_2019_CARD_NAME = "tagtagtagsound"
@@ -181,9 +182,8 @@ class SoundAlsa(Sound):
             self.currently_playing = False
         await self.wait_until_done()
 
-    async def wait_until_done(self):
-        if self.future:
-            await self.future
+    async def wait_until_done(self, event=None):
+        await wait_with_cancel_event(self.future, event, self.stop_playing)
         self.future = None
 
     async def start_recording(self, stream_cb):
@@ -212,7 +212,7 @@ class SoundAlsa(Sound):
                 if not self.currently_recording:
                     finalize = True
                 if l or finalize:
-                    #self.recorded_raw.write(data)
+                    # self.recorded_raw.write(data)
                     cb(data, finalize)
         except Exception:
             print(traceback.format_exc())

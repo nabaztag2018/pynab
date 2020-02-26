@@ -1,7 +1,13 @@
+import os
+import pytest
 from django.test import TestCase, Client
 from nabclockd.models import Config
 
 
+@pytest.mark.skipif(
+    not os.path.isfile("/etc/timezone"),
+    reason="Test requires /etc/timezone to exist",
+)
 class TestView(TestCase):
     def setUp(self):
         Config.load()

@@ -59,6 +59,11 @@
           {% else %}
             <div data-repository="ears_driver" class="async-repository-info"></div>
           {% endif %}
+          {% if rfid_driver %}
+            {% include "nabweb/upgrade/_repository.html" with repo=rfid_driver %}
+          {% else %}
+            <div data-repository="rfid_driver" class="async-repository-info"></div>
+          {% endif %}
           {% if nabblockly %}
             {% include "nabweb/upgrade/_repository.html" with repo=nabblockly %}
           {% else %}

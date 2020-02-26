@@ -1,13 +1,11 @@
 import asyncio
-import selectors
 import os
 import logging
-from threading import Thread
 from concurrent.futures import ThreadPoolExecutor
 from .ears import Ears
 
 
-class EarsDev(Ears):
+class EarsDev(Ears):  # pragma: no cover
     """
     Implementation for ears based on /dev/ear*.
     Relying on tagtagtag-ears driver.
@@ -23,7 +21,7 @@ class EarsDev(Ears):
                 os.write(ear, b"?")
                 self.fds[i] = ear
                 asyncio.get_event_loop().add_reader(ear, self._do_read, i)
-            except:
+            except Exception:
                 logging.error(f"ear {i} is apparently broken")
                 os.close(ear)
         self.executor = ThreadPoolExecutor(max_workers=1)
@@ -32,7 +30,6 @@ class EarsDev(Ears):
         self.lock = asyncio.Lock()
 
     def _do_read(self, ear):
-        logging.debug(f"do_read from {ear}")
         byte = os.read(self.fds[ear], 1)
         if len(byte) == 0:
             # EOF, ear is broken.
@@ -43,17 +40,13 @@ class EarsDev(Ears):
             self.positions[ear] = None
             self.fds[ear] = None
         else:
-            logging.debug(f"do_read from {ear} => {byte[0]}")
             if byte == b"m":
-                logging.debug(f"do_read from {ear} => invoking callback")
                 if self.callback:
                     (loop, callback) = self.callback
                     loop.call_soon_threadsafe(lambda ear=ear: callback(ear))
             elif byte == b"\xff":
-                logging.debug(f"do_read from {ear} => position is unknown")
                 self.positions[ear] = None
             else:
-                logging.debug(f"do_read from {ear} => position is {byte[0]}")
                 self.positions[ear] = byte[0]
 
     def on_move(self, loop, callback):
@@ -104,7 +97,6 @@ class EarsDev(Ears):
             cmd = b"-"
         else:
             cmd = b"+"
-        logging.debug(f"_do_move")
         if self.fds[motor] is not None:
             os.write(self.fds[motor], cmd + bytes([delta]))
 
@@ -123,18 +115,20 @@ class EarsDev(Ears):
         Thread: executor
         Lock: acquired
         """
-        logging.debug(f"_do_wait_while_running")
         if self.fds[0] is not None:
             os.write(self.fds[0], b".")
         if self.fds[1] is not None:
             os.write(self.fds[1], b".")
 
-    def get_positions(self):
+    async def get_positions(self):
         """
-        Get the position of the ears, without running any detection
-        (simply return cached positions)
+        Get the position of the ears, without running any detection.
         """
-        return (self.positions[0], self.positions[1])
+        async with self.lock:
+            await asyncio.get_event_loop().run_in_executor(
+                self.executor, lambda: self._do_detect_positions(False)
+            )
+            return (self.positions[0], self.positions[1])
 
     async def detect_positions(self):
         """
@@ -142,21 +136,24 @@ class EarsDev(Ears):
         """
         async with self.lock:
             await asyncio.get_event_loop().run_in_executor(
-                self.executor, self._do_detect_positions
+                self.executor, lambda: self._do_detect_positions(True)
             )
             return (self.positions[0], self.positions[1])
 
-    def _do_detect_positions(self):
+    def _do_detect_positions(self, run_detection):
         """
-        Get the position of the ears, running a detection if required.
+        Get the position of the ears, running a detection if requested.
         Thread: executor
         Lock: acquired
         """
-        logging.debug(f"do_detect_positions")
+        if run_detection:
+            command = b"!"
+        else:
+            command = b"?"
         if self.fds[0] is not None:
-            os.write(self.fds[0], b"!")
+            os.write(self.fds[0], command)
         if self.fds[1] is not None:
-            os.write(self.fds[1], b"!")
+            os.write(self.fds[1], command)
         self._do_wait_while_running()
 
     async def go(self, ear, position, direction):
@@ -178,7 +175,6 @@ class EarsDev(Ears):
         Actually go to a specific position.
         Lock: acquired.
         """
-        logging.debug(f"do_go {ear}")
         if direction:
             cmd = b"<"
         else:

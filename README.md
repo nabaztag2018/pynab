@@ -2,6 +2,9 @@
 
 [![Build Status](https://travis-ci.org/nabaztag2018/pynab.svg?branch=master)](https://travis-ci.org/nabaztag2018/pynab)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/nabaztag2018/pynab.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nabaztag2018/pynab/alerts/)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/nabaztag2018/pynab.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nabaztag2018/pynab/context:python)
+[![codecov](https://codecov.io/gh/nabaztag2018/pynab/branch/master/graph/badge.svg)](https://codecov.io/gh/nabaztag2018/pynab)
 
 # Cartes
 
@@ -15,7 +18,7 @@ Les schémas et fichiers de fabrication de ces deux cartes sont dans le reposito
 
 Les [releases](https://github.com/nabaztag2018/pynab/releases) sont des images de Raspbian Buster Lite 2019-09-26 avec pynab pré-installé. Elles ont les mêmes réglages que [Raspbian](https://www.raspberrypi.org/downloads/raspbian/).
 
-La release actuelle (0.6.x) ne fonctionne que sur les cartes 2019 (cf #44)
+Les releases actuelles (0.7.x) ne fonctionnent que sur les cartes 2019 (cf #44)
 
 # Installation sur Raspbian (pour développeurs !)
 
@@ -29,7 +32,7 @@ sudo apt update
 sudo apt upgrade
 ```
 
-1. Configurer la carte son et les oreilles et redémarrer.
+1. Configurer la carte son, les oreilles et le lecteur RFID et redémarrer.
 
 Maker Faire 2018 :
 https://support.hifiberry.com/hc/en-us/articles/205377651-Configuring-Linux-4-x-or-higher
@@ -39,6 +42,9 @@ https://github.com/pguyot/wm8960/tree/tagtagtag-sound
 
 Les deux cartes :
 https://github.com/pguyot/tagtagtag-ears
+
+Nabaztag:tag uniquement (non requis sur les Nabaztag, mais installé par les mises à jour)
+https://github.com/pguyot/cr14
 
 2. Installer PostgreSQL et les paquets requis
 

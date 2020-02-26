@@ -7,21 +7,15 @@ import pytest
 from asgiref.sync import async_to_sync
 from nabairqualityd.nabairqualityd import NabAirqualityd
 from nabairqualityd import models
-
-
-class MockWriter(object):
-    def __init__(self):
-        self.written = []
-
-    def write(self, packet):
-        self.written.append(packet)
-
-    async def drain(self):
-        pass
+from nabd.tests.utils import close_old_async_connections
+from nabd.tests.mock import MockWriter, NabdMockTestCase
 
 
 @pytest.mark.django_db(transaction=True)
 class TestNabAirqualityd(unittest.TestCase):
+    def tearDown(self):
+        close_old_async_connections()
+
     def test_fetch_info_data(self):
         config = models.Config.load()
         config.index_airquality = "aqi"
@@ -85,3 +79,13 @@ class TestNabAirqualityd(unittest.TestCase):
         self.assertEqual(packet_json["type"], "message")
         self.assertTrue("signature" in packet_json)
         self.assertTrue("body" in packet_json)
+
+
+@pytest.mark.django_db
+class TestNabAirqualitydRun(NabdMockTestCase):
+    def tearDown(self):
+        NabdMockTestCase.tearDown(self)
+        close_old_async_connections()
+
+    def test_connect(self):
+        self.do_test_connect(NabAirqualityd)

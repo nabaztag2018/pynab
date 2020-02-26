@@ -2,7 +2,6 @@ import os
 import random
 from nabweb import settings
 from pathlib import Path
-import logging
 
 
 class Resources(object):

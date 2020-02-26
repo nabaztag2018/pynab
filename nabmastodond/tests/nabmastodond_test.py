@@ -1,6 +1,5 @@
 import unittest
 import asyncio
-import threading
 import json
 import django
 import time
@@ -14,6 +13,8 @@ from asgiref.sync import async_to_sync
 from nabmastodond import nabmastodond, models
 from nabcommon import nabservice
 from mastodon import Mastodon, MastodonNotFoundError
+from nabd.tests.mock import NabdMockTestCase
+from nabd.tests.utils import close_old_async_connections
 
 
 DATE_1 = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
@@ -110,6 +111,9 @@ class TestMastodonLogic(unittest.TestCase, MockMastodonClient):
     def setUp(self):
         self.posted_statuses = []
 
+    def tearDown(self):
+        close_old_async_connections()
+
     def test_process_status(self):
         config = models.Config.load()
         self.assertEqual(config.last_processed_status_id, None)
@@ -197,66 +201,20 @@ class TestMastodonLogic(unittest.TestCase, MockMastodonClient):
         )
 
 
-class TestMastodondBase(unittest.TestCase):
-    async def mock_nabd_service_handler(self, reader, writer):
-        self.service_writer = writer
-        if (
-            hasattr(self, "mock_connection_handler")
-            and self.mock_connection_handler is not None
-        ):
-            await self.mock_connection_handler(reader, writer)
-
-    def mock_nabd_thread_entry_point(self, kwargs):
-        self.mock_nabd_loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.mock_nabd_loop)
-        server_task = self.mock_nabd_loop.create_task(
-            asyncio.start_server(
-                self.mock_nabd_service_handler,
-                "localhost",
-                nabservice.NabService.PORT_NUMBER,
-            )
-        )
-        try:
-            self.mock_nabd_loop.run_forever()
-        finally:
-            server = server_task.result()
-            server.close()
-            if self.service_writer:
-                self.service_writer.close()
-            self.mock_nabd_loop.close()
-
+class TestMastodondBase(NabdMockTestCase):
     def setUp(self):
-        self.service_writer = None
-        self.mock_nabd_loop = None
-        self.mock_nabd_thread = threading.Thread(
-            target=self.mock_nabd_thread_entry_point, args=[self]
-        )
-        self.mock_nabd_thread.start()
+        NabdMockTestCase.setUp(self)
         self.posted_statuses = []
-        time.sleep(1)
-
-    def tearDown(self):
-        self.mock_nabd_loop.call_soon_threadsafe(
-            lambda: self.mock_nabd_loop.stop()
-        )
-        self.mock_nabd_thread.join(3)
 
 
 @pytest.mark.django_db(transaction=True)
 class TestMastodond(TestMastodondBase):
-    async def connect_handler(self, reader, writer):
-        writer.write(b'{"type":"state","state":"idle"}\r\n')
-        self.connect_handler_called += 1
+    def tearDown(self):
+        TestMastodondBase.tearDown(self)
+        close_old_async_connections()
 
     def test_connect(self):
-        self.mock_connection_handler = self.connect_handler
-        self.connect_handler_called = 0
-        self.service_loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.service_loop)
-        self.service_loop.call_later(2, lambda: self.service_loop.stop())
-        service = nabmastodond.NabMastodond()
-        service.run()
-        self.assertEqual(self.connect_handler_called, 1)
+        self.do_test_connect(nabmastodond.NabMastodond)
 
     async def connect_with_ears_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
@@ -313,6 +271,10 @@ class TestMastodondPairingProtocol(TestMastodondBase, MockMastodonClient):
         self.service_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.service_loop)
         self.service_loop.call_later(2, lambda: self.service_loop.stop())
+
+    def tearDown(self):
+        TestMastodondBase.tearDown(self)
+        close_old_async_connections()
 
     async def protocol_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
@@ -1534,6 +1496,10 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
         asyncio.set_event_loop(self.service_loop)
         self.service_loop.call_later(2, lambda: self.service_loop.stop())
 
+    def tearDown(self):
+        TestMastodondBase.tearDown(self)
+        close_old_async_connections()
+
     async def ears_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
         writer.write(b'{"type":"ears_event","left":4,"right":6}\r\n')
@@ -1748,6 +1714,7 @@ class TestMastodonClientProposal(TestMastodondBase, TestMastodonClientBase):
     def tearDown(self):
         TestMastodondBase.tearDown(self)
         TestMastodonClientBase.tearDown(self)
+        close_old_async_connections()
 
     def test_mastodon_client_alter_proposal_before_start(self):
         config = models.Config.load()

@@ -7,17 +7,9 @@ import pytest
 from asgiref.sync import async_to_sync
 from nabweatherd.nabweatherd import NabWeatherd
 from nabweatherd import models
-
-
-class MockWriter(object):
-    def __init__(self):
-        self.written = []
-
-    def write(self, packet):
-        self.written.append(packet)
-
-    async def drain(self):
-        pass
+from nabweatherd import rfid_data
+from nabd.tests.utils import close_old_async_connections
+from nabd.tests.mock import MockWriter, NabdMockTestCase
 
 
 class TestNabWeatherd(unittest.TestCase):
@@ -33,6 +25,9 @@ class TestNabWeatherd(unittest.TestCase):
 
 @pytest.mark.django_db(transaction=True)
 class TestNabWeatherdDB(unittest.TestCase):
+    def tearDown(self):
+        close_old_async_connections()
+
     def test_fetch_info_data(self):
         service = NabWeatherd()
         data = async_to_sync(service.fetch_info_data)(
@@ -86,3 +81,26 @@ class TestNabWeatherdDB(unittest.TestCase):
         self.assertEqual(packet_json["type"], "message")
         self.assertTrue("signature" in packet_json)
         self.assertTrue("body" in packet_json)
+
+
+class TestRFIDData(unittest.TestCase):
+    def test_serialize(self):
+        self.assertEqual(b"\x01", rfid_data.serialize("today"))
+        self.assertEqual(b"\x02", rfid_data.serialize("tomorrow"))
+        self.assertEqual(b"\x01", rfid_data.serialize("unknown"))
+
+    def test_unserialize(self):
+        self.assertEqual("today", rfid_data.unserialize(b"\x01"))
+        self.assertEqual("tomorrow", rfid_data.unserialize(b"\x02"))
+        self.assertEqual("today", rfid_data.unserialize(b""))
+        self.assertEqual("today", rfid_data.unserialize(b"unknown"))
+
+
+@pytest.mark.django_db
+class TestNabWeatherdRun(NabdMockTestCase):
+    def tearDown(self):
+        NabdMockTestCase.tearDown(self)
+        close_old_async_connections()
+
+    def test_connect(self):
+        self.do_test_connect(NabWeatherd)

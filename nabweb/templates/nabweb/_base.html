@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{% static "nabweb/css/bootstrap.min.css" %}">
     <link rel="stylesheet/less" type="text/css" href="{% static "nabweb/css/bootstrap-button-toggle.less" %}">
     <link rel="stylesheet" type="text/css" href="{% static "nabweb/css/bootstrap4-clockpicker.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "nabweb/css/nabweb.css" %}">
     <title>{% trans "Nabaztag configuration" %} :: {% block subtitle %}{% endblock %}</title>
     <script src="{% static "nabweb/js/jquery-3.3.1.min.js" %}"></script>
     <script src="{% static "nabweb/js/popper.min.js" %}"></script>
@@ -26,12 +27,13 @@
         <ul class="navbar-nav mr-auto">
           <li><a class="nav-link{% if request.path == '/' %} active{% endif %}" href="{% if request.path == '/' %}#{% else %}/{% endif %}">{% trans "Home" %}{% if request.path == '/' %} <span class="sr-only">{% trans "(current)" %}{% endif %}</span></a></li>
           <li><a class="nav-link{% if request.path == '/services/' %} active{% endif %}" href="{% if request.path == '/services/' %}#{% else %}/services/{% endif %}">{% trans "Services" %}{% if request.path == '/services/' %}  <span class="sr-only">{% trans "(current)" %}</span>{% endif %}</a></li>
+          <li><a class="nav-link{% if request.path == '/rfid/' %} active{% endif %}" href="{% if request.path == '/rfid/' %}#{% else %}/rfid/{% endif %}">{% trans "RFID" %}{% if request.path == '/rfid/' %}  <span class="sr-only">{% trans "(current)" %}</span>{% endif %}</a></li>
           <li><a class="nav-link{% if request.path == '/system-info/' %} active{% endif %}" href="{% if request.path == '/system-info/' %}#{% else %}/system-info/{% endif %}">{% trans "System Information" %}{% if request.path == '/system-info/' %}  <span class="sr-only">{% trans "(current)" %}</span>{% endif %}</a></li>
           <li><a class="nav-link upgrade-link{% if request.path == '/upgrade/' %} active{% endif %}" href="{% if request.path == '/upgrade/' %}#{% else %}/upgrade/{% endif %}">{% trans "Upgrade" %} <span class="badge badge-info"></span>{% if request.path == '/upgrade/' %}  <span class="sr-only">{% trans "(current)" %}</span>{% endif %}</a></li>
           <li><a class="nav-link" href="https://tagtagtag.fr/help.html" target="_new">{% trans "Help!" %}  </a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-          <li><a class="nav-link pull-right" href="https://github.com/nabaztag2018/pynab" target="_blank" aria-label="GitHub"><img src="{% static "nabweb/images/GitHub-Mark-32px.png" %}" title="GitHub" width="20" height="20" /></a></li>
+          <li><a class="nav-link pull-right" href="https://github.com/nabaztag2018/pynab" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="{% static "nabweb/images/GitHub-Mark-32px.png" %}" title="GitHub" width="20" height="20" /></a></li>
         </ul>
       </div>
     </header>

@@ -1,11 +1,11 @@
 import asyncio
 import time
-import sys
 
 from .button_gpio import ButtonGPIO
 from .ears import Ears
 from .ears_dev import EarsDev
-from .leds import Leds
+from .rfid_dev import RfidDev
+from .leds import Led
 from .leds_neopixel import LedsNeoPixel
 from .nabio import NabIO
 from .sound_alsa import SoundAlsa
@@ -21,6 +21,7 @@ class NabIOHW(NabIO):
         self.model = NabIOHW.detect_model()
         self.leds = LedsNeoPixel()
         self.ears = EarsDev()
+        self.rfid = RfidDev()
         self.sound = SoundAlsa(self.model)
         self.button = ButtonGPIO(self.model)
 
@@ -37,11 +38,11 @@ class NabIOHW(NabIO):
 
     def set_leds(self, nose, left, center, right, bottom):
         for (led_ix, led) in [
-            (Leds.LED_NOSE, nose),
-            (Leds.LED_LEFT, left),
-            (Leds.LED_CENTER, center),
-            (Leds.LED_RIGHT, right),
-            (Leds.LED_BOTTOM, bottom),
+            (Led.NOSE, nose),
+            (Led.LEFT, left),
+            (Led.CENTER, center),
+            (Led.RIGHT, right),
+            (Led.BOTTOM, bottom),
         ]:
             if led is None:
                 (r, g, b) = (0, 0, 0)
@@ -53,11 +54,17 @@ class NabIOHW(NabIO):
         (r, g, b) = color
         self.leds.pulse(led_ix, r, g, b)
 
+    def rfid_awaiting_feedback(self):
+        self.leds.set1(Led.NOSE, 255, 0, 0)
+
     def bind_button_event(self, loop, callback):
         self.button.on_event(loop, callback)
 
     def bind_ears_event(self, loop, callback):
         self.ears.on_move(loop, callback)
+
+    def bind_rfid_event(self, loop, callback):
+        self.rfid.on_detect(loop, callback)
 
     async def play_info(self, condvar, tempo, colors):
         animation = [NabIOHW._convert_info_color(color) for color in colors]
@@ -79,7 +86,7 @@ class NabIOHW(NabIO):
         return notified
 
     def clear_info(self):
-        for led in (Leds.LED_LEFT, Leds.LED_CENTER, Leds.LED_RIGHT):
+        for led in (Led.LEFT, Led.CENTER, Led.RIGHT):
             self.leds.set1(led, 0, 0, 0)
 
     @staticmethod
@@ -95,9 +102,9 @@ class NabIOHW(NabIO):
     def _convert_info_color(color):
         animation = []
         for led_ix, led in [
-            (Leds.LED_LEFT, "left"),
-            (Leds.LED_CENTER, "center"),
-            (Leds.LED_RIGHT, "right"),
+            (Led.LEFT, "left"),
+            (Led.CENTER, "center"),
+            (Led.RIGHT, "right"),
         ]:
             values = []
             if color[led]:
@@ -112,13 +119,13 @@ class NabIOHW(NabIO):
             animation.append((led_ix, values))
         return animation
 
-    def cancel(self):
-        pass
-
     def has_sound_input(self):
         return self.model != NabIOHW.MODEL_2018
 
-    def gestalt(self):
+    def has_rfid(self):
+        return self.model == NabIOHW.MODEL_2019_TAGTAG
+
+    async def gestalt(self):
         MODEL_NAMES = {
             NabIO.MODEL_2018: "2018",
             NabIO.MODEL_2019_TAG: "2019_TAG",
@@ -128,7 +135,7 @@ class NabIOHW(NabIO):
             model_name = MODEL_NAMES[self.model]
         else:
             model_name = f"Unknown model {self.model}"
-        left_ear_position, right_ear_position = self.ears.get_positions()
+        left_ear_position, right_ear_position = await self.ears.get_positions()
         if self.ears.is_broken(Ears.LEFT_EAR):
             left_ear_status = "broken"
         else:
@@ -147,13 +154,17 @@ class NabIOHW(NabIO):
             "model": model_name,
             "sound_card": self.sound.get_sound_card(),
             "sound_input": self.has_sound_input(),
+            "rfid": self.has_rfid(),
             "left_ear_status": left_ear_status,
             "right_ear_status": right_ear_status,
         }
 
     async def test(self, test):
         if test == "ears":
-            left_ear_position, right_ear_position = self.ears.get_positions()
+            (
+                left_ear_position,
+                right_ear_position,
+            ) = await self.ears.get_positions()
             await self.ears.go(Ears.LEFT_EAR, 8, Ears.BACKWARD_DIRECTION)
             await self.ears.go(Ears.RIGHT_EAR, 8, Ears.BACKWARD_DIRECTION)
             await self.ears.wait_while_running()
@@ -198,11 +209,11 @@ class NabIOHW(NabIO):
             ]:
                 r, g, b = color
                 for led_ix in [
-                    Leds.LED_NOSE,
-                    Leds.LED_LEFT,
-                    Leds.LED_CENTER,
-                    Leds.LED_RIGHT,
-                    Leds.LED_BOTTOM,
+                    Led.NOSE,
+                    Led.LEFT,
+                    Led.CENTER,
+                    Led.RIGHT,
+                    Led.BOTTOM,
                 ]:
                     self.leds.set1(led_ix, r, g, b)
                     await asyncio.sleep(0.2)
@@ -216,6 +227,9 @@ class NabIOHW(NabIO):
         _, sound_configuration, _, = SoundAlsa.sound_configuration()
 
         if sound_configuration == SoundAlsa.MODEL_2019_CARD_NAME:
-            return NabIO.MODEL_2019_TAG
+            if RfidDev.is_available():
+                return NabIO.MODEL_2019_TAGTAG
+            else:
+                return NabIO.MODEL_2019_TAG
         if sound_configuration == SoundAlsa.MODEL_2018_CARD_NAME:
             return NabIO.MODEL_2018
