@@ -96,7 +96,7 @@ class BaseView(View, metaclass=abc.ABCMeta):
                         }
                     )
         services_sorted = sorted(services, key=lambda s: s["priority"])
-        services_names = map(lambda s: s["name"], services_sorted)
+        services_names = [s["name"] for s in services_sorted]
         return services_names
 
 
@@ -110,19 +110,16 @@ class NabWebView(BaseView):
         return context
 
     def post(self, request, *args, **kwargs):
-        config = Config.load()
-        config.locale = request.POST["locale"]
-        config.save()
-        asyncio.run(self.notify_config_update("nabd", "locale"))
-        user_language = to_language(config.locale)
-        translation.activate(user_language)
-        request.LANGUAGE_CODE = translation.get_language()
-        locales = self.get_locales()
-        return render(
-            request,
-            self.template_name(),
-            context={"current_locale": config.locale, "locales": locales},
-        )
+        if "locale" in request.POST:
+            config = Config.load()
+            config.locale = request.POST["locale"]
+            config.save()
+            asyncio.run(self.notify_config_update("nabd", "locale"))
+            user_language = to_language(config.locale)
+            translation.activate(user_language)
+            request.LANGUAGE_CODE = translation.get_language()
+        context = self.get_context()
+        return render(request, self.template_name(), context=context)
 
     async def notify_config_update(self, service, slot):
         await NabdConnection.transaction(
