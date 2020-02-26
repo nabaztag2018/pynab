@@ -394,12 +394,14 @@ class GitInfo:
         "pynab": ".",
         "sound_driver": "../wm8960",
         "ears_driver": "../tagtagtag-ears/",
+        "rfid_driver": "../cr14/",
         "nabblockly": "nabblockly",
     }
     NAMES = {
         "pynab": "Pynab",
         "sound_driver": "Tagtagtag sound card driver",
         "ears_driver": "Ears driver",
+        "rfid_driver": "RFID reader driver",
         "nabblockly": "Nabblockly",
     }
 
