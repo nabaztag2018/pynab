@@ -83,6 +83,7 @@ class Nabd:
         self._ears_moved_task = None
         self.playing_cancelable = False
         self.playing_request_id = None
+        self.firstBoot = True
         Nabd.leds_boot(self.nabio, 2)
         if self.nabio.has_sound_input():
             from . import i18n
@@ -125,17 +126,26 @@ class Nabd:
                 Nabd.leds_boot(self.nabio, 4)
             self.nabio.set_leds(None, None, None, None, None)
 
+    async def boot_playsound(self):
+        if (self.firstBoot):
+            packet = json.loads('{"sequence":[{"audio":["boot/*.mp3"]}]}\r\n')
+            await self.perform_command(packet)
+            await asyncio.sleep(5)
+            self.firstBoot= False
+
     async def _do_transition_to_idle(self):
         """
         Transition to idle.
         Lock is acquired.
         Thread: service or idle_worker_loop
         """
+        await self.boot_playsound()
         left, right = self.ears["left"], self.ears["right"]
         await self.nabio.move_ears_with_leds((255, 0, 255), left, right)
         self.nabio.pulse(Led.BOTTOM, (255, 0, 255))
 
     async def sleep_setup(self):
+        await self.boot_playsound()
         self.nabio.set_leds(None, None, None, None, None)
         await self.nabio.move_ears(
             Nabd.SLEEP_EAR_POSITION, Nabd.SLEEP_EAR_POSITION
