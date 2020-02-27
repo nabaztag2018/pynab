@@ -139,13 +139,13 @@ class Nabd:
         Lock is acquired.
         Thread: service or idle_worker_loop
         """
-        # await self.boot_playsound()
+        await self.boot_playsound()
         left, right = self.ears["left"], self.ears["right"]
         await self.nabio.move_ears_with_leds((255, 0, 255), left, right)
         self.nabio.pulse(Led.BOTTOM, (255, 0, 255))
 
     async def sleep_setup(self):
-        # await self.boot_playsound()
+        await self.boot_playsound()
         self.nabio.set_leds(None, None, None, None, None)
         await self.nabio.move_ears(
             Nabd.SLEEP_EAR_POSITION, Nabd.SLEEP_EAR_POSITION
