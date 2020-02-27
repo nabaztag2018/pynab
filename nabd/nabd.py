@@ -129,7 +129,7 @@ class Nabd:
     async def boot_playsound(self):
         if (self.firstBoot):
             packet = json.loads('{"sequence":[{"audio":["boot/*.mp3"]}]}\r\n')
-            #await self.nabio.play_sequence(packet["sequence"])
+            await self.nabio.play_sequence(packet["sequence"])
             #await asyncio.sleep(2)
             self.firstBoot= False
 
