@@ -14,17 +14,12 @@ class NabRfid2server(NabService):
 
         self.config = models.Config.load()
 
-    async def __config(self):
-        from . import models
-        config = await models.Config.load_async()
-        return config
-
     async def reload_config(self):
         from . import models
-        config = await models.Config.load_async()
+        self.config = await models.Config.load_async()
 
-        logging.info("reload config: mode=" + str(config.rfid_2_server_mode) + " test="+str(config.rfid_2_server_test) + " url="+config.rfid_2_server_url)
-        if config.rfid_2_server_test : self.send_rfid_2_url("rfid_uid_test3","event_test","app_test","support_test","packet_test")
+        #logging.info("reload config: mode=" + str(self.config.rfid_2_server_mode) + " test="+str(self.config.rfid_2_server_test) + " url="+self.config.rfid_2_server_url)
+        if self.config.rfid_2_server_test : self.send_rfid_2_url("rfid_uid_test","event_test","app_test","support_test","packet_test")
 
     async def process_nabd_packet(self, packet):
         if ( self.config.rfid_2_server_mode==0 or (packet["type"] != "rfid_event") ): return # Never send url
@@ -40,7 +35,7 @@ class NabRfid2server(NabService):
         self.send_rfid_2_url(packet["uid"],_event,app,supp,packet)
 
     def send_rfid_2_url(self, uid,_event,app,supp,packet):
-        logging.info("send rfid 2 url: mode=" + str(self.config.rfid_2_server_mode) + " test="+str(self.config.rfid_2_server_test) + " url="+self.config.rfid_2_server_url)
+        #logging.info("send rfid 2 url: mode=" + str(self.config.rfid_2_server_mode) + " test="+str(self.config.rfid_2_server_test) + " url="+self.config.rfid_2_server_url)
         url_message = self.config.rfid_2_server_url.replace("#RFID_TAG#",uid)
         url_message = url_message.replace("#RFID_APP#",app)
         url_message = url_message.replace("#RFID_FLAGS#",supp)
