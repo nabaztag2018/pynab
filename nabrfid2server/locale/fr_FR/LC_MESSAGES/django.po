@@ -18,6 +18,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: templates/nabrfid2server/settings.html:38
+msgid "RFID to Server"
+msgstr "RFID vers Serveur"
+
+#: templates/nabrfid2server/settings.html:38
 msgid "Tags can be transmitted to a remote server by URL."
 msgstr "Les Tags peuvent être envoyés à un serveur distant par URL."
 
