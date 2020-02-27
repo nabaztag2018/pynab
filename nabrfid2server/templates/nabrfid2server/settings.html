@@ -9,9 +9,10 @@
       <div class="form-group row">
         <p>{% trans "Tags can be transmitted to a remote server by URL." %}</p>
 		<p>{% trans "Setup below the transmission mode that suits for you" %}</p>
-		<p>{% trans "Setup also the url of your server. You have to include #RFID_TAG# where you want your Rfid to be placed. You can also use #RFID_STATE#, #RFID_FLAGS#, #RFID_APP# to know about repetition, tag flags and app called by the tag" %}</p>
+		<p>{% trans "Setup also the url of your server. You can include, where you need in your  url the following tags:<br>#RFID_TAG#   : uid of the tag<br>#RFID_STATE# : state of the tag (detected, removed)<br>#RFID_FLAGS# : supported, formatted,etc.<br>#RFID_APP#   : App called by a formatted tag<br>#RFID_PACK#  : the whole RFID packet received<br>#RFID_JEEPACK# : compatible RFID_PACK for Jeedom" %}</p>
         <label for="modeSelect" class="col-6 col-form-label">{% trans "URL Send Option" %}</label>
         <div class="col-6">
+          <input id="rfid_2_server_test" name="rfid_2_server_test" type="hidden" value="false" />
           <select name="rfid_2_server_mode" id="modeSelect">
             <option value="0"{% if config.rfid_2_server_mode == 0 %} selected{% endif %}>{% trans "Never send the tag" %}</option>
             <option value="1"{% if config.rfid_2_server_mode == 1 %} selected{% endif %}>{% trans "Only for unknown tag" %}</option>
@@ -57,6 +58,7 @@
     });
     form.on('submit', function() {
       var formdata = form.serialize();
+      //window.alert(formdata);
       $.ajax({
         url: url,
         method: "POST",
@@ -74,17 +76,25 @@
     });
     nowBtn.on("click", function() {
       nowBtn.addClass('disabled');
+      document.getElementById("rfid_2_server_test").value = "true";
+      var formdata = form.serialize();
+      //window.alert(formdata);
       $.ajax({
         url: url,
-        beforeSend: function (xhr, settings) {
-          xhr.setRequestHeader("X-CSRFToken", form.find('input[name="csrfmiddlewaretoken"]').val());
-        },
-        method: "PUT",
+        method: "POST",
+        data: formdata,
         success: function (data) {
-          nowBtn.removeClass('disabled');
+          $("#nabrfid2server-settings").replaceWith(data);
         }
       });
+      document.getElementById("rfid_2_server_testurl").value = "false";
+      nowBtn.removeClass('disabled');
       return false;
+    });
+    resetBtn.on("click", function() {
+      $.get(url, function(data) {
+        $("#nabrfid2server-settings").replaceWith(data);
+      });
     });
   });
   </script>

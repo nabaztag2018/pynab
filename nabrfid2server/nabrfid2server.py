@@ -12,35 +12,44 @@ class NabRfid2server(NabService):
         super().__init__()
         from . import models
 
-        self.server_test = False
         self.config = models.Config.load()
+
+    async def __config(self):
+        from . import models
+        config = await models.Config.load_async()
+        return config
 
     async def reload_config(self):
         from . import models
         config = await models.Config.load_async()
-        if self.server_test : send_rfid_2_url("RFID_UID_TEST","EVENT_TEST","APP_TEST","SUPPORT_TEST")
-        return (None, None, config.rfid_2_server_mode,config.rfid_2_server_url)
+
+        logging.info("reload config: mode=" + str(config.rfid_2_server_mode) + " test="+str(config.rfid_2_server_test) + " url="+config.rfid_2_server_url)
+        if config.rfid_2_server_test : self.send_rfid_2_url("rfid_uid_test3","event_test","app_test","support_test","packet_test")
 
     async def process_nabd_packet(self, packet):
-        if ( self.config.rfid_2_server_mode==0 ): return # Never send url
-        if (packet["type"] == "state")or(packet["type"] == "response"): return
-        if (packet["type"] != "rfid_event"):
-            self.send_rfid_2_url(packet["type"],"Setting Test","No","--")
-            return
+        if ( self.config.rfid_2_server_mode==0 or (packet["type"] != "rfid_event") ): return # Never send url
+
         if "app" not in packet: app = "none"
         else: app = packet["app"]
         if "support" not in packet: supp = "support unknown"
         else: supp = packet["support"]
         if "event" not in packet: _event = "no event"
         else: _event = packet["event"]
-        if (self.config.rfid_2_server_mode==1) and (supp=="formatted") and (app=="none") : return # Send only unknown tags
-        self.send_rfid_2_url(packet["uid"],_event,app,supp)
 
-    def send_rfid_2_url(self, uid,_event,app,supp):
+        if (self.config.rfid_2_server_mode==1) and (supp=="formatted") and (app=="none") : return # Send only unknown tags
+        self.send_rfid_2_url(packet["uid"],_event,app,supp,packet)
+
+    def send_rfid_2_url(self, uid,_event,app,supp,packet):
+        logging.info("send rfid 2 url: mode=" + str(self.config.rfid_2_server_mode) + " test="+str(self.config.rfid_2_server_test) + " url="+self.config.rfid_2_server_url)
         url_message = self.config.rfid_2_server_url.replace("#RFID_TAG#",uid)
         url_message = url_message.replace("#RFID_APP#",app)
         url_message = url_message.replace("#RFID_FLAGS#",supp)
         url_message = url_message.replace("#RFID_STATE#",_event)
+        str_pack = json.dumps(packet);
+        url_message = url_message.replace("#RFID_PACK#",str_pack)
+        str_pack = str_pack.lower()
+        str_pack = str_pack.replace('\"','')
+        url_message = url_message.replace("#RFID_JEEPACK#",str_pack)
         f = requests.get(url_message)
 
     async def client_loop(self):

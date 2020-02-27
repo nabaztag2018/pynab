@@ -14,6 +14,7 @@ class SettingsView(TemplateView):
 
     def post(self, request, *args, **kwargs):
         config = Config.load()
+        config.rfid_2_server_test = request.POST["rfid_2_server_test"] == "true"
         config.rfid_2_server_mode = int(request.POST["rfid_2_server_mode"])
         config.rfid_2_server_url  = request.POST["rfid_2_server_url"]
         config.save()
@@ -25,6 +26,5 @@ class SettingsView(TemplateView):
     def put(self, request, *args, **kwargs):
         config = Config.load()
         config.save()
-        NabRfid2server.server_test = True
         NabRfid2server.signal_daemon()
         return JsonResponse({"status": "ok"})
