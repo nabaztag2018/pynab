@@ -83,7 +83,7 @@ class Nabd:
         self._ears_moved_task = None
         self.playing_cancelable = False
         self.playing_request_id = None
-        # self.firstBoot = True
+        self.firstBoot = True
         Nabd.leds_boot(self.nabio, 2)
         if self.nabio.has_sound_input():
             from . import i18n
@@ -126,12 +126,12 @@ class Nabd:
                 Nabd.leds_boot(self.nabio, 4)
             self.nabio.set_leds(None, None, None, None, None)
 
-    # async def boot_playsound(self):
-    #     if (self.firstBoot):
-    #         packet = json.loads('{"sequence":[{"audio":["boot/*.mp3"]}]}\r\n')
-    #         await self.nabio.play_sequence(packet["sequence"])
-    #         await asyncio.sleep(2)
-    #         self.firstBoot= False
+    async def boot_playsound(self):
+        if (self.firstBoot):
+            packet = json.loads('{"sequence":[{"audio":["boot/*.mp3"]}]}\r\n')
+            await self.nabio.play_sequence(packet["sequence"])
+            await asyncio.sleep(2)
+            self.firstBoot= False
 
     async def _do_transition_to_idle(self):
         """
