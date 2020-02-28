@@ -38,7 +38,7 @@ class State(Enum):
 
 
 class Nabd:
-    SLEEP_EAR_POSITION = 8
+    SLEEP_EAR_POSITION = 10
     INIT_EAR_POSITION = 0
     EAR_MOVEMENT_TIMEOUT = 0.5
 
