@@ -130,7 +130,7 @@ class Nabd:
         if (self.firstBoot):
             packet = json.loads('{"sequence":[{"audio":["boot/*.mp3"]}]}\r\n')
             await self.nabio.play_sequence(packet["sequence"])
-            self.firstBoot= False
+            self.firstBoot = False
 
     async def _do_transition_to_idle(self):
         """
@@ -148,7 +148,7 @@ class Nabd:
         await self.nabio.move_ears(
             Nabd.SLEEP_EAR_POSITION, Nabd.SLEEP_EAR_POSITION
         )
-        await self.boot_playsound()        
+        await self.boot_playsound()
 
     async def idle_worker_loop(self):
         """
