@@ -9,6 +9,7 @@ from nabcommon import nabservice
 
 class NabClockd(nabservice.NabService):
     DAEMON_PIDFILE = "/run/nabclockd.pid"
+    SKIP_WAKEUP_SOUNDS_SEC = 300
 
     def __init__(self):
         super().__init__()
@@ -21,6 +22,9 @@ class NabClockd(nabservice.NabService):
         self.current_tz = self.get_system_tz()
         self.__synchronized_since_boot = False
         self.__boot_date = None
+        self.wakeup_sound_played = False
+        self.sleep_sound_played = False
+        self.service_boot_time = datetime.datetime.now()
 
     async def reload_config(self):
         from . import models
@@ -75,30 +79,50 @@ class NabClockd(nabservice.NabService):
         response = []
         if self.synchronized_since_boot():
             should_sleep = None
+
+            if self.config.settings_per_day:
+                # Until 3am, we keep the same day name
+                # to obtain the settings from the current (previous) day
+                curDateValue = datetime.datetime.now() + datetime.timedelta(
+                    hours=-3
+                )
+                dayOfTheWeek = curDateValue.strftime("%A").lower()
+                wakeup_hour = getattr(
+                    self.config, "wakeup_hour_" + dayOfTheWeek
+                )
+                sleep_hour = getattr(self.config, "sleep_hour_" + dayOfTheWeek)
+                wakeup_min = getattr(self.config, "wakeup_min_" + dayOfTheWeek)
+                sleep_min = getattr(self.config, "sleep_min_" + dayOfTheWeek)
+            else:
+                wakeup_hour = self.config.wakeup_hour
+                sleep_hour = self.config.sleep_hour
+                wakeup_min = self.config.wakeup_min
+                sleep_min = self.config.sleep_min
+
             if (
-                self.config.wakeup_hour is not None
-                and self.config.sleep_hour is not None
-                and self.config.wakeup_min is not None
-                and self.config.sleep_min is not None
+                wakeup_hour is not None
+                and sleep_hour is not None
+                and wakeup_min is not None
+                and sleep_min is not None
             ):
-                if (self.config.wakeup_hour, self.config.wakeup_min) < (
-                    self.config.sleep_hour,
-                    self.config.sleep_min,
+                if (wakeup_hour, wakeup_min) < (
+                    sleep_hour,
+                    sleep_min,
                 ):
                     should_sleep = (now.hour, now.minute) < (
-                        self.config.wakeup_hour,
-                        self.config.wakeup_min,
+                        wakeup_hour,
+                        wakeup_min,
                     ) or (now.hour, now.minute) >= (
-                        self.config.sleep_hour,
-                        self.config.sleep_min,
+                        sleep_hour,
+                        sleep_min,
                     )
                 else:
                     should_sleep = (now.hour, now.minute) < (
-                        self.config.wakeup_hour,
-                        self.config.wakeup_min,
+                        wakeup_hour,
+                        wakeup_min,
                     ) and (now.hour, now.minute) >= (
-                        self.config.sleep_hour,
-                        self.config.sleep_min,
+                        sleep_hour,
+                        sleep_min,
                     )
             if (
                 should_sleep is not None
@@ -139,10 +163,33 @@ class NabClockd(nabservice.NabService):
                         response = self.clock_response(now)
                         for r in response:
                             if r == "sleep":
-                                self.writer.write(b'{"type":"sleep"}\r\n')
-                                await self.writer.drain()
+                                startup_elapsed_time = (
+                                    datetime.datetime.now()
+                                    - self.service_boot_time
+                                ).total_seconds()
+                                if (
+                                    not self.sleep_sound_played
+                                    and self.config.play_wakeup_sleep_sounds
+                                    and startup_elapsed_time
+                                    > NabClockd.SKIP_WAKEUP_SOUNDS_SEC
+                                ):
+                                    self.sleep_sound_played = True
+                                    packet = (
+                                        '{"type":"message",'
+                                        '"body":[{"audio":["sleep/*.mp3"],'
+                                        '"choreography":null}],'
+                                        '"request_id":"sleep_sound"}\r\n'
+                                    )
+                                    self.writer.write(packet.encode("utf8"))
+                                    await self.writer.drain()
+                                else:
+                                    self.writer.write(b'{"type":"sleep"}\r\n')
+                                    await self.writer.drain()
+                                    self.wakeup_sound_played = False
                                 self.asleep = None
                             elif r == "wakeup":
+                                self.wakeup_sound_played = False
+                                self.sleep_sound_played = False
                                 self.writer.write(b'{"type":"wakeup"}\r\n')
                                 await self.writer.drain()
                                 self.asleep = None
@@ -151,6 +198,30 @@ class NabClockd(nabservice.NabService):
                                 self.last_chime = now.hour
                             elif r == "reset_last_chime":
                                 self.last_chime = None
+
+                        if (
+                            not self.asleep
+                            and self.asleep is not None
+                            and not self.wakeup_sound_played
+                            and self.config.play_wakeup_sleep_sounds
+                        ):
+                            self.wakeup_sound_played = True
+                            startup_elapsed_time = (
+                                datetime.datetime.now()
+                                - self.service_boot_time
+                            ).total_seconds()
+                            if (
+                                startup_elapsed_time
+                                > NabClockd.SKIP_WAKEUP_SOUNDS_SEC
+                            ):
+                                packet = (
+                                    '{"type":"message",'
+                                    '"body":[{"audio":["wakeup/*.mp3"],'
+                                    '"choreography":null}],'
+                                    '"request_id":"wakeup_sound"}\r\n'
+                                )
+                                self.writer.write(packet.encode("utf8"))
+                                await self.writer.drain()
                         sleep_amount = 60 - now.second
                         await asyncio.wait_for(
                             self.loop_cv.wait(), sleep_amount
@@ -172,6 +243,7 @@ class NabClockd(nabservice.NabService):
             "type" in packet
             and packet["type"] == "state"
             and "state" in packet
+            and packet["state"] != "playing"
         ):
             async with self.loop_cv:
                 self.asleep = packet["state"] == "asleep"

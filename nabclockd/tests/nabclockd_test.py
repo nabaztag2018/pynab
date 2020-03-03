@@ -70,14 +70,32 @@ class TestNabclockd(NabdMockTestCase):
         time.sleep(1)
         config = models.Config.load()
         now = datetime.datetime.now()
-        config.wakeup_hour = now.hour - 2
-        if config.wakeup_hour < 0:
-            config.wakeup_hour += 24
-        config.wakeup_min = 0
-        config.sleep_hour = now.hour + 2
-        if config.sleep_hour >= 24:
-            config.sleep_hour -= 24
-        config.sleep_min = 0
+        if not config.settings_per_day:
+            config.wakeup_hour = now.hour - 2
+            if config.wakeup_hour < 0:
+                config.wakeup_hour += 24
+            config.wakeup_min = 0
+            config.sleep_hour = now.hour + 2
+            if config.sleep_hour >= 24:
+                config.sleep_hour -= 24
+            config.sleep_min = 0
+        else:
+            wakeup_hour = now.hour - 2
+            if wakeup_hour < 0:
+                wakeup_hour += 24
+            wakeup_min = 0
+            sleep_hour = now.hour + 2
+            if sleep_hour >= 24:
+                sleep_hour -= 24
+            sleep_min = 0
+            curDateValue = datetime.datetime.now() + datetime.timedelta(
+                hours=-3
+            )
+            dayOfTheWeek = curDateValue.strftime("%A").lower()
+            setattr(config, "wakeup_hour_" + dayOfTheWeek, wakeup_hour)
+            setattr(config, "wakeup_min_" + dayOfTheWeek, wakeup_min)
+            setattr(config, "sleep_hour_" + dayOfTheWeek, sleep_hour)
+            setattr(config, "sleep_min_" + dayOfTheWeek, sleep_min)
         config.save()
         close_old_connections()
 
@@ -105,6 +123,41 @@ class TestNabclockd(NabdMockTestCase):
         if config.sleep_hour < 0:
             config.sleep_hour += 24
         config.sleep_min = 0
+        config.save()
+        service = nabclockd.NabClockd()
+        this_loop.call_later(1, lambda: self._update_wakeup_hours(service))
+        service.run()
+        self.assertEqual(self.wakeup_handler_called, 1)
+        self.assertEqual(len(self.wakeup_handler_packets), 2)
+        # NLU packet
+        self.assertTrue("type" in self.wakeup_handler_packets[0])
+        self.assertEqual(self.wakeup_handler_packets[0]["type"], "mode")
+        self.assertTrue("type" in self.wakeup_handler_packets[1])
+        self.assertEqual(self.wakeup_handler_packets[1]["type"], "wakeup")
+
+    def test_wakeup_perday(self):
+        self.mock_connection_handler = self.wakeup_handler
+        self.wakeup_handler_packets = []
+        self.wakeup_handler_called = 0
+        this_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(this_loop)
+        config = models.Config.load()
+        now = datetime.datetime.now()
+        config.settings_per_day = True
+        wakeup_hour = now.hour + 2
+        if wakeup_hour >= 24:
+            wakeup_hour -= 24
+        wakeup_min = 0
+        sleep_hour = now.hour - 2
+        if sleep_hour < 0:
+            sleep_hour += 24
+        sleep_min = 0
+        curDateValue = datetime.datetime.now() + datetime.timedelta(hours=-3)
+        dayOfTheWeek = curDateValue.strftime("%A").lower()
+        setattr(config, "wakeup_hour_" + dayOfTheWeek, wakeup_hour)
+        setattr(config, "wakeup_min_" + dayOfTheWeek, wakeup_min)
+        setattr(config, "sleep_hour_" + dayOfTheWeek, sleep_hour)
+        setattr(config, "sleep_min_" + dayOfTheWeek, sleep_min)
         config.save()
         service = nabclockd.NabClockd()
         this_loop.call_later(1, lambda: self._update_wakeup_hours(service))
@@ -145,6 +198,41 @@ class TestNabclockd(NabdMockTestCase):
         self.assertTrue("type" in self.wakeup_handler_packets[1])
         self.assertEqual(self.wakeup_handler_packets[1]["type"], "sleep")
 
+    def test_sleep_perday(self):
+        self.mock_connection_handler = self.sleep_handler
+        self.wakeup_handler_packets = []
+        self.wakeup_handler_called = 0
+        this_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(this_loop)
+        config = models.Config.load()
+        now = datetime.datetime.now()
+        config.settings_per_day = True
+        wakeup_hour = now.hour + 2
+        if wakeup_hour >= 24:
+            wakeup_hour -= 24
+        wakeup_min = 0
+        sleep_hour = now.hour - 2
+        if sleep_hour < 0:
+            sleep_hour += 24
+        sleep_min = 0
+        curDateValue = datetime.datetime.now() + datetime.timedelta(hours=-3)
+        dayOfTheWeek = curDateValue.strftime("%A").lower()
+        setattr(config, "wakeup_hour_" + dayOfTheWeek, wakeup_hour)
+        setattr(config, "wakeup_min_" + dayOfTheWeek, wakeup_min)
+        setattr(config, "sleep_hour_" + dayOfTheWeek, sleep_hour)
+        setattr(config, "sleep_min_" + dayOfTheWeek, sleep_min)
+        config.save()
+        service = nabclockd.NabClockd()
+        this_loop.call_later(1, lambda: this_loop.stop())
+        service.run()
+        self.assertEqual(self.wakeup_handler_called, 1)
+        self.assertEqual(len(self.wakeup_handler_packets), 2)
+        # NLU packet
+        self.assertTrue("type" in self.wakeup_handler_packets[0])
+        self.assertEqual(self.wakeup_handler_packets[0]["type"], "mode")
+        self.assertTrue("type" in self.wakeup_handler_packets[1])
+        self.assertEqual(self.wakeup_handler_packets[1]["type"], "sleep")
+
     def test_sleep_wakeup(self):
         self.mock_connection_handler = self.sleep_handler
         self.wakeup_handler_packets = []
@@ -161,6 +249,43 @@ class TestNabclockd(NabdMockTestCase):
         if config.sleep_hour < 0:
             config.sleep_hour += 24
         config.sleep_min = 0
+        config.save()
+        service = nabclockd.NabClockd()
+        this_loop.call_later(1, lambda: self._update_wakeup_hours(service))
+        service.run()
+        self.assertEqual(self.wakeup_handler_called, 1)
+        self.assertEqual(len(self.wakeup_handler_packets), 3)
+        # NLU packet
+        self.assertTrue("type" in self.wakeup_handler_packets[0])
+        self.assertEqual(self.wakeup_handler_packets[0]["type"], "mode")
+        self.assertTrue("type" in self.wakeup_handler_packets[1])
+        self.assertEqual(self.wakeup_handler_packets[1]["type"], "sleep")
+        self.assertTrue("type" in self.wakeup_handler_packets[2])
+        self.assertEqual(self.wakeup_handler_packets[2]["type"], "wakeup")
+
+    def test_sleep_wakeup_perday(self):
+        self.mock_connection_handler = self.sleep_handler
+        self.wakeup_handler_packets = []
+        self.wakeup_handler_called = 0
+        this_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(this_loop)
+        config = models.Config.load()
+        now = datetime.datetime.now()
+        config.settings_per_day = True
+        wakeup_hour = now.hour + 2
+        if wakeup_hour >= 24:
+            wakeup_hour -= 24
+        wakeup_min = 0
+        sleep_hour = now.hour - 2
+        if sleep_hour < 0:
+            sleep_hour += 24
+        sleep_min = 0
+        curDateValue = datetime.datetime.now() + datetime.timedelta(hours=-3)
+        dayOfTheWeek = curDateValue.strftime("%A").lower()
+        setattr(config, "wakeup_hour_" + dayOfTheWeek, wakeup_hour)
+        setattr(config, "wakeup_min_" + dayOfTheWeek, wakeup_min)
+        setattr(config, "sleep_hour_" + dayOfTheWeek, sleep_hour)
+        setattr(config, "sleep_min_" + dayOfTheWeek, sleep_min)
         config.save()
         service = nabclockd.NabClockd()
         this_loop.call_later(1, lambda: self._update_wakeup_hours(service))

@@ -13,13 +13,26 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import os
+
 from django.apps import apps
-from django.urls import path, include
-from .views import NabWebView, NabWebServicesView, NabWebSytemInfoView
-from .views import NabWebRfidView, NabWebRfidReadView, NabWebRfidWriteView
-from .views import NabWebUpgradeView, NabWebUpgradeStatusView
-from .views import NabWebUpgradeNowView, NabWebUpgradeCheckNowView
-from .views import NabWebUpgradeRepositoryInfoView, NabWebHardwareTestView
+from django.urls import include, path
+
+from .views import (
+    NabWebHardwareTestView,
+    NabWebRfidReadView,
+    NabWebRfidView,
+    NabWebRfidWriteView,
+    NabWebServicesView,
+    NabWebShutdownView,
+    NabWebSytemInfoView,
+    NabWebUpgradeCheckNowView,
+    NabWebUpgradeNowView,
+    NabWebUpgradeRepositoryInfoView,
+    NabWebUpgradeStatusView,
+    NabWebUpgradeView,
+    NabWebView,
+)
 
 urlpatterns = [
     path("", NabWebView.as_view()),
@@ -33,6 +46,11 @@ urlpatterns = [
         name="nabweb.test",
     ),
     path("system-info/", NabWebSytemInfoView.as_view()),
+    path(
+        "system-info/shutdown/<mode>",
+        NabWebShutdownView.as_view(),
+        name="nabweb.shutdown",
+    ),
     path("upgrade/", NabWebUpgradeView.as_view()),
     path(
         "upgrade/info/<repository>",
@@ -55,6 +73,13 @@ urlpatterns = [
         name="nabweb.upgrade.checknow",
     ),
 ]
+
+if os.getenv("PYNAB_DEVELOPMENT") is not None:
+    # Development environment does not use nginx, serve
+    # static files directly
+    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
+    urlpatterns += staticfiles_urlpatterns()
 
 # Service URLs added automatically
 for config in apps.get_app_configs():
