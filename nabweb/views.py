@@ -644,6 +644,7 @@ class NabWebUpgradeNowView(View):
             }
         )
 
+
 class NabWebShutdownView(View):
     async def os_shutdown(self, mode):
         return await NabdConnection.transaction(self._do_os_shutdown, mode)
@@ -666,7 +667,7 @@ class NabWebShutdownView(View):
         except asyncio.TimeoutError as err:
             return {
                 "status": "error",
-                "message": "Communication with Nabd timed out (running shutdown)",
+                "message": "Communication with Nabd timed out (shutdown)",
             }
 
     def post(self, request, *args, **kwargs):
