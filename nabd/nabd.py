@@ -836,11 +836,9 @@ class Nabd:
             Nabd.SLEEP_EAR_POSITION, Nabd.SLEEP_EAR_POSITION
         )
         if doReboot:
-            # os.system("/sbin/reboot")
-            logging.debug("DO REBOOT")
+            os.system("/sbin/reboot")
         else:
-            # os.system("/sbin/halt")
-            logging.debug("DO SHUTDOWN")
+            os.system("/sbin/halt")
 
     def ears_callback(self, ear):
         if self.interactive_service_writer:
