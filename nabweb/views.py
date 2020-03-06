@@ -644,7 +644,6 @@ class NabWebUpgradeNowView(View):
             }
         )
 
-
 class NabWebShutdownView(View):
     async def os_shutdown(self, mode):
         return await NabdConnection.transaction(self._do_os_shutdown, mode)
