@@ -18,6 +18,25 @@
             <dt class="col-sm-4"><a class="help-link" href="https://www.raspberrypi.org/documentation/remote-access/ssh/" >{% trans "SSH (Secure shell)" %}</a></dt>
             <dd class="col-sm-8">{% if os.ssh == "sshwarn" %}<span class="text-danger">{% trans "Enabled with default password" %}</span>{% else %}{% if os.ssh == "active" %}{% trans "Enabled" %}{% else %}{% trans "Disabled" %}{% endif %}{% endif %}</dd>
           </dl>
+          <dl class="row">
+            <dt class="col-sm-4">{% trans "Maintenance"%}</dt>
+            <dd class="col-sm-8">
+                <button id="button-reboot" data-shutdown-url="{% url 'nabweb.shutdown' mode='reboot' %}" class="btn btn-warning os-shutdown-button">{% trans "Reboot"%}<span class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span></button>
+                <button id="button-shutdown" data-shutdown-url="{% url 'nabweb.shutdown' mode='shutdown' %}" class="btn btn-danger os-shutdown-button">{% trans "Shutdown"%}<span class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span></button>
+            </dd>
+          </dl>
+          <dl class="row" id="rebootMessageRow" style="display:none">
+            <dt class="col-sm-4"></dt>
+            <dd class="col-sm-8">
+              <code>{% trans "Reboot has been initiated !"%}</code>
+            </dd>
+          </dl>
+          <dl class="row" id="shutdownMessageRow" style="display:none">
+            <dt class="col-sm-4"></dt>
+            <dd class="col-sm-8">
+              <code>{% trans "Shutdown has been initiated !"%}<BR>{% trans "Please wait at least 10 seconds before unplugging the power cable"%}</code>
+            </dd>
+          </dl>
         </div>
       </div>
     </div>
@@ -106,6 +125,42 @@
                 $(btn).find(".spinner").addClass("d-none");
               }
             });
+        });
+      });
+      $(".os-shutdown-button").each(function(i, btn) {
+        $(btn).on("click", function() {
+            if ($(btn).attr("id") == 'button-reboot') {
+              popupMessage = '{% trans "You are about to REBOOT the Raspberry Pi Linux system" %}'
+            } else {
+              popupMessage = '{% trans "You are about to SHUTDOWN the Raspberry Pi Linux system" %}'
+            }
+            if (confirm(popupMessage+'\n{% trans "Are you sure ?" %}')) {
+              if ($(btn).attr("id") == 'button-reboot') {
+                $("#rebootMessageRow").show();
+                $("#shutdownMessageRow").hide();                
+              } else {
+                $("#shutdownMessageRow").show();
+                $("#rebootMessageRow").hide();
+              }
+              $(btn).addClass("disabled");
+              $(btn).find(".spinner").removeClass("d-none");
+              $.ajax({
+                url: $(btn).data("shutdown-url"),
+                beforeSend: function (xhr, settings) {
+                  xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                dataType: 'json',
+                type: "POST",
+                success: function (data) {
+                  $(btn).removeClass("disabled");
+                  $(btn).find(".spinner").addClass("d-none");
+                },
+                error: function (data) {
+                  $(btn).removeClass("disabled");
+                  $(btn).find(".spinner").addClass("d-none");
+                }
+              });
+            }
         });
       });
     });
