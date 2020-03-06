@@ -129,6 +129,7 @@
       });
       $(".os-shutdown-button").each(function(i, btn) {
         $(btn).on("click", function() {
+            var popupMessage
             if ($(btn).attr("id") == 'button-reboot') {
               popupMessage = '{% trans "You are about to REBOOT the Raspberry Pi Linux system" %}'
             } else {
