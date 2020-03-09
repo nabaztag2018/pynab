@@ -646,16 +646,20 @@ class NabWebUpgradeNowView(View):
 
 
 class NabWebShutdownView(View):
+    SHUTDOWN_TIMEOUT = 30.0
+
     async def os_shutdown(self, mode):
         return await NabdConnection.transaction(self._do_os_shutdown, mode)
 
     async def _do_os_shutdown(self, reader, writer, mode):
         try:
-            packet = f'{{"type":"shutdown","mode":"{mode}"}}\r\n'
+            packet = f'{{"type":"shutdown","mode":"{mode}","request_id":"shutdown"}}\r\n'
             writer.write(packet.encode("utf8"))
             await writer.drain()
             while True:
-                line = await asyncio.wait_for(reader.readline(), timeout)
+                line = await asyncio.wait_for(
+                    reader.readline(), NabWebShutdownView.SHUTDOWN_TIMEOUT
+                )
                 packet = json.loads(line.decode("utf8"))
                 if (
                     "type" in packet

@@ -336,3 +336,45 @@ class TestRfidWriteView(TestNabdClientBase):
         json_response = json.loads(response.content.decode("utf8"))
         self.assertTrue("status" in json_response)
         self.assertEqual(json_response["status"], "timeout")
+
+
+class TestShutdownView(TestNabdClientBase):
+    def shutdown_view_handler(self, packet, writer):
+        self.packets.append(packet)
+        response_packet = None
+        if packet["type"] == "shutdown":
+            response_packet = self.write_response
+            if "request_id" in packet:
+                response_packet["request_id"] = packet["request_id"]
+        if response_packet:
+            response_json = json.JSONEncoder().encode(response_packet)
+            response_json += "\r\n"
+            writer.write(response_json.encode("utf8"))
+
+    def test_post_reboot_action(self):
+        self.packet_handler = self.shutdown_view_handler
+        self.write_response = {"type": "response", "status": "ok"}
+        self.packets = []
+        c = Client()
+        response = c.post("/system-info/shutdown/reboot", {"mode": "reboot"},)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(self.packets), 1)
+        self.assertTrue(isinstance(response, JsonResponse))
+        json_response = json.loads(response.content.decode("utf8"))
+        self.assertTrue("status" in json_response)
+        self.assertEqual(json_response["status"], "ok")
+
+    def test_post_shutdown_action(self):
+        self.packet_handler = self.shutdown_view_handler
+        self.write_response = {"type": "response", "status": "ok"}
+        self.packets = []
+        c = Client()
+        response = c.post(
+            "/system-info/shutdown/shutdown", {"mode": "shutdown"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(self.packets), 1)
+        self.assertTrue(isinstance(response, JsonResponse))
+        json_response = json.loads(response.content.decode("utf8"))
+        self.assertTrue("status" in json_response)
+        self.assertEqual(json_response["status"], "ok")
