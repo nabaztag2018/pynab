@@ -836,9 +836,15 @@ class Nabd:
             Nabd.SLEEP_EAR_POSITION, Nabd.SLEEP_EAR_POSITION
         )
         if doReboot:
-            os.system("/sbin/reboot")
+            await self._do_system_command("/sbin/reboot")
         else:
-            os.system("/sbin/halt")
+            await self._do_system_command("/sbin/halt")
+
+    async def _do_system_command(self, sytemCommandStr):
+        inTesting = os.path.basename(sys.argv[0]) in ("pytest", "py.test")
+        if not inTesting:
+            logging.debug(f"Initiating system command : {sytemCommandStr}")
+            os.system(sytemCommandStr)
 
     def ears_callback(self, ear):
         if self.interactive_service_writer:
