@@ -21,8 +21,8 @@
           <dl class="row">
             <dt class="col-sm-4">{% trans "Maintenance"%}</dt>
             <dd class="col-sm-8">
-                <button id="button-reboot" data-shutdown-url="{% url 'nabweb.shutdown' mode='reboot' %}" class="btn btn-warning os-shutdown-button">{% trans "Reboot"%}<span class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span></button>
-                <button id="button-shutdown" data-shutdown-url="{% url 'nabweb.shutdown' mode='shutdown' %}" class="btn btn-danger os-shutdown-button">{% trans "Shutdown"%}<span class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span></button>
+                <button id="button-reboot" data-toggle="modal" data-target="#confirm-reboot" data-shutdown-url="{% url 'nabweb.shutdown' mode='reboot' %}" class="btn btn-warning">{% trans "Reboot"%}<span class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span></button>
+                <button id="button-shutdown" data-toggle="modal" data-target="#confirm-shutdown" data-shutdown-url="{% url 'nabweb.shutdown' mode='shutdown' %}" class="btn btn-danger">{% trans "Shutdown"%}<span class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span></button>
             </dd>
           </dl>
           <dl class="row" id="rebootMessageRow" style="display:none">
@@ -103,6 +103,44 @@
       </div>
     </div>
   </div>
+  <div class="modal fade" id="confirm-reboot" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{% trans "Reboot" %}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          {% trans "You are about to REBOOT the Raspberry Pi Linux system" %}<BR><BR>{% trans "Are you sure ?" %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Cancel" %}</button>
+          <button type="button" id="button-reboot-confirm" class="btn btn-primary os-shutdown-button" data-dismiss="modal">{% trans "Reboot" %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="confirm-shutdown" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{% trans "Shutdown" %}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          {% trans "You are about to SHUTDOWN the Raspberry Pi Linux system" %}<BR><BR>{% trans "Are you sure ?" %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Cancel" %}</button>
+          <button type="button" id="button-shutdown-confirm" class="btn btn-primary os-shutdown-button" data-dismiss="modal">{% trans "Shutdown" %}</button>
+        </div>
+      </div>
+    </div>
+  </div>  
   <script type="text/javascript">
     $(function() {
       $(".hardware-test-button").each(function(i, btn) {
@@ -129,39 +167,33 @@
       });
       $(".os-shutdown-button").each(function(i, btn) {
         $(btn).on("click", function() {
-            var popupMessage
-            if ($(btn).attr("id") == 'button-reboot') {
-              popupMessage = '{% trans "You are about to REBOOT the Raspberry Pi Linux system" %}'
+            if ($(btn).attr("id") == 'button-reboot-confirm') {
+              var origButton = $("#button-reboot")
+              $("#rebootMessageRow").show();
+              $("#shutdownMessageRow").hide();                
             } else {
-              popupMessage = '{% trans "You are about to SHUTDOWN the Raspberry Pi Linux system" %}'
+              var origButton = $("#button-shutdown")
+              $("#shutdownMessageRow").show();
+              $("#rebootMessageRow").hide();
             }
-            if (confirm(popupMessage+'\n{% trans "Are you sure ?" %}')) {
-              if ($(btn).attr("id") == 'button-reboot') {
-                $("#rebootMessageRow").show();
-                $("#shutdownMessageRow").hide();                
-              } else {
-                $("#shutdownMessageRow").show();
-                $("#rebootMessageRow").hide();
+            origButton.addClass("disabled");
+            origButton.find(".spinner").removeClass("d-none");
+            $.ajax({
+              url: origButton.data("shutdown-url"),
+              beforeSend: function (xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+              },
+              dataType: 'json',
+              type: "POST",
+              success: function (data) {
+                origButton.removeClass("disabled");
+                origButton.find(".spinner").addClass("d-none");
+              },
+              error: function (data) {
+                origButton.removeClass("disabled");
+                origButton.find(".spinner").addClass("d-none");
               }
-              $(btn).addClass("disabled");
-              $(btn).find(".spinner").removeClass("d-none");
-              $.ajax({
-                url: $(btn).data("shutdown-url"),
-                beforeSend: function (xhr, settings) {
-                  xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
-                },
-                dataType: 'json',
-                type: "POST",
-                success: function (data) {
-                  $(btn).removeClass("disabled");
-                  $(btn).find(".spinner").addClass("d-none");
-                },
-                error: function (data) {
-                  $(btn).removeClass("disabled");
-                  $(btn).find(".spinner").addClass("d-none");
-                }
-              });
-            }
+            });
         });
       });
     });

@@ -538,7 +538,7 @@ msgstr "Vous êtes sur le point de REDEMARRER le système Linux du Raspberry Pi"
 
 #: templates/nabweb/system-info/index.html:135
 msgid "You are about to SHUTDOWN the Raspberry Pi Linux system"
-msgstr "Vous êtes sur le point d\\'ETEINDRE le système Linux du Raspberry Pi"
+msgstr "Vous êtes sur le point d'ETEINDRE le système Linux du Raspberry Pi"
 
 #: templates/nabweb/system-info/index.html:137
 msgid "Are you sure ?"
