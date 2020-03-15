@@ -653,7 +653,9 @@ class NabWebShutdownView(View):
 
     async def _do_os_shutdown(self, reader, writer, mode):
         try:
-            packet = f'{{"type":"shutdown","mode":"{mode}","request_id":"shutdown"}}\r\n'
+            # packet = f'{{"type":"shutdown","mode":"{mode}","request_id":"shutdown"}}\r\n'
+            packet = f'{{"type":"shutdown","mode":"{mode}",' \
+                     f'"request_id":"shutdown"}}\r\n'  
             writer.write(packet.encode("utf8"))
             await writer.drain()
             while True:
