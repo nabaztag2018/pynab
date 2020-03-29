@@ -9,7 +9,8 @@ class Config(singleton_model.SingletonModel):
 
     airquality = models.TextField(null=True)
     localisation = models.TextField(null=True)
-    index_airquality = models.TextField(null=True)
+    index_airquality = models.TextField(default=0, null=True)
+    visual_airquality = models.TextField(default=0, null=True)
 
     # necessaire pour declencher via le site web
     next_performance_date = models.DateTimeField(null=True)

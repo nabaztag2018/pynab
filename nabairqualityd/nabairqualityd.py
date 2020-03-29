@@ -58,18 +58,19 @@ class NabAirqualityd(NabInfoCachedService):
 
     ANIMATIONS = [ANIMATION_3, ANIMATION_2, ANIMATION_1]
 
-    def __init__(self):
-        self.index_airquality = 9
-        super().__init__()
-
     async def get_config(self):
         from . import models
 
         config = await models.Config.load_async()
+        
+        logging.debug("get_config : visual_airquality=" + str(config.visual_airquality))
+        
+        
         return (
             config.next_performance_date,
             config.next_performance_type,
-            config.index_airquality,
+            (config.index_airquality,
+            config.visual_airquality),
         )
 
     async def update_next(self, next_date, next_args):
@@ -80,10 +81,14 @@ class NabAirqualityd(NabInfoCachedService):
         config.next_performance_type = next_args
         await config.save_async()
 
-    async def fetch_info_data(self, index_airquality):
-        logging.debug("index_airquality=" + str(index_airquality))
-        if index_airquality == "9":
-            return None
+    async def fetch_info_data(self, config_t):
+
+        index_airquality, visual_airquality = config_t
+
+        logging.debug("fetch_info_data : index_airquality=" + str(index_airquality))
+        logging.debug("fetch_info_data : visual_airquality=" + str(visual_airquality))
+
+
         client = aqicn.aqicnClient(index_airquality)
         await sync_to_async(client.update)()
 
@@ -97,12 +102,19 @@ class NabAirqualityd(NabInfoCachedService):
             config.localisation = new_city
             await config.save_async()
 
-        return client.get_data()
+        return {
+            "visual_airquality": visual_airquality,
+            "data": client.get_data(),
+        }
+
 
     def get_animation(self, info_data):
-        if info_data is None:
+        logging.debug("get_animation : visual_airquality=" + str(info_data["visual_airquality"]))
+        logging.debug("get_animation : data=" + str(info_data["data"]))
+
+        if info_data["visual_airquality"] == "0":
             return None
-        info_animation = NabAirqualityd.ANIMATIONS[info_data]
+        info_animation = NabAirqualityd.ANIMATIONS[info_data["data"]]
         return info_animation
 
     async def perform_additional(self, expiration, type, info_data, config_t):

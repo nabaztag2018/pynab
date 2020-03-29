@@ -415,7 +415,7 @@ class NabWeatherd(NabInfoService):
 
         if ("next_rain") in data:
             if data["next_rain"] == "No rain":
-                next_rain = self.WHITE_INFO_ANIMATION
+                next_rain = None
             else:
                 next_rain = self.RAINY_INFO_ANIMATION
         else:
@@ -452,21 +452,36 @@ class NabWeatherd(NabInfoService):
 
     def get_animation(self, info_data):
 
-        if info_data is None or info_data["weather_animation_type"] == "None":
-            logging.debug(f"returning None")
-            return None
-        if (
-            info_data["next_rain"] is None
-            or info_data["weather_animation_type"] == "weather"
-        ):
-            logging.debug("No rain info or classic selected")
-            (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[
-                info_data["today_forecast_weather_class"]
-            ]
+        logging.debug(f"get_animation weather_animation_type:{info_data['weather_animation_type']}")
+
+        if (info_data['weather_animation_type'] == 'both') or ((info_data['weather_animation_type'] == 'rain')):
+            if info_data["next_rain"] is not None:
+                logging.debug(f"get_animation : rain packet")               
+                packet = (
+                    '{"type":"info",'
+                    '"info_id":"nabweatherd_rain",'
+                    '"animation":' + self.RAINY_INFO_ANIMATION+ '}\r\n'
+                )
+            else:
+                logging.debug(f"get_animation : no rain packet")       
+                #packet = (
+                #    '{"type":"info",'
+                #    '"info_id":"nabweatherd_rain",'
+                #    '"animation":' + self.WHITE_INFO_ANIMATION+ '}\r\n'
+                #)
+                packet = (
+                    '{"type":"info",'
+                    '"info_id":"nabweatherd_rain"}\r\n'
+                )
+            self.writer.write(packet.encode("utf8"))
+        
+        if (info_data['weather_animation_type'] == 'both') or ((info_data['weather_animation_type'] == 'weather')):
+            (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["today_forecast_weather_class"]]
+            logging.debug(f"get_animation : return classic rain")               
+            return info_animation
         else:
-            logging.debug("rain info selected")
-            info_animation = info_data["next_rain"]
-        return info_animation
+            logging.debug(f"get_animation : return none")               
+            return None
 
     async def perform_additional(self, expiration, type, info_data, config_t):
         location, unit, weather_animation_type = config_t
@@ -509,6 +524,7 @@ class NabWeatherd(NabInfoService):
                 self.writer.write(packet.encode("utf8"))
         await self.writer.drain()
 
+            
     async def _do_perform(self, type):
         next_date, next_args, config_t = await self.get_config()
         now = datetime.datetime.now(datetime.timezone.utc)
