@@ -60,12 +60,7 @@ class NabAirqualityd(NabInfoCachedService):
 
     async def get_config(self):
         from . import models
-
-        config = await models.Config.load_async()
-        
-        logging.debug("get_config : visual_airquality=" + str(config.visual_airquality))
-        
-        
+        config = await models.Config.load_async()        
         return (
             config.next_performance_date,
             config.next_performance_type,
@@ -75,7 +70,6 @@ class NabAirqualityd(NabInfoCachedService):
 
     async def update_next(self, next_date, next_args):
         from . import models
-
         config = await models.Config.load_async()
         config.next_performance_date = next_date
         config.next_performance_type = next_args
@@ -84,11 +78,6 @@ class NabAirqualityd(NabInfoCachedService):
     async def fetch_info_data(self, config_t):
 
         index_airquality, visual_airquality = config_t
-
-        logging.debug("fetch_info_data : index_airquality=" + str(index_airquality))
-        logging.debug("fetch_info_data : visual_airquality=" + str(visual_airquality))
-
-
         client = aqicn.aqicnClient(index_airquality)
         await sync_to_async(client.update)()
 

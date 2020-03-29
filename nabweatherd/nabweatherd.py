@@ -452,35 +452,31 @@ class NabWeatherd(NabInfoService):
 
     def get_animation(self, info_data):
 
-        logging.debug(f"get_animation weather_animation_type:{info_data['weather_animation_type']}")
+        logging.debug(f"get_animation :{info_data['weather_animation_type']}")
 
-        if (info_data['weather_animation_type'] == 'both') or ((info_data['weather_animation_type'] == 'rain')):
+        if (info_data['weather_animation_type'] == 'both') or \
+             (info_data['weather_animation_type'] == 'rain'):
             if info_data["next_rain"] is not None:
-                logging.debug(f"get_animation : rain packet")               
                 packet = (
                     '{"type":"info",'
                     '"info_id":"nabweatherd_rain",'
                     '"animation":' + self.RAINY_INFO_ANIMATION+ '}\r\n'
                 )
             else:
-                logging.debug(f"get_animation : no rain packet")       
-                #packet = (
-                #    '{"type":"info",'
-                #    '"info_id":"nabweatherd_rain",'
-                #    '"animation":' + self.WHITE_INFO_ANIMATION+ '}\r\n'
-                #)
                 packet = (
                     '{"type":"info",'
                     '"info_id":"nabweatherd_rain"}\r\n'
                 )
             self.writer.write(packet.encode("utf8"))
+    
+        if (info_data['weather_animation_type'] == 'both') or \
+            ((info_data['weather_animation_type'] == 'weather')):
         
-        if (info_data['weather_animation_type'] == 'both') or ((info_data['weather_animation_type'] == 'weather')):
             (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["today_forecast_weather_class"]]
-            logging.debug(f"get_animation : return classic rain")               
+            logging.debug(f"get_animation : return classic rain")     
             return info_animation
         else:
-            logging.debug(f"get_animation : return none")               
+            logging.debug(f"get_animation : return none")          
             return None
 
     async def perform_additional(self, expiration, type, info_data, config_t):
