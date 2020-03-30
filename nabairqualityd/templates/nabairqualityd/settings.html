@@ -13,8 +13,8 @@
         <label for="airqualityIndexSel" class="col-6 col-form-label">{% trans "Index" %}</label>
         <div class="col-6">
           <select name="index_airquality" id="airqualityIndexSel">
-            <option value="0" {% if config.index_airquality == '0' %}selected{% endif %}>{% trans "AQI" %}</option>
-            <option value="1" {% if config.index_airquality == '1' %}selected{% endif %}>{% trans "PM 2.5" %}</option>
+            <option value="aqi" {% if config.index_airquality == 'aqi' %}selected{% endif %}>{% trans "AQI" %}</option>
+            <option value="pm25" {% if config.index_airquality == 'pm25' %}selected{% endif %}>{% trans "PM 2.5" %}</option>
 		  </select>
         </div>
       </div>
@@ -23,8 +23,9 @@
         <label for="airqualityVisual" class="col-6 col-form-label">{% trans "Visual animation" %}</label>
         <div class="col-6">
           <select name="visual_airquality" id="airqualityVisual">
-            <option value="1" {% if config.visual_airquality == '1' %}selected{% endif %}>{% trans "Yes" %}</option>
-            <option value="0" {% if config.visual_airquality == '0' %}selected{% endif %}>{% trans "No visual animation" %}</option>
+            <option value="always" {% if config.visual_airquality == 'always' %}selected{% endif %}>{% trans "Always-on" %}</option>
+            <option value="alert" {% if config.visual_airquality == 'alert' %}selected{% endif %}>{% trans "Alert only" %}</option>
+            <option value="nothing" {% if config.visual_airquality == 'nothing' %}selected{% endif %}>{% trans "No visual animation" %}</option>
 		  </select>
         </div>
       </div>

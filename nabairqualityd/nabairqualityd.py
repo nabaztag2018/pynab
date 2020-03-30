@@ -98,10 +98,9 @@ class NabAirqualityd(NabInfoCachedService):
 
 
     def get_animation(self, info_data):
-        logging.debug("get_animation : visual_airquality=" + str(info_data["visual_airquality"]))
-        logging.debug("get_animation : data=" + str(info_data["data"]))
 
-        if info_data["visual_airquality"] == "0":
+        if (info_data["visual_airquality"] == "nothing") or \
+            (info_data["visual_airquality"] == "alert" and info_data["data"] == 2):
             return None
         info_animation = NabAirqualityd.ANIMATIONS[info_data["data"]]
         return info_animation

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-26 17:31+0100\n"
+"POT-Creation-Date: 2020-03-30 15:15+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -53,30 +53,36 @@ msgid "Visual animation"
 msgstr "Information visuelle"
 
 #: templates/nabairqualityd/settings.html:26
-msgid "Yes"
-msgstr "Oui"
+msgid "Always-on"
+msgstr "Toujours afficher"
 
 #: templates/nabairqualityd/settings.html:27
+msgid "Alert only"
+msgstr "Afficher les alertes uniquement"
+
+#: templates/nabairqualityd/settings.html:28
 msgid "No visual animation"
 msgstr "Aucune information visuelle"
 
-#: templates/nabairqualityd/settings.html:33
+#: templates/nabairqualityd/settings.html:34
 msgid "Forecast"
 msgstr "Prévision"
 
-#: templates/nabairqualityd/settings.html:35
+#: templates/nabairqualityd/settings.html:36
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: templates/nabairqualityd/settings.html:42
+#: templates/nabairqualityd/settings.html:43
 msgid "Save"
 msgstr "Enregistrer"
 
-#: templates/nabairqualityd/settings.html:43
+#: templates/nabairqualityd/settings.html:44
 msgid "Reset"
 msgstr "Annuler"
 
-#: templates/nabairqualityd/settings.html:73
+#: templates/nabairqualityd/settings.html:74
 msgid "Unknown server error"
 msgstr "Erreur inconnue du serveur"
 
+#~ msgid "Yes"
+#~ msgstr "Oui"
