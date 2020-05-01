@@ -1,7 +1,54 @@
 # Protocole nadb
+- [Protocole nadb](#protocole-nadb)
+  - [Introduction](#introduction)
+  - [Examples](#examples)
+    - [Console interractive](#console-interractive)
+    - [Envoyer un ensemble de commandes en une fois](#envoyer-un-ensemble-de-commandes-en-une-fois)
+  - [Paquets `state`](#paquets-state)
+  - [Paquets `info`](#paquets-info)
+  - [Paquets `ears`](#paquets-ears)
+  - [Paquets `command`](#paquets-command)
+  - [Paquets `message`](#paquets-message)
+  - [Paquets `cancel`](#paquets-cancel)
+  - [Paquets `wakeup`](#paquets-wakeup)
+  - [Paquets `sleep`](#paquets-sleep)
+  - [Paquets `mode`](#paquets-mode)
+  - [Paquets `asr_event`](#paquets-asrevent)
+  - [Paquets `ears_event`](#paquets-earsevent)
+  - [Paquets `button_event`](#paquets-buttonevent)
+  - [Paquets `response`](#paquets-response)
+  - [Paquets `gestalt`, `test` et `config-update`](#paquets-gestalt-test-et-config-update)
+
+## Introduction
 
 nabd est un serveur TCP/IP et s'interface ainsi avec les daemons des services. Il écoute sur le port 10543.
 Chaque paquet est sur une ligne (CRLF), encodée en JSON. Chaque paquet comprend un slot "type".
+
+## Examples
+
+Pour pouvoir vous-même interagir avec le lapin, il faut avoir le SSH actif (pour des raisons de sécurité, le traffic sur le port du protocole est limité à 127.0.0.1/localhost du lapin).
+
+### Console interractive
+
+Une fois connecté au lapin, il suffit de lancer la commande suivante pour voir le status du lapin et lui envoyer une commande en la tappant (validée par un retour à la ligne):
+```
+ nc localhost 10543
+```
+
+Un simple Ctrl+C permet de fermer l'utilitaire 'nc'.
+
+### Envoyer un ensemble de commandes en une fois
+
+Si vous voulez préparer un ensemble d'actions au préalable (afin de faire une notification, une chorégraphie, juste pour rire...), il suffit de créer un fichier texte contenant une commande par ligne:
+```
+ {"type":"ears", "left": 10, "right": 20}
+ {"type":"ears", "left": 5, "right": 0}
+```
+
+Ensuite, ce fichier de paquets peut-être envoyé au processus nabd pour être appliqué:
+```
+ nc localhost 10543 < mes_commandes.txt
+```
 
 ## Paquets `state`
 
