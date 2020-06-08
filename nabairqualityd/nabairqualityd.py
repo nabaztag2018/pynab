@@ -3,7 +3,6 @@ import datetime
 from asgiref.sync import sync_to_async
 from nabcommon.nabservice import NabInfoCachedService
 from . import aqicn
-import logging
 
 
 class NabAirqualityd(NabInfoCachedService):
