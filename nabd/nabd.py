@@ -816,8 +816,12 @@ class Nabd:
             # Did not understand
             await self.nabio.asr_failed()
         else:
+            event_type = "asr/*"
+            if "/" in response['intent']:
+                app, _ = response['intent'].split("/", 1)
+                event_type = f"asr/{app}"
             self.broadcast_event(
-                "asr", {"type": "asr_event", "nlu": response, "time": now}
+                event_type, {"type": "asr_event", "nlu": response, "time": now}
             )
 
     async def _shutdown(self):

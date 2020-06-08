@@ -1,6 +1,6 @@
 ---
 type: intent
-name: surprise
+name: nabsurprised/surprise
 utterances:
   - tell me a joke
   - make me laugh
@@ -8,6 +8,6 @@ utterances:
 
 ---
 type: intent
-name: carrot
+name: nabsurprised/carrot
 utterances:
   - carrot

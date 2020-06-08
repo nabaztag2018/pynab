@@ -72,10 +72,10 @@ class NabService(ABC):
                 rfid_support = True
             if asr_support or rfid_support:
                 events = []
+                service_name = self.__class__.__name__.lower()
                 if asr_support:
-                    events.append('"asr"')
+                    events.append(f'"asr/{service_name}"')
                 if rfid_support:
-                    service_name = self.__class__.__name__.lower()
                     events.append(f'"rfid/{service_name}"')
                 events_str = ",".join(events)
                 idle_packet = (
