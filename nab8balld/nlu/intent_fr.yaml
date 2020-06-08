@@ -1,6 +1,6 @@
 ---
 type: intent
-name: 8ball
+name: nab8balld/8ball
 utterances:
   - dis lapin
   - dis nabaztag

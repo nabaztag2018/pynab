@@ -518,7 +518,7 @@ class NabWeatherd(NabInfoService):
     async def process_nabd_packet(self, packet):
         if (
             packet["type"] == "asr_event"
-            and packet["nlu"]["intent"] == "weather_forecast"
+            and packet["nlu"]["intent"] == "nabweatherd/forecast"
         ):
             # todo : detect today/tomorrow
             await self._do_perform("today")

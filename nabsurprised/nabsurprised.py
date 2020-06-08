@@ -6,6 +6,8 @@ from . import rfid_data
 
 
 class NabSurprised(NabRandomService):
+    NLU_INTENTS = ["nabsurprised/surprise", "nabsurprised/carrot", "nabsurprised/autopromo", "nabsurprised/birthday"]
+
     async def get_config(self):
         from . import models
 
@@ -57,7 +59,8 @@ class NabSurprised(NabRandomService):
     async def process_nabd_packet(self, packet):
         if packet["type"] == "asr_event":
             intent = packet["nlu"]["intent"]
-            await self._do_perform(None, None, intent)
+            if intent in NabSurprised.NLU_INTENTS:
+                await self._do_perform(None, None, intent)
         elif (
             packet["type"] == "rfid_event"
             and packet["app"] == "nabsurprised"

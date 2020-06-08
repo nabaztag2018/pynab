@@ -1,6 +1,6 @@
 ---
 type: intent
-name: surprise
+name: nabsurprised/surprise
 utterances:
   - guili guili
   - guili-guili
@@ -14,7 +14,7 @@ utterances:
 
 ---
 type: intent
-name: carrot
+name: nabsurprised/carrot
 utterances:
   - carotte
   - tu veux une carotte
@@ -22,7 +22,7 @@ utterances:
 
 ---
 type: intent
-name: autopromo
+name: nabsurprised/autopromo
 utterances:
   - que sais-tu faire
   - que sais-tu faire nabaztag
@@ -355,7 +355,7 @@ values:
   - zélie
 ---
 type: intent
-name: birthday
+name: nabsurprised/birthday
 utterances:
   - anniversaire
   - c'est l'anniversaire d'[firstname:nabaztag/firstname](émile)

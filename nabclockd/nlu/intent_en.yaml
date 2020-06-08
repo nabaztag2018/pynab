@@ -1,6 +1,6 @@
 ---
 type: intent
-name: clock
+name: nabclockd/clock
 utterances:
   - clock
   - give me the time
@@ -9,7 +9,7 @@ utterances:
 
 ---
 type: intent
-name: sleep
+name: nabclockd/sleep
 utterances:
   - it's time to sleep
   - it's time to bed

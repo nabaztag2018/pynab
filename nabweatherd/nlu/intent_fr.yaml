@@ -1,6 +1,6 @@
 ---
 type: intent
-name: weather_forecast
+name: nabweatherd/forecast
 utterances:
   - météo
   - donne-moi la météo

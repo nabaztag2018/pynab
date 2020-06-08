@@ -1,6 +1,6 @@
 ---
 type: intent
-name: weather_forecast
+name: nabweatherd/forecast
 utterances:
   - give me the weather forecast for [date:snips/datetime](tomorrow)
   - what kind of weather should I expect [date:snips/datetime](today)

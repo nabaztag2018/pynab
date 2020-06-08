@@ -123,7 +123,7 @@ class NabAirqualityd(NabInfoCachedService):
     async def process_nabd_packet(self, packet):
         if (
             packet["type"] == "asr_event"
-            and packet["nlu"]["intent"] == "airquality_forecast"
+            and packet["nlu"]["intent"] == "nabairqualityd/forecast"
         ):
             next_date, next_args, config_t = await self.get_config()
             now = datetime.datetime.now(datetime.timezone.utc)
