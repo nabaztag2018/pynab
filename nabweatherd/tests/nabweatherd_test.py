@@ -68,7 +68,7 @@ class TestNabWeatherdDB(unittest.TestCase):
         service = NabWeatherd()
         writer = MockWriter()
         service.writer = writer
-        packet = {"type": "asr_event", "nlu": {"intent": "weather_forecast"}}
+        packet = {"type": "asr_event", "nlu": {"intent": "nabweatherd/forecast"}}
         async_to_sync(service.process_nabd_packet)(packet)
         self.assertEqual(len(writer.written), 2)
         packet = writer.written[0]

@@ -64,7 +64,7 @@ class TestNabAirqualityd(unittest.TestCase):
         expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
         packet = {
             "type": "asr_event",
-            "nlu": {"intent": "airquality_forecast"},
+            "nlu": {"intent": "nabairqualityd/forecast"},
         }
         async_to_sync(service.process_nabd_packet)(packet)
         print(writer.written)
