@@ -246,6 +246,14 @@ if [ $upgrade -eq 0 ]; then
     if [ $travis_chroot -eq 0 ]; then
       sudo systemctl restart nginx
     fi
+  else
+    diff -q '/etc/nginx/sites-enabled/pynab' nabweb/nginx-site.conf >/dev/null || {
+      echo "Updating nginx configuration file"
+      sudo cp nabweb/nginx-site.conf /etc/nginx/sites-enabled/pynab
+      if [ $travis_chroot -eq 0 ]; then
+        sudo systemctl restart nginx
+      fi
+    }
   fi
 else
   echo "Restarting Nginx - 9/14" > /tmp/pynab.upgrade
