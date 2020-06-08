@@ -60,7 +60,8 @@ class NabSurprised(NabRandomService):
         if packet["type"] == "asr_event":
             intent = packet["nlu"]["intent"]
             if intent in NabSurprised.NLU_INTENTS:
-                await self._do_perform(None, None, intent)
+                _, type = intent.split("/")
+                await self._do_perform(None, None, type)
         elif (
             packet["type"] == "rfid_event"
             and packet["app"] == "nabsurprised"
