@@ -5,7 +5,7 @@ from nabd.tests.mock import NabdMockTestCase
 
 
 @pytest.mark.django_db
-class TestNabbookd(NabdMockTestCase):
+class TestNab8balldRun(NabdMockTestCase):
     def tearDown(self):
         NabdMockTestCase.tearDown(self)
         close_old_async_connections()
