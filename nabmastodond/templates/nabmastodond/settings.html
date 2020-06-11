@@ -22,7 +22,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text">{% trans "Kindred soul" %}</span>
                 </div>
-                <input name="spouse" type="text" class="form-control" placeholder="{% trans "friend@mstdn.fr" %}" aria-label="{% trans "Friend address" %}" value="">
+                <input name="spouse" type="text" class="form-control" aria-label="{% trans "Friend address" %}" value="">
                 <div class="input-group-append">
                   <button type="submit" class="btn btn-primary propose-button">{% trans "Propose" %}</button>
                 </div>
@@ -256,8 +256,8 @@
         {% csrf_token %}
         <p>{% trans "As we don't want Nabaztag to live in the cloud we're using <a href='https://en.wikipedia.org/wiki/Mastodon_(software)'>Mastodon</a> to connect rabbits (Mastodon is a sort of decentralized Twitter - and Open Source). Currently your Nabaztag is not connected to Mastodon." %}</p>
         <ol>
-          <li>{% blocktrans %}First, <strong>create an account for your Nabaztag</strong> on a given Mastodon instance, for example <a href="https://mstdn.fr/auth/sign_up" target="_blank">mstdn.fr</a> or <a href="https://botsin.space/auth/sign_up" target="_blank">botsin.space</a>.{% endblocktrans %}</li>
-          <li>{% blocktrans %}Indicate the instance your Nabaztag's account is on in the instance box below and connect this account with the "Connect" button.{% endblocktrans %}</li>
+          <li>{% blocktrans %}First, <strong>create an account for your Nabaztag</strong> on a given Mastodon instance, you can find a directory of Mastodon instances <a href="https://joinmastodon.org/" target="_blank">here</a>.{% endblocktrans %}</li>
+          <li>{% blocktrans %}Enter the instance your Nabaztag's account is on in the instance box below and connect this account with the "Connect" button.{% endblocktrans %}</li>
         </ol>
         <div class="input-group input-group mb-3">
           <div class="input-group-prepend">
