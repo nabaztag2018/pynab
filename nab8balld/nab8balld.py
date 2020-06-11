@@ -26,12 +26,12 @@ class Nab8Balld(NabService):
         config = await self.__config()
         if config.enabled:
             packet = (
-                '{"type":"mode","mode":"idle","events":["button","asr"],'
+                '{"type":"mode","mode":"idle","events":["button","asr/nab8balld"],'
                 '"request_id":"idle-button"}\r\n'
             )
         else:
             packet = (
-                '{"type":"mode","mode":"idle","events":["asr"],'
+                '{"type":"mode","mode":"idle","events":["asr/nab8balld"],'
                 '"request_id":"idle-disabled"}\r\n'
             )
         self.writer.write(packet.encode("utf8"))
@@ -113,7 +113,7 @@ class Nab8Balld(NabService):
             await self.entered_interactive()
 
     async def process_asr_event_packet(self, packet):
-        if packet["nlu"]["intent"] == "8ball":
+        if packet["nlu"]["intent"] == "nab8balld/8ball":
             await self.perform()
 
     def run(self):
