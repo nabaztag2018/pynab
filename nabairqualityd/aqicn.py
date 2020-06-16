@@ -50,7 +50,7 @@ class aqicnClient:
                 + " (AQI) and "
                 + str(indice_pm25)
                 + " (PM25) selected ->"
-                + self._indice
+                + str(self._indice)
             )
 
             if self._indice == "aqi":

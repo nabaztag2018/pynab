@@ -23,7 +23,7 @@ class TestNabAirqualityd(unittest.TestCase):
         config.localisation = None
         config.save()
         service = NabAirqualityd()
-        data = async_to_sync(service.fetch_info_data)("aqi")
+        data = async_to_sync(service.fetch_info_data)("aqi", "always")
         config = models.Config.load()
         self.assertIsNotNone(data)
         self.assertTrue(data < 4)
@@ -39,7 +39,7 @@ class TestNabAirqualityd(unittest.TestCase):
         service = NabAirqualityd()
         writer = MockWriter()
         service.writer = writer
-        config_t = "aqi"
+        config_t = ("aqi", "always")
         expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
         async_to_sync(service.perform)(expiration, "today", config_t)
         self.assertEqual(len(writer.written), 2)
@@ -57,7 +57,7 @@ class TestNabAirqualityd(unittest.TestCase):
     def test_asr(self):
         config = models.Config.load()
         config.index_airquality = "aqi"
-        config.visual_airquality = "nothing"
+        config.visual_airquality = "always"
         config.localisation = None
         config.save()
         service = NabAirqualityd()

@@ -31,7 +31,7 @@ class TestNabWeatherdDB(unittest.TestCase):
     def test_fetch_info_data(self):
         service = NabWeatherd()
         data = async_to_sync(service.fetch_info_data)(
-            ("75005", NabWeatherd.UNIT_CELSIUS, "rain")
+            ("75005", NabWeatherd.UNIT_CELSIUS, "both")
         )
         self.assertTrue("current_weather_class" in data)
         self.assertTrue("today_forecast_weather_class" in data)
@@ -45,14 +45,14 @@ class TestNabWeatherdDB(unittest.TestCase):
         service = NabWeatherd()
         writer = MockWriter()
         service.writer = writer
-        config_t = ("75005", NabWeatherd.UNIT_CELSIUS, "rain")
+        config_t = ("75005", NabWeatherd.UNIT_CELSIUS, "both")
         expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
         async_to_sync(service.perform)(expiration, "today", config_t)
         self.assertEqual(len(writer.written), 3)
         packet = writer.written[0]
         packet_json = json.loads(packet.decode("utf8"))
         self.assertEqual(packet_json["type"], "info")
-        self.assertEqual(packet_json["info_id"], "nabweatherd")
+        self.assertEqual(packet_json["info_id"], "nabweatherd_rain")
         self.assertTrue("animation" in packet_json)
         packet = writer.written[1]
         packet_json = json.loads(packet.decode("utf8"))
@@ -64,6 +64,7 @@ class TestNabWeatherdDB(unittest.TestCase):
         config = models.Config.load()
         config.location = "75005"
         config.unit = NabWeatherd.UNIT_CELSIUS
+        config.weather_animation_type = "both"
         config.save()
         service = NabWeatherd()
         writer = MockWriter()
