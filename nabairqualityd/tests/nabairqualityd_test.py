@@ -19,21 +19,21 @@ class TestNabAirqualityd(unittest.TestCase):
     def test_fetch_info_data(self):
         config = models.Config.load()
         config.index_airquality = "aqi"
-        config.visual_airquality = "nothing"
+        config.visual_airquality = "always"
         config.localisation = None
         config.save()
         service = NabAirqualityd()
         data = async_to_sync(service.fetch_info_data)("aqi")
         config = models.Config.load()
         self.assertIsNotNone(data)
-        self.assertTrue(data < 3)
+        self.assertTrue(data < 4)
         self.assertTrue(data >= 0)
         self.assertIsNotNone(config.localisation)
 
     def test_perform(self):
         config = models.Config.load()
         config.index_airquality = "aqi"
-        config.visual_airquality = "nothing"
+        config.visual_airquality = "always"
         config.localisation = None
         config.save()
         service = NabAirqualityd()
