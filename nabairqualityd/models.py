@@ -7,7 +7,6 @@ from nabcommon import singleton_model
 
 class Config(singleton_model.SingletonModel):
 
-    airquality = models.TextField(null=True)
     localisation = models.TextField(null=True)
     index_airquality = models.TextField(default='aqi', null=True)
     visual_airquality = models.TextField(default='nothing', null=True)

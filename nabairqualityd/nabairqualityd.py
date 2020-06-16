@@ -109,7 +109,7 @@ class NabAirqualityd(NabInfoCachedService):
             return
 
         if type == "today":
-            message = NabAirqualityd.MESSAGES[info_data]
+            message = NabAirqualityd.MESSAGES[info_data["data"]]
             packet = (
                 '{"type":"message",'
                 '"signature":{"audio":["nabairqualityd/signature.mp3"]},'
