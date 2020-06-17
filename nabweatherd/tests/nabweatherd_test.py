@@ -55,7 +55,6 @@ class TestNabWeatherdDB(unittest.TestCase):
         self.assertEqual(packet_json["info_id"], "nabweatherd_rain")
         packet = writer.written[1]
         packet_json = json.loads(packet.decode("utf8"))
-        self.assertTrue("signature" in packet_json)
         self.assertTrue("body" in packet_json)
 
     def test_asr(self):
@@ -77,7 +76,6 @@ class TestNabWeatherdDB(unittest.TestCase):
         packet = writer.written[1]
         packet_json = json.loads(packet.decode("utf8"))
         self.assertEqual(packet_json["type"], "info")
-        self.assertTrue("signature" in packet_json)
         self.assertTrue("body" in packet_json)
 
 
