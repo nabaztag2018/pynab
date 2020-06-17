@@ -24,6 +24,28 @@ class NabWeatherd(NabInfoService):
         '{"left":"000000","center":"000000","right":"000000"}]}'
     )
 
+    RAIN_ONE_HOUR = (
+        '{"tempo":16,"colors":['
+        '{"left":"00000","center":"003399","right":"000000"},'
+        '{"left":"003399","center":"000000","right":"003399"},'
+        '{"left":"00000","center":"00000","right":"000000"},'
+        '{"left":"00000","center":"003399","right":"000000"},'
+        '{"left":"003399","center":"000000","right":"003399"},'
+        '{"left":"00000","center":"00000","right":"000000"},'
+        '{"left":"00000","center":"00000","right":"000000"},'
+        '{"left":"00000","center":"00000","right":"000000"},'
+        '{"left":"00000","center":"00000","right":"000000"},'
+        '{"left":"00000","center":"00000","right":"000000"},'
+        '{"left":"00000","center":"00000","right":"000000"},'
+        '{"left":"00000","center":"00000","right":"000000"},'
+        '{"left":"00000","center":"003399","right":"000000"},'
+        '{"left":"003399","center":"000000","right":"003399"},'
+        '{"left":"00000","center":"00000","right":"000000"},'
+        '{"left":"00000","center":"003399","right":"000000"},'
+        '{"left":"003399","center":"000000","right":"003399"},'
+        '{"left":"000000","center":"000000","right":"000000"}]}'
+    )
+
     # [125 {0 3 0 4 0 4}] // nuages
     CLOUDY_INFO_ANIMATION = (
         '{"tempo":125,"colors":['
@@ -463,7 +485,7 @@ class NabWeatherd(NabInfoService):
                 packet = (
                     '{"type":"info",'
                     '"info_id":"nabweatherd_rain",'
-                    '"animation":' + self.RAINY_INFO_ANIMATION+ '}\r\n'
+                    '"animation":' + self.RAIN_ONE_HOUR+ '}\r\n'
                 )
             else:
                 packet = (
