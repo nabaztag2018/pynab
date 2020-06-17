@@ -72,7 +72,7 @@ class TestNabWeatherdDB(unittest.TestCase):
         packet = writer.written[0]
         packet_json = json.loads(packet.decode("utf8"))
         self.assertEqual(packet_json["type"], "info")
-        self.assertEqual(packet_json["info_id"], "nabweatherd_rain")
+        self.assertEqual(packet_json["info_id"], "nabweatherd")
         packet = writer.written[1]
         packet_json = json.loads(packet.decode("utf8"))
         self.assertEqual(packet_json["type"], "info")
