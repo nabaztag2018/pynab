@@ -23,11 +23,12 @@ class TestNabAirqualityd(unittest.TestCase):
         config.localisation = None
         config.save()
         service = NabAirqualityd()
-        data = async_to_sync(service.fetch_info_data)("aqi", "always")
+        info_data = async_to_sync(service.fetch_info_data)(("aqi", "always"))
         config = models.Config.load()
-        self.assertIsNotNone(data)
-        self.assertTrue(data < 4)
-        self.assertTrue(data >= 0)
+        self.assertIsNotNone(info_data)
+        self.assertTrue("data" in info_data)   
+        self.assertTrue(info_data["data"] < 4)
+        self.assertTrue(info_data["data"] >= 0)
         self.assertIsNotNone(config.localisation)
 
     def test_perform(self):
