@@ -53,7 +53,6 @@ class TestNabWeatherdDB(unittest.TestCase):
         packet_json = json.loads(packet.decode("utf8"))
         self.assertEqual(packet_json["type"], "info")
         self.assertEqual(packet_json["info_id"], "nabweatherd_rain")
-        self.assertTrue("animation" in packet_json)
         packet = writer.written[1]
         packet_json = json.loads(packet.decode("utf8"))
         self.assertEqual(packet_json["type"], "message")
@@ -71,7 +70,7 @@ class TestNabWeatherdDB(unittest.TestCase):
         service.writer = writer
         packet = {"type": "asr_event", "nlu": {"intent": "nabweatherd/forecast"}}
         async_to_sync(service.process_nabd_packet)(packet)
-        self.assertEqual(len(writer.written), 2)
+        self.assertEqual(len(writer.written), 3)
         packet = writer.written[0]
         packet_json = json.loads(packet.decode("utf8"))
         self.assertEqual(packet_json["type"], "info")

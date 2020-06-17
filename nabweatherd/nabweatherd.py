@@ -452,7 +452,7 @@ class NabWeatherd(NabInfoService):
 
     def get_animation(self, info_data):
 
-        if (info_data == None):
+        if (info_data is None):
             return
         
         logging.debug(f"get_animation :{info_data['weather_animation_type']}")
