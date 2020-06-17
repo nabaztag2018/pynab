@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-04 12:20+0100\n"
+"POT-Creation-Date: 2020-03-30 15:15+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,12 +24,11 @@ msgstr "Qualité de l'air"
 #: templates/nabairqualityd/settings.html:9
 msgid ""
 "Air quality information is provided based on your IP adress. You can select "
-"the type of information you want : Agregated index or just PM 2.5. Select "
-"Disable to disable the visual animation."
+"the type of information you want : Agregated index or just PM 2.5."
 msgstr ""
 "La qualité de l'air est donnée en fonction de votre adresse IP. Vous pouvez "
 "sélectionner le type d'information que vous souhaitez utiliser : Index "
-"agrégé ou simplement les particules fines (PM 2.5). Pour désactiver l'animation lumineuse, sélectionnez Aucun."
+"agrégé ou simplement les particules fines (PM 2.5)."
 
 #: templates/nabairqualityd/settings.html:10
 msgid ""
@@ -42,36 +41,48 @@ msgid "Index"
 msgstr "Indice"
 
 #: templates/nabairqualityd/settings.html:16
-msgid "Disable"
-msgstr "Aucun"
-
-#: templates/nabairqualityd/settings.html:17
 msgid "AQI"
 msgstr "AQI"
 
-#: templates/nabairqualityd/settings.html:18
+#: templates/nabairqualityd/settings.html:17
 msgid "PM 2.5"
 msgstr "PM 2.5"
 
-#: templates/nabairqualityd/settings.html:24
+#: templates/nabairqualityd/settings.html:23
+msgid "Visual animation"
+msgstr "Information visuelle"
+
+#: templates/nabairqualityd/settings.html:26
+msgid "Always-on"
+msgstr "Toujours afficher"
+
+#: templates/nabairqualityd/settings.html:27
+msgid "Alert only"
+msgstr "Afficher les alertes uniquement"
+
+#: templates/nabairqualityd/settings.html:28
+msgid "No visual animation"
+msgstr "Aucune information visuelle"
+
+#: templates/nabairqualityd/settings.html:34
 msgid "Forecast"
 msgstr "Prévision"
 
-#: templates/nabairqualityd/settings.html:26
+#: templates/nabairqualityd/settings.html:36
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: templates/nabairqualityd/settings.html:33
+#: templates/nabairqualityd/settings.html:43
 msgid "Save"
 msgstr "Enregistrer"
 
-#: templates/nabairqualityd/settings.html:34
+#: templates/nabairqualityd/settings.html:44
 msgid "Reset"
 msgstr "Annuler"
 
-#: templates/nabairqualityd/settings.html:64
+#: templates/nabairqualityd/settings.html:74
 msgid "Unknown server error"
 msgstr "Erreur inconnue du serveur"
 
-#~ msgid "Do not display"
-#~ msgstr "Ne pas afficher"
+#~ msgid "Yes"
+#~ msgstr "Oui"
