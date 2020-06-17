@@ -474,10 +474,20 @@ class NabWeatherd(NabInfoService):
     
         if (info_data['weather_animation_type'] == 'both') or \
             ((info_data['weather_animation_type'] == 'weather')):
+            
+            # si weather on supprime l'animation rain
+            if (info_data['weather_animation_type'] == 'weather'):
+                packet = (
+                        '{"type":"info",'
+                        '"info_id":"nabweatherd_rain"}\r\n'
+                    )
+                self.writer.write(packet.encode("utf8"))
         
             (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["today_forecast_weather_class"]]
             logging.debug(f"get_animation : return classic rain")     
-            return info_animation
+
+            return info_animation        
+        
         else:
             logging.debug(f"get_animation : return none")          
             return None
