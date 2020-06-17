@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-13 11:39+0100\n"
+"POT-Creation-Date: 2020-03-29 18:24+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,19 +17,32 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: templates/nabweatherd/rfid-data.html:3
+msgid "Day"
+msgstr ""
+
+#: templates/nabweatherd/rfid-data.html:7
+#: templates/nabweatherd/settings.html:47
+msgid "Today"
+msgstr "Aujourd'hui"
+
+#: templates/nabweatherd/rfid-data.html:11
+#: templates/nabweatherd/settings.html:48
+msgid "Tomorrow"
+msgstr "Demain"
+
 #: templates/nabweatherd/settings.html:6
 msgid "Weather"
 msgstr "Météo"
 
 #: templates/nabweatherd/settings.html:10
 msgid ""
-"The animation can display, if available, the chance of rain within the next "
-"hour (White blinking means no rain and blue means get an umbrella) or the "
-"current weather forecast."
+"The animation can display, if available, a rain alert (Blue blinking means "
+"get an umbrella, nothing will be displayed otherwise), the current weather "
+"forecast or both"
 msgstr ""
-"L'animation lumineuse peut vous donner, si l'information est disponible, la "
-"probabilité qu'il pleuve dans l'heure (Blanc c'est qu'il ne va pas pleuvoir, "
-"bleu c'est très probable !) ou les prévisions pour les prochaines heures."
+"L'animation lumineuse peut vous donner, si l'information est disponible, une alerte pluie "
+"(Si cela clignote bleu c'est qu'il va pleuvoir dans l'heure), les prévisions pour les prochaines heures ou les deux."
 
 #: templates/nabweatherd/settings.html:11
 msgid ""
@@ -72,40 +85,39 @@ msgid "Current weather forecast"
 msgstr "Prévision météo"
 
 #: templates/nabweatherd/settings.html:35
-msgid "Will it rain in the next hour?"
-msgstr "Va t-il pleuvoir dans l'heure ?"
+msgid "Rain alert"
+msgstr "Alerte pluie"
 
 #: templates/nabweatherd/settings.html:36
+msgid "Both"
+msgstr "Les deux"
+
+#: templates/nabweatherd/settings.html:37
 msgid "No visual animation"
 msgstr "Aucune information visuelle"
 
-#: templates/nabweatherd/settings.html:44
+#: templates/nabweatherd/settings.html:45
 msgid "Forecast"
 msgstr "Prévision"
 
-#: templates/nabweatherd/settings.html:46
-msgid "Today"
-msgstr "Aujourd'hui"
-
-#: templates/nabweatherd/settings.html:47
-msgid "Tomorrow"
-msgstr "Demain"
-
-#: templates/nabweatherd/settings.html:55
+#: templates/nabweatherd/settings.html:56
 msgid "Save"
 msgstr "Enregistrer"
 
-#: templates/nabweatherd/settings.html:56
+#: templates/nabweatherd/settings.html:57
 msgid "Reset"
 msgstr "Annuler"
 
-#: templates/nabweatherd/settings.html:96
+#: templates/nabweatherd/settings.html:97
 msgid "Unknown server error"
 msgstr "Erreur inconnue du serveur"
 
 #: views.py:40
 msgid "Unknown location"
 msgstr "Ville inconnue"
+
+#~ msgid "Will it rain in the next hour?"
+#~ msgstr "Va t-il pleuvoir dans l'heure ?"
 
 #, fuzzy
 #~| msgid "Weather"

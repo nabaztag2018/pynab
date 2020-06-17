@@ -22,6 +22,9 @@ class SettingsView(TemplateView):
         if "index_airquality" in request.POST:
             index_airquality = request.POST["index_airquality"]
             config.index_airquality = index_airquality
+        if "visual_airquality" in request.POST:
+            visual_airquality = request.POST["visual_airquality"]
+            config.visual_airquality = visual_airquality
         config.save()
         NabAirqualityd.signal_daemon()
         context = self.get_context_data(**kwargs)
