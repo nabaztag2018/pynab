@@ -55,7 +55,6 @@ class TestNabWeatherdDB(unittest.TestCase):
         self.assertEqual(packet_json["info_id"], "nabweatherd_rain")
         packet = writer.written[1]
         packet_json = json.loads(packet.decode("utf8"))
-        self.assertEqual(packet_json["type"], "message")
         self.assertTrue("signature" in packet_json)
         self.assertTrue("body" in packet_json)
 
@@ -75,7 +74,6 @@ class TestNabWeatherdDB(unittest.TestCase):
         packet_json = json.loads(packet.decode("utf8"))
         self.assertEqual(packet_json["type"], "info")
         self.assertEqual(packet_json["info_id"], "nabweatherd_rain")
-        self.assertTrue("animation" in packet_json)
         packet = writer.written[1]
         packet_json = json.loads(packet.decode("utf8"))
         self.assertEqual(packet_json["type"], "info")
