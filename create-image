@@ -106,7 +106,7 @@ cleanup
 
 # Compress the image
 if [ $TRAVIS_BRANCH = "releng" ]; then
-    zip -v pynab-prerelease.img.zip "${image}"
+    xz -v pynab-prerelease.img.xz "${image}"
 else
-    zip -v pynab.img.zip "${image}"
+    xz -v pynab.img.xz "${image}"
 fi
