@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-29 18:24+0200\n"
+"POT-Creation-Date: 2020-06-22 11:23+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,8 +41,9 @@ msgid ""
 "get an umbrella, nothing will be displayed otherwise), the current weather "
 "forecast or both"
 msgstr ""
-"L'animation lumineuse peut vous donner, si l'information est disponible, une alerte pluie "
-"(Si cela clignote bleu c'est qu'il va pleuvoir dans l'heure), les prévisions pour les prochaines heures ou les deux."
+"L'animation lumineuse peut vous donner, si l'information est disponible, une "
+"alerte pluie (Si cela clignote bleu c'est qu'il va pleuvoir dans l'heure), "
+"les prévisions pour les prochaines heures ou les deux."
 
 #: templates/nabweatherd/settings.html:11
 msgid ""
@@ -89,8 +90,8 @@ msgid "Rain alert"
 msgstr "Alerte pluie"
 
 #: templates/nabweatherd/settings.html:36
-msgid "Both"
-msgstr "Les deux"
+msgid "Weather forecast and rain information"
+msgstr "Météo et information pluie"
 
 #: templates/nabweatherd/settings.html:37
 msgid "No visual animation"
@@ -116,10 +117,3 @@ msgstr "Erreur inconnue du serveur"
 msgid "Unknown location"
 msgstr "Ville inconnue"
 
-#~ msgid "Will it rain in the next hour?"
-#~ msgstr "Va t-il pleuvoir dans l'heure ?"
-
-#, fuzzy
-#~| msgid "Weather"
-#~ msgid "Weather playtime"
-#~ msgstr "Météo"
