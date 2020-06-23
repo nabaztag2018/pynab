@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-11 16:52+0200\n"
+"POT-Creation-Date: 2020-06-23 11:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,6 +38,10 @@ msgstr "Âme sœur"
 #: templates/nabmastodond/settings.html:25
 msgid "Friend address"
 msgstr "Adresse de votre ami(e)"
+
+#: templates/nabmastodond/settings.html:25
+msgid "e.g. name@instance.tld"
+msgstr "ex: nom@instance.tld"
 
 #: templates/nabmastodond/settings.html:27
 msgid "Propose"
@@ -183,9 +187,9 @@ msgid ""
 "Mastodon instance, you can find a directory of Mastodon instances <a href="
 "\"https://joinmastodon.org/\" target=\"_blank\">here</a>."
 msgstr ""
-"Tout d'abord,<strong> créez un compte pour votre Nabaztag</strong> sur une instance "
-"Mastodon, vous trouverez <a href=\"https://joinmastodon.org/\" target="
-"\"_blank\">ici</a> un répertoire des instances."
+"Tout d'abord,<strong> créez un compte pour votre Nabaztag</strong> sur une "
+"instance Mastodon, vous trouverez <a href=\"https://joinmastodon.org/\" "
+"target=\"_blank\">ici</a> un répertoire des instances."
 
 #: templates/nabmastodond/settings.html:260
 msgid ""

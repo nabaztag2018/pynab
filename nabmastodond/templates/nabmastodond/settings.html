@@ -22,7 +22,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text">{% trans "Kindred soul" %}</span>
                 </div>
-                <input name="spouse" type="text" class="form-control" aria-label="{% trans "Friend address" %}" value="">
+                <input name="spouse" type="text" class="form-control" pattern="@?[^@]+@[^@]+" aria-label="{% trans "Friend address" %}" placeholder="{% trans "e.g. name@instance.tld" %}" value="">
                 <div class="input-group-append">
                   <button type="submit" class="btn btn-primary propose-button">{% trans "Propose" %}</button>
                 </div>
