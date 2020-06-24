@@ -312,6 +312,60 @@ sudo mv /tmp/nabboot.py /lib/systemd/system-shutdown/nabboot.py
 sudo chown root /lib/systemd/system-shutdown/nabboot.py
 sudo chmod +x /lib/systemd/system-shutdown/nabboot.py
 
+# Fix Pynab logs not rotated #139 
+cat > '/tmp/pynab' <<- END
+/var/log/nab*.log
+ {
+         daily
+         rotate 7
+         missingok
+         notifempty
+         copytruncate
+         delaycompress
+         compress
+ }
+END
+sudo cp /tmp/pynab /etc/logrotate.d/pynab
+
+
+# Fix Advertise rabbit on local network #141 
+cat > '/tmp/pynab.service' <<- END
+<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<!-- See avahi.service(5) for more information about this configuration file -->
+
+<service-group>
+  <name replace-wildcards="yes">Nabaztag rabbit (%h)</name>
+  <service>
+    <type>_http._tcp</type>
+    <port>80</port>
+    <txt-record>vendor=violet</txt-record>
+    <txt-record>model=tag:tag:tag</txt-record>
+  </service>
+</service-group>
+END
+sudo cp /tmp/pynab.service /etc/avahi/services/pynab.service
+
+
+
+cat > '/tmp/nabblocky.service' <<- END
+<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<!-- See avahi.service(5) for more information about this configuration file -->
+
+<service-group>
+  <name replace-wildcards="yes">NabBlockly (%h)</name>
+  <service>
+    <type>_http._tcp</type>
+    <port>8080</port>
+    <txt-record>vendor=Paul Guyot</txt-record>
+    <txt-record>model=tag:tag:tag</txt-record>
+  </service>
+</service-group>
+END
+sudo cp /tmp/nabblocky.service /etc/avahi/services/nabblocky.service
+
+
 if [ -e /tmp/pynab.upgrade.reboot ]; then
   echo "Upgrade requires reboot, rebooting now - 14/14" > /tmp/pynab.upgrade
   sudo rm -f /tmp/pynab.upgrade
