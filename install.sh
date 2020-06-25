@@ -313,58 +313,68 @@ sudo chown root /lib/systemd/system-shutdown/nabboot.py
 sudo chmod +x /lib/systemd/system-shutdown/nabboot.py
 
 # Fix Pynab logs not rotated #139 
-cat > '/tmp/pynab' <<- END
-/var/log/nab*.log
- {
-         daily
-         rotate 7
-         missingok
-         notifempty
-         copytruncate
-         delaycompress
-         compress
- }
-END
-sudo mv /tmp/pynab /etc/logrotate.d/pynab
+if [ ! -f "/etc/logrotate.d/pynab" ]; then
+	cat > '/tmp/pynab' <<- END
+	/var/log/nab*.log
+	 {
+	         daily
+	         rotate 7
+	         missingok
+	         notifempty
+	         copytruncate
+	         delaycompress
+	         compress
+	 }
+	END
+	sudo mv /tmp/pynab /etc/logrotate.d/pynab
+	sudo touch /tmp/pynab.upgrade.reboot
+fi
 
 
 # Fix Advertise rabbit on local network #141 
-cat > '/tmp/pynab.service' <<- END
-<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
-<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
-<!-- See avahi.service(5) for more information about this configuration file -->
+if [ ! -f "/etc/avahi/services/pynab.service" ]; then
 
-<service-group>
-  <name replace-wildcards="yes">Nabaztag rabbit (%h)</name>
-  <service>
-    <type>_http._tcp</type>
-    <port>80</port>
-    <txt-record>vendor=violet</txt-record>
-    <txt-record>model=tag:tag:tag</txt-record>
-  </service>
-</service-group>
-END
-sudo mv /tmp/pynab.service /etc/avahi/services/pynab.service
+	cat > '/tmp/pynab.service' <<- END
+	<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+	<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+	<!-- See avahi.service(5) for more information about this configuration file -->
 
+	<service-group>
+	  <name replace-wildcards="yes">Nabaztag rabbit (%h)</name>
+	  <service>
+	    <type>_http._tcp</type>
+	    <port>80</port>
+	    <txt-record>vendor=violet</txt-record>
+	    <txt-record>model=tag:tag:tag</txt-record>
+	  </service>
+	</service-group>
+	END
+	sudo mv /tmp/pynab.service /etc/avahi/services/pynab.service
+	sudo touch /tmp/pynab.upgrade.reboot
 
+fi
 
-cat > '/tmp/nabblocky.service' <<- END
-<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
-<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
-<!-- See avahi.service(5) for more information about this configuration file -->
+if [ ! -f "/etc/avahi/services/nabblocky.service" ]; then
 
-<service-group>
-  <name replace-wildcards="yes">NabBlockly (%h)</name>
-  <service>
-    <type>_http._tcp</type>
-    <port>8080</port>
-    <txt-record>vendor=Paul Guyot</txt-record>
-    <txt-record>model=tag:tag:tag</txt-record>
-  </service>
-</service-group>
-END
-sudo mv /tmp/nabblocky.service /etc/avahi/services/nabblocky.service
+	cat > '/tmp/nabblocky.service' <<- END
+	<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+	<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+	<!-- See avahi.service(5) for more information about this configuration file -->
 
+	<service-group>
+	  <name replace-wildcards="yes">NabBlockly (%h)</name>
+	  <service>
+	    <type>_http._tcp</type>
+	    <port>8080</port>
+	    <txt-record>vendor=Paul Guyot</txt-record>
+	    <txt-record>model=tag:tag:tag</txt-record>
+	  </service>
+	</service-group>
+	END
+	sudo mv /tmp/nabblocky.service /etc/avahi/services/nabblocky.service
+	sudo touch /tmp/pynab.upgrade.reboot
+
+fi
 
 if [ -e /tmp/pynab.upgrade.reboot ]; then
   echo "Upgrade requires reboot, rebooting now - 14/14" > /tmp/pynab.upgrade
