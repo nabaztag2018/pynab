@@ -325,7 +325,7 @@ cat > '/tmp/pynab' <<- END
          compress
  }
 END
-sudo cp /tmp/pynab /etc/logrotate.d/pynab
+sudo mv /tmp/pynab /etc/logrotate.d/pynab
 
 
 # Fix Advertise rabbit on local network #141 
@@ -344,7 +344,7 @@ cat > '/tmp/pynab.service' <<- END
   </service>
 </service-group>
 END
-sudo cp /tmp/pynab.service /etc/avahi/services/pynab.service
+sudo mv /tmp/pynab.service /etc/avahi/services/pynab.service
 
 
 
@@ -363,7 +363,7 @@ cat > '/tmp/nabblocky.service' <<- END
   </service>
 </service-group>
 END
-sudo cp /tmp/nabblocky.service /etc/avahi/services/nabblocky.service
+sudo mv /tmp/nabblocky.service /etc/avahi/services/nabblocky.service
 
 
 if [ -e /tmp/pynab.upgrade.reboot ]; then
