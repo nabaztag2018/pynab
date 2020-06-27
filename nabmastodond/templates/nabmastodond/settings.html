@@ -100,15 +100,15 @@
                   data: JSON.stringify({"spouse": "{{ config.spouse_handle }}"}),
                   method: "DELETE",
                   success: function (data) {
-                    $('.modal.divorce-confirmation-modal').on('hidden.bs.modal', function (e) {
-                      $('.modal.divorce-confirmation-modal').modal('dispose');
+                    $('.modal.cancel-confirmation-modal').on('hidden.bs.modal', function (e) {
+                      $('.modal.cancel-confirmation-modal').modal('dispose');
                       $("#nabmastodond-settings").replaceWith(data);
                     });
-                    $('.modal.divorce-confirmation-modal').modal('hide');
+                    $('.modal.cancel-confirmation-modal').modal('hide');
                   },
                   error: function (data) {
                     cancelBtn.removeClass('disabled');
-                    $('.modal.divorce-confirmation-modal').modal('hide');
+                    $('.modal.cancel-confirmation-modal').modal('hide');
                     var message = "{% trans "An unknown error occurred trying to cancel proposal" %}";
                     if (data.message) {
                       message = "{% trans "An error occurred trying to cancel proposal: " %}" + data.message;
