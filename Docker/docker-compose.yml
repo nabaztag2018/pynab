@@ -1,0 +1,48 @@
+version: '3.8'
+services:
+    # PostgreSQL database
+    db:
+        image: postgres:11-alpine
+        environment:
+            POSTGRES_PASSWORD: pynab
+            POSTGRES_USER: pynab
+        volumes:
+            - var-lib-postgresql-data:/var/lib/postgresql/data
+            - var-run-postgresql:/var/run/postgresql
+    # Once off container to run the DB migrations
+    migrate:
+        build: ./nab
+        volumes:
+            - ../:/home/pi/pynab
+            - var-run-postgresql:/var/run/postgresql
+        depends_on:
+            - db
+        command: ["/bin/bash", "/usr/local/bin/run-migrate.sh"]
+    nabweb:
+        build: ./nab
+        volumes:
+            - ../:/home/pi/pynab
+            - var-run-postgresql:/var/run/postgresql
+        depends_on:
+            - db
+            - migrate
+        command: ["/bin/sh", "-c", "/home/pi/venv/bin/gunicorn --timeout 60 -b 0.0.0.0 nabweb.wsgi"]
+        ports:
+            - 8000:8000
+    # FIXME: nabmastodond will stop immediately because there's no nabd to connect to
+    # but at least it starts correctly, as a proof of concept
+    nabmastodond:
+        build: ./nab
+        volumes:
+            - ../:/home/pi/pynab
+            - var-run-postgresql:/var/run/postgresql
+        depends_on:
+            - db
+            - migrate
+        command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabmastodond.nabmastodond"]
+
+volumes:
+    # Share the PostgreSQL socket between containers
+    var-run-postgresql:
+    # Persist the PostgreSQL data across restarts
+    var-lib-postgresql-data:
