@@ -332,6 +332,16 @@ class Nabd:
         if "right" in packet:
             self.ears["right"] = packet["right"]
         if self.state == State.IDLE:
+            if "event" in packet and packet["event"]:
+                # Simulate an ears_event
+                self.broadcast_event(
+                    "ears",
+                    {
+                        "type": "ears_event",
+                        "left": self.ears["left"],
+                        "right": self.ears["right"],
+                    },
+                )
             await self.nabio.move_ears(self.ears["left"], self.ears["right"])
         self.write_response_packet(packet, {"status": "ok"}, writer)
 
@@ -800,8 +810,8 @@ class Nabd:
             await self.nabio.asr_failed()
         else:
             event_type = "asr/*"
-            if "/" in response['intent']:
-                app, _ = response['intent'].split("/", 1)
+            if "/" in response["intent"]:
+                app, _ = response["intent"].split("/", 1)
                 event_type = f"asr/{app}"
             self.broadcast_event(
                 event_type, {"type": "asr_event", "nlu": response, "time": now}
