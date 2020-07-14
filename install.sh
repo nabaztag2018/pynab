@@ -327,9 +327,8 @@ if [ ! -f "/etc/logrotate.d/pynab" ]; then
 	 }
 	END
 	sudo mv /tmp/pynab /etc/logrotate.d/pynab
-	sudo touch /tmp/pynab.upgrade.reboot
 fi
-
+sudo chown root:root /etc/logrotate.d/pynab
 
 # Fix Advertise rabbit on local network #141 
 if [ ! -f "/etc/avahi/services/pynab.service" ]; then
@@ -350,7 +349,6 @@ if [ ! -f "/etc/avahi/services/pynab.service" ]; then
 	</service-group>
 	END
 	sudo mv /tmp/pynab.service /etc/avahi/services/pynab.service
-	sudo touch /tmp/pynab.upgrade.reboot
 
 fi
 
@@ -372,7 +370,6 @@ if [ ! -f "/etc/avahi/services/nabblocky.service" ]; then
 	</service-group>
 	END
 	sudo mv /tmp/nabblocky.service /etc/avahi/services/nabblocky.service
-	sudo touch /tmp/pynab.upgrade.reboot
 
 fi
 
@@ -386,6 +383,7 @@ else
     if [ $upgrade -eq 1 ]; then
       echo "Restarting services - 13/14" > /tmp/pynab.upgrade
     fi
+    sudo systemctl restart logrotate.service
     sudo systemctl start nabd.socket
     sudo systemctl start nabd.service
 
