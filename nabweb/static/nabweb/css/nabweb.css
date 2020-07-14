@@ -15,3 +15,8 @@ a.help-link:hover {
   color: inherit;
   text-decoration: inherit;
 }
+
+/* select elements */
+select {
+  width: 100%;
+}
