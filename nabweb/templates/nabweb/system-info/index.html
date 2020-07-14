@@ -28,13 +28,13 @@
           <dl class="row" id="rebootMessageRow" style="display:none">
             <dt class="col-sm-4"></dt>
             <dd class="col-sm-8">
-              <code>{% trans "Reboot has been initiated !"%}</code>
+	    <code>{% trans "<b>Reboot is in progress!</b>"%}</code>
             </dd>
           </dl>
           <dl class="row" id="shutdownMessageRow" style="display:none">
             <dt class="col-sm-4"></dt>
             <dd class="col-sm-8">
-              <code>{% trans "Shutdown has been initiated !"%}<BR>{% trans "Please wait at least 10 seconds before unplugging the power cable"%}</code>
+	    <code>{% trans "<b>Shutdown is in progress!</b>"%}<BR>{% trans "Please wait at least 10 seconds before unplugging the power cable."%}</code>
             </dd>
           </dl>
         </div>
@@ -113,7 +113,7 @@
           </button>
         </div>
         <div class="modal-body">
-          {% trans "You are about to REBOOT the Raspberry Pi Linux system" %}<BR><BR>{% trans "Are you sure ?" %}
+		{% trans "You are about to <b>reboot</b> the Raspberry Pi Linux system." %}<BR>{% trans "Do you want to proceed?" %}
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Cancel" %}</button>
@@ -132,7 +132,7 @@
           </button>
         </div>
         <div class="modal-body">
-          {% trans "You are about to SHUTDOWN the Raspberry Pi Linux system" %}<BR><BR>{% trans "Are you sure ?" %}
+		{% trans "You are about to <b>shutdown</b> the Raspberry Pi Linux system." %}<BR>{% trans "Do you want to proceed?" %}
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Cancel" %}</button>

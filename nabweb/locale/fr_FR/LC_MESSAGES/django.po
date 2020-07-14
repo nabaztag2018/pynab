@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-27 10:54+0200\n"
+"POT-Creation-Date: 2021-04-27 11:14+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -491,18 +491,18 @@ msgid "Shutdown"
 msgstr "Arrêter"
 
 #: templates/nabweb/system-info/index.html:31
-msgid "Reboot has been initiated !"
-msgstr "Le redémarrage est en cours !"
+msgid "<b>Reboot is in progress!</b>"
+msgstr "<b>Le redémarrage est en cours!</b>"
 
 #: templates/nabweb/system-info/index.html:37
-msgid "Shutdown has been initiated !"
-msgstr "L'arrêt est en cours !"
+msgid "<b>Shutdown is in progress!</b>"
+msgstr "<b>L'arrêt est en cours!</b>"
 
 #: templates/nabweb/system-info/index.html:37
-msgid "Please wait at least 10 seconds before unplugging the power cable"
+msgid "Please wait at least 10 seconds before unplugging the power cable."
 msgstr ""
 "Veuillez attendre au moins 10 secondes avant de débrancher le cable "
-"d'alimentation"
+"d'alimentation."
 
 #: templates/nabweb/system-info/index.html:48
 msgid "Nabd daemon"
@@ -553,13 +553,14 @@ msgid "Ears"
 msgstr "Oreilles"
 
 #: templates/nabweb/system-info/index.html:116
-msgid "You are about to REBOOT the Raspberry Pi Linux system"
-msgstr "Vous êtes sur le point de REDEMARRER le système Linux du Raspberry Pi"
+msgid "You are about to <b>reboot</b> the Raspberry Pi Linux system."
+msgstr ""
+"Vous êtes sur le point de <b>redémarrer</b> le système Linux du Raspberry Pi."
 
 #: templates/nabweb/system-info/index.html:116
 #: templates/nabweb/system-info/index.html:135
-msgid "Are you sure ?"
-msgstr "Etes-vous sûr(e) ?"
+msgid "Do you want to proceed?"
+msgstr "Voulez-vous continuer?"
 
 #: templates/nabweb/system-info/index.html:119
 #: templates/nabweb/system-info/index.html:138
@@ -567,8 +568,9 @@ msgid "Cancel"
 msgstr ""
 
 #: templates/nabweb/system-info/index.html:135
-msgid "You are about to SHUTDOWN the Raspberry Pi Linux system"
-msgstr "Vous êtes sur le point d'ETEINDRE le système Linux du Raspberry Pi"
+msgid "You are about to <b>shutdown</b> the Raspberry Pi Linux system."
+msgstr ""
+"Vous êtes sur le point d'<b>éteindre</b> le système Linux du Raspberry Pi."
 
 #: templates/nabweb/upgrade/_repository.html:9
 msgid "Up to date"
@@ -608,8 +610,7 @@ msgid ""
 "upgrade may fail. Are you sure you want to proceed?"
 msgstr ""
 "Des modifications locales ont été détectées dans au moins un repository. La "
-"mise à jour automatique risque d'échouer. Souhaitez-vous néanmoins "
-"continuer ?"
+"mise à jour automatique risque d'échouer. Souhaitez-vous néanmoins continuer?"
 
 #: templates/nabweb/upgrade/index.html:43
 msgid ""
@@ -702,3 +703,6 @@ msgstr "{} heures et 1 minute"
 #: templatetags/duration_filter.py:27
 msgid "{} hours and {} minutes"
 msgstr "{} heures et {} minutes"
+
+#~ msgid "You are about to SHUTDOWN the Raspberry Pi Linux system"
+#~ msgstr "Vous êtes sur le point d'ETEINDRE le système Linux du Raspberry Pi"
