@@ -327,11 +327,8 @@ class NabWebSytemInfoView(BaseView):
             matchObj = re.match(r'PRETTY_NAME="(.+)"$', line, re.M)
             if matchObj:
                 version = matchObj.group(1)
-        with open("/etc/rpi-issue") as issue:
-            line = issue.readline()
-            matchObj = re.search(r" ([0-9-]+)$", line, re.M)
-            if matchObj:
-                version = version + ", issue " + matchObj.group(1)
+        kernel_release = os.popen("uname -rm").read().rstrip()
+        version = version + ", Kernel " + kernel_release
         with open("/proc/uptime", "r") as uptime_f:
             uptime = int(float(uptime_f.readline().split()[0]))
         ssh_state = os.popen("systemctl is-active ssh").read().rstrip()
