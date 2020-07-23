@@ -51,7 +51,7 @@ def set_system_led(shutdown):
         f.write("none")
 
     with open("/sys/class/leds/led0/brightness", "w") as f:
-        f.write("255")
+        f.write("0")
 
 
 if __name__ == "__main__":
