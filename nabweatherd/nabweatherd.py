@@ -1,9 +1,9 @@
-import sys
+import sys, json
 import datetime
 import logging
 from asgiref.sync import sync_to_async
 from nabcommon.nabservice import NabInfoService
-from meteofrance.client import meteofranceClient
+from meteofrance.client import MeteoFranceClient, Place
 from . import rfid_data
 
 
@@ -121,279 +121,117 @@ class NabWeatherd(NabInfoService):
 
     # Météo France weather classes
     WEATHER_CLASSES = {
-        "J_W1_0-N_0": ("sunny", SUNNY_INFO_ANIMATION),  # Ensoleillé
-        "N_W1_0-N_0": ("sunny", SUNNY_INFO_ANIMATION),  # Nuit Claire
-        "J_W1_0-N_5": ("cloudy", CLOUDY_INFO_ANIMATION),  # Ciel voilé
-        "N_W1_0-N_5": ("cloudy", CLOUDY_INFO_ANIMATION),  # Ciel voilé nuit
-        "J_W1_0-N_1": ("sunny", SUNNY_INFO_ANIMATION),  # Éclaircies
-        "J_W1_0-N_2": ("sunny", SUNNY_INFO_ANIMATION),  # Éclaircies
-        "N_W1_0-N_1": ("sunny", SUNNY_INFO_ANIMATION),  # Éclaircies (nuit)
-        "J_W1_0-N_3": ("cloudy", CLOUDY_INFO_ANIMATION),  # Très nuageux
-        "J_W1_1-N_0": (
+        "Eclaircies": ("sunny", SUNNY_INFO_ANIMATION),
+        "Peu nuageux": ("sunny", SUNNY_INFO_ANIMATION),
+        "Ensoleillé": ("sunny", SUNNY_INFO_ANIMATION),
+
+        "Ciel voilé": ("cloudy", CLOUDY_INFO_ANIMATION),
+        "Ciel voilé nuit": ("cloudy", CLOUDY_INFO_ANIMATION),
+        "Très nuageux": ("cloudy", CLOUDY_INFO_ANIMATION),
+        "Couvert": ("cloudy", CLOUDY_INFO_ANIMATION),
+        "Éclaircies": ("cloudy", CLOUDY_INFO_ANIMATION),
+        "Éclaircies": ("cloudy", CLOUDY_INFO_ANIMATION),
+        "Peu nuageux": ("cloudy", CLOUDY_INFO_ANIMATION),
+
+        "Rares averses": (
+            "rainy",
+            RAINY_INFO_ANIMATION,
+        ),
+        "Averses": (
+            "rainy",
+            RAINY_INFO_ANIMATION,
+        ),
+        "Pluies éparses": (
+            "rainy",
+            RAINY_INFO_ANIMATION,
+        ),
+        "Pluie": (
+            "rainy",
+            RAINY_INFO_ANIMATION,
+        ),
+        "Pluie modérée": (
+            "rainy",
+            RAINY_INFO_ANIMATION,
+        ),
+        "Pluie faible": (
+            "rainy",
+            RAINY_INFO_ANIMATION,
+        ),
+
+        "Pluie forte": (
+            "rainy",
+            RAINY_INFO_ANIMATION,
+        ),
+
+        "Risque de grêle": ("rainy", RAINY_INFO_ANIMATION),          
+        "Risque de grèle": ("rainy", RAINY_INFO_ANIMATION),  
+        "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),  
+        "Bruine": ("rainy", RAINY_INFO_ANIMATION),  
+        "Pluie faible": ("rainy", RAINY_INFO_ANIMATION),  
+        "Pluies éparses / Rares averses": ("rainy", RAINY_INFO_ANIMATION),  
+        "Pluie / Averses": ("rainy", RAINY_INFO_ANIMATION),  
+        "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),  
+        "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),  
+        "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),  
+
+
+
+        "Pluie et neige mêlées": (
+            "snowy",
+            SNOWY_INFO_ANIMATION,
+        ),
+        "Neige / Averses de neige": (
+            "snowy",
+            SNOWY_INFO_ANIMATION,
+        ),
+        "Neige": (
+            "snowy",
+            SNOWY_INFO_ANIMATION,
+        ),
+        "Averses de neige": (
+            "snowy",
+            SNOWY_INFO_ANIMATION,
+        ),
+        "Neige forte": (
+            "snowy",
+            SNOWY_INFO_ANIMATION,
+        ),
+        "Quelques flocons": (
+            "snowy",
+            SNOWY_INFO_ANIMATION,
+        ),
+        "Pluie et neige": (
+            "snowy",
+            SNOWY_INFO_ANIMATION,
+        ),
+        "Pluie verglaçante": (
+            "snowy",
+            SNOWY_INFO_ANIMATION,
+        ),
+        "Brume ou bancs de brouillard": (
             "foggy",
             FOGGY_INFO_ANIMATION,
-        ),  # Brume ou bancs de brouillard (jour)
-        "N_W1_1-N_0": (
+        ),
+        "Brouillard": (
             "foggy",
             FOGGY_INFO_ANIMATION,
-        ),  # Brume ou bancs de brouillard (nuit)
-        "J_W1_1-N_3": (
+        ),
+        "Brouillard givrant": (
             "foggy",
             FOGGY_INFO_ANIMATION,
-        ),  # Brume ou bancs de brouillard (non précisé)
-        "J_W1_3-N_0": ("foggy", FOGGY_INFO_ANIMATION),  # Brouillard
-        "J_W1_6-N_0": ("foggy", FOGGY_INFO_ANIMATION),  # Brouillard givrant
-        "J_W1_7-N_0": ("rainy", RAINY_INFO_ANIMATION),  # Bruine
-        "J_W1_8-N_0": (
-            "rainy",
-            RAINY_INFO_ANIMATION,
-        ),  # Pluie verglaçante (jour)
-        "N_W1_8-N_0": (
-            "rainy",
-            RAINY_INFO_ANIMATION,
-        ),  # Pluie verglaçante (nuit)
-        "J_W1_8-N_3": (
-            "rainy",
-            RAINY_INFO_ANIMATION,
-        ),  # Pluie verglaçante (non précisé)
-        "J_W1_9-N_0": (
-            "rainy",
-            RAINY_INFO_ANIMATION,
-        ),  # Pluies éparses / Rares averses (jour)
-        "N_W1_9-N_0": (
-            "rainy",
-            RAINY_INFO_ANIMATION,
-        ),  # Pluies éparses / Rares averses (nuit)
-        "J_W1_9-N_3": (
-            "rainy",
-            RAINY_INFO_ANIMATION,
-        ),  # Pluies éparses / Rares averses (non précisé)
-        "J_W2_14": ("rainy", RAINY_INFO_ANIMATION),  # Pluie / Averses (jour)
-        "N_W2_14": ("rainy", RAINY_INFO_ANIMATION),  # Pluie / Averses (nuit)
-        "J_W1_10-N_0": (
-            "rainy",
-            RAINY_INFO_ANIMATION,
-        ),  # Pluie / Averses (non précisé)
-        "J_W1_11-N_0": ("rainy", RAINY_INFO_ANIMATION),  # Pluie forte
-        "J_W1_12-N_0": ("rainy", RAINY_INFO_ANIMATION),  # Pluies orageuses
-        "J_W1_32-N_0": (
-            "rainy",
-            RAINY_INFO_ANIMATION,
-        ),  # Pluies orageuses (jour)
-        "N_W1_32-N_0": (
-            "rainy",
-            RAINY_INFO_ANIMATION,
-        ),  # Pluies orageuses (nuit)
-        "J_W1_13-N_0": (
-            "snowy",
-            SNOWY_INFO_ANIMATION,
-        ),  # Quelques flocons (jour)
-        "N_W1_13-N_0": (
-            "snowy",
-            SNOWY_INFO_ANIMATION,
-        ),  # Quelques flocons (nuit)
-        "J_W1_13-N_3": (
-            "snowy",
-            SNOWY_INFO_ANIMATION,
-        ),  # Quelques flocons (non précisé)
-        "J_W1_14-N_0": (
-            "snowy",
-            SNOWY_INFO_ANIMATION,
-        ),  # Pluie et neige (jour)
-        "N_W1_14-N_0": (
-            "snowy",
-            SNOWY_INFO_ANIMATION,
-        ),  # Pluie et neige (nuit)
-        "J_W1_14-N_3": (
-            "snowy",
-            SNOWY_INFO_ANIMATION,
-        ),  # Pluie et neige (non précisé)
-        "J_W1_15-N_0": ("snowy", SNOWY_INFO_ANIMATION),  # Neige (jour)
-        "N_W1_15-N_0": ("snowy", SNOWY_INFO_ANIMATION),  # Neige (nuit)
-        "J_W1_22-N_3": ("snowy", SNOWY_INFO_ANIMATION),  # Neige (non précisé)
-        "J_W1_17-N_0": ("snowy", SNOWY_INFO_ANIMATION),  # Neige forte
-        "J_W1_23-N_0": (
-            "rainy",
-            RAINY_INFO_ANIMATION,
-        ),  # Risque de grêle (jour)
-        "N_W1_23-N_0": (
-            "rainy",
-            RAINY_INFO_ANIMATION,
-        ),  # Risque de grêle (nuit)
-        "J_W1_23-N_3": (
-            "rainy",
-            RAINY_INFO_ANIMATION,
-        ),  # Risque de grêle (non précisé)
-        "J_W1_24-N_0": (
-            "stormy",
-            STORMY_INFO_ANIMATION,
-        ),  # Risque d’orages (jour)
-        "N_W1_24-N_0": (
-            "stormy",
-            STORMY_INFO_ANIMATION,
-        ),  # Risque d’orages (nuit)
-        "J_W1_24-N_3": (
-            "stormy",
-            STORMY_INFO_ANIMATION,
-        ),  # Risque d’orages (non précisé)
-        "J_W1_27-N_0": ("stormy", STORMY_INFO_ANIMATION),  # Orages (jour)
-        "N_W1_27-N_0": ("stormy", STORMY_INFO_ANIMATION),  # Orages (nuit)
-        "J_W1_27-N_3": (
-            "stormy",
-            STORMY_INFO_ANIMATION,
-        ),  # Orages (non précisé)
+        ),
+        "Brume": (
+            "foggy",
+            FOGGY_INFO_ANIMATION,
+        ),
+        "Pluies orageuses": ("stormy", STORMY_INFO_ANIMATION),
+        "Pluie orageuses": ("stormy", STORMY_INFO_ANIMATION),
+        "Orages": ("stormy", STORMY_INFO_ANIMATION),
+        "Averses orageuses": ("stormy", STORMY_INFO_ANIMATION),
+        "Risque d'orages": ("stormy", STORMY_INFO_ANIMATION),  
+        
     }
 
-    # Dictionary built from css rules
-    WEATHER_CLASSES_ALIASES = {
-        "J_W1_0-N_4": "J_W1_0-N_1",
-        "J_W1_0-N_6": "J_W1_0-N_1",
-        "J_W1_1-N": "J_W1_1-N_0",
-        "J_W1_2-N_3": "J_W1_1-N_3",
-        "J_W1_2-N": "J_W1_1-N_0",
-        "J_W1_3-N": "J_W1_3-N_0",
-        "J_W1_4-N": "J_W1_6-N_0",
-        "J_W1_5-N": "J_W1_6-N_0",
-        "J_W1_6-N": "J_W1_6-N_0",
-        "J_W1_7-N": "J_W1_7-N_0",
-        "J_W1_8-N": "J_W1_8-N_0",
-        "J_W1_9-N": "J_W1_9-N_0",
-        "J_W1_10-N": "J_W1_10-N_0",
-        "J_W1_11-N": "J_W1_11-N_0",
-        "J_W1_12": "J_W1_12-N_0",
-        "J_W1_13": "J_W1_13-N_0",
-        "J_W1_14": "J_W1_14-N_0",
-        "J_W1_15-N_3": "J_W1_22-N_3",
-        "J_W1_15": "J_W1_15-N_0",
-        "J_W1_17-N": "J_W1_17-N_0",
-        "J_W1_18-N_3": "J_W1_9-N_3",
-        "J_W1_18-N": "J_W1_9-N_0",
-        "J_W1_19-N": "J_W1_10-N_0",
-        #       "J_W1_19-N": "J_W2_14",
-        "J_W1_20-N_3": "J_W1_14-N_3",
-        "J_W1_20": "J_W1_14-N_0",
-        "J_W1_21-N_3": "J_W1_13-N_3",
-        "J_W1_21": "J_W1_13-N_0",
-        "J_W1_22": "J_W1_15-N_0",
-        "J_W1_23-N": "J_W1_23-N_0",
-        "J_W1_24-N": "J_W1_24-N_0",
-        "J_W1_25-N_3": "J_W1_27-N_3",
-        "J_W1_25-N": "J_W1_27-N_0",
-        "J_W1_26-N_3": "J_W1_24-N_3",
-        "J_W1_26-N": "J_W1_24-N_0",
-        "J_W1_27-N": "J_W1_27-N_0",
-        "J_W1_28-N_3": "J_W1_23-N_3",
-        "J_W1_28-N": "J_W1_23-N_0",
-        "J_W1_29-N_3": "J_W1_23-N_3",
-        "J_W1_29-N": "J_W1_23-N_0",
-        "J_W1_30-N_3": "J_W1_9-N_3",
-        "J_W1_30-N": "J_W1_9-N_0",
-        "J_W1_31-N_3": "J_W1_24-N_3",
-        "J_W1_31-N": "J_W1_24-N_0",
-        "J_W1_32-N_3": "J_W1_12-N_0",
-        "J_W1_32": "J_W1_32-N_0",
-        "J_W1_33-N_3": "J_W1_1-N_3",
-        "J_W1_33-N": "J_W1_1-N_0",
-        "J_W2_2": "J_W1_0-N_1",
-        "J_W2_3": "J_W1_0-N_3",
-        "J_W2_4": "J_W1_3-N_0",
-        "J_W2_5": "J_W1_6-N_0",
-        "J_W2_6": "J_W1_9-N_0",
-        "J_W2_7": "J_W1_13-N_0",
-        "J_W2_8": "J_W2_14",
-        "J_W2_9": "J_W1_11-N_0",
-        "J_W2_10": "J_W1_15-N_0",
-        "J_W2_11": "J_W1_17-N_0",
-        "J_W2_12": "J_W1_9-N_0",
-        "J_W2_13": "J_W1_13-N_0",
-        "J_W2_15": "J_W1_15-N_0",
-        "J_W2_16": "J_W1_32-N_0",
-        "J_W2_17": "J_W1_12-N_0",
-        "J_W2_18": "J_W1_24-N_0",
-        "J_W2_19": "J_W1_15-N_0",
-        "N_W1_0-N_2": "N_W1_0-N_1",
-        "N_W1_0-N_3": "J_W1_0-N_3",
-        "N_W1_0-N_4": "N_W1_0-N_1",
-        "N_W1_0-N_6": "N_W1_0-N_1",
-        "N_W1_0-N_7": "N_W1_0-N_0",
-        "N_W1_1-N_3": "J_W1_1-N_3",
-        "N_W1_1-N": "N_W1_1-N_0",
-        "N_W1_2-N_3": "J_W1_1-N_3",
-        "N_W1_2-N": "N_W1_1-N_0",
-        "N_W1_4-N": "J_W1_6-N_0",
-        "N_W1_5-N": "J_W1_6-N_0",
-        "N_W1_6-N": "J_W1_6-N_0",
-        "N_W1_7-N": "J_W1_7-N_0",
-        "N_W1_8-N_3": "J_W1_8-N_3",
-        "N_W1_8-N": "N_W1_8-N_0",
-        "N_W1_9-N_3": "J_W1_9-N_3",
-        "N_W1_9-N": "N_W1_9-N_0",
-        "N_W1_10-N": "J_W1_10-N_0",
-        "N_W1_11-N": "J_W1_11-N_0",
-        "N_W1_12": "J_W1_12-N_0",
-        "N_W1_13-N_3": "J_W1_13-N_3",
-        "N_W1_13": "N_W1_13-N_0",
-        "N_W1_14-N_3": "J_W1_14-N_3",
-        "N_W1_14": "N_W1_14-N_0",
-        "N_W1_15-N_3": "J_W1_22-N_3",
-        "N_W1_15": "N_W1_15-N_0",
-        "N_W1_17-N": "J_W1_17-N_0",
-        "N_W1_18-N_3": "J_W1_9-N_3",
-        "N_W1_18-N": "N_W1_9-N_0",
-        "N_W1_19-N": "J_W1_10-N_0",
-        #       "N_W1_19-N": "N_W2_14",
-        "N_W1_20-N_3": "J_W1_14-N_3",
-        "N_W1_20": "N_W1_14-N_0",
-        "N_W1_21-N_3": "J_W1_13-N_3",
-        "N_W1_21": "N_W1_13-N_0",
-        "N_W1_22-N_3": "J_W1_22-N_3",
-        "N_W1_22": "N_W1_15-N_0",
-        "N_W1_23-N_3": "J_W1_23-N_3",
-        "N_W1_23-N": "N_W1_23-N_0",
-        "N_W1_24-N_3": "J_W1_24-N_3",
-        "N_W1_24-N": "N_W1_24-N_0",
-        "N_W1_25-N_3": "J_W1_27-N_3",
-        "N_W1_25-N": "N_W1_27-N_0",
-        "N_W1_26-N_3": "J_W1_24-N_3",
-        "N_W1_26-N": "N_W1_24-N_0",
-        "N_W1_27-N_3": "J_W1_27-N_3",
-        "N_W1_27-N": "N_W1_27-N_0",
-        "N_W1_28-N_3": "J_W1_23-N_3",
-        "N_W1_28-N": "N_W1_23-N_0",
-        "N_W1_29-N_3": "J_W1_23-N_3",
-        "N_W1_29-N": "N_W1_23-N_0",
-        "N_W1_30-N_3": "J_W1_9-N_3",
-        "N_W1_30-N": "N_W1_9-N_0",
-        "N_W1_31-N_3": "J_W1_24-N_3",
-        "N_W1_31-N": "N_W1_24-N_0",
-        "N_W1_32-N_3": "J_W1_12-N_0",
-        "N_W1_32": "N_W1_32-N_0",
-        "N_W1_33-N_3": "J_W1_1-N_3",
-        "N_W1_33-N": "N_W1_1-N_0",
-        "N_W2_1": "N_W1_0-N_0",
-        "N_W2_2": "N_W1_0-N_1",
-        "N_W2_3": "J_W1_0-N_3",
-        "N_W2_4": "J_W1_3-N_0",
-        "N_W2_5": "J_W1_6-N_0",
-        "N_W2_6": "N_W1_9-N_0",
-        "N_W2_7": "N_W1_13-N_0",
-        "N_W2_8": "N_W2_14",
-        "N_W2_9": "J_W1_11-N_0",
-        "N_W2_10": "N_W1_15-N_0",
-        "N_W2_11": "J_W1_17-N_0",
-        "N_W2_12": "N_W1_9-N_0",
-        "N_W2_13": "N_W1_13-N_0",
-        "N_W2_15": "N_W1_15-N_0",
-        "N_W2_16": "N_W1_32-N_0",
-        "N_W2_17": "J_W1_12-N_0",
-        "N_W2_18": "N_W1_24-N_0",
-        "N_W2_19": "N_W1_15-N_0",
-        "W1_3-N": "J_W1_3-N_0",
-        "W1_7-N": "J_W1_7-N_0",
-        "W1_10-N": "J_W1_10-N_0",
-        "W1_12": "J_W1_12-N_0",
-        "W1_16": "J_W1_22-N_3",
-    }
 
     async def get_config(self):
         from . import models
@@ -424,37 +262,60 @@ class NabWeatherd(NabInfoService):
         from . import models
 
         location, unit, weather_animation_type = config_t
+        
         if location is None:
             return None
-        client = await sync_to_async(meteofranceClient)(location, True)
-        data = client.get_data()
+                
+        #location = location.replace("\'", "\"")
+        print("------------- location")
+        print(location)
+        location_string_json = json.loads(location)
+        print("------------- location_string_json")
+        print(location_string_json)
+        logging.debug(location_string_json)
+        
+        place = Place(location_string_json)
+
+        client = await sync_to_async(MeteoFranceClient)()
+        my_place_weather_forecast = client.get_forecast_for_place(place)
+        data = my_place_weather_forecast.daily_forecast
         logging.debug(data)
+        print("------------- my_place_weather_forecast.daily_forecast")
+        print(data)
 
-        # saving real city in the location
-        config = await models.Config.load_async()
-        config.location = data["printName"]
-        await config.save_async()
-
-        if ("next_rain") in data:
-            if data["next_rain"] == "No rain":
-                next_rain = None
-            else:
-                next_rain = self.RAINY_INFO_ANIMATION
-        else:
-            next_rain = None
-
+        # Rain info
+        next_rain = False
+        raininfo = client.get_rain(place.latitude, place.longitude)
+        print("------------- raininfo.forecast")
+        print(raininfo.forecast)
+        logging.debug(raininfo.forecast)
+        for five_min_slots in raininfo.forecast:
+            if (five_min_slots['rain'] != 1):
+                next_rain = True
+                break
+    
+        # saving real city in the location TODO LATER
+        #config = await models.Config.load_async()
+        #config.location = location
+        #await config.save_async()
+        
         current_weather_class = self.normalize_weather_class(
-            data["weather_class"]
+            data[0]['weather12H']['desc']
         )
         today_forecast_weather_class = self.normalize_weather_class(
-            data["forecast"][0]["weather_class"]
+            data[0]['weather12H']['desc']
         )
 
-        today_forecast_max_temp = data["forecast"][0]["max_temp"]
+        today_forecast_max_temp = int(data[0]['T']['max'])
+
         tomorrow_forecast_weather_class = self.normalize_weather_class(
-            data["forecast"][1]["weather_class"]
+            data[1]['weather12H']['desc']
         )
-        tomorrow_forecast_max_temp = data["forecast"][1]["max_temp"]
+        tomorrow_forecast_max_temp = int(data[0]['T']['max'])
+        print("------------- retour complet")
+        print(weather_animation_type,current_weather_class,next_rain,today_forecast_weather_class,today_forecast_max_temp,tomorrow_forecast_weather_class,tomorrow_forecast_max_temp)
+        
+        
         return {
             "weather_animation_type": weather_animation_type,
             "current_weather_class": current_weather_class,
@@ -468,20 +329,21 @@ class NabWeatherd(NabInfoService):
     def normalize_weather_class(self, weather_class):
         if weather_class in NabWeatherd.WEATHER_CLASSES:
             return weather_class
-        if weather_class in NabWeatherd.WEATHER_CLASSES_ALIASES:
-            return NabWeatherd.WEATHER_CLASSES_ALIASES[weather_class]
-        return self.normalize_weather_class(weather_class[:-1])
+        logging.warning(weather_class)
+        return None
 
     def get_animation(self, info_data):
+        
 
         if (info_data is None):
             return
         
         logging.debug(f"get_animation :{info_data['weather_animation_type']}")
-
-        if (info_data['weather_animation_type'] == 'both') or \
-             (info_data['weather_animation_type'] == 'rain'):
-            if info_data["next_rain"] is not None:
+        # 
+        if (info_data['weather_animation_type'] == 'weather_and_rain') or \
+             (info_data['weather_animation_type'] == 'rain_only'):
+             
+            if info_data["next_rain"] is True:
                 packet = (
                     '{"type":"info",'
                     '"info_id":"nabweatherd_rain",'
@@ -494,11 +356,11 @@ class NabWeatherd(NabInfoService):
                 )
             self.writer.write(packet.encode("utf8"))
     
-        if (info_data['weather_animation_type'] == 'both') or \
-            ((info_data['weather_animation_type'] == 'weather')):
+        if (info_data['weather_animation_type'] == 'weather_and_rain') or \
+            ((info_data['weather_animation_type'] == 'weather_only')):
             
             # si weather on supprime l'animation rain
-            if (info_data['weather_animation_type'] == 'weather'):
+            if (info_data['weather_animation_type'] == 'weather_only'):
                 packet = (
                         '{"type":"info",'
                         '"info_id":"nabweatherd_rain"}\r\n'
@@ -506,12 +368,14 @@ class NabWeatherd(NabInfoService):
                 self.writer.write(packet.encode("utf8"))
         
             (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["today_forecast_weather_class"]]
-            logging.debug(f"get_animation : return classic rain")     
-
+            
+            print(info_animation)
+            
             return info_animation        
         
         else:
-            logging.debug(f"get_animation : return none")          
+            logging.debug(f"get_animation : return none")  
+                    
             return None
 
     async def perform_additional(self, expiration, type, info_data, config_t):

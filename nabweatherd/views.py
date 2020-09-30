@@ -5,8 +5,9 @@ from django.utils.translation import ugettext as _
 from .models import Config, ScheduledMessage
 from .nabweatherd import NabWeatherd
 from . import rfid_data
-from meteofrance.client import meteofranceClient, meteofranceError
+from meteofrance.client import MeteoFranceClient
 import datetime
+import logging
 
 
 class SettingsView(TemplateView):
@@ -25,15 +26,16 @@ class SettingsView(TemplateView):
         context["celsius_available"] = celsius_available
         context["farenheit_available"] = farenheit_available
         return context
-
+    
     def post(self, request, *args, **kwargs):
         config = Config.load()
+        
+       
         if "location" in request.POST:
             location = request.POST["location"]
-            try:
-                meteofranceClient(location)
-                config.location = location
-            except meteofranceError as exp:
+            client = MeteoFranceClient()
+            list_places = client.search_places(location)
+            if (len(list_places) == 0):
                 return JsonResponse(
                     {
                         "status": "unknownLocationError",
@@ -41,6 +43,13 @@ class SettingsView(TemplateView):
                     },
                     status=406,
                 )
+            
+            raw_location = str(list_places[0].raw_data)
+            raw_location = raw_location.replace("\'", "\"")
+            config.location = raw_location
+            
+            config.location_user_friendly = list_places[0].__str__()
+            
         if "unit" in request.POST:
             unit = request.POST["unit"]
             config.unit = int(unit)
