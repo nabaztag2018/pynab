@@ -22,7 +22,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text">{% trans "Kindred soul" %}</span>
                 </div>
-                <input name="spouse" type="text" class="form-control" aria-label="{% trans "Friend address" %}" value="">
+                <input name="spouse" type="text" class="form-control" pattern="@?[^@]+@[^@]+" aria-label="{% trans "Friend address" %}" placeholder="{% trans "e.g. name@instance.tld" %}" value="">
                 <div class="input-group-append">
                   <button type="submit" class="btn btn-primary propose-button">{% trans "Propose" %}</button>
                 </div>
@@ -100,15 +100,15 @@
                   data: JSON.stringify({"spouse": "{{ config.spouse_handle }}"}),
                   method: "DELETE",
                   success: function (data) {
-                    $('.modal.divorce-confirmation-modal').on('hidden.bs.modal', function (e) {
-                      $('.modal.divorce-confirmation-modal').modal('dispose');
+                    $('.modal.cancel-confirmation-modal').on('hidden.bs.modal', function (e) {
+                      $('.modal.cancel-confirmation-modal').modal('dispose');
                       $("#nabmastodond-settings").replaceWith(data);
                     });
-                    $('.modal.divorce-confirmation-modal').modal('hide');
+                    $('.modal.cancel-confirmation-modal').modal('hide');
                   },
                   error: function (data) {
                     cancelBtn.removeClass('disabled');
-                    $('.modal.divorce-confirmation-modal').modal('hide');
+                    $('.modal.cancel-confirmation-modal').modal('hide');
                     var message = "{% trans "An unknown error occurred trying to cancel proposal" %}";
                     if (data.message) {
                       message = "{% trans "An error occurred trying to cancel proposal: " %}" + data.message;
