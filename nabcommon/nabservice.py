@@ -12,34 +12,14 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from lockfile.pidlockfile import PIDLockFile
 from lockfile import AlreadyLocked, LockFailed
-from django.conf import settings
-from django.apps import apps
 from nabcommon import nablogging
-
+from nabcommon import settings
 
 class NabService(ABC):
     PORT_NUMBER = 10543
 
     def __init__(self):
-        if not settings.configured:
-            from django.apps.config import AppConfig
-
-            conf = {
-                "INSTALLED_APPS": [type(self).__name__.lower()],
-                "USE_TZ": True,
-                "DATABASES": {
-                    "default": {
-                        "ENGINE": "django.db.backends.postgresql",
-                        "NAME": "pynab",
-                        "USER": "pynab",
-                        "PASSWORD": "",
-                        "HOST": "",
-                        "PORT": "",
-                    }
-                },
-            }
-            settings.configure(**conf)
-            apps.populate(settings.INSTALLED_APPS)
+        settings.configure(type(self).__name__.lower())
         self.reader = None
         self.writer = None
         self.loop = None
