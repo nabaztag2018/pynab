@@ -266,12 +266,7 @@ class NabWeatherd(NabInfoService):
         if location is None:
             return None
                 
-        #location = location.replace("\'", "\"")
-        print("------------- location")
-        print(location)
         location_string_json = json.loads(location)
-        print("------------- location_string_json")
-        print(location_string_json)
         logging.debug(location_string_json)
         
         place = Place(location_string_json)
@@ -280,25 +275,20 @@ class NabWeatherd(NabInfoService):
         my_place_weather_forecast = client.get_forecast_for_place(place)
         data = my_place_weather_forecast.daily_forecast
         logging.debug(data)
-        print("------------- my_place_weather_forecast.daily_forecast")
-        print(data)
 
         # Rain info
         next_rain = False
-        raininfo = client.get_rain(place.latitude, place.longitude)
-        print("------------- raininfo.forecast")
-        print(raininfo.forecast)
-        logging.debug(raininfo.forecast)
-        for five_min_slots in raininfo.forecast:
-            if (five_min_slots['rain'] != 1):
-                next_rain = True
-                break
+        try:
+            raininfo = client.get_rain(place.latitude, place.longitude)
+            logging.debug(raininfo.forecast)
+            for five_min_slots in raininfo.forecast:
+                if (five_min_slots['rain'] != 1):
+                    next_rain = True
+                    break
+        except:
+            next_rain = False
+            # todo : prevenir que les infos de rain ne sont pas dispo
     
-        # saving real city in the location TODO LATER
-        #config = await models.Config.load_async()
-        #config.location = location
-        #await config.save_async()
-        
         current_weather_class = self.normalize_weather_class(
             data[0]['weather12H']['desc']
         )
@@ -312,8 +302,6 @@ class NabWeatherd(NabInfoService):
             data[1]['weather12H']['desc']
         )
         tomorrow_forecast_max_temp = int(data[0]['T']['max'])
-        print("------------- retour complet")
-        print(weather_animation_type,current_weather_class,next_rain,today_forecast_weather_class,today_forecast_max_temp,tomorrow_forecast_weather_class,tomorrow_forecast_max_temp)
         
         
         return {
@@ -368,9 +356,7 @@ class NabWeatherd(NabInfoService):
                 self.writer.write(packet.encode("utf8"))
         
             (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["today_forecast_weather_class"]]
-            
-            print(info_animation)
-            
+                        
             return info_animation        
         
         else:

@@ -13,17 +13,17 @@
       <div class="form-group row">
         <label for="weatherLocationInput" class="col-6 col-form-label">{% trans "Location" %}</label>
         <div class="col-6">
-          <input id="weatherLocationInput" name="location" type="text" class="form-control" placeholder="{% trans "City, Zip code, Country" %}" value="{{ config.location_user_friendly }}" />
+          <input id="weatherLocationInput" name="location_user_friendly" type="text" class="form-control" placeholder="{% trans "City, Zip code, Country" %}" value="{{ config.location_user_friendly }}" disabled/>
         </div>
       </div>
       <div class="form-group row">
-        <label for="test" class="col-6 col-form-label">{% trans "Location" %}</label>
+        <label for="test" class="col-6 col-form-label"></label>
         <div class="col-6">
 
 
-						<select class="form-control basicAutoSelect" name="simple_select" 
-								placeholder="type to search..." 
-								data-url="meteo" autocomplete="off"></select>
+						<select class="form-control basicAutoSelect" name="location" 
+								placeholder="{% trans 'Search...'%}" 
+								data-url="/nabweatherd/settings" autocomplete="off"></select>
 
         </div>
       </div>
