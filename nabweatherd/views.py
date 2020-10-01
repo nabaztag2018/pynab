@@ -5,14 +5,14 @@ from django.utils.translation import ugettext as _
 from .models import Config, ScheduledMessage
 from .nabweatherd import NabWeatherd
 from . import rfid_data
-from meteofrance.client import MeteoFranceClient, Place
+from meteofrance.client import MeteoFranceClient
+from meteofrance.client import Place
 import datetime
 import logging, json
 
 
 class SettingsView(TemplateView):
     template_name = "nabweatherd/settings.html"
-    
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -31,7 +31,6 @@ class SettingsView(TemplateView):
     def get(self, request, *args, **kwargs):
         json_item = {}
         json_places = []
-        
         context = self.get_context_data(**kwargs)
         if "q" in request.GET:
             search_location = request.GET["q"]
@@ -42,17 +41,12 @@ class SettingsView(TemplateView):
                 json_item['text'] = one_place.__str__()
                 json_places.append(json_item)
                 json_item = {}
-    
             str_json = json.dumps(json_places)
-            return JsonResponse(json_places,
-                status=200,safe=False
-                )
+            return JsonResponse(json_places,status=200,safe=False)
         return render(request, SettingsView.template_name, context=context)
     
     def post(self, request, *args, **kwargs):
         config = Config.load()
-        
-         
         if "location" in request.POST:
             location = request.POST["location"]
             logging.info(location)
@@ -63,7 +57,7 @@ class SettingsView(TemplateView):
                 location_place = Place(location_json)
                 config.location = location
                 config.location_user_friendly = location_place.__str__()
-            
+
         if "unit" in request.POST:
             unit = request.POST["unit"]
             config.unit = int(unit)

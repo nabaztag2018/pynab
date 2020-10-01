@@ -3,7 +3,8 @@ import datetime
 import logging
 from asgiref.sync import sync_to_async
 from nabcommon.nabservice import NabInfoService
-from meteofrance.client import MeteoFranceClient, Place
+from meteofrance.client import MeteoFranceClient
+from meteofrance.client import  Place
 from . import rfid_data
 
 
@@ -157,24 +158,20 @@ class NabWeatherd(NabInfoService):
             "rainy",
             RAINY_INFO_ANIMATION,
         ),
-
         "Pluie forte": (
             "rainy",
             RAINY_INFO_ANIMATION,
         ),
-
-        "Risque de grêle": ("rainy", RAINY_INFO_ANIMATION),          
-        "Risque de grèle": ("rainy", RAINY_INFO_ANIMATION),  
-        "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),  
-        "Bruine": ("rainy", RAINY_INFO_ANIMATION),  
-        "Pluie faible": ("rainy", RAINY_INFO_ANIMATION),  
-        "Pluies éparses / Rares averses": ("rainy", RAINY_INFO_ANIMATION),  
-        "Pluie / Averses": ("rainy", RAINY_INFO_ANIMATION),  
-        "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),  
-        "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),  
-        "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),  
-
-
+        "Risque de grêle": ("rainy", RAINY_INFO_ANIMATION),         
+        "Risque de grèle": ("rainy", RAINY_INFO_ANIMATION),
+        "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),
+        "Bruine": ("rainy", RAINY_INFO_ANIMATION),
+        "Pluie faible": ("rainy", RAINY_INFO_ANIMATION),
+        "Pluies éparses / Rares averses": ("rainy", RAINY_INFO_ANIMATION),
+        "Pluie / Averses": ("rainy", RAINY_INFO_ANIMATION),
+        "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),
+        "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),
+        "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),
 
         "Pluie et neige mêlées": (
             "snowy",
@@ -228,7 +225,7 @@ class NabWeatherd(NabInfoService):
         "Pluie orageuses": ("stormy", STORMY_INFO_ANIMATION),
         "Orages": ("stormy", STORMY_INFO_ANIMATION),
         "Averses orageuses": ("stormy", STORMY_INFO_ANIMATION),
-        "Risque d'orages": ("stormy", STORMY_INFO_ANIMATION),  
+        "Risque d'orages": ("stormy", STORMY_INFO_ANIMATION),
         
     }
 
@@ -346,7 +343,7 @@ class NabWeatherd(NabInfoService):
     
         if (info_data['weather_animation_type'] == 'weather_and_rain') or \
             ((info_data['weather_animation_type'] == 'weather_only')):
-            
+
             # si weather on supprime l'animation rain
             if (info_data['weather_animation_type'] == 'weather_only'):
                 packet = (
@@ -356,12 +353,9 @@ class NabWeatherd(NabInfoService):
                 self.writer.write(packet.encode("utf8"))
         
             (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["today_forecast_weather_class"]]
-                        
             return info_animation        
-        
         else:
             logging.debug(f"get_animation : return none")  
-                    
             return None
 
     async def perform_additional(self, expiration, type, info_data, config_t):
