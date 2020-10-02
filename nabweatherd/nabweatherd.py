@@ -313,6 +313,7 @@ class NabWeatherd(NabInfoService):
 
     def normalize_weather_class(self, weather_class):
         if weather_class in NabWeatherd.WEATHER_CLASSES:
+            logging.debug(weather_class)
             return weather_class
         logging.warning(weather_class)
         return None

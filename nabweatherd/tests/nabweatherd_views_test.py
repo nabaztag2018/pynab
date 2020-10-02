@@ -18,7 +18,8 @@ class TestView(TestCase):
         self.assertTrue("config" in response.context)
         config = Config.load()
         self.assertEqual(response.context["config"], config)
-        self.assertEqual(config.location, None)
+        self.assertEqual(config.location, None) 
+        self.assertEqual(config.location_user_friendly, None) 
         self.assertEqual(config.unit, 1)
         self.assertEqual(config.next_performance_date, None)
 
@@ -38,7 +39,7 @@ class TestView(TestCase):
 
     def test_set_location(self):
         c = Client()
-        response = c.post("/nabweatherd/settings", {"location": "75005"})
+        response = c.post("/nabweatherd/settings", {"location": "{'insee': '', 'name': 'New York City', 'lat': 40.71427, 'lon': -74.00597, 'country': 'US', 'admin': 'New York', 'admin2': '', 'postCode': ''}"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.templates[0].name, "nabweatherd/settings.html"
@@ -46,10 +47,11 @@ class TestView(TestCase):
         self.assertTrue("config" in response.context)
         config = Config.load()
         self.assertEqual(response.context["config"], config)
-        self.assertEqual(config.location, "75005")
+        self.assertEqual(config.location, "{'insee': '', 'name': 'New York City', 'lat': 40.71427, 'lon': -74.00597, 'country': 'US', 'admin': 'New York', 'admin2': '', 'postCode': ''}")
+        self.assertEqual(config.location_user_friendly, "New York City - New York - US")
         self.assertEqual(config.next_performance_date, None)
         self.assertEqual(config.next_performance_type, None)
-
+        
     def test_forecast_today(self):
         c = Client()
         response = c.put("/nabweatherd/settings", "type=today")
