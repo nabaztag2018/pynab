@@ -13,7 +13,18 @@
       <div class="form-group row">
         <label for="weatherLocationInput" class="col-6 col-form-label">{% trans "Location" %}</label>
         <div class="col-6">
-          <input id="weatherLocationInput" name="location" type="text" class="form-control" placeholder="{% trans "City, Zip code, Country" %}" value="{{ config.location }}" />
+          <input id="weatherLocationInput" name="location_user_friendly" type="text" class="form-control" placeholder="{% trans "City, Zip code, Country" %}" value="{{ config.location_user_friendly }}" disabled/>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="test" class="col-6 col-form-label"></label>
+        <div class="col-6">
+
+
+						<select class="form-control basicAutoSelect" name="location" 
+								placeholder="{% trans 'Search...'%}" 
+								data-url="/nabweatherd/settings" autocomplete="off"></select>
+
         </div>
       </div>
       <div class="form-group row">
@@ -31,9 +42,9 @@
         <label for="weatherAnimationType" class="col-6 col-form-label">{% trans "Visual animation" %}</label>
         <div class="col-6">
           <select name="weather_animation_type" id="weatherAnimationType">
-            <option value="weather" {% if config.weather_animation_type == 'weather' %}selected{% endif %}>{% trans "Current weather forecast" %}</option>
-            <option value="rain" {% if config.weather_animation_type == 'rain' %}selected{% endif %}>{% trans "Rain alert" %}</option>
-            <option value="both" {% if config.weather_animation_type == 'both' %}selected{% endif %}>{% trans "Weather forecast and rain information" %}</option>
+            <option value="weather_only" {% if config.weather_animation_type == 'weather_only' %}selected{% endif %}>{% trans "Current weather forecast" %}</option>
+            <option value="rain_only" {% if config.weather_animation_type == 'rain_only' %}selected{% endif %}>{% trans "Rain alert" %}</option>
+            <option value="weather_and_rain" {% if config.weather_animation_type == 'weather_and_rain' %}selected{% endif %}>{% trans "Both" %}</option>
             <option value="nothing" {% if config.weather_animation_type == 'nothing' %}selected{% endif %}>{% trans "No visual animation" %}</option>
 		  </select>
         </div>
@@ -59,12 +70,31 @@
       </div>
     </div>
   </form>
+  
+<script>
+	$(function () {
+		
+		$('.basicAutoSelect').autoComplete();
+		
+		
+	});
+
+</script>
+  
+  
   <script type="text/javascript">
+	  
+	  
+	  
+	  
   $(function() {
     var form = $('#nabweatherd-settings form');
     var saveBtn = form.find('button.save-button');
     var resetBtn = form.find('button.reset-button');
     var url = form.attr('action');
+	
+	
+	
     form.find('button.btn-toggle').on('click', function() {
       saveBtn.removeClass('disabled');
       resetBtn.removeClass('disabled');
