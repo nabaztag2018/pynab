@@ -6,6 +6,7 @@ from nabcommon.nabservice import NabInfoService
 from meteofrance.client import MeteoFranceClient
 from meteofrance.client import  Place
 from . import rfid_data
+import requests
 
 
 class NabWeatherd(NabInfoService):
@@ -130,9 +131,6 @@ class NabWeatherd(NabInfoService):
         "Ciel voilé nuit": ("cloudy", CLOUDY_INFO_ANIMATION),
         "Très nuageux": ("cloudy", CLOUDY_INFO_ANIMATION),
         "Couvert": ("cloudy", CLOUDY_INFO_ANIMATION),
-        "Éclaircies": ("cloudy", CLOUDY_INFO_ANIMATION),
-        "Éclaircies": ("cloudy", CLOUDY_INFO_ANIMATION),
-        "Peu nuageux": ("cloudy", CLOUDY_INFO_ANIMATION),
 
         "Rares averses": (
             "rainy",
@@ -166,11 +164,8 @@ class NabWeatherd(NabInfoService):
         "Risque de grèle": ("rainy", RAINY_INFO_ANIMATION),
         "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),
         "Bruine": ("rainy", RAINY_INFO_ANIMATION),
-        "Pluie faible": ("rainy", RAINY_INFO_ANIMATION),
         "Pluies éparses / Rares averses": ("rainy", RAINY_INFO_ANIMATION),
         "Pluie / Averses": ("rainy", RAINY_INFO_ANIMATION),
-        "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),
-        "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),
         "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),
 
         "Pluie et neige mêlées": (
@@ -282,7 +277,7 @@ class NabWeatherd(NabInfoService):
                 if (five_min_slots['rain'] != 1):
                     next_rain = True
                     break
-        except:
+        except requests.HTTPError as e:
             next_rain = False
             # todo : prevenir que les infos de rain ne sont pas dispo
     
@@ -313,7 +308,6 @@ class NabWeatherd(NabInfoService):
 
     def normalize_weather_class(self, weather_class):
         if weather_class in NabWeatherd.WEATHER_CLASSES:
-            logging.debug(weather_class)
             return weather_class
         logging.warning(weather_class)
         return None
