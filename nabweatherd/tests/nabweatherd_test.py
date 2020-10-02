@@ -23,6 +23,7 @@ class TestNabWeatherd(unittest.TestCase):
 
 @pytest.mark.django_db(transaction=True)
 class TestNabWeatherdDB(unittest.TestCase):
+    RENNES_LOCATION_JSON = '{"insee":"35238","name":"Rennes","lat":48.11417,"lon":-1.68083,"country":"FR","admin":"Bretagne","admin2":"35","postCode":"35000"}'
     def tearDown(self):
         close_old_async_connections()
 
@@ -30,7 +31,7 @@ class TestNabWeatherdDB(unittest.TestCase):
         service = NabWeatherd()
         
         data = async_to_sync(service.fetch_info_data)(
-            ("{'insee': '35238', 'name': 'Rennes', 'lat': 48.11417, 'lon': -1.68083, 'country': 'FR', 'admin': 'Bretagne', 'admin2': '35', 'postCode': '35000'}", NabWeatherd.UNIT_CELSIUS, "weather_and_rain")
+            (TestNabWeatherdDB.RENNES_LOCATION_JSON, NabWeatherd.UNIT_CELSIUS, "weather_and_rain")
         )
         self.assertTrue("current_weather_class" in data)
         self.assertTrue("today_forecast_weather_class" in data)
@@ -45,7 +46,7 @@ class TestNabWeatherdDB(unittest.TestCase):
         service = NabWeatherd()
         writer = MockWriter()
         service.writer = writer
-        config_t = ("{'insee': '35238', 'name': 'Rennes', 'lat': 48.11417, 'lon': -1.68083, 'country': 'FR', 'admin': 'Bretagne', 'admin2': '35', 'postCode': '35000'}", NabWeatherd.UNIT_CELSIUS, "weather_and_rain")
+        config_t = (TestNabWeatherdDB.RENNES_LOCATION_JSON, NabWeatherd.UNIT_CELSIUS, "weather_and_rain")
         expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
         async_to_sync(service.perform)(expiration, "today", config_t)
         self.assertEqual(len(writer.written), 3)
@@ -68,7 +69,7 @@ class TestNabWeatherdDB(unittest.TestCase):
         service = NabWeatherd()
         writer = MockWriter()
         service.writer = writer
-        config_t = ("{'insee': '35238', 'name': 'Rennes', 'lat': 48.11417, 'lon': -1.68083, 'country': 'FR', 'admin': 'Bretagne', 'admin2': '35', 'postCode': '35000'}", NabWeatherd.UNIT_CELSIUS, "rain_only")
+        config_t = (TestNabWeatherdDB.RENNES_LOCATION_JSON, NabWeatherd.UNIT_CELSIUS, "rain_only")
         expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
         async_to_sync(service.perform)(expiration, "today", config_t)
         self.assertEqual(len(writer.written), 3)
@@ -91,7 +92,7 @@ class TestNabWeatherdDB(unittest.TestCase):
         service = NabWeatherd()
         writer = MockWriter()
         service.writer = writer
-        config_t = ("{'insee': '35238', 'name': 'Rennes', 'lat': 48.11417, 'lon': -1.68083, 'country': 'FR', 'admin': 'Bretagne', 'admin2': '35', 'postCode': '35000'}", NabWeatherd.UNIT_CELSIUS, "weather_only")
+        config_t = (TestNabWeatherdDB.RENNES_LOCATION_JSON, NabWeatherd.UNIT_CELSIUS, "weather_only")
         expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
         async_to_sync(service.perform)(expiration, "today", config_t)
         self.assertEqual(len(writer.written), 3)
@@ -112,7 +113,7 @@ class TestNabWeatherdDB(unittest.TestCase):
 
     def test_asr(self):
         config = models.Config.load()
-        config.location = "{'insee': '35238', 'name': 'Rennes', 'lat': 48.11417, 'lon': -1.68083, 'country': 'FR', 'admin': 'Bretagne', 'admin2': '35', 'postCode': '35000'}"
+        config.location = TestNabWeatherdDB.RENNES_LOCATION_JSON
         config.unit = NabWeatherd.UNIT_CELSIUS
         config.weather_animation_type = "weather_only"
         config.save()
