@@ -166,7 +166,6 @@ class NabWeatherd(NabInfoService):
         "Bruine": ("rainy", RAINY_INFO_ANIMATION),
         "Pluies éparses / Rares averses": ("rainy", RAINY_INFO_ANIMATION),
         "Pluie / Averses": ("rainy", RAINY_INFO_ANIMATION),
-        "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),
 
         "Pluie et neige mêlées": (
             "snowy",

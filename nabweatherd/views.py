@@ -41,7 +41,6 @@ class SettingsView(TemplateView):
                 json_item['text'] = one_place.__str__()
                 json_places.append(json_item)
                 json_item = {}
-            str_json = json.dumps(json_places)
             return JsonResponse(json_places,status=200,safe=False)
         return render(request, SettingsView.template_name, context=context)
     
