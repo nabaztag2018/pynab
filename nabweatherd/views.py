@@ -5,8 +5,10 @@ from django.utils.translation import ugettext as _
 from .models import Config, ScheduledMessage
 from .nabweatherd import NabWeatherd
 from . import rfid_data
-from meteofrance.client import meteofranceClient, meteofranceError
+from meteofrance.client import MeteoFranceClient
+from meteofrance.client import Place
 import datetime
+import logging, json
 
 
 class SettingsView(TemplateView):
@@ -26,21 +28,35 @@ class SettingsView(TemplateView):
         context["farenheit_available"] = farenheit_available
         return context
 
+    def get(self, request, *args, **kwargs):
+        json_item = {}
+        json_places = []
+        context = self.get_context_data(**kwargs)
+        if "q" in request.GET:
+            search_location = request.GET["q"]
+            client = MeteoFranceClient()
+            list_places = client.search_places(search_location)
+            for one_place in list_places:
+                json_item['value'] = str(one_place.raw_data)
+                json_item['text'] = one_place.__str__()
+                json_places.append(json_item)
+                json_item = {}
+            return JsonResponse(json_places,status=200,safe=False)
+        return render(request, SettingsView.template_name, context=context)
+    
     def post(self, request, *args, **kwargs):
         config = Config.load()
         if "location" in request.POST:
             location = request.POST["location"]
-            try:
-                meteofranceClient(location)
+            logging.info(location)
+            if (location != ""):
+                location = location.replace("None", "''")
+                location = location.replace("\'", "\"")
+                location_json = json.loads(location)
+                location_place = Place(location_json)
                 config.location = location
-            except meteofranceError as exp:
-                return JsonResponse(
-                    {
-                        "status": "unknownLocationError",
-                        "message": _("Unknown location"),
-                    },
-                    status=406,
-                )
+                config.location_user_friendly = location_place.__str__()
+
         if "unit" in request.POST:
             unit = request.POST["unit"]
             config.unit = int(unit)
