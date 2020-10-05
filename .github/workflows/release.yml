@@ -28,7 +28,7 @@ jobs:
           echo ::set-output name=IMAGE_PATH::"pynab.img.xz"
         fi
     - name: Install dependencies
-      run: sudo apt-get install -y qemu qemu-user-static binfmt-support parted wget dosfstools zip
+      run: sudo apt-get update && sudo apt-get install -y qemu qemu-user-static binfmt-support parted wget dosfstools zip
     - name: Create image
       run: sudo TRAVIS_BRANCH=${{ steps.get_branch.outputs.BRANCH }} bash ./create-image
     - uses: actions/upload-artifact@v2
