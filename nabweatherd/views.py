@@ -37,6 +37,9 @@ class SettingsView(TemplateView):
             client = MeteoFranceClient()
             list_places = client.search_places(search_location)
             for one_place in list_places:
+                # correct bad json returned my MeteoFrance
+                one_place.raw_data['name'] = one_place.raw_data['name'].replace("'", " ")
+                one_place.raw_data['admin'] = one_place.raw_data['admin'].replace("'", " ")
                 json_item['value'] = str(one_place.raw_data)
                 json_item['text'] = one_place.__str__()
                 json_places.append(json_item)
@@ -52,6 +55,8 @@ class SettingsView(TemplateView):
             if (location != ""):
                 location = location.replace("None", "''")
                 location = location.replace("\'", "\"")
+                
+                
                 location_json = json.loads(location)
                 location_place = Place(location_json)
                 config.location = location
