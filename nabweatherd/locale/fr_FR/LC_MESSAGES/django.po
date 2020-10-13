@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-22 11:23+0200\n"
+"POT-Creation-Date: 2020-10-12 16:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,12 +22,12 @@ msgid "Day"
 msgstr ""
 
 #: templates/nabweatherd/rfid-data.html:7
-#: templates/nabweatherd/settings.html:47
+#: templates/nabweatherd/settings.html:58
 msgid "Today"
 msgstr "Aujourd'hui"
 
 #: templates/nabweatherd/rfid-data.html:11
-#: templates/nabweatherd/settings.html:48
+#: templates/nabweatherd/settings.html:59
 msgid "Tomorrow"
 msgstr "Demain"
 
@@ -61,59 +61,64 @@ msgstr "Ville"
 msgid "City, Zip code, Country"
 msgstr "Ville, code postal, pays"
 
-#: templates/nabweatherd/settings.html:20
+#: templates/nabweatherd/settings.html:25
+msgid "Search..."
+msgstr ""
+
+#: templates/nabweatherd/settings.html:31
 msgid "Unit"
 msgstr "Unité"
 
-#: templates/nabweatherd/settings.html:23
+#: templates/nabweatherd/settings.html:34
 msgid "Celsius"
 msgstr "Celsius"
 
-#: templates/nabweatherd/settings.html:24
+#: templates/nabweatherd/settings.html:35
 msgid "Farenheit"
 msgstr "Farenheit"
 
-#: templates/nabweatherd/settings.html:25
+#: templates/nabweatherd/settings.html:36
 msgid "Kelvin"
 msgstr "Kelvin"
 
-#: templates/nabweatherd/settings.html:31
+#: templates/nabweatherd/settings.html:42
 msgid "Visual animation"
 msgstr "Information visuelle"
 
-#: templates/nabweatherd/settings.html:34
+#: templates/nabweatherd/settings.html:45
 msgid "Current weather forecast"
 msgstr "Prévision météo"
 
-#: templates/nabweatherd/settings.html:35
+#: templates/nabweatherd/settings.html:46
 msgid "Rain alert"
 msgstr "Alerte pluie"
 
-#: templates/nabweatherd/settings.html:36
-msgid "Weather forecast and rain information"
-msgstr "Météo et information pluie"
+#: templates/nabweatherd/settings.html:47
+msgid "Both"
+msgstr "Les deux"
 
-#: templates/nabweatherd/settings.html:37
+#: templates/nabweatherd/settings.html:48
 msgid "No visual animation"
 msgstr "Aucune information visuelle"
 
-#: templates/nabweatherd/settings.html:45
+#: templates/nabweatherd/settings.html:56
 msgid "Forecast"
 msgstr "Prévision"
 
-#: templates/nabweatherd/settings.html:56
+#: templates/nabweatherd/settings.html:67
 msgid "Save"
 msgstr "Enregistrer"
 
-#: templates/nabweatherd/settings.html:57
+#: templates/nabweatherd/settings.html:68
 msgid "Reset"
 msgstr "Annuler"
 
-#: templates/nabweatherd/settings.html:97
+#: templates/nabweatherd/settings.html:127
 msgid "Unknown server error"
 msgstr "Erreur inconnue du serveur"
 
-#: views.py:40
-msgid "Unknown location"
-msgstr "Ville inconnue"
+#~ msgid "Weather forecast and rain information"
+#~ msgstr "Météo et information pluie"
 
+#~ msgid "Unknown location"
+#~ msgstr "Ville inconnue"

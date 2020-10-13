@@ -183,7 +183,7 @@ if [ $upgrade -eq 1 ]; then
   echo "Updating Python requirements - 7/14" > /tmp/pynab.upgrade
 fi
 # Start with wheel which is required to compile some of the other requirements
-venv/bin/pip uninstall meteofrance #remove old meteofrance API
+venv/bin/pip uninstall -y meteofrance #remove old meteofrance API
 venv/bin/pip install wheel
 venv/bin/pip install -r requirements.txt
 
