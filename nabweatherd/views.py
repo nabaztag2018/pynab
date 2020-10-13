@@ -37,7 +37,7 @@ class SettingsView(TemplateView):
             client = MeteoFranceClient()
             list_places = client.search_places(search_location)
             for one_place in list_places:
-                # correct bad json returned my MeteoFrance
+                # correct bad json returned my MeteoFrance + admin is not always there
                 if ('name' in one_place.raw_data):
                     one_place.raw_data['name'] = one_place.raw_data['name'].replace("'", " ")
                 if ('admin' in one_place.raw_data):
