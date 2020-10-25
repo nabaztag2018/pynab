@@ -49,7 +49,7 @@ class LedsSoft(Leds, metaclass=abc.ABCMeta):
     Base implementation with software pulsing.
     """
 
-    PULSING_RATE = 0.200  # every 200ms
+    PULSING_RATE = 0.100  # every 100ms
     PULSING_STEPS = 10  # number of steps to reach target color
 
     def __init__(self):
