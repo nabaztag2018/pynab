@@ -370,6 +370,18 @@ msgstr "Jaune pur"
 msgid "Darker vivid orange"
 msgstr "Orange vif un peu plus foncé"
 
+#: templates/nabweb/rfid/index.html:97
+msgid "Nanoztag kiwi"
+msgstr "Nanoztag kiwi"
+
+#: templates/nabweb/rfid/index.html:98
+msgid "Nanoztag azur"
+msgstr "Nanoztag azur"
+
+#: templates/nabweb/rfid/index.html:99
+msgid "Nanoztag black"
+msgstr "Nanoztag black"
+
 #: templates/nabweb/rfid/index.html:101
 msgid "Application"
 msgstr "Application"
