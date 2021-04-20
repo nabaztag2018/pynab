@@ -10,6 +10,10 @@ class Config(singleton_model.SingletonModel):
     next_performance_date = models.DateTimeField(null=True)
     next_performance_type = models.TextField(null=True)  
     weather_animation_type = models.TextField(null=True, default='nothing')
+    weather_frequency = models.IntegerField(default=0)
+
+    next_performance_weather_vocal_date = models.DateTimeField(null=True)
+    next_performance_weather_vocal_flag = models.IntegerField(null=False, default=0)
     
     weather_playtime_hour = models.IntegerField(
         default=7,

@@ -72,6 +72,10 @@ class SettingsView(TemplateView):
             weather_animation_type = request.POST["weather_animation_type"]
             config.weather_animation_type = weather_animation_type
 
+        if "weather_frequency" in request.POST:
+            weather_frequency = request.POST["weather_frequency"]
+            config.weather_frequency = weather_frequency
+
         config.save()
         NabWeatherd.signal_daemon()
         context = self.get_context_data(**kwargs)

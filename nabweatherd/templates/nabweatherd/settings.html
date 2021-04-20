@@ -50,7 +50,17 @@
         </div>
       </div>
 	  
-	  
+      <div class="form-group row">
+        <label for="weatherSelect" class="col-6 col-form-label">{% trans "Weather Frequency" %}</label>
+        <div class="col-6">
+          <select name="weather_frequency" id="weatherSelect">
+            <option value="1"{% if config.weather_frequency == 1 %} selected{% endif %}>{% trans "Every hour"%}</option>
+            <option value="2"{% if config.weather_frequency == 2 %} selected{% endif %}>{% trans "Every two to three hours"%}</option>
+            <option value="3"{% if config.weather_frequency == 3 %} selected{% endif %}>{% trans "At wake up and at bedtime"%}</option>
+            <option value="0"{% if config.weather_frequency == 0 %} selected{% endif %}>{% trans "Disabled"%}</option>
+          </select>
+        </div>
+	 </div>
 	  
       <div class="form-group row">
         <label class="col-6 col-form-label">{% trans "Forecast" %}</label>
