@@ -6,10 +6,10 @@
       <h5 class="card-title">{% trans "Weather" %}</h5>
     </div>
     <div class="card-body">
-		
+
         <p>{% trans "The animation can display, if available, a rain alert (Blue blinking means get an umbrella, nothing will be displayed otherwise), the current weather forecast or both" %}</p>
-        <p>{% trans "You can also ask Nabaztag the weather forecast by saying 'What is the weather forecast for today ?' (for example)." %}</p>
-		
+        <p>{% trans "You can also ask Nabaztag the weather forecast by saying <q>What is the weather forecast for today ?</q> (for example)." %}</p>
+
       <div class="form-group row">
         <label for="weatherLocationInput" class="col-6 col-form-label">{% trans "Location" %}</label>
         <div class="col-6">
@@ -19,12 +19,9 @@
       <div class="form-group row">
         <label for="test" class="col-6 col-form-label"></label>
         <div class="col-6">
-
-
-						<select class="form-control basicAutoSelect" name="location" 
-								placeholder="{% trans 'Search...'%}" 
-								data-url="/nabweatherd/settings" autocomplete="off"></select>
-
+          <select class="form-control basicAutoSelect" name="location"
+                  placeholder="{% trans 'Search...'%}"
+                  data-url="/nabweatherd/settings" autocomplete="off"></select>
         </div>
       </div>
       <div class="form-group row">
@@ -37,7 +34,7 @@
             </select>
         </div>
       </div>
-	  
+
       <div class="form-group row">
         <label for="weatherAnimationType" class="col-6 col-form-label">{% trans "Visual animation" %}</label>
         <div class="col-6">
@@ -46,10 +43,10 @@
             <option value="rain_only" {% if config.weather_animation_type == 'rain_only' %}selected{% endif %}>{% trans "Rain alert" %}</option>
             <option value="weather_and_rain" {% if config.weather_animation_type == 'weather_and_rain' %}selected{% endif %}>{% trans "Both" %}</option>
             <option value="nothing" {% if config.weather_animation_type == 'nothing' %}selected{% endif %}>{% trans "No visual animation" %}</option>
-		  </select>
+          </select>
         </div>
       </div>
-	  
+
       <div class="form-group row">
         <label for="weatherSelect" class="col-6 col-form-label">{% trans "Forecast frequency" %}</label>
         <div class="col-6">
@@ -60,8 +57,8 @@
             <option value="0"{% if config.weather_frequency == 0 %} selected{% endif %}>{% trans "None"%}</option>
           </select>
         </div>
-	 </div>
-	  
+      </div>
+
       <div class="form-group row">
         <label class="col-6 col-form-label">{% trans "Forecast" %}</label>
         <div class="col-6">
@@ -69,7 +66,7 @@
           <button type="button" class="btn btn-primary now-button" data-forecast-day='tomorrow'>{% trans "Tomorrow" %}</button>
         </div>
       </div>
-	  	  
+
     </div>
     <div class="card-footer">
       <div class="row mb-2">
@@ -80,31 +77,21 @@
       </div>
     </div>
   </form>
-  
-<script>
-	$(function () {
-		
-		$('.basicAutoSelect').autoComplete();
-		
-		
-	});
 
+<script>
+    $(function () {
+        $('.basicAutoSelect').autoComplete();
+    });
 </script>
-  
-  
-  <script type="text/javascript">
-	  
-	  
-	  
-	  
+
+<script type="text/javascript">
   $(function() {
     var form = $('#nabweatherd-settings form');
     var saveBtn = form.find('button.save-button');
     var resetBtn = form.find('button.reset-button');
     var url = form.attr('action');
-	
-	
-	
+
+
     form.find('button.btn-toggle').on('click', function() {
       saveBtn.removeClass('disabled');
       resetBtn.removeClass('disabled');

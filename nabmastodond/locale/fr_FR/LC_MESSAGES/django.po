@@ -194,10 +194,10 @@ msgstr ""
 #: templates/nabmastodond/settings.html:260
 msgid ""
 "Enter the instance your Nabaztag's account is on in the instance box below "
-"and connect this account with the \"Connect\" button."
+"and connect this account with the <kbd class='btn-primary'>Connect</kbd> button."
 msgstr ""
 "Indiquez l'instance de Mastodon sur laquelle est le compte de votre Nabaztag "
-"ci-dessous et connectez ce compte avec le bouton \"Connexion\"."
+"ci-dessous et connectez ce compte avec le bouton <kbd class='btn-primary'>Connexion</kbd>."
 
 #: templates/nabmastodond/settings.html:264
 msgid "Instance"
