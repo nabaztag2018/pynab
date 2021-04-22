@@ -4,7 +4,7 @@ Thank you so much for contributing to the project. All contributions are
 welcome. Please take a moment to review these guidelines. Following them will
 ensure the contribution process is easy and effective for everyone involved.
 
-## How to contribute to Pynab
+## How-to contribute to Pynab
 
 ### Reporting bugs
 
@@ -44,6 +44,21 @@ Unsure where to begin contributing to Pynab? You can start by looking at issues
 tagged [`good first issue`](https://github.com/nabaztag2018/pynab/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
 They have been especially selected as they seem not too difficult at first
 sight.
+
+## How-to test a contributor Pull Request (PR)
+
+1. Connect to your Nabaztag 🐰: `ssh pi@nabaztag.local`
+2. Go to the pynab folder: `cd /home/pi/pynab`
+3. List references in a remote repository: `git ls-remote --refs origin`
+4. Open [Pull Request (PR) page](https://github.com/nabaztag2018/pynab/pulls) and memorize the PR number you want to test
+5. Switch to the PR code, here PR #123, change number for your test: `git fetch origin pull/123/head:pr/123 && git checkout pr/123`
+6. Restart Nabaztag deamon: `sudo systemctl restart nabd`
+7. Do your test 🚦
+8. Rollback to default branch: `git checkout release`
+9. Restart Nabaztag deamon: `sudo systemctl restart nabd`
+10. All done ! 🎉
+
+Then add comments on pull request 😉.
 
 ## How-to work with GitHub and Pull Requests
 
@@ -94,10 +109,10 @@ GitHub will display the URL to create a pull request, with a git message such
 as:
 
 ```
-remote: 
+remote:
 remote: Create a pull request for 'branch-name' on GitHub by visiting:
 remote:      https://github.com/user/pynab/pull/new/branch-name
-remote: 
+remote:
 ```
 
 If you have a [Travis](http://travis-ci.org/) account and configured it to work
