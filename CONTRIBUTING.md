@@ -52,10 +52,10 @@ sight.
 3. List references in a remote repository: `git ls-remote --refs origin`
 4. Open [Pull Request (PR) page](https://github.com/nabaztag2018/pynab/pulls) and memorize the PR number you want to test
 5. Switch to the PR code, here PR #123, change number for your test: `git fetch origin pull/123/head:pr/123 && git checkout pr/123`
-6. Restart Nabaztag deamon: `sudo systemctl restart nabd`
+6. Full upgrade for changes in localized, messages, drivers and dependencies: `bash upgrade.sh`
 7. Do your test 🚦
 8. Rollback to default branch: `git checkout release`
-9. Restart Nabaztag deamon: `sudo systemctl restart nabd`
+9. Full upgrade for changes in localized, messages, drivers and dependencies: `bash upgrade.sh`
 10. All done ! 🎉
 
 Then add comments on pull request 😉.
