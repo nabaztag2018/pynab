@@ -109,6 +109,7 @@ class Nabd:
                 self.nlu = NLU(self._nlu_locale)
                 Nabd.leds_boot(self.nabio, 4)
             self.nabio.set_leds(None, None, None, None, None)
+        self.nabio.pulse(Led.BOTTOM, (255, 0, 255))
         await self.boot_playsound()
 
     async def boot_playsound(self):
@@ -127,8 +128,8 @@ class Nabd:
         """
         left, right = self.ears["left"], self.ears["right"]
         await self.nabio.move_ears_with_leds((255, 0, 255), left, right)
-        await self.boot_playsound()
         self.nabio.pulse(Led.BOTTOM, (255, 0, 255))
+        await self.boot_playsound()
 
     async def sleep_setup(self):
         self.nabio.set_leds(None, None, None, None, None)
