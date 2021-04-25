@@ -116,7 +116,7 @@ class Nabd:
         Play sound indicating end of boot.
         """
         if (self.boot):
-            await self.nabio.play_sequence([{"audio":["boot/*.mp3"]}])
+            await self.nabio.play_sequence([{"audio": ["boot/*.mp3"]}])
             self.boot = False
 
     async def _do_transition_to_idle(self):
