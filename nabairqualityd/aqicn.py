@@ -60,13 +60,17 @@ class aqicnClient:
             else:
                 indice_to_be_analyzed = indice_aqi
 
-
-            if indice_to_be_analyzed > 101:
+            try:
+                if indice_to_be_analyzed > 100:
+                    self._airquality = 0
+                elif indice_to_be_analyzed > 50:
+                    self._airquality = 1
+                else:
+                    self._airquality = 2
+            except TypeError:
+                """Invalid index: assume worst"""
                 self._airquality = 0
-            elif indice_to_be_analyzed > 51:
-                self._airquality = 1
-            else:
-                self._airquality = 2
+
             self._city = city
 
         except Exception as err:
