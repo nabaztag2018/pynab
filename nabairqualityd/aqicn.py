@@ -37,6 +37,7 @@ class aqicnClient:
             logging.debug(json_data)
             city = json_data["data"]["city"]["name"]
             indice_aqi = json_data["data"]["aqi"]
+            indice_aqi = '-'
             if ("pm25" in json_data["data"]["iaqi"]) :
                 indice_pm25 = json_data["data"]["iaqi"]["pm25"]["v"]
             else:
@@ -60,13 +61,17 @@ class aqicnClient:
             else:
                 indice_to_be_analyzed = indice_aqi
 
-
-            if indice_to_be_analyzed > 101:
+            try:
+                if indice_to_be_analyzed > 100:
+                    self._airquality = 0
+                elif indice_to_be_analyzed > 50:
+                    self._airquality = 1
+                else:
+                    self._airquality = 2
+            except:
+                """Invalid index: assume worst"""
                 self._airquality = 0
-            elif indice_to_be_analyzed > 51:
-                self._airquality = 1
-            else:
-                self._airquality = 2
+
             self._city = city
 
         except Exception as err:
