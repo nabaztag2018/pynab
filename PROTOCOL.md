@@ -2,8 +2,8 @@
 - [Protocole nadb](#protocole-nadb)
   - [Introduction](#introduction)
   - [Examples](#examples)
-    - [Console interractive](#console-interractive)
-    - [Envoyer un ensemble de commandes en une fois](#envoyer-un-ensemble-de-commandes-en-une-fois)
+    - [Console interactive](#console-interactive)
+    - [Envoyer un ensemble de commandes](#envoyer-un-ensemble-de-commandes)
   - [Paquets `state`](#paquets-state)
   - [Paquets `info`](#paquets-info)
   - [Paquets `ears`](#paquets-ears)
@@ -17,6 +17,7 @@
   - [Paquets `ears_event`](#paquets-earsevent)
   - [Paquets `button_event`](#paquets-buttonevent)
   - [Paquets `response`](#paquets-response)
+  - [Paquets `rfid_write`](#paquets-rfid_write)
   - [Paquets `gestalt`, `test` et `config-update`](#paquets-gestalt-test-et-config-update)
 
 ## Introduction
@@ -26,28 +27,28 @@ Chaque paquet est sur une ligne (CRLF), encodée en JSON. Chaque paquet comprend
 
 ## Examples
 
-Pour pouvoir vous-même interagir avec le lapin, il faut avoir le SSH actif (pour des raisons de sécurité, le traffic sur le port du protocole est limité à 127.0.0.1/localhost du lapin).
+Pour pouvoir vous-même interagir avec le lapin en lui envoyant de tels paquets, il faut avoir activé SSH pour pouvoir vous connecter en ligne de commande (pour des raisons de sécurité, le traffic sur le port du protocole est limité à 127.0.0.1/localhost: accès local depuis le lapin).
 
-### Console interractive
+### Console interactive
 
-Une fois connecté au lapin, il suffit de lancer la commande suivante pour voir le status du lapin et lui envoyer une commande en la tappant (validée par un retour à la ligne):
+Une fois connecté au lapin, il suffit de lancer la commande suivante pour voir le statut du lapin et lui envoyer une commande en la tapant (validée par un retour à la ligne):
 ```
- nc localhost 10543
+ nc -4 -v localhost 10543
 ```
 
 Un simple Ctrl+C permet de fermer l'utilitaire 'nc'.
 
-### Envoyer un ensemble de commandes en une fois
+### Envoyer un ensemble de commandes
 
 Si vous voulez préparer un ensemble d'actions au préalable (afin de faire une notification, une chorégraphie, juste pour rire...), il suffit de créer un fichier texte contenant une commande par ligne:
 ```
- {"type":"ears", "left": 10, "right": 20}
+ {"type":"ears", "left": 10, "right": 15}
  {"type":"ears", "left": 5, "right": 0}
 ```
 
 Ensuite, ce fichier de paquets peut-être envoyé au processus nabd pour être appliqué:
 ```
- nc localhost 10543 < mes_commandes.txt
+cat mes_commandes.json | nc -4 -w 5 -v localhost 10543
 ```
 
 ## Paquets `state`
@@ -96,11 +97,14 @@ Modification de la position des oreilles au repos (mode `"idle"`). La position d
 
 Émetteurs: services
 
-- `{"type":"ears","request_id":request_id,"left":left_ear,"right":right_ear}`
+- `{"type":"ears","request_id":request_id,"left":left_ear,"right":right_ear,"event":boolean}`
 
-Le slot `"request_id"`est optionnel et est retourné dans la réponse.
+Le slot `"request_id"` est optionnel et est retourné dans la réponse.
 
 Les slots `"left"` et `"right"` sont optionnels (un seul est requis), et `left_ear` comme `right_ear` sont des entiers représentant la position.
+
+Le slot `"event"` est optionnel. Il permet de stimuler le service mariage d'oreilles en envoyant un tel paquet au lapin local, sans avoir à bouger ses oreilles à la main
+(si `"event"` est `true`, nabd simule un paquet `ears_event` avec la nouvelle position des oreilles).
 
 ## Paquets `command`
 
@@ -114,13 +118,13 @@ Le slot `"request_id"` est optionnel et est retourné dans la réponse.
 
 Le slot `"expiration"` est optionnel et indique la date d'expiration de la commande. La commande est jouée quand le lapin est disponible (pas endormi, pas en train de faire autre chose) et si la date d'expiration n'est pas atteinte.
 
-Le slot `"sequence"` est requis et `sequence` est une liste d'éléments du type :
+Le slot `"sequence"` est requis et `sequence` est une [liste] d'éléments du type :
 
 `{"audio":audio_list,"choreography":choreography}`
 
 Les slots `"audio"` et `"choreography"` sont optionnels.
 
-`audio_list` est une liste de sons à jouer.
+`audio_list` est une [liste] de sons à jouer.
 
 Chaque son peut être :
 
@@ -155,7 +159,7 @@ Le slot `"signature"` est optionnel et est du type :
 
 `{"audio":audio_list,"choreography":choreography}`
 
-Le slot `"body"` est requis et est une liste d'éléments du type :
+Le slot `"body"` est requis et est une [liste] d'éléments du type :
 
 `{"audio":audio_list,"choreography":choreography}`
 
@@ -166,7 +170,7 @@ Les slots `"audio"` et `"choreography"` sont optionnels.
 
 La signature est jouée en premier, suivi du corps du message, puis la signature est rejouée.
 
-Le slot `"cancelable"` est optionnel. Par défaut, la commande sera annulée par un click sur le bouton. Si `cancelable` est `false`, la commande n'est pas annulée par le bouton (le service doit gérer le bouton).
+Le slot `"cancelable"` est optionnel. Par défaut, la commande sera annulée par un clic sur le bouton. Si `cancelable` est `false`, la commande n'est pas annulée par le bouton (le service doit gérer le bouton).
 
 ## Paquets `cancel`
 
@@ -277,6 +281,11 @@ Le statut `"expired"` signifie que la commande est expirée.
 
 Le statut `"error"` signifie une erreur dans le protocole. `class` et `message` sont des chaînes.
 
+## Paquets `rfid_write`
+
+Utilisés en interne pour la configuration des tags RFID.
+
 ## Paquets `gestalt`, `test` et `config-update`
 
 Utilisés en interne pour la communication entre le site web et nabd.
+
