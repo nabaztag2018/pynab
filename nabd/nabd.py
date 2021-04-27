@@ -618,6 +618,14 @@ class Nabd:
                 writer,
             )
 
+    async def process_os_shutdown_packet(self, packet, writer):
+        self.write_response_packet(packet, {"status": "ok"}, writer)
+        if "mode" in packet:
+            perform_reboot = packet["mode"] == "reboot"
+        else:
+            perform_reboot = False
+        asyncio.ensure_future(self._shutdown(perform_reboot))
+
     async def process_packet(self, packet, writer):
         """
         Process a packet from a service
@@ -638,6 +646,7 @@ class Nabd:
                 "config-update": self.process_config_update_packet,
                 "test": self.process_test_packet,
                 "rfid_write": self.process_rfid_write_packet,
+                "shutdown": self.process_os_shutdown_packet,
             }
             if packet["type"] in processors:
                 await processors[packet["type"]](packet, writer)
@@ -782,7 +791,7 @@ class Nabd:
         elif button_event == "up" and self.state == State.RECORDING:
             asyncio.ensure_future(self.stop_asr())
         elif button_event == "triple_click":
-            asyncio.ensure_future(self._shutdown())
+            asyncio.ensure_future(self._shutdown(False))
         elif (
             button_event == "click"
             and (
@@ -831,13 +840,22 @@ class Nabd:
                 event_type, {"type": "asr_event", "nlu": response, "time": now}
             )
 
-    async def _shutdown(self):
+    async def _shutdown(self, doReboot):
         await self.stop_idle_worker()
         Nabd.leds_boot(self.nabio, 0)
         await self.nabio.move_ears(
             Nabd.SLEEP_EAR_POSITION, Nabd.SLEEP_EAR_POSITION
         )
-        os.system("/sbin/halt")
+        if doReboot:
+            await self._do_system_command("/sbin/reboot")
+        else:
+            await self._do_system_command("/sbin/halt")
+
+    async def _do_system_command(self, sytemCommandStr):
+        inTesting = os.path.basename(sys.argv[0]) in ("pytest", "py.test")
+        if not inTesting:
+            logging.debug(f"Initiating system command : {sytemCommandStr}")
+            os.system(sytemCommandStr)
 
     def ears_callback(self, ear):
         if self.interactive_service_writer:
