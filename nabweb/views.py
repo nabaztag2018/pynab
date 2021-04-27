@@ -640,3 +640,39 @@ class NabWebUpgradeNowView(View):
                 "message": "Could not acquire lock, a problem occurred",
             }
         )
+
+
+class NabWebShutdownView(View):
+    SHUTDOWN_TIMEOUT = 30.0
+
+    async def os_shutdown(self, mode):
+        return await NabdConnection.transaction(self._do_os_shutdown, mode)
+
+    async def _do_os_shutdown(self, reader, writer, mode):
+        try:
+            packet = f'{{"type":"shutdown","mode":"{mode}",' \
+                     f'"request_id":"shutdown"}}\r\n'
+            writer.write(packet.encode("utf8"))
+            await writer.drain()
+            while True:
+                line = await asyncio.wait_for(
+                    reader.readline(), NabWebShutdownView.SHUTDOWN_TIMEOUT
+                )
+                packet = json.loads(line.decode("utf8"))
+                if (
+                    "type" in packet
+                    and packet["type"] == "response"
+                    and "request_id" in packet
+                    and packet["request_id"] == "shutdown"
+                ):
+                    return {"status": "ok", "result": packet}
+        except asyncio.TimeoutError as err:
+            return {
+                "status": "error",
+                "message": "Communication with Nabd timed out (shutdown)",
+            }
+
+    def post(self, request, *args, **kwargs):
+        mode = kwargs.get("mode")
+        shutdown_result = asyncio.run(self.os_shutdown(mode))
+        return JsonResponse(shutdown_result)

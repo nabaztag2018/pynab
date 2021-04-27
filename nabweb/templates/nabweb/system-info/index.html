@@ -18,6 +18,25 @@
             <dt class="col-sm-4"><a class="help-link" href="https://www.raspberrypi.org/documentation/remote-access/ssh/" >{% trans "SSH (Secure shell)" %}</a></dt>
             <dd class="col-sm-8">{% if os.ssh == "sshwarn" %}<span class="text-danger">{% trans "Enabled with default password" %}</span>{% else %}{% if os.ssh == "active" %}{% trans "Enabled" %}{% else %}{% trans "Disabled" %}{% endif %}{% endif %}</dd>
           </dl>
+          <dl class="row">
+            <dt class="col-sm-4">{% trans "Maintenance"%}</dt>
+            <dd class="col-sm-8">
+                <button id="button-reboot" data-toggle="modal" data-target="#confirm-reboot" data-shutdown-url="{% url 'nabweb.shutdown' mode='reboot' %}" class="btn btn-warning">{% trans "Reboot"%}<span class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span></button>
+                <button id="button-shutdown" data-toggle="modal" data-target="#confirm-shutdown" data-shutdown-url="{% url 'nabweb.shutdown' mode='shutdown' %}" class="btn btn-danger">{% trans "Shutdown"%}<span class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span></button>
+            </dd>
+          </dl>
+          <dl class="row" id="rebootMessageRow" style="display:none">
+            <dt class="col-sm-4"></dt>
+            <dd class="col-sm-8">
+	    <code>{% trans "<b>Reboot is in progress!</b>"%}</code>
+            </dd>
+          </dl>
+          <dl class="row" id="shutdownMessageRow" style="display:none">
+            <dt class="col-sm-4"></dt>
+            <dd class="col-sm-8">
+	    <code>{% trans "<b>Shutdown is in progress!</b>"%}<BR>{% trans "Please wait at least 10 seconds before unplugging the power cable."%}</code>
+            </dd>
+          </dl>
         </div>
       </div>
     </div>
@@ -84,6 +103,44 @@
       </div>
     </div>
   </div>
+  <div class="modal fade" id="confirm-reboot" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{% trans "Reboot" %}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+		{% trans "You are about to <b>reboot</b> the Raspberry Pi Linux system." %}<BR>{% trans "Do you want to proceed?" %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Cancel" %}</button>
+          <button type="button" id="button-reboot-confirm" class="btn btn-primary os-shutdown-button" data-dismiss="modal">{% trans "Reboot" %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="confirm-shutdown" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{% trans "Shutdown" %}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+		{% trans "You are about to <b>shutdown</b> the Raspberry Pi Linux system." %}<BR>{% trans "Do you want to proceed?" %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Cancel" %}</button>
+          <button type="button" id="button-shutdown-confirm" class="btn btn-primary os-shutdown-button" data-dismiss="modal">{% trans "Shutdown" %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <script type="text/javascript">
     $(function() {
       $(".hardware-test-button").each(function(i, btn) {
@@ -104,6 +161,37 @@
               error: function (data) {
                 $(btn).removeClass("disabled");
                 $(btn).find(".spinner").addClass("d-none");
+              }
+            });
+        });
+      });
+      $(".os-shutdown-button").each(function(i, btn) {
+        $(btn).on("click", function() {
+            if ($(btn).attr("id") == 'button-reboot-confirm') {
+              var origButton = $("#button-reboot")
+              $("#rebootMessageRow").show();
+              $("#shutdownMessageRow").hide();
+            } else {
+              var origButton = $("#button-shutdown")
+              $("#shutdownMessageRow").show();
+              $("#rebootMessageRow").hide();
+            }
+            origButton.addClass("disabled");
+            origButton.find(".spinner").removeClass("d-none");
+            $.ajax({
+              url: origButton.data("shutdown-url"),
+              beforeSend: function (xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+              },
+              dataType: 'json',
+              type: "POST",
+              success: function (data) {
+                origButton.removeClass("disabled");
+                origButton.find(".spinner").addClass("d-none");
+              },
+              error: function (data) {
+                origButton.removeClass("disabled");
+                origButton.find(".spinner").addClass("d-none");
               }
             });
         });
