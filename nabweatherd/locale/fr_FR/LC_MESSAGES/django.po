@@ -47,11 +47,11 @@ msgstr ""
 
 #: templates/nabweatherd/settings.html:11
 msgid ""
-"You can also ask Nabaztag the weather forecast by saying 'What is the "
-"weather forecast for today ?' (for example)."
+"You can also ask Nabaztag the weather forecast by saying <q>What is the "
+"weather forecast for today ?</q> (for example)."
 msgstr ""
 "Vous pouvez aussi demander la météo à votre lapin en disant par exemple "
-"'Météo'."
+"<q>Météo</q>."
 
 #: templates/nabweatherd/settings.html:14
 msgid "Location"

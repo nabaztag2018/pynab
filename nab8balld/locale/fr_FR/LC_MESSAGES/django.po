@@ -28,11 +28,11 @@ msgstr "Réveiller le gourou"
 #: templates/nab8balld/settings.html:16
 msgid ""
 "To use Magic 8 Ball, think about something you want to ask to the rabbit, "
-"then click and hold the button, say 'Tell me rabbit' and release the button "
+"then click and hold the button, say <q>Tell me rabbit</q> and release the button "
 "for the answer."
 msgstr ""
 "Pour poser une question au Gourou : réflechissez à votre question, puis quand vous êtes prêt, appuyez sur le bouton, dites "
-"'T'en penses quoi Nabaztag ?', relachez et attendez la "
+"<q>T'en penses quoi Nabaztag ?</q>, relachez et attendez la "
 "réponse."
 
 #: templates/nab8balld/settings.html:21
