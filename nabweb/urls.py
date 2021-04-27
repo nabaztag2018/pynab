@@ -20,6 +20,7 @@ from .views import NabWebRfidView, NabWebRfidReadView, NabWebRfidWriteView
 from .views import NabWebUpgradeView, NabWebUpgradeStatusView
 from .views import NabWebUpgradeNowView, NabWebUpgradeCheckNowView
 from .views import NabWebUpgradeRepositoryInfoView, NabWebHardwareTestView
+from .views import NabWebShutdownView
 
 urlpatterns = [
     path("", NabWebView.as_view()),
@@ -33,6 +34,11 @@ urlpatterns = [
         name="nabweb.test",
     ),
     path("system-info/", NabWebSytemInfoView.as_view()),
+    path(
+        "system-info/shutdown/<mode>",
+        NabWebShutdownView.as_view(),
+        name="nabweb.shutdown",
+    ),
     path("upgrade/", NabWebUpgradeView.as_view()),
     path(
         "upgrade/info/<repository>",
