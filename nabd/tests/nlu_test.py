@@ -19,9 +19,7 @@ class TestNLU(unittest.TestCase):
         nlu = NLU("en_US")
         result = self.interpret(nlu, "i'm trying to think but nothing happens")
         if result is not None:
-            self.assertEqual(result["intent"], "nabsurprised/surprise")
-        else:
-            self.assertEqual(result, None)
+            self.assertEqual(result["intent"], "nabclockd/sleep")
 
         result = self.interpret(nlu, "what's the weather like today")
         self.assertEqual(result["intent"], "nabweatherd/forecast")
