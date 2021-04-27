@@ -66,6 +66,7 @@ class Nabd:
         self._ears_moved_task = None
         self.playing_cancelable = False
         self.playing_request_id = None
+        self.boot = True
         Nabd.leds_boot(self.nabio, 2)
         if self.nabio.has_sound_input():
             from . import i18n
@@ -84,6 +85,7 @@ class Nabd:
         """
         Reload configuration.
         """
+        self.boot = True
         if self.nabio.has_sound_input():
             from . import i18n
             from .asr import ASR
@@ -107,6 +109,16 @@ class Nabd:
                 self.nlu = NLU(self._nlu_locale)
                 Nabd.leds_boot(self.nabio, 4)
             self.nabio.set_leds(None, None, None, None, None)
+        self.nabio.pulse(Led.BOTTOM, (255, 0, 255))
+        await self.boot_playsound()
+
+    async def boot_playsound(self):
+        """
+        Play sound indicating end of boot.
+        """
+        if (self.boot):
+            await self.nabio.play_sequence([{"audio": ["boot/*.mp3"]}])
+            self.boot = False
 
     async def _do_transition_to_idle(self):
         """
@@ -117,9 +129,11 @@ class Nabd:
         left, right = self.ears["left"], self.ears["right"]
         await self.nabio.move_ears_with_leds((255, 0, 255), left, right)
         self.nabio.pulse(Led.BOTTOM, (255, 0, 255))
+        await self.boot_playsound()
 
     async def sleep_setup(self):
         self.nabio.set_leds(None, None, None, None, None)
+        await self.boot_playsound()
         await self.nabio.move_ears(
             Nabd.SLEEP_EAR_POSITION, Nabd.SLEEP_EAR_POSITION
         )
