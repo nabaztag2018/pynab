@@ -84,13 +84,11 @@ cd /home/pi/cr14
 make
 sudo make install
 
-branch=release
-if [ $TRAVIS_BRANCH = "releng" ]; then
-    branch=releng
-fi
-echo "Cloning pynab ${branch} branch"
+repository=${GITHUB_REPOSITORY:-nabaztag2018/pynab}
+branch=${GITHUB_BRANCH:-release}
+echo "Cloning pynab ${branch} branch from ${repository}"
 cd /home/pi
-sudo -u pi git clone -b ${branch} https://github.com/nabaztag2018/pynab.git
+sudo -u pi git clone -b ${branch} https://github.com/${repository}.git
 
 echo "Installing nabblockly"
 sudo apt-get install --no-install-recommends -y erlang
@@ -102,4 +100,4 @@ sudo -u pi ./rebar3 release
 
 echo "Running pynab install script"
 cd /home/pi/pynab
-sudo -u pi /bin/bash install.sh travis-chroot
+sudo -u pi /bin/bash install.sh ci-chroot

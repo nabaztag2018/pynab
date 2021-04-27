@@ -8,8 +8,8 @@ IFS=$'\n\t'
 # (default): Ulule 2019 card, fits Nabaztag V1 and Nabaztag V2. Features a microphone. Button is on GPIO 17.
 makerfaire2018=0
 
-# travis-chroot : we're building a release image on Travis CI
-travis_chroot=0
+# ci-chroot : we're running in CI to build a release image or run tests
+ci_chroot=0
 
 # test : user wants to run tests (good idea, makes sure sounds and leds are functional)
 test=0
@@ -22,8 +22,11 @@ if [ "${1:-}" == "--makerfaire2018" ]; then
   shift
 fi
 
-if [ "${1:-}" == "travis-chroot" ]; then
-  travis_chroot=1
+if [ "${1:-}" == "ci-chroot" ]; then
+  ci_chroot=1
+elif [ "${1:-}" == "ci-chroot-test" ]; then
+  ci_chroot=1
+  test=1
 elif [ "${1:-}" == "test" ]; then
   test=1
 elif [ "${1:-}" == "--upgrade" ]; then
@@ -48,7 +51,7 @@ cd `dirname "$0"`
 root_dir=`pwd`
 owner=`stat -c '%U' ${root_dir}`
 
-if [ $travis_chroot -eq 0 -a $makerfaire2018 -eq 0 -a `aplay -L | grep -c "tagtagtagsound"` -eq 0 ]; then
+if [ $ci_chroot -eq 0 -a $makerfaire2018 -eq 0 -a `aplay -L | grep -c "tagtagtagsound"` -eq 0 ]; then
   if [ `aplay -L | grep -c "hifiberry"` -gt 0 ]; then
     echo "Judging from the sound card, this looks likes a Paris Maker Faire 2018 card."
     echo "Please double-check and restart this script with --makerfaire2018"
@@ -94,7 +97,7 @@ if [ $upgrade -eq 1 ]; then
     sudo touch /tmp/pynab.upgrade.reboot
   fi
 else
-  if [ $travis_chroot -eq 0 -a ! -e "/dev/ear0" ]; then
+  if [ $ci_chroot -eq 0 -a ! -e "/dev/ear0" ]; then
     echo "Please install ears driver https://github.com/pguyot/tagtagtag-ears"
     exit 1
   fi
@@ -118,7 +121,7 @@ if [ $upgrade -eq 1 ]; then
     sudo touch /tmp/pynab.upgrade.reboot
   fi
 else
-  if [ $travis_chroot -eq 0 -a ! -e "/dev/rfid0" ]; then
+  if [ $ci_chroot -eq 0 -a ! -e "/dev/rfid0" ]; then
     echo "Please install cr14 RFID driver https://github.com/pguyot/cr14"
     exit 1
   fi
@@ -137,7 +140,7 @@ if [ $upgrade -eq 1 ]; then
     echo "You may want to install nabblockly from https://github.com/pguyot/nabblockly"
   fi
 else
-  if [ $travis_chroot -eq 0 -a ! -d "/home/pi/pynab/nabblockly" ]; then
+  if [ $ci_chroot -eq 0 -a ! -d "/home/pi/pynab/nabblockly" ]; then
     echo "You may want to install nabblockly from https://github.com/pguyot/nabblockly"
   fi
 fi
@@ -228,7 +231,7 @@ if [ $trust -ne 1 ]; then
     echo "Failed to configure PostgreSQL"
     exit 1
   fi
-  if [ $travis_chroot -eq 1 ]; then
+  if [ $ci_chroot -eq 1 ]; then
     cluster_version=`echo /etc/postgresql/*/main/pg_hba.conf  | sed -E 's|/etc/postgresql/(.+)/(.+)/pg_hba.conf|\1|g'`
     cluster_name=`echo /etc/postgresql/*/main/pg_hba.conf  | sed -E 's|/etc/postgresql/(.+)/(.+)/pg_hba.conf|\2|g'`
     sudo -u postgres /usr/lib/postgresql/${cluster_version}/bin/pg_ctl start -D /etc/postgresql/${cluster_version}/${cluster_name}/
@@ -244,14 +247,14 @@ if [ $upgrade -eq 0 ]; then
       sudo rm /etc/nginx/sites-enabled/default
     fi
     sudo cp nabweb/nginx-site.conf /etc/nginx/sites-enabled/pynab
-    if [ $travis_chroot -eq 0 ]; then
+    if [ $ci_chroot -eq 0 ]; then
       sudo systemctl restart nginx
     fi
   else
     diff -q '/etc/nginx/sites-enabled/pynab' nabweb/nginx-site.conf >/dev/null || {
       echo "Updating nginx configuration file"
       sudo cp nabweb/nginx-site.conf /etc/nginx/sites-enabled/pynab
-      if [ $travis_chroot -eq 0 ]; then
+      if [ $ci_chroot -eq 0 ]; then
         sudo systemctl restart nginx
       fi
     }
@@ -292,10 +295,14 @@ fi
 
 if [ $test -eq 1 ]; then
   echo "Running tests"
-  sudo venv/bin/pytest
+  if [ $ci_chroot -eq 1 ]; then
+      sudo CI=1 venv/bin/pytest
+  else
+      sudo venv/bin/pytest
+  fi
 fi
 
-if [ $travis_chroot -eq 1 ]; then
+if [ $ci_chroot -eq 1 ]; then
   sudo -u postgres /usr/lib/postgresql/${cluster_version}/bin/pg_ctl stop -D /etc/postgresql/${cluster_version}/${cluster_name}/
 fi
 
@@ -382,7 +389,7 @@ if [ -e /tmp/pynab.upgrade.reboot ]; then
   sudo rm -f /tmp/pynab.upgrade.reboot
   sudo reboot
 else
-  if [ $travis_chroot -eq 0 ]; then
+  if [ $ci_chroot -eq 0 ]; then
     if [ $upgrade -eq 1 ]; then
       echo "Restarting services - 13/14" > /tmp/pynab.upgrade
     fi
