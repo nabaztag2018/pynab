@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-21 14:41+0200\n"
+"POT-Creation-Date: 2021-04-28 00:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,12 +22,12 @@ msgid "Day"
 msgstr ""
 
 #: templates/nabweatherd/rfid-data.html:7
-#: templates/nabweatherd/settings.html:68
+#: templates/nabweatherd/settings.html:63
 msgid "Today"
 msgstr "Aujourd'hui"
 
 #: templates/nabweatherd/rfid-data.html:11
-#: templates/nabweatherd/settings.html:69
+#: templates/nabweatherd/settings.html:64
 msgid "Tomorrow"
 msgstr "Demain"
 
@@ -35,7 +35,7 @@ msgstr "Demain"
 msgid "Weather"
 msgstr "Météo"
 
-#: templates/nabweatherd/settings.html:10
+#: templates/nabweatherd/settings.html:9
 msgid ""
 "The animation can display, if available, a rain alert (Blue blinking means "
 "get an umbrella, nothing will be displayed otherwise), the current weather "
@@ -45,7 +45,7 @@ msgstr ""
 "alerte pluie (Si cela clignote bleu c'est qu'il va pleuvoir dans l'heure), "
 "les prévisions pour les prochaines heures ou les deux."
 
-#: templates/nabweatherd/settings.html:11
+#: templates/nabweatherd/settings.html:10
 msgid ""
 "You can also ask Nabaztag the weather forecast by saying <q>What is the "
 "weather forecast for today ?</q> (for example)."
@@ -53,87 +53,87 @@ msgstr ""
 "Vous pouvez aussi demander la météo à votre lapin en disant par exemple "
 "<q>Météo</q>."
 
-#: templates/nabweatherd/settings.html:14
+#: templates/nabweatherd/settings.html:12
 msgid "Location"
 msgstr "Ville"
 
-#: templates/nabweatherd/settings.html:16
+#: templates/nabweatherd/settings.html:14
 msgid "City, Zip code, Country"
 msgstr "Ville, code postal, pays"
 
-#: templates/nabweatherd/settings.html:25
+#: templates/nabweatherd/settings.html:21
 msgid "Search..."
 msgstr ""
 
-#: templates/nabweatherd/settings.html:31
+#: templates/nabweatherd/settings.html:26
 msgid "Unit"
 msgstr "Unité"
 
-#: templates/nabweatherd/settings.html:34
+#: templates/nabweatherd/settings.html:29
 msgid "Celsius"
 msgstr "Celsius"
 
-#: templates/nabweatherd/settings.html:35
+#: templates/nabweatherd/settings.html:30
 msgid "Farenheit"
 msgstr "Farenheit"
 
-#: templates/nabweatherd/settings.html:36
+#: templates/nabweatherd/settings.html:31
 msgid "Kelvin"
 msgstr "Kelvin"
 
-#: templates/nabweatherd/settings.html:42
+#: templates/nabweatherd/settings.html:37
 msgid "Visual animation"
 msgstr "Information visuelle"
 
-#: templates/nabweatherd/settings.html:45
+#: templates/nabweatherd/settings.html:40
 msgid "Current weather forecast"
 msgstr "Prévision météo"
 
-#: templates/nabweatherd/settings.html:46
+#: templates/nabweatherd/settings.html:41
 msgid "Rain alert"
 msgstr "Alerte pluie"
 
-#: templates/nabweatherd/settings.html:47
+#: templates/nabweatherd/settings.html:42
 msgid "Both"
 msgstr "Les deux"
 
-#: templates/nabweatherd/settings.html:48
+#: templates/nabweatherd/settings.html:43
 msgid "No visual animation"
 msgstr "Aucune information visuelle"
 
-#: templates/nabweatherd/settings.html:54
+#: templates/nabweatherd/settings.html:49
 msgid "Forecast frequency"
 msgstr "Fréquence de prévision"
 
-#: templates/nabweatherd/settings.html:57
+#: templates/nabweatherd/settings.html:52
 msgid "Every hour"
 msgstr "Toutes les heures"
 
-#: templates/nabweatherd/settings.html:58
+#: templates/nabweatherd/settings.html:53
 msgid "Every two to three hours"
 msgstr "Toutes les deux à trois heures"
 
-#: templates/nabweatherd/settings.html:59
+#: templates/nabweatherd/settings.html:54
 msgid "At wake up and at bedtime"
 msgstr "Au lever et au coucher"
 
-#: templates/nabweatherd/settings.html:60
+#: templates/nabweatherd/settings.html:55
 msgid "None"
 msgstr "Aucune"
 
-#: templates/nabweatherd/settings.html:66
+#: templates/nabweatherd/settings.html:61
 msgid "Forecast"
 msgstr "Prévision"
 
-#: templates/nabweatherd/settings.html:77
+#: templates/nabweatherd/settings.html:72
 msgid "Save"
 msgstr "Enregistrer"
 
-#: templates/nabweatherd/settings.html:78
+#: templates/nabweatherd/settings.html:73
 msgid "Reset"
 msgstr "Annuler"
 
-#: templates/nabweatherd/settings.html:137
+#: templates/nabweatherd/settings.html:122
 msgid "Unknown server error"
 msgstr "Erreur inconnue du serveur"
 
