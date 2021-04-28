@@ -136,9 +136,3 @@ msgstr "Annuler"
 #: templates/nabweatherd/settings.html:122
 msgid "Unknown server error"
 msgstr "Erreur inconnue du serveur"
-
-#~ msgid "Weather forecast and rain information"
-#~ msgstr "Météo et information pluie"
-
-#~ msgid "Unknown location"
-#~ msgstr "Ville inconnue"

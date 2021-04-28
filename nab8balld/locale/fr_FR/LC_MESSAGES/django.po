@@ -23,7 +23,7 @@ msgstr "Gourou"
 
 #: templates/nab8balld/settings.html:10
 msgid "Enable"
-msgstr ""
+msgstr "Activer"
 
 #: templates/nab8balld/settings.html:16
 msgid ""
@@ -42,6 +42,3 @@ msgstr "Enregistrer"
 #: templates/nab8balld/settings.html:22
 msgid "Reset"
 msgstr "Annuler"
-
-#~ msgid "Wake up the guru"
-#~ msgstr "Réveiller le gourou"

@@ -84,6 +84,3 @@ msgstr "Annuler"
 #: templates/nabairqualityd/settings.html:74
 msgid "Unknown server error"
 msgstr "Erreur inconnue du serveur"
-
-#~ msgid "Yes"
-#~ msgstr "Oui"
