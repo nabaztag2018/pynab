@@ -7,7 +7,7 @@
     </div>
     <div class="card-body">
       <div class="form-group row">
-        <label for="enableBtn" class="col-6 col-form-label">{% trans "Enable" %}</label>
+        <label for="enableBtn" class="col-6 col-form-label">{% trans "Wake up the guru" %}</label>
         <div class="col-6">
           <button id="enableBtn" type="button" class="btn btn-toggle{% if config.enabled %} active{% endif %}" data-name="enabled" data-toggle="button" aria-pressed="false" autocomplete="off"><div class="handle"></div></button>
           <input name="enabled" type="hidden" value="{% if config.enabled %}true{% else %}false{% endif %}" />
