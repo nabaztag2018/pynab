@@ -565,7 +565,7 @@ msgstr "Voulez-vous continuer?"
 #: templates/nabweb/system-info/index.html:119
 #: templates/nabweb/system-info/index.html:138
 msgid "Cancel"
-msgstr ""
+msgstr "Annuler"
 
 #: templates/nabweb/system-info/index.html:135
 msgid "You are about to <b>shutdown</b> the Raspberry Pi Linux system."
