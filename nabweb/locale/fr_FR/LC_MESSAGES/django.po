@@ -703,6 +703,3 @@ msgstr "{} heures et 1 minute"
 #: templatetags/duration_filter.py:27
 msgid "{} hours and {} minutes"
 msgstr "{} heures et {} minutes"
-
-#~ msgid "You are about to SHUTDOWN the Raspberry Pi Linux system"
-#~ msgstr "Vous êtes sur le point d'ETEINDRE le système Linux du Raspberry Pi"
