@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-19 20:47+0100\n"
+"POT-Creation-Date: 2021-04-28 08:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -36,3 +36,11 @@ msgstr "Heure du coucher"
 #: templates/nabclockd/settings.html:39
 msgid "Time zone"
 msgstr "Fuseau horaire"
+
+#: templates/nabclockd/settings.html:52
+msgid "Save"
+msgstr "Enregister"
+
+#: templates/nabclockd/settings.html:53
+msgid "Reset"
+msgstr "Annuler"
