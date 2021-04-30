@@ -7,12 +7,16 @@
     <div class="col-xl-8 col-lg-10 col-md-10 mb-3">
       <div class="card">
         <div class="card-header">
-          <h5 class="card-title">{% trans "Raspberry Pi (Linux)" %}</h5>
+          <h5 class="card-title">{% trans "Raspberry Pi OS" %}</h5>
         </div>
         <div class="card-body">
           <dl class="row">
             <dt class="col-sm-4">{% trans "Version" %}</dt>
             <dd class="col-sm-8">{{ os.version }}</dd>
+            <dt class="col-sm-4">{% trans "Hostname" %}</dt>
+            <dd class="col-sm-8">{{ os.hostname }}</dd>
+            <dt class="col-sm-4">{% trans "IP address" %}</dt>
+            <dd class="col-sm-8">{{ os.address }}</dd>
             <dt class="col-sm-4">{% trans "Uptime" %}</dt>
             <dd class="col-sm-8">{{ os.uptime|duration }}</dd>
             <dt class="col-sm-4"><a class="help-link" href="https://www.raspberrypi.org/documentation/remote-access/ssh/" >{% trans "SSH (Secure shell)" %}</a></dt>
@@ -73,13 +77,17 @@
           <h5 class="card-title">{% trans "Hardware" %}</h5>
         </div>
         <div class="card-body">
+          <dl class="row">
+            <dt class="col-sm-4">{% trans "Computer" %}</dt>
+            <dd class="col-sm-8">{{ pi.model }}</dd>
+          </dl>
           {% if gestalt.status == "error" %}
           <div class="alert alert-danger" role="alert">
             {{ gestalt.message }}
           </div>
           {% else %}
           <dl class="row">
-            <dt class="col-sm-4">{% trans "Model" %}</dt>
+            <dt class="col-sm-4">{% trans "Hat card" %}</dt>
             <dd class="col-sm-8">{{ gestalt.result.hardware.model }}</dd>
             <dt class="col-sm-4">{% trans "Sound card" %}</dt>
             <dd class="col-sm-8">{{ gestalt.result.hardware.sound_card }}</dd>

@@ -328,19 +328,33 @@ class NabWebSytemInfoView(BaseView):
             if matchObj:
                 version = matchObj.group(1)
         kernel_release = os.popen("uname -rm").read().rstrip()
-        version = version + ", Kernel " + kernel_release
+        version = version + " - Kernel " + kernel_release
+        hostname = os.popen("hostname -a").read().rstrip()
+        ip_address = os.popen("hostname -I").read().rstrip()
         with open("/proc/uptime", "r") as uptime_f:
             uptime = int(float(uptime_f.readline().split()[0]))
         ssh_state = os.popen("systemctl is-active ssh").read().rstrip()
         if ssh_state == "active" and os.path.isfile("/run/sshwarn"):
             ssh_state = "sshwarn"
-        return {"version": version, "uptime": uptime, "ssh": ssh_state}
+        return {
+            "version": version,
+            "hostname": hostname,
+            "address": ip_address,
+            "uptime": uptime,
+            "ssh": ssh_state,
+        }
+
+    def get_pi_info(self):
+        with open("/proc/device-tree/model") as model_f:
+            model = model_f.readline()
+        return {"model": model}
 
     def get_context(self):
         context = super().get_context()
         gestalt = asyncio.run(self.query_gestalt())
         context["gestalt"] = gestalt
         context["os"] = self.get_os_info()
+        context["pi"] = self.get_pi_info()
         return context
 
 
@@ -650,8 +664,10 @@ class NabWebShutdownView(View):
 
     async def _do_os_shutdown(self, reader, writer, mode):
         try:
-            packet = f'{{"type":"shutdown","mode":"{mode}",' \
-                     f'"request_id":"shutdown"}}\r\n'
+            packet = (
+                f'{{"type":"shutdown","mode":"{mode}",'
+                f'"request_id":"shutdown"}}\r\n'
+            )
             writer.write(packet.encode("utf8"))
             await writer.drain()
             while True:
