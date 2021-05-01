@@ -276,14 +276,16 @@ if [ $upgrade -eq 1 ]; then
 fi
 venv/bin/python manage.py migrate
 
+all_locales="--locale=fr_FR --locale=de_DE --locale=en_US --locale=en_GB --locale=it_IT --locale=es_ES --locale=ja_jp --locale=pt_BR"
+
 if [ $upgrade -eq 0 ]; then
-  venv/bin/django-admin compilemessages
+  venv/bin/django-admin compilemessages ${all_locales}
 else
   echo "Updating localization messages - 11/14" > /tmp/pynab.upgrade
   for module in nab*/locale; do
     (
       cd `dirname ${module}`
-      ../venv/bin/django-admin compilemessages
+      ../venv/bin/django-admin compilemessages ${all_locales}
     )
   done
 fi
