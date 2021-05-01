@@ -3,12 +3,15 @@ import time
 import pytest
 import sys
 import platform
+import os
 from nabd.leds import Led
 
 
 @pytest.mark.skipif(
-    sys.platform != "linux" or "arm" not in platform.machine(),
-    reason="Neopixel test only makes sens on a physical Nabaztag",
+    sys.platform != "linux"
+    or "arm" not in platform.machine()
+    or "CI" in os.environ,
+    reason="Neopixel test only makes sense on a physical Nabaztag",
 )
 class TestLedsNeopixel(unittest.TestCase):
     def test_set_one(self):
