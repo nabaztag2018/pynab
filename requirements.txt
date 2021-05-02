@@ -76,6 +76,6 @@ tabulate==0.8.6
 toml==0.10.0
 tqdm==4.40.2
 typed-ast==1.4.0
-urllib3==1.25.7
+urllib3==1.25.8
 wcwidth==0.1.7
 zipp==0.6.0
