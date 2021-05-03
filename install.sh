@@ -279,7 +279,7 @@ if [ $upgrade -eq 1 ]; then
 fi
 venv/bin/python manage.py migrate
 
-all_locales="--locale=fr_FR --locale=de_DE --locale=en_US --locale=en_GB --locale=it_IT --locale=es_ES --locale=ja_jp --locale=pt_BR"
+all_locales="--locale=fr_FR --locale=de_DE --locale=en_US --locale=en_GB --locale=it_IT --locale=es_ES --locale=ja_jp --locale=pt_BR --locale=de --locale=en --locale=es --locale=fr --locale=it --locale=ja --locale=pt"
 
 if [ $upgrade -eq 0 ]; then
   venv/bin/django-admin compilemessages ${all_locales}
