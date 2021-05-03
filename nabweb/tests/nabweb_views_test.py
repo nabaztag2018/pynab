@@ -2,8 +2,10 @@ import asyncio
 import json
 import threading
 import time
-from django.test import TestCase, Client
+
 from django.http import JsonResponse
+from django.test import Client, TestCase
+
 from nabcommon import nabservice
 
 
@@ -356,7 +358,10 @@ class TestShutdownView(TestNabdClientBase):
         self.write_response = {"type": "response", "status": "ok"}
         self.packets = []
         c = Client()
-        response = c.post("/system-info/shutdown/reboot", {"mode": "reboot"},)
+        response = c.post(
+            "/system-info/shutdown/reboot",
+            {"mode": "reboot"},
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(self.packets), 1)
         self.assertTrue(isinstance(response, JsonResponse))
@@ -370,7 +375,8 @@ class TestShutdownView(TestNabdClientBase):
         self.packets = []
         c = Client()
         response = c.post(
-            "/system-info/shutdown/shutdown", {"mode": "shutdown"},
+            "/system-info/shutdown/shutdown",
+            {"mode": "shutdown"},
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(self.packets), 1)

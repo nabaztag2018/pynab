@@ -1,9 +1,16 @@
-import sys
 import asyncio
 import re
-from nabcommon import nabservice
-from mastodon import Mastodon, StreamListener, MastodonError
+import sys
 from operator import attrgetter
+
+from mastodon import (
+    Mastodon,
+    MastodonError,
+    MastodonUnauthorizedError,
+    StreamListener,
+)
+
+from nabcommon import nabservice
 
 
 class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):

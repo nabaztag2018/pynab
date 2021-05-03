@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('nabmastodond', '0002_auto_20181112_2247'),
+        ("nabmastodond", "0002_auto_20181112_2247"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='config',
-            name='instance',
-            field=models.TextField(default='mstdn.fr'),
+            model_name="config",
+            name="instance",
+            field=models.TextField(default="mstdn.fr"),
         ),
     ]

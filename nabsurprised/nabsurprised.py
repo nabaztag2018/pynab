@@ -1,12 +1,19 @@
-import sys
 import datetime
 import random
+import sys
+
 from nabcommon.nabservice import NabRandomService
+
 from . import rfid_data
 
 
 class NabSurprised(NabRandomService):
-    NLU_INTENTS = ["nabsurprised/surprise", "nabsurprised/carrot", "nabsurprised/autopromo", "nabsurprised/birthday"]
+    NLU_INTENTS = [
+        "nabsurprised/surprise",
+        "nabsurprised/carrot",
+        "nabsurprised/autopromo",
+        "nabsurprised/birthday",
+    ]
 
     async def get_config(self):
         from . import models

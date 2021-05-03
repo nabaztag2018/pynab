@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('nabweatherd', '0009_config_next_performance_weather_vocal'),
+        ("nabweatherd", "0009_config_next_performance_weather_vocal"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='config',
-            old_name='next_performance_weather_vocal',
-            new_name='next_performance_weather_vocal_date',
+            model_name="config",
+            old_name="next_performance_weather_vocal",
+            new_name="next_performance_weather_vocal_date",
         ),
         migrations.AddField(
-            model_name='config',
-            name='next_performance_weather_vocal_flag',
+            model_name="config",
+            name="next_performance_weather_vocal_flag",
             field=models.IntegerField(default=0),
         ),
     ]

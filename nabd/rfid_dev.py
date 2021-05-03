@@ -1,10 +1,11 @@
 import asyncio
-import os
-import logging
 import functools
-from threading import Timer
+import logging
+import os
 from enum import Enum
-from .rfid import TagFlags, Rfid
+from threading import Timer
+
+from .rfid import Rfid, TagFlags
 
 
 class RfidDevState(Enum):  # pragma: no cover

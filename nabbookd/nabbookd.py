@@ -2,7 +2,9 @@ import logging
 import os
 import sys
 from pathlib import Path
+
 from nabcommon.nabservice import NabService
+
 from . import rfid_data
 
 

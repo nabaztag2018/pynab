@@ -1,7 +1,10 @@
-import sys
 import datetime
+import sys
+
 from asgiref.sync import sync_to_async
+
 from nabcommon.nabservice import NabInfoCachedService
+
 from . import aqicn
 
 
@@ -59,16 +62,17 @@ class NabAirqualityd(NabInfoCachedService):
 
     async def get_config(self):
         from . import models
-        config = await models.Config.load_async()        
+
+        config = await models.Config.load_async()
         return (
             config.next_performance_date,
             config.next_performance_type,
-            (config.index_airquality,
-            config.visual_airquality),
+            (config.index_airquality, config.visual_airquality),
         )
 
     async def update_next(self, next_date, next_args):
         from . import models
+
         config = await models.Config.load_async()
         config.next_performance_date = next_date
         config.next_performance_type = next_args
@@ -95,11 +99,12 @@ class NabAirqualityd(NabInfoCachedService):
             "data": client.get_data(),
         }
 
-
     def get_animation(self, info_data):
 
-        if (info_data["visual_airquality"] == "nothing") or \
-            (info_data["visual_airquality"] == "alert" and info_data["data"] == 2):
+        if (info_data["visual_airquality"] == "nothing") or (
+            info_data["visual_airquality"] == "alert"
+            and info_data["data"] == 2
+        ):
             return None
         info_animation = NabAirqualityd.ANIMATIONS[info_data["data"]]
         return info_animation

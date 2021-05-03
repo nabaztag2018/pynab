@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
+
 from .models import Config
 from .nab8balld import Nab8Balld
 

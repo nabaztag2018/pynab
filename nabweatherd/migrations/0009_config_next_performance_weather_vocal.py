@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('nabweatherd', '0008_auto_20210326_0932'),
+        ("nabweatherd", "0008_auto_20210326_0932"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='config',
-            name='next_performance_weather_vocal',
+            model_name="config",
+            name="next_performance_weather_vocal",
             field=models.DateTimeField(null=True),
         ),
     ]

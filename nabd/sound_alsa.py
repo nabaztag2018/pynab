@@ -1,15 +1,15 @@
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 import functools
 import io
 import traceback
 import wave
+from concurrent.futures import ThreadPoolExecutor
 
 import alsaaudio
 from mpg123 import Mpg123
 
-from .sound import Sound
 from .cancel import wait_with_cancel_event
+from .sound import Sound
 
 
 class SoundAlsa(Sound):  # pragma: no cover
@@ -61,22 +61,22 @@ class SoundAlsa(Sound):  # pragma: no cover
     @functools.lru_cache()
     def sound_configuration():
         """
-            Returns the (as a triplet) the card's index (zero based), raw card
-            name and the device (playback or recording)
-            supported by the hardware as a unicode string.
+        Returns the (as a triplet) the card's index (zero based), raw card
+        name and the device (playback or recording)
+        supported by the hardware as a unicode string.
 
-            @rtype: tuple
+        @rtype: tuple
 
-            @postcondition: len(return) == 3
-            @postcondition: isinstnace(return[0], six.integer_types)
-            @postcondition: return[0] >= 0
-            @postcondition: return[1] in SoundAlsa.SOUND_CARDS_SUPPORTED
-            @postcondition: len(return[1]) > 0
-            @postcondition: isinstance(return[2], six.text_type)
-            @postcondition: len(return[2]) > 0
+        @postcondition: len(return) == 3
+        @postcondition: isinstnace(return[0], six.integer_types)
+        @postcondition: return[0] >= 0
+        @postcondition: return[1] in SoundAlsa.SOUND_CARDS_SUPPORTED
+        @postcondition: len(return[1]) > 0
+        @postcondition: isinstance(return[2], six.text_type)
+        @postcondition: len(return[2]) > 0
 
-            @raise RuntimeError: if no ALSO device could be found or if the
-            device found cannot be configured.
+        @raise RuntimeError: if no ALSO device could be found or if the
+        device found cannot be configured.
         """
         for idx, sound_card in enumerate(alsaaudio.cards()):
             if sound_card in SoundAlsa.SOUND_CARDS_SUPPORTED:
@@ -230,21 +230,21 @@ class SoundAlsa(Sound):  # pragma: no cover
     @staticmethod
     def __test_device(device, record):
         """
-            Test selected ALSA device, making sure it handles both stereo and
-            mono and both 44.1KHz and 22.05KHz on output, mono and 16 kHz on
-            input.
+        Test selected ALSA device, making sure it handles both stereo and
+        mono and both 44.1KHz and 22.05KHz on output, mono and 16 kHz on
+        input.
 
-            On a typical RPI configuration, default with hifiberry card is not
-            configured to do software-mono, so we'll use
-            plughw:CARD=sndrpihifiberry instead.
-            Likewise, on 2019 cards, hw:CARD=seeed2micvoicec is not able to run
-            mono sound.
+        On a typical RPI configuration, default with hifiberry card is not
+        configured to do software-mono, so we'll use
+        plughw:CARD=sndrpihifiberry instead.
+        Likewise, on 2019 cards, hw:CARD=seeed2micvoicec is not able to run
+        mono sound.
 
-            @param device: name of the sound device
-            @type device: six.text_type
-            @param record: C{True} if this method is looking for recording
-            device. C{False} if the device should only playback.
-            @type record: bool
+        @param device: name of the sound device
+        @type device: six.text_type
+        @param record: C{True} if this method is looking for recording
+        device. C{False} if the device should only playback.
+        @type record: bool
         """
         try:
             dev = None

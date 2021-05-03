@@ -1,14 +1,15 @@
+import datetime
+import json
+import logging
+
+from django.http import JsonResponse, QueryDict
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from django.http import JsonResponse, QueryDict
-from django.utils.translation import ugettext as _
+from meteofrance.client import MeteoFranceClient, Place
+
+from . import rfid_data
 from .models import Config, ScheduledMessage
 from .nabweatherd import NabWeatherd
-from . import rfid_data
-from meteofrance.client import MeteoFranceClient
-from meteofrance.client import Place
-import datetime
-import logging, json
 
 
 class SettingsView(TemplateView):
@@ -37,28 +38,32 @@ class SettingsView(TemplateView):
             client = MeteoFranceClient()
             list_places = client.search_places(search_location)
             for one_place in list_places:
-                # correct bad json returned my MeteoFrance + admin is not always there
-                if ('name' in one_place.raw_data):
-                    one_place.raw_data['name'] = one_place.raw_data['name'].replace("'", " ")
-                if ('admin' in one_place.raw_data):
-                    one_place.raw_data['admin'] = one_place.raw_data['admin'].replace("'", " ")    
-                json_item['value'] = str(one_place.raw_data)
-                json_item['text'] = one_place.__str__()
+                # correct bad json returned my MeteoFrance + admin is not
+                # always there
+                if "name" in one_place.raw_data:
+                    one_place.raw_data["name"] = one_place.raw_data[
+                        "name"
+                    ].replace("'", " ")
+                if "admin" in one_place.raw_data:
+                    one_place.raw_data["admin"] = one_place.raw_data[
+                        "admin"
+                    ].replace("'", " ")
+                json_item["value"] = str(one_place.raw_data)
+                json_item["text"] = one_place.__str__()
                 json_places.append(json_item)
                 json_item = {}
-            return JsonResponse(json_places,status=200,safe=False)
+            return JsonResponse(json_places, status=200, safe=False)
         return render(request, SettingsView.template_name, context=context)
-    
+
     def post(self, request, *args, **kwargs):
         config = Config.load()
         if "location" in request.POST:
             location = request.POST["location"]
             logging.info(location)
-            if (location != ""):
+            if location != "":
                 location = location.replace("None", "''")
-                location = location.replace("\'", "\"")
-                
-                
+                location = location.replace("'", '"')
+
                 location_json = json.loads(location)
                 location_place = Place(location_json)
                 config.location = location

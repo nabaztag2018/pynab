@@ -1,22 +1,23 @@
 import abc
 import asyncio
+import base64
 import datetime
 import json
 import os
 import re
 import subprocess
-import base64
 
 from django.apps import apps
-from django.views.generic import View
+from django.conf import settings
+from django.core.cache import cache
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.utils import translation
-from django.conf import settings
-from django.http import JsonResponse
-from django.core.cache import cache
-from nabd.i18n import Config
+from django.utils.translation import to_language, to_locale
+from django.views.generic import View
+
 from nabcommon.nabservice import NabService
-from django.utils.translation import to_locale, to_language
+from nabd.i18n import Config
 
 
 class NabdConnection:
@@ -33,9 +34,9 @@ class NabdConnection:
         try:
             async with NabdConnection() as conn:
                 return await fun(conn.reader, conn.writer, *args)
-        except ConnectionRefusedError as err:
+        except ConnectionRefusedError:
             return {"status": "error", "message": "Nabd is not running"}
-        except asyncio.TimeoutError as err:
+        except asyncio.TimeoutError:
             return {
                 "status": "error",
                 "message": "Communication with Nabd timed out",
@@ -91,7 +92,9 @@ class BaseView(View, metaclass=abc.ABCMeta):
                 if service_page == page:
                     services.append(
                         {
-                            "priority": config.module.NABAZTAG_SERVICE_PRIORITY,
+                            "priority": (
+                                config.module.NABAZTAG_SERVICE_PRIORITY
+                            ),
                             "name": config.name,
                         }
                     )
@@ -228,7 +231,7 @@ class NabWebRfidReadView(View):
                             and packet["event"] != "removed"
                         ):
                             return {"status": "ok", "event": packet}
-                except asyncio.TimeoutError as err:
+                except asyncio.TimeoutError:
                     return {
                         "status": "timeout",
                         "message": "No RFID tag was detected",
@@ -286,7 +289,7 @@ class NabWebRfidWriteView(View):
                     if "message" in packet:
                         response["message"] = packet["message"]
                     return response
-            except asyncio.TimeoutError as err:
+            except asyncio.TimeoutError:
                 return {
                     "status": "timeout",
                     "message": "No RFID tag was detected",
@@ -383,7 +386,7 @@ class NabWebHardwareTestView(View):
                     and packet["request_id"] == "test"
                 ):
                     return {"status": "ok", "result": packet}
-        except asyncio.TimeoutError as err:
+        except asyncio.TimeoutError:
             return {
                 "status": "error",
                 "message": "Communication with Nabd timed out (running test)",
@@ -501,7 +504,8 @@ class GitInfo:
         )
         info["tag"] = (
             os.popen(
-                f"cd {repo_dir} && sudo -u pi git describe --exact-match --tags"
+                f"cd {repo_dir} && "
+                "sudo -u pi git describe --exact-match --tags"
             )
             .read()
             .strip()
@@ -623,7 +627,8 @@ class NabWebUpgradeNowView(View):
             }
         locked = (
             os.popen(
-                "sudo -u pi flock -n /tmp/pynab.upgrade echo 'OK' || echo 'Locked'"
+                "sudo -u pi flock -n /tmp/pynab.upgrade echo 'OK' "
+                "|| echo 'Locked'"
             )
             .read()
             .rstrip()
@@ -682,7 +687,7 @@ class NabWebShutdownView(View):
                     and packet["request_id"] == "shutdown"
                 ):
                     return {"status": "ok", "result": packet}
-        except asyncio.TimeoutError as err:
+        except asyncio.TimeoutError:
             return {
                 "status": "error",
                 "message": "Communication with Nabd timed out (shutdown)",

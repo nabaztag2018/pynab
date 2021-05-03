@@ -1,10 +1,10 @@
 import asyncio
-import asynctest
 import os
 import sys
 import time
 import unittest
-import wave
+
+import asynctest
 import pytest
 from utils import close_old_async_connections
 
@@ -15,8 +15,8 @@ from utils import close_old_async_connections
 @pytest.mark.django_db
 class TestPlaySound(unittest.TestCase):
     def setUp(self):
-        from nabd.sound_alsa import SoundAlsa
         from nabd.nabio import NabIO
+        from nabd.sound_alsa import SoundAlsa
 
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
@@ -88,8 +88,8 @@ class TestPlaySound(unittest.TestCase):
 @pytest.mark.django_db
 class TestWaitUntilComplete(asynctest.TestCase):
     def setUp(self):
-        from nabd.sound_alsa import SoundAlsa
         from nabd.nabio import NabIO
+        from nabd.sound_alsa import SoundAlsa
 
         # Workaround for asynctest bug?
         os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "yes"
@@ -139,8 +139,8 @@ class TestWaitUntilComplete(asynctest.TestCase):
 @pytest.mark.django_db
 class TestRecord(unittest.TestCase):
     def setUp(self):
-        from nabd.sound_alsa import SoundAlsa
         from nabd.nabio import NabIO
+        from nabd.sound_alsa import SoundAlsa
 
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
@@ -161,8 +161,6 @@ class TestRecord(unittest.TestCase):
         close_old_async_connections()
 
     def test_recording_playback(self):
-        import alsaaudio
-
         start_task = self.loop.create_task(
             self.sound.start_playing("asr/listen.mp3")
         )

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('nabweatherd', '0007_config_weather_frequency'),
+        ("nabweatherd", "0007_config_weather_frequency"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='config',
-            name='weather_frequency',
+            model_name="config",
+            name="weather_frequency",
             field=models.IntegerField(default=0),
         ),
     ]

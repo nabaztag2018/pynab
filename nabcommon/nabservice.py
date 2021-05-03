@@ -1,19 +1,21 @@
 import asyncio
-import os
+import datetime
+import getopt
 import inspect
 import json
-import getopt
-import signal
-import datetime
-import time
 import logging
+import os
+import signal
 import sys
+import time
 from abc import ABC, abstractmethod
 from enum import Enum
-from lockfile.pidlockfile import PIDLockFile
+
 from lockfile import AlreadyLocked, LockFailed
-from nabcommon import nablogging
-from nabcommon import settings
+from lockfile.pidlockfile import PIDLockFile
+
+from nabcommon import nablogging, settings
+
 
 class NabService(ABC):
     PORT_NUMBER = 10543
@@ -36,7 +38,6 @@ class NabService(ABC):
         """
         Reload configuration (on USR1 signal).
         """
-        pass
 
     async def process_nabd_packet(self, packet):
         pass
@@ -243,7 +244,6 @@ class NabRecurrentService(NabService, ABC):
         config = (record.config_a, record.config_b)
         return (record.next_date, record.next_args, config)
         """
-        pass
 
     @abstractmethod
     async def update_next(self, next_date, next_args):
@@ -257,7 +257,6 @@ class NabRecurrentService(NabService, ABC):
         record.next_args = next_args
         await record.save_async()
         """
-        pass
 
     @abstractmethod
     def compute_next(self, saved_date, saved_args, config, reason):
@@ -273,7 +272,6 @@ class NabRecurrentService(NabService, ABC):
 
         This function should be pure (no side-effect).
         """
-        pass
 
     @abstractmethod
     async def perform(self, expiration_date, args, config):
@@ -284,7 +282,6 @@ class NabRecurrentService(NabService, ABC):
         expiration_date is to be passed in the packet(s) written to nabd.
         args is whatever was computed by compute_next
         """
-        pass
 
     async def reload_config(self):
         logging.info("reloading configuration")
@@ -368,7 +365,6 @@ class NabRandomService(NabRecurrentService, ABC):
         """
         Return the delta (in seconds) with the next event based on frequency
         """
-        pass
 
     def do_compute_next(self, frequency):
         """
@@ -383,7 +379,7 @@ class NabRandomService(NabRecurrentService, ABC):
     def compute_next(self, saved_date, saved_args, frequency, reason):
         now = datetime.datetime.now(datetime.timezone.utc)
         if saved_date is not None and saved_date < now:
-            logging.info(f"compute_next saved_date < now")
+            logging.info("compute_next saved_date < now")
             return saved_date, saved_args
         if reason == NabRecurrentService.Reason.BOOT:
             return saved_date, saved_args
@@ -421,14 +417,12 @@ class NabInfoService(NabRecurrentService, ABC):
         """
         Fetch the info data from whatever source, using config.
         """
-        pass
 
     @abstractmethod
     def get_animation(self, info_data):
         """
         Return the new animation or None if none should be displayed.
         """
-        pass
 
     @abstractmethod
     async def perform_additional(
@@ -438,7 +432,6 @@ class NabInfoService(NabRecurrentService, ABC):
         Perform whatever additional message, typically triggered from ASR
         or the website.
         """
-        pass
 
     async def perform(self, expiration_date, type, config):
         # Always fetch info data.
@@ -446,7 +439,7 @@ class NabInfoService(NabRecurrentService, ABC):
         info_data = await self._do_fetch_info_data(config)
         info_animation = self.get_animation(info_data)
         service_name = self.__class__.__name__.lower()
-        if info_animation != None:
+        if info_animation is not None:
             info_packet = (
                 '{"type":"info","info_id":"'
                 + service_name
@@ -468,13 +461,13 @@ class NabInfoService(NabRecurrentService, ABC):
         logging.info(f"compute_next saved_date={saved_date}")
         now = datetime.datetime.now(datetime.timezone.utc)
         if saved_date is not None and saved_date < now:
-            logging.info(f"compute_next saved_date < now")
+            logging.info("compute_next saved_date < now")
             return saved_date, saved_args
         if reason == NabRecurrentService.Reason.BOOT:
-            logging.info(f"compute_next reason == BOOT")
+            logging.info("compute_next reason == BOOT")
             return now, "info"
         if reason == NabRecurrentService.Reason.CONFIG_RELOADED:
-            logging.info(f"compute_next reason == CONFIG_RELOADED")
+            logging.info("compute_next reason == CONFIG_RELOADED")
             return now, "info"
         next_date = self.next_info_update(config)
         return next_date, "info"

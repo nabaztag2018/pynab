@@ -1,9 +1,10 @@
 from django.urls import path
+
 from .views import (
-    SettingsView,
-    LoginView,
     ConnectView,
+    LoginView,
     OAuthCBView,
+    SettingsView,
     WeddingView,
 )
 

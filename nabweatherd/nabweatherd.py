@@ -1,15 +1,17 @@
-import sys, json
 import datetime
+import json
 import logging
-from asgiref.sync import sync_to_async
-from nabcommon.nabservice import NabInfoService
-from nabcommon.nabservice import NabRecurrentService
-from meteofrance.client import MeteoFranceClient
-from meteofrance.client import  Place
-from . import rfid_data
-import requests
 import random
+import sys
+
+import requests
+from asgiref.sync import sync_to_async
 from dateutil import tz
+from meteofrance.client import MeteoFranceClient, Place
+
+from nabcommon.nabservice import NabInfoService
+
+from . import rfid_data
 
 
 class NabWeatherd(NabInfoService):
@@ -129,12 +131,10 @@ class NabWeatherd(NabInfoService):
         "Eclaircies": ("sunny", SUNNY_INFO_ANIMATION),
         "Peu nuageux": ("sunny", SUNNY_INFO_ANIMATION),
         "Ensoleillé": ("sunny", SUNNY_INFO_ANIMATION),
-
         "Ciel voilé": ("cloudy", CLOUDY_INFO_ANIMATION),
         "Ciel voilé nuit": ("cloudy", CLOUDY_INFO_ANIMATION),
         "Très nuageux": ("cloudy", CLOUDY_INFO_ANIMATION),
         "Couvert": ("cloudy", CLOUDY_INFO_ANIMATION),
-
         "Rares averses": (
             "rainy",
             RAINY_INFO_ANIMATION,
@@ -163,13 +163,12 @@ class NabWeatherd(NabInfoService):
             "rainy",
             RAINY_INFO_ANIMATION,
         ),
-        "Risque de grêle": ("rainy", RAINY_INFO_ANIMATION),         
+        "Risque de grêle": ("rainy", RAINY_INFO_ANIMATION),
         "Risque de grèle": ("rainy", RAINY_INFO_ANIMATION),
         "Bruine / Pluie faible": ("rainy", RAINY_INFO_ANIMATION),
         "Bruine": ("rainy", RAINY_INFO_ANIMATION),
         "Pluies éparses / Rares averses": ("rainy", RAINY_INFO_ANIMATION),
         "Pluie / Averses": ("rainy", RAINY_INFO_ANIMATION),
-
         "Pluie et neige mêlées": (
             "snowy",
             SNOWY_INFO_ANIMATION,
@@ -223,77 +222,103 @@ class NabWeatherd(NabInfoService):
         "Orages": ("stormy", STORMY_INFO_ANIMATION),
         "Averses orageuses": ("stormy", STORMY_INFO_ANIMATION),
         "Risque d'orages": ("stormy", STORMY_INFO_ANIMATION),
-        
     }
 
-    weather_bedtime_done=False
-    weather_wakeup_done=False
-    
-    
+    weather_bedtime_done = False
+    weather_wakeup_done = False
+
     async def perform(self, expiration, args, config):
-        
-        weather_forecast="today"
-        
+
+        weather_forecast = "today"
+
         await NabInfoService.perform(self, expiration, args, config)
-        
-        location, unit, weather_animation_type, weather_frequency,next_performance_weather_vocal_date, next_performance_weather_vocal_flag  = config
-        
+
+        (
+            location,
+            unit,
+            weather_animation_type,
+            weather_frequency,
+            next_performance_weather_vocal_date,
+            next_performance_weather_vocal_flag,
+        ) = config
+
         current_tz = self.get_system_tz()
         now = datetime.datetime.now(tz=tz.gettz(current_tz))
-        
-        if next_performance_weather_vocal_flag == True and next_performance_weather_vocal_date < now:
-            logging.debug(f"performing random weather forecast")
-            
-            if (now.hour > 18):
-                weather_forecast="tomorrow"
+
+        if (
+            next_performance_weather_vocal_flag
+            and next_performance_weather_vocal_date < now
+        ):
+            logging.debug("performing random weather forecast")
+
+            if now.hour > 18:
+                weather_forecast = "tomorrow"
             else:
-                weather_forecast="today"    
-            
-            await self._do_perform_additional(config,weather_forecast)
+                weather_forecast = "today"
+
+            await self._do_perform_additional(config, weather_forecast)
             from . import models
+
             config_t = await models.Config.load_async()
             config_t.next_performance_weather_vocal_flag = False
             await config_t.save_async()
-            
-        if (weather_frequency == 3):
+
+        if weather_frequency == 3:
             import sys
-            sys.path.append("..") # Adds higher directory to python modules path.
+
+            sys.path.append(
+                ".."
+            )  # Adds higher directory to python modules path.
             from nabclockd import models
 
             config_clockd = await models.Config.load_async()
 
-            bedtime = datetime.datetime(now.year, now.month, now.day, config_clockd.sleep_hour, config_clockd.sleep_min, tzinfo=tz.gettz(current_tz))
-            wakeup = datetime.datetime(now.year, now.month, now.day, config_clockd.wakeup_hour, config_clockd.wakeup_min, tzinfo=tz.gettz(current_tz))
+            bedtime = datetime.datetime(
+                now.year,
+                now.month,
+                now.day,
+                config_clockd.sleep_hour,
+                config_clockd.sleep_min,
+                tzinfo=tz.gettz(current_tz),
+            )
+            wakeup = datetime.datetime(
+                now.year,
+                now.month,
+                now.day,
+                config_clockd.wakeup_hour,
+                config_clockd.wakeup_min,
+                tzinfo=tz.gettz(current_tz),
+            )
 
             just_before_bedtime = bedtime + datetime.timedelta(minutes=-5)
             just_after_wakeup = wakeup + datetime.timedelta(minutes=5)
-            
+
             if now < just_after_wakeup and now > wakeup:
                 weather_forecast = "today"
-                if (self.weather_wakeup_done == False):
-                    await self._do_perform_additional(config,weather_forecast)
-                    self.weather_wakeup_done=True
+                if not self.weather_wakeup_done:
+                    await self._do_perform_additional(config, weather_forecast)
+                    self.weather_wakeup_done = True
                     from . import models
+
                     config_t = await models.Config.load_async()
                     config_t.next_performance_weather_vocal_flag = False
                     await config_t.save_async()
-            else :
-                self.weather_wakeup_done=False
+            else:
+                self.weather_wakeup_done = False
 
             if now > just_before_bedtime and now < bedtime:
                 weather_forecast = "tomorrow"
-                if (self.weather_bedtime_done == False):
-                    await self._do_perform_additional(config,weather_forecast)
-                    self.weather_bedtime_done=True
+                if not self.weather_bedtime_done:
+                    await self._do_perform_additional(config, weather_forecast)
+                    self.weather_bedtime_done = True
                     from . import models
+
                     config_t = await models.Config.load_async()
                     config_t.next_performance_weather_vocal_flag = False
                     await config_t.save_async()
-            else :
-                self.weather_bedtime_done=False
+            else:
+                self.weather_bedtime_done = False
 
-            
-        
     async def get_config(self):
         from . import models
 
@@ -301,40 +326,57 @@ class NabWeatherd(NabInfoService):
         return (
             config.next_performance_date,
             config.next_performance_type,
-            (config.location, config.unit, config.weather_animation_type, config.weather_frequency, config.next_performance_weather_vocal_date, config.next_performance_weather_vocal_flag),
+            (
+                config.location,
+                config.unit,
+                config.weather_animation_type,
+                config.weather_frequency,
+                config.next_performance_weather_vocal_date,
+                config.next_performance_weather_vocal_flag,
+            ),
         )
 
     async def update_next(self, next_date, next_args):
         from . import models
+
         config = await models.Config.load_async()
         config.next_performance_date = next_date
         config.next_performance_type = next_args
-        
+
         current_tz = self.get_system_tz()
         now = datetime.datetime.now(tz=tz.gettz(current_tz))
-                
-        if config.next_performance_weather_vocal_flag == False:
-            #every hour approx
-            if (config.weather_frequency == 1):
-                config.next_performance_weather_vocal_date = now + datetime.timedelta(minutes=random.randint(40,70))
-                logging.debug(f"update_next / next_performance_weather_vocal={config.next_performance_weather_vocal_date}")
+
+        if not config.next_performance_weather_vocal_flag:
+            # every hour approx
+            if config.weather_frequency == 1:
+                config.next_performance_weather_vocal_date = (
+                    now + datetime.timedelta(minutes=random.randint(40, 70))
+                )
+                logging.debug(
+                    "update_next / next_performance_weather_vocal"
+                    f"={config.next_performance_weather_vocal_date}"
+                )
                 config.next_performance_weather_vocal_flag = True
 
-            elif (config.weather_frequency == 2):
-                config.next_performance_weather_vocal_date = now + datetime.timedelta(minutes=random.randint(100,190))
-                logging.debug(f"update_next / next_performance_weather_vocal={config.next_performance_weather_vocal_date}")
+            elif config.weather_frequency == 2:
+                config.next_performance_weather_vocal_date = (
+                    now + datetime.timedelta(minutes=random.randint(100, 190))
+                )
+                logging.debug(
+                    "update_next / next_performance_weather_vocal"
+                    f"={config.next_performance_weather_vocal_date}"
+                )
                 config.next_performance_weather_vocal_flag = True
 
-            elif (config.weather_frequency == 3):
+            elif config.weather_frequency == 3:
                 config.next_performance_weather_vocal_date = None
                 config.next_performance_weather_vocal_flag = False
-                
+
         await config.save_async()
 
     def get_system_tz(self):
         with open("/etc/timezone") as w:
             return w.read().strip()
-
 
     def next_info_update(self, config):
         if config is None:
@@ -344,16 +386,23 @@ class NabWeatherd(NabInfoService):
         return next_5mn
 
     async def fetch_info_data(self, config_t):
-        from . import models
+        from . import models  # noqa
 
-        location, unit, weather_animation_type, weather_frequency, next_performance_weather_vocal_date, next_performance_weather_vocal_flag = config_t
-        
+        (
+            location,
+            unit,
+            weather_animation_type,
+            weather_frequency,
+            next_performance_weather_vocal_date,
+            next_performance_weather_vocal_flag,
+        ) = config_t
+
         if location is None:
             return None
-                
+
         location_string_json = json.loads(location)
         logging.debug(location_string_json)
-        
+
         place = Place(location_string_json)
 
         client = await sync_to_async(MeteoFranceClient)()
@@ -367,28 +416,27 @@ class NabWeatherd(NabInfoService):
             raininfo = client.get_rain(place.latitude, place.longitude)
             logging.debug(raininfo.forecast)
             for five_min_slots in raininfo.forecast:
-                if (five_min_slots['rain'] != 1):
+                if five_min_slots["rain"] != 1:
                     next_rain = True
                     break
-        except requests.HTTPError as e:
+        except requests.HTTPError:
             next_rain = False
             # todo : prevenir que les infos de rain ne sont pas dispo
-    
+
         current_weather_class = self.normalize_weather_class(
-            data[0]['weather12H']['desc']
+            data[0]["weather12H"]["desc"]
         )
         today_forecast_weather_class = self.normalize_weather_class(
-            data[0]['weather12H']['desc']
+            data[0]["weather12H"]["desc"]
         )
 
-        today_forecast_max_temp = int(data[0]['T']['max'])
+        today_forecast_max_temp = int(data[0]["T"]["max"])
 
         tomorrow_forecast_weather_class = self.normalize_weather_class(
-            data[1]['weather12H']['desc']
+            data[1]["weather12H"]["desc"]
         )
-        tomorrow_forecast_max_temp = int(data[0]['T']['max'])
-        
-        
+        tomorrow_forecast_max_temp = int(data[0]["T"]["max"])
+
         return {
             "weather_animation_type": weather_animation_type,
             "current_weather_class": current_weather_class,
@@ -406,50 +454,54 @@ class NabWeatherd(NabInfoService):
         return None
 
     def get_animation(self, info_data):
-        
 
-        if (info_data is None):
+        if info_data is None:
             return
-        
+
         logging.debug(f"get_animation :{info_data['weather_animation_type']}")
-        # 
-        if (info_data['weather_animation_type'] == 'weather_and_rain') or \
-             (info_data['weather_animation_type'] == 'rain_only'):
-             
+        #
+        if (info_data["weather_animation_type"] == "weather_and_rain") or (
+            info_data["weather_animation_type"] == "rain_only"
+        ):
+
             if info_data["next_rain"] is True:
                 packet = (
                     '{"type":"info",'
                     '"info_id":"nabweatherd_rain",'
-                    '"animation":' + self.RAIN_ONE_HOUR+ '}\r\n'
+                    '"animation":' + self.RAIN_ONE_HOUR + "}\r\n"
                 )
             else:
-                packet = (
-                    '{"type":"info",'
-                    '"info_id":"nabweatherd_rain"}\r\n'
-                )
+                packet = '{"type":"info",' '"info_id":"nabweatherd_rain"}\r\n'
             self.writer.write(packet.encode("utf8"))
-    
-        if (info_data['weather_animation_type'] == 'weather_and_rain') or \
-            ((info_data['weather_animation_type'] == 'weather_only')):
+
+        if (info_data["weather_animation_type"] == "weather_and_rain") or (
+            (info_data["weather_animation_type"] == "weather_only")
+        ):
 
             # si weather on supprime l'animation rain
-            if (info_data['weather_animation_type'] == 'weather_only'):
-                packet = (
-                        '{"type":"info",'
-                        '"info_id":"nabweatherd_rain"}\r\n'
-                    )
+            if info_data["weather_animation_type"] == "weather_only":
+                packet = '{"type":"info",' '"info_id":"nabweatherd_rain"}\r\n'
                 self.writer.write(packet.encode("utf8"))
-        
-            (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[info_data["today_forecast_weather_class"]]
-            return info_animation        
+
+            (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[
+                info_data["today_forecast_weather_class"]
+            ]
+            return info_animation
         else:
-            logging.debug(f"get_animation : return none")  
+            logging.debug("get_animation : return none")
             return None
 
     async def perform_additional(self, expiration, type, info_data, config_t):
-        location, unit, weather_animation_type, weather_frequency, next_performance_weather_vocal_date, next_performance_weather_vocal_local = config_t
+        (
+            location,
+            unit,
+            weather_animation_type,
+            weather_frequency,
+            next_performance_weather_vocal_date,
+            next_performance_weather_vocal_local,
+        ) = config_t
         if location is None:
-            logging.debug(f"location is None (service is unconfigured)")
+            logging.debug("location is None (service is unconfigured)")
             packet = (
                 '{"type":"message",'
                 '"signature":{"audio":['
@@ -487,7 +539,6 @@ class NabWeatherd(NabInfoService):
                 self.writer.write(packet.encode("utf8"))
         await self.writer.drain()
 
-            
     async def _do_perform(self, type):
         next_date, next_args, config_t = await self.get_config()
         now = datetime.datetime.now(datetime.timezone.utc)
@@ -495,17 +546,16 @@ class NabWeatherd(NabInfoService):
         await self.perform(expiration, type, config_t)
 
     async def _do_perform_additional(self, config, type):
-        
+
         info_data = await self.fetch_info_data(config)
 
         now = datetime.datetime.now(datetime.timezone.utc)
         expiration = now + datetime.timedelta(minutes=1)
-        
+
         await self.perform_additional(expiration, type, info_data, config)
 
-
     async def process_nabd_packet(self, packet):
-        
+
         if (
             packet["type"] == "asr_event"
             and packet["nlu"]["intent"] == "nabweatherd/forecast"

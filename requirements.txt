@@ -1,8 +1,10 @@
 # Direct dependencies & pre-built binaries
 wheel
-black==19.10b0
+black==21.4b2
 Django==3.0.14
+flake8==3.9.1
 gunicorn==20.0.4
+isort==5.8.0
 lockfile==0.12.2
 Mastodon.py==1.5.0
 mpg123==0.4
@@ -12,6 +14,7 @@ pytest-pep8==1.0.6
 pytest==5.3.1
 asynctest==0.13.0
 coverage==5.0.3
+pre_commit==2.12.1
 pyalsaaudio==0.8.4; sys_platform == 'linux'
 rpi-ws281x==4.2.2; sys_platform == 'linux' and 'armv6l' in platform_machine
 RPi.GPIO==0.7.0; sys_platform == 'linux' and 'armv6l' in platform_machine
@@ -34,7 +37,7 @@ beautifulsoup4==4.8.1
 blurhash==1.1.4
 certifi==2019.11.28
 chardet==3.0.4
-Click==7.0
+click==7.1.2
 Cython==0.29.23
 decorator==4.4.1
 deprecation==2.0.7
@@ -48,13 +51,13 @@ more-itertools==8.0.2
 num2words==0.5.10
 numpy==1.20.2
 packaging==19.2
-pathspec==0.6.0
+pathspec==0.8.1
 pep8==1.7.1
 plac==1.1.3
 pluggy==0.13.1
 py==1.10.0
 pyaml==19.12.0
-pycodestyle==2.5.0
+pycodestyle==2.7.0
 pyparsing==2.4.5
 pytest-cache==1.0
 python-crfsuite==0.9.6
@@ -72,9 +75,9 @@ sklearn-crfsuite==0.3.6
 soupsieve==1.9.5
 sqlparse==0.3.0
 tabulate==0.8.6
-toml==0.10.0
+toml==0.10.2
 tqdm==4.40.2
-typed-ast==1.4.0
+typed-ast==1.4.3
 urllib3==1.25.8
 wcwidth==0.1.7
 zipp==0.6.0

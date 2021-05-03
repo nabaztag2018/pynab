@@ -1,6 +1,7 @@
 import asyncio
-from functools import partial
 import json
+from functools import partial
+
 from nabbookd.nabbookd import NabBookd
 from nabd.tests.mock import NabdMockTestCase
 
@@ -55,7 +56,10 @@ class TestNabbookd(NabdMockTestCase):
 
     def test_play_sequence_default(self):
         sent_packets = [
-            {"type": "state", "state": "idle", },
+            {
+                "type": "state",
+                "state": "idle",
+            },
             {
                 "type": "rfid_event",
                 "event": "detected",
@@ -200,7 +204,10 @@ class TestNabbookd(NabdMockTestCase):
 
     def test_play_sequence_altvoice(self):
         sent_packets = [
-            {"type": "state", "state": "idle", },
+            {
+                "type": "state",
+                "state": "idle",
+            },
             {
                 "type": "rfid_event",
                 "event": "detected",
@@ -294,7 +301,10 @@ class TestNabbookd(NabdMockTestCase):
 
     def test_play_sequence_noalt(self):
         sent_packets = [
-            {"type": "state", "state": "idle", },
+            {
+                "type": "state",
+                "state": "idle",
+            },
             {
                 "type": "rfid_event",
                 "event": "detected",
@@ -443,7 +453,10 @@ class TestNabbookd(NabdMockTestCase):
 
     def test_play_sequence_button_chapter_2(self):
         sent_packets = [
-            {"type": "state", "state": "idle", },
+            {
+                "type": "state",
+                "state": "idle",
+            },
             {
                 "type": "rfid_event",
                 "event": "detected",
@@ -510,7 +523,10 @@ class TestNabbookd(NabdMockTestCase):
 
     def test_play_sequence_button_intro(self):
         sent_packets = [
-            {"type": "state", "state": "idle", },
+            {
+                "type": "state",
+                "state": "idle",
+            },
             {
                 "type": "rfid_event",
                 "event": "detected",
@@ -558,7 +574,10 @@ class TestNabbookd(NabdMockTestCase):
 
     def test_play_sequence_button_outro(self):
         sent_packets = [
-            {"type": "state", "state": "idle", },
+            {
+                "type": "state",
+                "state": "idle",
+            },
             {
                 "type": "rfid_event",
                 "event": "detected",
@@ -615,7 +634,10 @@ class TestNabbookd(NabdMockTestCase):
 
     def test_play_sequence_forward_chapter_2(self):
         sent_packets = [
-            {"type": "state", "state": "idle", },
+            {
+                "type": "state",
+                "state": "idle",
+            },
             {
                 "type": "rfid_event",
                 "event": "detected",
@@ -681,7 +703,10 @@ class TestNabbookd(NabdMockTestCase):
 
     def test_play_sequence_backward_chapter_2(self):
         sent_packets = [
-            {"type": "state", "state": "idle", },
+            {
+                "type": "state",
+                "state": "idle",
+            },
             {
                 "type": "rfid_event",
                 "event": "detected",

@@ -2,6 +2,7 @@ from django.utils import translation
 from django.utils.cache import patch_vary_headers
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.translation import to_language
+
 from nabd.i18n import Config
 
 

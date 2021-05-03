@@ -1,9 +1,10 @@
 import abc
+
 from .resources import Resources
 
 
 class Sound(object, metaclass=abc.ABCMeta):
-    """ Interface for sound """
+    """Interface for sound"""
 
     async def preload(self, audio_resource):
         # For now only consider local paths

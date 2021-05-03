@@ -1,14 +1,14 @@
-import unittest
-import json
-import django
-import time
 import datetime
+import json
+import unittest
+
 import pytest
 from asgiref.sync import async_to_sync
-from nabairqualityd.nabairqualityd import NabAirqualityd
+
 from nabairqualityd import models
-from nabd.tests.utils import close_old_async_connections
+from nabairqualityd.nabairqualityd import NabAirqualityd
 from nabd.tests.mock import MockWriter, NabdMockTestCase
+from nabd.tests.utils import close_old_async_connections
 
 
 @pytest.mark.django_db(transaction=True)
@@ -26,7 +26,7 @@ class TestNabAirqualityd(unittest.TestCase):
         info_data = async_to_sync(service.fetch_info_data)(("aqi", "always"))
         config = models.Config.load()
         self.assertIsNotNone(info_data)
-        self.assertTrue("data" in info_data)   
+        self.assertTrue("data" in info_data)
         self.assertTrue(info_data["data"] < 4)
         self.assertTrue(info_data["data"] >= 0)
         self.assertIsNotNone(config.localisation)
@@ -64,14 +64,11 @@ class TestNabAirqualityd(unittest.TestCase):
         service = NabAirqualityd()
         writer = MockWriter()
         service.writer = writer
-        config_t = "aqi"
-        expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
         packet = {
             "type": "asr_event",
             "nlu": {"intent": "nabairqualityd/forecast"},
         }
         async_to_sync(service.process_nabd_packet)(packet)
-        print(writer.written)
         self.assertEqual(len(writer.written), 2)
         packet = writer.written[0]
         packet_json = json.loads(packet.decode("utf8"))

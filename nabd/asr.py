@@ -1,8 +1,9 @@
 import struct
-import numpy as np
 import traceback
 from concurrent.futures import ThreadPoolExecutor
-from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
+
+import numpy as np
+from kaldiasr.nnet3 import KaldiNNet3OnlineDecoder, KaldiNNet3OnlineModel
 
 
 class ASR:

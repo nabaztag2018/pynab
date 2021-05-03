@@ -1,13 +1,15 @@
 import json
 from urllib.parse import urlparse, urlunparse
+
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
-from django.views.generic import View, TemplateView
-from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
+from django.views.generic import TemplateView, View
+from mastodon import Mastodon, MastodonError, MastodonUnauthorizedError
+
 from .models import Config
 from .nabmastodond import NabMastodond
-from mastodon import Mastodon, MastodonError, MastodonUnauthorizedError
 
 
 def reset_access_token(config):

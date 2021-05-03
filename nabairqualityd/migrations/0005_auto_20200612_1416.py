@@ -6,22 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('nabairqualityd', '0004_auto_20200326_1617'),
+        ("nabairqualityd", "0004_auto_20200326_1617"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='config',
-            name='airquality',
+            model_name="config",
+            name="airquality",
         ),
         migrations.AlterField(
-            model_name='config',
-            name='index_airquality',
-            field=models.TextField(default='aqi', null=True),
+            model_name="config",
+            name="index_airquality",
+            field=models.TextField(default="aqi", null=True),
         ),
         migrations.AlterField(
-            model_name='config',
-            name='visual_airquality',
-            field=models.TextField(default='nothing', null=True),
+            model_name="config",
+            name="visual_airquality",
+            field=models.TextField(default="nothing", null=True),
         ),
     ]

@@ -1,7 +1,7 @@
 import abc
 import time
 from enum import Enum, unique
-from threading import Thread, Lock, Condition
+from threading import Condition, Lock, Thread
 
 
 @unique
@@ -14,7 +14,7 @@ class Led(Enum):
 
 
 class Leds(object, metaclass=abc.ABCMeta):
-    """ Interface for leds """
+    """Interface for leds"""
 
     @abc.abstractmethod
     def set1(self, led, red, green, blue):
@@ -41,7 +41,6 @@ class Leds(object, metaclass=abc.ABCMeta):
         """
         Stop the leds thread, if any.
         """
-        pass
 
 
 class LedsSoft(Leds, metaclass=abc.ABCMeta):
@@ -180,11 +179,9 @@ class LedsSoft(Leds, metaclass=abc.ABCMeta):
         """
         Actually set a led.
         """
-        pass
 
     @abc.abstractmethod
     def do_show(self):
         """
         Show all leds at once.
         """
-        pass

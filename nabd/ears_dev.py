@@ -1,7 +1,8 @@
 import asyncio
-import os
 import logging
+import os
 from concurrent.futures import ThreadPoolExecutor
+
 from .ears import Ears
 
 
@@ -59,7 +60,7 @@ class EarsDev(Ears):  # pragma: no cover
         self.callback = (loop, callback)
 
     async def reset_ears(self, target_left, target_right):
-        """ Reset the ears to a known position """
+        """Reset the ears to a known position"""
         async with self.lock:
             await asyncio.get_event_loop().run_in_executor(
                 self.executor, self._do_reset_ears, target_left, target_right
@@ -111,7 +112,8 @@ class EarsDev(Ears):  # pragma: no cover
 
     def _do_wait_while_running(self):
         """
-        Wait until motors are no longer running, sending a blocking NOP to ears.
+        Wait until motors are no longer running, sending a blocking NOP to
+        ears.
         Thread: executor
         Lock: acquired
         """

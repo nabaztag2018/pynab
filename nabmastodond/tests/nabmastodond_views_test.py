@@ -1,7 +1,9 @@
-from django.test import TestCase, Client
-from nabmastodond.models import Config
 import datetime
+
 from dateutil.tz import tzutc
+from django.test import Client, TestCase
+
+from nabmastodond.models import Config
 
 
 class TestView(TestCase):

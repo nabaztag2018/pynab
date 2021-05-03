@@ -1,10 +1,12 @@
+import atexit
+import sys
+import time
+from threading import Lock, Timer
+
 import RPi.GPIO as GPIO
+
 from .button import Button
 from .nabio import NabIO
-import sys
-import atexit
-import time
-from threading import Timer, Lock
 
 
 @atexit.register

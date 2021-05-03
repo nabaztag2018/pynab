@@ -1,9 +1,11 @@
-import unittest
-import time
-import pytest
-import sys
-import platform
 import os
+import platform
+import sys
+import time
+import unittest
+
+import pytest
+
 from nabd.leds import Led
 
 

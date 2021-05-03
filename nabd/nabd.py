@@ -1,30 +1,32 @@
 import asyncio
-import json
-import datetime
 import collections
-import sys
+import datetime
+import gc
 import getopt
+import json
+import logging
 import os
 import socket
-import logging
 import subprocess
-import dateutil.parser
+import sys
 import time
 import traceback
-import gc
 from enum import Enum
-from lockfile.pidlockfile import PIDLockFile
+
+import dateutil.parser
 from lockfile import AlreadyLocked, LockFailed
-from nabcommon import nablogging
-from nabcommon import settings
+from lockfile.pidlockfile import PIDLockFile
+
+from nabcommon import nablogging, settings
 from nabcommon.nabservice import NabService
-from .leds import Led
+
 from .ears import Ears
+from .leds import Led
 from .rfid import (
-    TagFlags,
-    TAG_APPLICATIONS,
-    TAG_APPLICATION_NONE,
     DEFAULT_RFID_TIMEOUT,
+    TAG_APPLICATION_NONE,
+    TAG_APPLICATIONS,
+    TagFlags,
 )
 
 
@@ -116,7 +118,7 @@ class Nabd:
         """
         Play sound indicating end of boot.
         """
-        if (self.boot):
+        if self.boot:
             await self.nabio.play_sequence([{"audio": ["boot/*.mp3"]}])
             self.boot = False
 
@@ -303,7 +305,7 @@ class Nabd:
                 self.broadcast_state()
 
     async def process_info_packet(self, packet, writer):
-        """ Process an info packet """
+        """Process an info packet"""
         if "info_id" in packet:
             if "animation" in packet:
                 if (
@@ -340,7 +342,7 @@ class Nabd:
             )
 
     async def process_ears_packet(self, packet, writer):
-        """ Process an ears packet """
+        """Process an ears packet"""
         if "left" in packet:
             self.ears["left"] = packet["left"]
         if "right" in packet:
@@ -360,11 +362,11 @@ class Nabd:
         self.write_response_packet(packet, {"status": "ok"}, writer)
 
     async def process_command_packet(self, packet, writer):
-        """ Process a command packet """
+        """Process a command packet"""
         await self.process_perform_packet("sequence", packet, writer)
 
     async def process_message_packet(self, packet, writer):
-        """ Process a message packet """
+        """Process a message packet"""
         await self.process_perform_packet("body", packet, writer)
 
     async def process_perform_packet(self, slot, packet, writer):
@@ -388,7 +390,7 @@ class Nabd:
             )
 
     async def process_cancel_packet(self, packet, writer):
-        """ Process a cancel packet """
+        """Process a cancel packet"""
         if "request_id" in packet:
             request_id = packet["request_id"]
             if self.playing_request_id == request_id:
@@ -428,13 +430,13 @@ class Nabd:
             )
 
     async def process_wakeup_packet(self, packet, writer):
-        """ Process a wakeup packet """
+        """Process a wakeup packet"""
         self.write_response_packet(packet, {"status": "ok"}, writer)
         if self.state == State.ASLEEP:
             await self.transition_to(State.IDLE)
 
     async def process_sleep_packet(self, packet, writer):
-        """ Process a sleep packet """
+        """Process a sleep packet"""
         if self.state == State.ASLEEP:
             self.write_response_packet(packet, {"status": "ok"}, writer)
         else:
@@ -443,7 +445,7 @@ class Nabd:
                 self.idle_cv.notify()
 
     async def process_mode_packet(self, packet, writer):
-        """ Process a mode packet """
+        """Process a mode packet"""
         if "mode" in packet and packet["mode"] == "interactive":
             if writer == self.interactive_service_writer:
                 if "events" in packet:
@@ -487,7 +489,7 @@ class Nabd:
             )
 
     async def process_gestalt_packet(self, packet, writer):
-        """ Process a gestalt packet """
+        """Process a gestalt packet"""
         proc = subprocess.Popen(
             ["ps", "-o", "etimes", "-p", str(os.getpid()), "--no-headers"],
             stdout=subprocess.PIPE,
@@ -503,8 +505,8 @@ class Nabd:
         self.write_response_packet(packet, response, writer)
 
     async def process_config_update_packet(self, packet, writer):
-        """ Process a config_update packet """
-        if not "service" in packet:
+        """Process a config_update packet"""
+        if "service" not in packet:
             self.write_response_packet(
                 packet,
                 {
@@ -523,7 +525,7 @@ class Nabd:
                     )
 
     async def process_test_packet(self, packet, writer):
-        """ Process a test packet (for hardware tests) """
+        """Process a test packet (for hardware tests)"""
         if self.state == State.ASLEEP:
             await self.do_process_test_packet(packet, writer)
         else:
@@ -553,7 +555,7 @@ class Nabd:
             )
 
     async def process_rfid_write_packet(self, packet, writer):
-        """ Process a rfid_write packet """
+        """Process a rfid_write packet"""
         if self.state == State.ASLEEP:
             await self.do_process_rfid_write_packet(packet, writer)
         else:
@@ -562,7 +564,7 @@ class Nabd:
                 self.idle_cv.notify()
 
     async def do_process_rfid_write_packet(self, packet, writer):
-        """ Process a rfid_write packet """
+        """Process a rfid_write packet"""
         if "uid" in packet and "picture" in packet and "app" in packet:
             uid = bytes.fromhex(packet["uid"].replace(":", ""))
             picture = packet["picture"]

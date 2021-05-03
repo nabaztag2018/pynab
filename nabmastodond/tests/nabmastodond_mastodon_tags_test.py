@@ -1,5 +1,5 @@
-from django.test import SimpleTestCase
 from django.template import Context, Template
+from django.test import SimpleTestCase
 
 
 class ToProfileUrl1AtTagTest(SimpleTestCase):

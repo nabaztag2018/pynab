@@ -1,15 +1,13 @@
-import unittest
-import threading
-import json
-import django
-import time
 import datetime
-import signal
+import json
+import unittest
+
 import pytest
 from asgiref.sync import async_to_sync
-from nabsurprised.nabsurprised import NabSurprised
-from nabd.tests.utils import close_old_async_connections
+
 from nabd.tests.mock import MockWriter, NabdMockTestCase
+from nabd.tests.utils import close_old_async_connections
+from nabsurprised.nabsurprised import NabSurprised
 
 
 @pytest.mark.django_db
@@ -40,7 +38,6 @@ class TestRfid(unittest.TestCase):
         service = NabSurprised()
         writer = MockWriter()
         service.writer = writer
-        expiration = datetime.datetime(2018, 11, 1, 0, 0, 0)
         nabd_packet = {
             "type": "rfid_event",
             "uid": "d0:02:1a:01:02:03:04:05",
@@ -68,7 +65,6 @@ class TestRfid(unittest.TestCase):
         service = NabSurprised()
         writer = MockWriter()
         service.writer = writer
-        expiration = datetime.datetime(2018, 11, 1, 0, 0, 0)
         nabd_packet = {
             "type": "rfid_event",
             "uid": "d0:02:1a:01:02:03:04:05",

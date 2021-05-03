@@ -1,21 +1,18 @@
-import unittest
 import asyncio
-import json
-import django
-import time
 import datetime
-import signal
-import pytest
-import re
+import json
 import os
-from dateutil.tz import tzutc
+import re
+import unittest
+
+import pytest
 from asgiref.sync import async_to_sync
-from nabmastodond import nabmastodond, models
-from nabcommon import nabservice
+from dateutil.tz import tzutc
 from mastodon import Mastodon, MastodonNotFoundError
+
 from nabd.tests.mock import NabdMockTestCase
 from nabd.tests.utils import close_old_async_connections
-
+from nabmastodond import models, nabmastodond
 
 DATE_1 = datetime.datetime(2018, 11, 11, 11, 11, 0, tzinfo=tzutc())
 DATE_2 = datetime.datetime(2018, 11, 11, 11, 11, 11, tzinfo=tzutc())

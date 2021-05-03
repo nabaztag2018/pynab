@@ -1,7 +1,9 @@
-from django.test import TestCase, Client
-from django.http import JsonResponse
-from nabsurprised.models import Config
 import datetime
+
+from django.http import JsonResponse
+from django.test import Client, TestCase
+
+from nabsurprised.models import Config
 
 
 class TestView(TestCase):

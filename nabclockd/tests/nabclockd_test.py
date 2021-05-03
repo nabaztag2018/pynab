@@ -1,15 +1,15 @@
 import asyncio
-from threading import Thread
-import json
-import django
-import time
 import datetime
-import signal
-import pytest
+import json
 import os
+import time
+from threading import Thread
+
+import pytest
 from dateutil import tz
 from django.db import close_old_connections
-from nabclockd import nabclockd, models
+
+from nabclockd import models, nabclockd
 from nabd.tests.mock import NabdMockTestCase
 from nabd.tests.utils import close_old_async_connections
 
@@ -56,13 +56,11 @@ class TestNabclockd(NabdMockTestCase):
                 if "type" in packet:
                     if packet["type"] == "sleep" and state != "asleep":
                         state = "asleep"
-                        new_state_p = (
-                            f'{{"type":"state","state":"asleep"}}\r\n'
-                        )
+                        new_state_p = '{"type":"state","state":"asleep"}\r\n'
                         writer.write(new_state_p.encode("utf8"))
                     if packet["type"] == "wakeup" and state != "idle":
                         state = "idle"
-                        new_state_p = f'{{"type":"state","state":"idle"}}\r\n'
+                        new_state_p = '{"type":"state","state":"idle"}\r\n'
                         writer.write(new_state_p.encode("utf8"))
                 self.wakeup_handler_packets.append(packet)
 
