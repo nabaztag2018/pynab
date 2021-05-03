@@ -52,7 +52,7 @@ sight.
 3. List references in a remote repository: `git ls-remote --refs origin`
 4. Open [Pull Request (PR) page](https://github.com/nabaztag2018/pynab/pulls) and memorize the PR number you want to test
 5. Switch to the PR code, here PR #123, change number for your test: `git checkout master && git pull origin master && git fetch origin pull/123/head:pr/123 && git checkout pr/123 && git merge master`
-6. Full upgrade for changes in localized, messages, drivers and dependencies: `bash upgrade.sh`
+6. Full upgrade for changes in drivers, dependencies, data models and localisation messages: `bash upgrade.sh`
 7. Do your test 🚦
 8. Rollback to default branch: `git checkout release`
 9. Full upgrade for changes in drivers, dependencies, data models and localisation messages: `bash upgrade.sh`
