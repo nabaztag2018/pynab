@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('nabairqualityd', '0003_auto_20191211_0822'),
+        ("nabairqualityd", "0003_auto_20191211_0822"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='config',
-            name='visual_airquality',
+            model_name="config",
+            name="visual_airquality",
             field=models.TextField(default=0, null=True),
         ),
         migrations.AlterField(
-            model_name='config',
-            name='index_airquality',
+            model_name="config",
+            name="index_airquality",
             field=models.TextField(default=0, null=True),
         ),
     ]

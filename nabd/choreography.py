@@ -1,14 +1,15 @@
+import asyncio
+import logging
 import random
 import time
-import asyncio
-from .resources import Resources
-from .leds import Led
-from .ears import Ears
-from contextlib import suppress
-from .cancel import wait_with_cancel_event
-import logging
 import traceback
 import urllib.request
+from contextlib import suppress
+
+from .cancel import wait_with_cancel_event
+from .ears import Ears
+from .leds import Led
+from .resources import Resources
 
 
 class ChoreographyInterpreter:
@@ -337,7 +338,7 @@ class ChoreographyInterpreter:
             except IndexError as err:
                 # 255 apparently used for end.
                 if opcode != 255:
-                    print(f"Unknown opcode {opcode}")
+                    print(f"Unknown opcode {opcode} {err}")
                 return
             except AttributeError as err:
                 print(f"Unknown opcode {opcode} {err}")

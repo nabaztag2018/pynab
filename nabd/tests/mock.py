@@ -3,10 +3,11 @@ import functools
 import threading
 import time
 from unittest import TestCase
+
 from nabcommon import nabservice
-from nabd.nabio import NabIO
 from nabd.ears import Ears
-from nabd.leds import Leds, Led
+from nabd.leds import Led, Leds
+from nabd.nabio import NabIO
 from nabd.rfid import Rfid
 from nabd.sound import Sound
 

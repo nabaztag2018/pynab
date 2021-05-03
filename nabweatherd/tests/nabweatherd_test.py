@@ -1,15 +1,14 @@
-import unittest
-import json
-import django
-import time
 import datetime
+import json
+import unittest
+
 import pytest
 from asgiref.sync import async_to_sync
-from nabweatherd.nabweatherd import NabWeatherd
-from nabweatherd import models
-from nabweatherd import rfid_data
-from nabd.tests.utils import close_old_async_connections
+
 from nabd.tests.mock import MockWriter, NabdMockTestCase
+from nabd.tests.utils import close_old_async_connections
+from nabweatherd import models, rfid_data
+from nabweatherd.nabweatherd import NabWeatherd
 
 
 class TestNabWeatherd(unittest.TestCase):
@@ -23,7 +22,11 @@ class TestNabWeatherd(unittest.TestCase):
 
 @pytest.mark.django_db(transaction=True)
 class TestNabWeatherdDB(unittest.TestCase):
-    RENNES_LOCATION_JSON = '{"insee":"35238","name":"Rennes","lat":48.11417,"lon":-1.68083,"country":"FR","admin":"Bretagne","admin2":"35","postCode":"35000"}'
+    RENNES_LOCATION_JSON = (
+        '{"insee":"35238","name":"Rennes",'
+        '"lat":48.11417,"lon":-1.68083,"country":"FR",'
+        '"admin":"Bretagne","admin2":"35","postCode":"35000"}'
+    )
 
     def tearDown(self):
         close_old_async_connections()

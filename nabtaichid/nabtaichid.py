@@ -1,6 +1,7 @@
-import sys
 import datetime
 import random
+import sys
+
 from nabcommon.nabservice import NabRandomService
 
 

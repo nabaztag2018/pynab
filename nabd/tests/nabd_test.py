@@ -1,24 +1,26 @@
-import unittest
+import asyncio
+import datetime
+import io
+import json
+import socket
 import threading
 import time
-import asyncio
-import socket
-import json
-import io
+import unittest
+
 import pytest
-import datetime
-from nabd import nabd
-from nabd.rfid import TagFlags
+from django.db import close_old_connections
 from mock import NabIOMock
 from utils import close_old_async_connections
-from django.db import close_old_connections
+
 import nabtaichid
+from nabd import nabd
+from nabd.rfid import TagFlags
 
 # import unittest.mock
 
 
 class SocketIO(io.RawIOBase):
-    """ Use RawIOBase for buffering lines """
+    """Use RawIOBase for buffering lines"""
 
     def __init__(self, sock):
         self.sock = sock
@@ -566,7 +568,8 @@ class TestNabd(TestNabdBase):
             self.assertEqual(len(nabio.called_list), 1)
             ear_pos = self.nabd.SLEEP_EAR_POSITION
             self.assertEqual(
-                nabio.called_list[0], f"move_ears({ear_pos}, {ear_pos})",
+                nabio.called_list[0],
+                f"move_ears({ear_pos}, {ear_pos})",
             )
             self.assertEqual(nabio.left_led, (255, 0, 255))
             self.assertEqual(nabio.center_led, (255, 0, 255))

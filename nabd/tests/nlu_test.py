@@ -1,7 +1,7 @@
-import unittest
 import asyncio
 import datetime
-import sys
+import unittest
+
 from nabd.nlu import NLU
 
 

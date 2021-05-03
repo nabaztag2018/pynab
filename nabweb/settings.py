@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+
 from django.utils.translation import ugettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -96,15 +97,15 @@ DATABASES = {
 }
 
 if "PGDATABASE" in os.environ:
-  DATABASES["default"]["NAME"] = os.environ["PGDATABASE"]
+    DATABASES["default"]["NAME"] = os.environ["PGDATABASE"]
 if "PGUSER" in os.environ:
-  DATABASES["default"]["USER"] = os.environ["PGUSER"]
+    DATABASES["default"]["USER"] = os.environ["PGUSER"]
 if "PGPASSWORD" in os.environ:
-  DATABASES["default"]["PASSWORD"] = os.environ["PGPASSWORD"]
+    DATABASES["default"]["PASSWORD"] = os.environ["PGPASSWORD"]
 if "PGHOST" in os.environ:
-  DATABASES["default"]["HOST"] = os.environ["PGHOST"]
+    DATABASES["default"]["HOST"] = os.environ["PGHOST"]
 if "PGPORT" in os.environ:
-  DATABASES["default"]["PORT"] = os.environ["PGPORT"]
+    DATABASES["default"]["PORT"] = os.environ["PGPORT"]
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators

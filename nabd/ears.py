@@ -2,7 +2,7 @@ import abc
 
 
 class Ears(object, metaclass=abc.ABCMeta):
-    """ Interface for ears """
+    """Interface for ears"""
 
     LEFT_EAR = 0
     RIGHT_EAR = 1
@@ -24,12 +24,12 @@ class Ears(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     async def reset_ears(self, target_left, target_right):
-        """ Reset the ears to a known position """
+        """Reset the ears to a known position"""
         raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
     async def move(self, ear, delta, direction):
-        """ Move by an increment in a given direction """
+        """Move by an increment in a given direction"""
         raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod

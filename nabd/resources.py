@@ -1,7 +1,8 @@
 import os
 import random
-from nabweb import settings
 from pathlib import Path
+
+from nabweb import settings
 
 
 class Resources(object):
@@ -45,7 +46,7 @@ class Resources(object):
 
         basepath = Path(settings.BASE_DIR)
         locale = await get_locale()
-                
+
         for app in os.listdir(basepath):
             if not os.path.isdir(app):
                 continue
@@ -59,12 +60,12 @@ class Resources(object):
 
     @staticmethod
     async def _find_random(type, parent, pattern):
-        
+
         from .i18n import get_locale
-                
+
         basepath = Path(settings.BASE_DIR)
         locale = await get_locale()
-        
+
         for app in os.listdir(basepath):
             if not os.path.isdir(app):
                 continue

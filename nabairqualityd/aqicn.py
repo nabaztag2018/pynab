@@ -3,11 +3,16 @@
 aqicn
 """
 
-import requests
 import json
 import logging
 
-AQICN_URL = "http://api.waqi.info/feed/here/?token=4cf7f445134f3fb69a4c3f0e5001e507a6cc386f"
+import requests
+
+AQICN_URL = (
+    "http://api.waqi.info/feed/here/"
+    "?token=4cf7f445134f3fb69a4c3f0e5001e507a6cc386f"
+)
+
 
 class aqicnError(Exception):
     """Raise when errors occur while fetching or parsing data"""
@@ -20,8 +25,8 @@ class aqicnClient:
         """Initialize the client object."""
         self._airquality = 0
         self._city = "-"
-        self._indice = indice 
-        if update == True:
+        self._indice = indice
+        if update:
             self.update()
 
     def update(self):
@@ -37,7 +42,7 @@ class aqicnClient:
             logging.debug(json_data)
             city = json_data["data"]["city"]["name"]
             indice_aqi = json_data["data"]["aqi"]
-            if ("pm25" in json_data["data"]["iaqi"]) :
+            if "pm25" in json_data["data"]["iaqi"]:
                 indice_pm25 = json_data["data"]["iaqi"]["pm25"]["v"]
             else:
                 logging.debug("no pm25 information available")

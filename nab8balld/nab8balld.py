@@ -1,5 +1,6 @@
-import sys
 import asyncio
+import sys
+
 from nabcommon.nabservice import NabService
 
 
@@ -12,13 +13,13 @@ class Nab8Balld(NabService):
         self._timeout_task = None
 
     async def __config(self):
-        from . import models
+        from . import models  # noqa
 
         config = await models.Config.load_async()
         return config
 
     async def reload_config(self):
-        from . import models
+        from . import models  # noqa
 
         await self.setup_listener()
 
@@ -26,7 +27,9 @@ class Nab8Balld(NabService):
         config = await self.__config()
         if config.enabled:
             packet = (
-                '{"type":"mode","mode":"idle","events":["button","asr/nab8balld"],'
+                ""
+                '{"type":"mode","mode":"idle",'
+                '"events":["button","asr/nab8balld"],'
                 '"request_id":"idle-button"}\r\n'
             )
         else:

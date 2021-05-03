@@ -1,8 +1,10 @@
-from snips_nlu import SnipsNLUEngine
-from pathlib import Path
-from nabweb import settings
-from concurrent.futures import ThreadPoolExecutor
 import traceback
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+
+from snips_nlu import SnipsNLUEngine
+
+from nabweb import settings
 
 
 class NLU:

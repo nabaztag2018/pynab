@@ -1,10 +1,11 @@
+import datetime
+
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from django.http import JsonResponse
-from django.utils.translation import ugettext as _
+
 from .models import Config
 from .nabairqualityd import NabAirqualityd
-import datetime
 
 
 class SettingsView(TemplateView):
@@ -31,7 +32,8 @@ class SettingsView(TemplateView):
         return render(request, SettingsView.template_name, context=context)
 
     def put(self, request, *args, **kwargs):
-        # quand on clique sur le bouton de l'intervaface pour jouer tout de suite
+        # quand on clique sur le bouton de l'intervaface pour jouer tout
+        # de suite
         config = Config.load()
         config.next_performance_date = datetime.datetime.now(
             datetime.timezone.utc

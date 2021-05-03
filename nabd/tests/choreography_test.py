@@ -1,11 +1,13 @@
 import asyncio
-import asynctest
 import base64
-import pytest
 import unittest
-from nabd.choreography import ChoreographyInterpreter
+
+import asynctest
+import pytest
 from mock import EarsMock, LedsMock, SoundMock
 from utils import close_old_async_connections
+
+from nabd.choreography import ChoreographyInterpreter
 
 
 class TestChoreographyBase(unittest.TestCase):

@@ -1,4 +1,5 @@
 from unittest import TestCase
+
 from nabbookd.rfid_data import serialize, unserialize
 
 

@@ -1,9 +1,10 @@
-import unittest
 import asyncio
-import sys
-import platform
-import pytest
 import os
+import platform
+import sys
+import unittest
+
+import pytest
 
 
 @pytest.mark.skipif(

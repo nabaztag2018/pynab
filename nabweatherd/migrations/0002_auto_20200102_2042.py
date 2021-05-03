@@ -7,18 +7,30 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('nabweatherd', '0001_initial'),
+        ("nabweatherd", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='config',
-            name='weather_playtime_hour',
-            field=models.IntegerField(default=7, validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(23)]),
+            model_name="config",
+            name="weather_playtime_hour",
+            field=models.IntegerField(
+                default=7,
+                validators=[
+                    django.core.validators.MinValueValidator(0),
+                    django.core.validators.MaxValueValidator(23),
+                ],
+            ),
         ),
         migrations.AddField(
-            model_name='config',
-            name='weather_playtime_min',
-            field=models.IntegerField(default=0, validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(59)]),
+            model_name="config",
+            name="weather_playtime_min",
+            field=models.IntegerField(
+                default=0,
+                validators=[
+                    django.core.validators.MinValueValidator(0),
+                    django.core.validators.MaxValueValidator(59),
+                ],
+            ),
         ),
     ]

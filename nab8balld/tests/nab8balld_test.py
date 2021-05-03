@@ -1,10 +1,12 @@
-import unittest
 import json
+import unittest
+
 import pytest
 from asgiref.sync import async_to_sync
+
 from nab8balld.nab8balld import Nab8Balld
-from nabd.tests.utils import close_old_async_connections
 from nabd.tests.mock import MockWriter, NabdMockTestCase
+from nabd.tests.utils import close_old_async_connections
 
 
 @pytest.mark.django_db

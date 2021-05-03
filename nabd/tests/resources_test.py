@@ -1,9 +1,11 @@
 import asyncio
 import unittest
+
 import pytest
-from nabd.resources import Resources
-from nabd.i18n import Config
+
 from nabd.choreography import ChoreographyInterpreter
+from nabd.i18n import Config
+from nabd.resources import Resources
 from nabd.tests.utils import close_old_async_connections
 
 

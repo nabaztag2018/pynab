@@ -1,10 +1,12 @@
+import datetime
+
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from django.http import JsonResponse
+
+from . import rfid_data
 from .models import Config
 from .nabsurprised import NabSurprised
-from . import rfid_data
-import datetime
 
 
 class SettingsView(TemplateView):
