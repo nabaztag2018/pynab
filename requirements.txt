@@ -15,8 +15,6 @@ coverage==5.0.3
 pyalsaaudio==0.8.4; sys_platform == 'linux'
 rpi-ws281x==4.2.2; sys_platform == 'linux' and 'armv6l' in platform_machine
 RPi.GPIO==0.7.0; sys_platform == 'linux' and 'armv6l' in platform_machine
-https://github.com/pguyot/py-kaldi-asr/releases/download/v0.5.2/Cython-0.29.10-cp37-cp37m-linux_armv6l.whl; sys_platform == 'linux' and 'armv6l' in platform_machine and python_version == '3.7'
-Cython==0.29.10; sys_platform != 'linux' or 'armv6l' not in platform_machine or python_version != '3.7'
 https://github.com/pguyot/py-kaldi-asr/releases/download/v0.5.3/py_kaldi_asr-0.5.3-cp37-cp37m-linux_armv6l.whl; sys_platform == 'linux' and 'armv6l' in platform_machine and python_version == '3.7'
 git+https://github.com/pguyot/py-kaldi-asr@v0.5.3; sys_platform != 'linux' or 'armv6l' not in platform_machine or python_version != '3.7'
 https://github.com/pguyot/snips-nlu/releases/download/0.20.2/snips_nlu-0.20.2-py3-none-any.whl
@@ -37,6 +35,7 @@ blurhash==1.1.4
 certifi==2019.11.28
 chardet==3.0.4
 Click==7.0
+Cython==0.29.23
 decorator==4.4.1
 deprecation==2.0.7
 docopt==0.6.2
@@ -63,7 +62,7 @@ python-dateutil==2.8.1
 python-magic==0.4.15
 pytz==2020.1
 PyYAML==5.4
-regex==2019.12.9
+regex==2021.4.4
 requests==2.24.0
 scipy==1.6.2
 scikit-learn==0.22.2.post1
