@@ -55,7 +55,7 @@ sight.
 6. Full upgrade for changes in localized, messages, drivers and dependencies: `bash upgrade.sh`
 7. Do your test 🚦
 8. Rollback to default branch: `git checkout release`
-9. Full upgrade for changes in localized, messages, drivers and dependencies: `bash upgrade.sh`
+9. Full upgrade for changes in drivers, dependencies, data models and localisation messages: `bash upgrade.sh`
 10. All done ! 🎉
 
 Then add comments on pull request 😉.
