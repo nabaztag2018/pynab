@@ -2,7 +2,6 @@
 
 set -xuo pipefail
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
-IFS=$'\n\t'
 
 # makerfaire2018: Paris Maker Faire 2018 card, only fits Nabaztag V1.
 # (default): Ulule 2019 card, fits Nabaztag V1 and Nabaztag V2. Features a microphone. Button is on GPIO 17.
@@ -279,7 +278,7 @@ if [ $upgrade -eq 1 ]; then
 fi
 venv/bin/python manage.py migrate
 
-all_locales="--locale=fr_FR --locale=de_DE --locale=en_US --locale=en_GB --locale=it_IT --locale=es_ES --locale=ja_jp --locale=pt_BR --locale=de --locale=en --locale=es --locale=fr --locale=it --locale=ja --locale=pt"
+all_locales="-l fr_FR -l de_DE -l en_US -l en_GB -l it_IT -l es_ES -l ja_jp -l pt_BR -l de -l en -l es -l fr -l it -l ja -l pt"
 
 if [ $upgrade -eq 0 ]; then
   venv/bin/django-admin compilemessages ${all_locales}
