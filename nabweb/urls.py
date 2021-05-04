@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import os
 from django.apps import apps
 from django.urls import include, path
 
@@ -71,6 +72,12 @@ urlpatterns = [
         name="nabweb.upgrade.checknow",
     ),
 ]
+
+if os.getenv('PYNAB_DEVELOPMENT') is not None:
+    # Development environment does not use nginx, serve
+    # static files directly
+    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+    urlpatterns += staticfiles_urlpatterns()
 
 # Service URLs added automatically
 for config in apps.get_app_configs():

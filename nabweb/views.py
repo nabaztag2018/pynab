@@ -348,8 +348,11 @@ class NabWebSytemInfoView(BaseView):
         }
 
     def get_pi_info(self):
-        with open("/proc/device-tree/model") as model_f:
-            model = model_f.readline()
+        try:
+            with open("/proc/device-tree/model") as model_f:
+                model = model_f.readline()
+        except (FileNotFoundError):
+            model = "unknown"
         return {"model": model}
 
     def get_context(self):
