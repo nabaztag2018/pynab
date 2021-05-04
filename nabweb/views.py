@@ -507,8 +507,7 @@ class GitInfo:
         )
         info["tag"] = (
             os.popen(
-                f"cd {repo_dir} && "
-                "sudo -u pi git describe --exact-match --tags"
+                f"cd {repo_dir} && " "sudo -u pi git describe --long --tags"
             )
             .read()
             .strip()
