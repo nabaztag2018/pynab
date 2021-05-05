@@ -37,8 +37,8 @@
                 <p>{% trans "To configure an RFID tag, start with pressing the button below and then when your Nabaztag's nose turns red, put a tag under it." %}</p>
               </span>
               <span class="help-read d-none">
-                <p>{% trans "Edit the configuration, then press 'Write tag' button below and put the tag under your Nabaztag's red nose." %}</p>
-                <p>{% trans "To configure another RFID tag, press the 'Configure another tag' button." %}</p>
+                <p>{% blocktrans %}Edit the configuration, then press <kbd class="btn-danger">Write tag</kbd> button below and put the tag under your Nabaztag's red nose.{% endblocktrans %}</p>
+                <p>{% blocktrans %}To configure another RFID tag, press the <kbd class="btn-primary">Configure another tag</kbd> button.{% endblocktrans %}</p>
               </span>
               <div class="alert alert-danger read-error d-none" role="alert"></div>
               <div class="alert alert-danger read-timeout d-none" role="alert">
@@ -93,6 +93,10 @@
                         <option value="21">{% trans "Vivid pink" %}</option><!-- #DA0E83 -->
                         <option value="22">{% trans "Pure yellow" %}</option><!-- #FFF200 -->
                         <option value="23">{% trans "Darker vivid orange" %}</option><!-- #F36E20 -->
+                        <option disabled>──────────</option>
+                        <option value="24">{% trans "Nanoztag kiwi" %}</option>
+                        <option value="25">{% trans "Nanoztag azur" %}</option>
+                        <option value="26">{% trans "Nanoztag black" %}</option>
                       </select>
                     </div>
                     <div class="col-sm-4">

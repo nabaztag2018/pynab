@@ -1,37 +1,48 @@
-import unittest
-import json
-import django
-import time
 import datetime
+import json
+import unittest
+
 import pytest
 from asgiref.sync import async_to_sync
-from nabweatherd.nabweatherd import NabWeatherd
-from nabweatherd import models
-from nabweatherd import rfid_data
-from nabd.tests.utils import close_old_async_connections
+
 from nabd.tests.mock import MockWriter, NabdMockTestCase
+from nabd.tests.utils import close_old_async_connections
+from nabweatherd import models, rfid_data
+from nabweatherd.nabweatherd import NabWeatherd
 
 
 class TestNabWeatherd(unittest.TestCase):
     def test_aliases(self):
         service = NabWeatherd()
-        weather_class = service.normalize_weather_class("J_W1_0-N_4")
-        self.assertEqual(weather_class, "J_W1_0-N_1")
-        weather_class = service.normalize_weather_class("J_W1_0-N_1")
-        self.assertEqual(weather_class, "J_W1_0-N_1")
-        weather_class = service.normalize_weather_class("J_W2_4-N_1")
-        self.assertEqual(weather_class, "J_W1_3-N_0")
+        weather_class = service.normalize_weather_class("Pluie forte")
+        self.assertEqual(weather_class, "Pluie forte")
+        weather_class = service.normalize_weather_class("None")
+        self.assertEqual(weather_class, None)
 
 
 @pytest.mark.django_db(transaction=True)
 class TestNabWeatherdDB(unittest.TestCase):
+    RENNES_LOCATION_JSON = (
+        '{"insee":"35238","name":"Rennes",'
+        '"lat":48.11417,"lon":-1.68083,"country":"FR",'
+        '"admin":"Bretagne","admin2":"35","postCode":"35000"}'
+    )
+
     def tearDown(self):
         close_old_async_connections()
 
     def test_fetch_info_data(self):
         service = NabWeatherd()
+
         data = async_to_sync(service.fetch_info_data)(
-            ("75005", NabWeatherd.UNIT_CELSIUS, "rain")
+            (
+                TestNabWeatherdDB.RENNES_LOCATION_JSON,
+                NabWeatherd.UNIT_CELSIUS,
+                "weather_and_rain",
+                3,
+                None,
+                False,
+            )
         )
         self.assertTrue("current_weather_class" in data)
         self.assertTrue("today_forecast_weather_class" in data)
@@ -41,20 +52,91 @@ class TestNabWeatherdDB(unittest.TestCase):
         self.assertTrue("next_rain" in data)
         self.assertTrue("weather_animation_type" in data)
 
-    def test_perform(self):
+    def test_perform_both(self):
         service = NabWeatherd()
         writer = MockWriter()
         service.writer = writer
-        config_t = ("75005", NabWeatherd.UNIT_CELSIUS, "rain")
+        config_t = (
+            TestNabWeatherdDB.RENNES_LOCATION_JSON,
+            NabWeatherd.UNIT_CELSIUS,
+            "weather_and_rain",
+            3,
+            None,
+            False,
+        )
         expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
         async_to_sync(service.perform)(expiration, "today", config_t)
-        self.assertEqual(len(writer.written), 2)
+        self.assertEqual(len(writer.written), 3)
         packet = writer.written[0]
+        packet_json = json.loads(packet.decode("utf8"))
+        self.assertEqual(packet_json["type"], "info")
+        self.assertEqual(packet_json["info_id"], "nabweatherd_rain")
+        packet = writer.written[1]
         packet_json = json.loads(packet.decode("utf8"))
         self.assertEqual(packet_json["type"], "info")
         self.assertEqual(packet_json["info_id"], "nabweatherd")
         self.assertTrue("animation" in packet_json)
+        packet = writer.written[2]
+        packet_json = json.loads(packet.decode("utf8"))
+        self.assertEqual(packet_json["type"], "message")
+        self.assertTrue("signature" in packet_json)
+        self.assertTrue("body" in packet_json)
+
+    def test_perform_rain(self):
+        service = NabWeatherd()
+        writer = MockWriter()
+        service.writer = writer
+        config_t = (
+            TestNabWeatherdDB.RENNES_LOCATION_JSON,
+            NabWeatherd.UNIT_CELSIUS,
+            "rain_only",
+            3,
+            None,
+            False,
+        )
+        expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
+        async_to_sync(service.perform)(expiration, "today", config_t)
+        self.assertEqual(len(writer.written), 3)
+        packet = writer.written[0]
+        packet_json = json.loads(packet.decode("utf8"))
+        self.assertEqual(packet_json["type"], "info")
+        self.assertEqual(packet_json["info_id"], "nabweatherd_rain")
         packet = writer.written[1]
+        packet_json = json.loads(packet.decode("utf8"))
+        self.assertEqual(packet_json["type"], "info")
+        self.assertEqual(packet_json["info_id"], "nabweatherd")
+        self.assertFalse("animation" in packet_json)
+        packet = writer.written[2]
+        packet_json = json.loads(packet.decode("utf8"))
+        self.assertEqual(packet_json["type"], "message")
+        self.assertTrue("signature" in packet_json)
+        self.assertTrue("body" in packet_json)
+
+    def test_perform(self):
+        service = NabWeatherd()
+        writer = MockWriter()
+        service.writer = writer
+        config_t = (
+            TestNabWeatherdDB.RENNES_LOCATION_JSON,
+            NabWeatherd.UNIT_CELSIUS,
+            "weather_only",
+            3,
+            None,
+            False,
+        )
+        expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
+        async_to_sync(service.perform)(expiration, "today", config_t)
+        self.assertEqual(len(writer.written), 3)
+        packet = writer.written[0]
+        packet_json = json.loads(packet.decode("utf8"))
+        self.assertEqual(packet_json["type"], "info")
+        self.assertEqual(packet_json["info_id"], "nabweatherd_rain")
+        packet = writer.written[1]
+        packet_json = json.loads(packet.decode("utf8"))
+        self.assertEqual(packet_json["type"], "info")
+        self.assertEqual(packet_json["info_id"], "nabweatherd")
+        self.assertTrue("animation" in packet_json)
+        packet = writer.written[2]
         packet_json = json.loads(packet.decode("utf8"))
         self.assertEqual(packet_json["type"], "message")
         self.assertTrue("signature" in packet_json)
@@ -62,21 +144,29 @@ class TestNabWeatherdDB(unittest.TestCase):
 
     def test_asr(self):
         config = models.Config.load()
-        config.location = "75005"
+        config.location = TestNabWeatherdDB.RENNES_LOCATION_JSON
         config.unit = NabWeatherd.UNIT_CELSIUS
+        config.weather_animation_type = "weather_only"
         config.save()
         service = NabWeatherd()
         writer = MockWriter()
         service.writer = writer
-        packet = {"type": "asr_event", "nlu": {"intent": "weather_forecast"}}
+        packet = {
+            "type": "asr_event",
+            "nlu": {"intent": "nabweatherd/forecast"},
+        }
         async_to_sync(service.process_nabd_packet)(packet)
-        self.assertEqual(len(writer.written), 2)
+        self.assertEqual(len(writer.written), 3)
         packet = writer.written[0]
+        packet_json = json.loads(packet.decode("utf8"))
+        self.assertEqual(packet_json["type"], "info")
+        self.assertEqual(packet_json["info_id"], "nabweatherd_rain")
+        packet = writer.written[1]
         packet_json = json.loads(packet.decode("utf8"))
         self.assertEqual(packet_json["type"], "info")
         self.assertEqual(packet_json["info_id"], "nabweatherd")
         self.assertTrue("animation" in packet_json)
-        packet = writer.written[1]
+        packet = writer.written[2]
         packet_json = json.loads(packet.decode("utf8"))
         self.assertEqual(packet_json["type"], "message")
         self.assertTrue("signature" in packet_json)

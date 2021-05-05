@@ -1,0 +1,50 @@
+name: tests
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Service containers
+    services:
+      postgres:
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - uses: hecrj/setup-rust-action@v1
+      with:
+        rust-version: 1.44.1
+    - name: Install dependencies
+      run: |
+        sudo apt-get install -y libasound2-dev libmpg123-dev libatlas-base-dev curl
+        sudo sh install_kaldi.sh
+        python -m pip install --upgrade pip
+        pip install cython numpy setuptools_rust wheel
+    - name: Install requirements
+      run: pip install -r requirements.txt
+    - name: Setup PostgreSQL database
+      run: |
+        PGPASSWORD=postgres PGHOST=localhost PGPORT=5432 psql -U postgres -d postgres -c "CREATE USER pynab PASSWORD 'pynab'; ALTER ROLE pynab CREATEDB;"
+    - name: Setup NLU engines
+      run: sh .travis_build_nlu_engines.sh
+    - name: Fake NTP synchronization
+      run: sudo mkdir -p /run/systemd/timesync/ && sudo touch /run/systemd/timesync/synchronized
+    - name: Run tests with coverage
+      run: |
+        PGPASSWORD=pynab PGHOST=localhost PGPORT=5432 coverage run -m pytest

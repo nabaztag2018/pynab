@@ -1,7 +1,8 @@
 import pytest
-from nabtaichid.nabtaichid import NabTaichid
-from nabd.tests.utils import close_old_async_connections
+
 from nabd.tests.mock import NabdMockTestCase
+from nabd.tests.utils import close_old_async_connections
+from nabtaichid.nabtaichid import NabTaichid
 
 
 @pytest.mark.django_db

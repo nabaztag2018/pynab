@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-17 14:57+0100\n"
+"POT-Creation-Date: 2021-04-28 00:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -36,12 +36,12 @@ msgid "Kindred soul"
 msgstr "Âme sœur"
 
 #: templates/nabmastodond/settings.html:25
-msgid "friend@mstdn.fr"
-msgstr "ami(e)@mstdn.fr"
-
-#: templates/nabmastodond/settings.html:25
 msgid "Friend address"
 msgstr "Adresse de votre ami(e)"
+
+#: templates/nabmastodond/settings.html:25
+msgid "e.g. name@instance.tld"
+msgstr "ex: nom@instance.tld"
 
 #: templates/nabmastodond/settings.html:27
 msgid "Propose"
@@ -184,24 +184,22 @@ msgstr ""
 #: templates/nabmastodond/settings.html:259
 msgid ""
 "First, <strong>create an account for your Nabaztag</strong> on a given "
-"Mastodon instance, for example <a href=\"https://mstdn.fr/auth/sign_up\" "
-"target=\"_blank\">mstdn.fr</a> or "
-"<a href=\"https://botsin.space/auth/sign_up\" target=\"_blank\">"
-"botsin.space</a>."
+"Mastodon instance, you can find a directory of Mastodon instances <a href="
+"\"https://joinmastodon.org/\" target=\"_blank\">here</a>."
 msgstr ""
-"<strong>Créez un compte pour votre Nabaztag</strong> sur une instance "
-"Mastodon, par exemple <a href=\"https://mstdn.fr/auth/sign_up\" target="
-"\"_blank\">mstdn.fr</a> ou "
-"<a href=\"https://botsin.space/auth/sign_up\" target=\"_blank\">"
-"botsin.space</a>."
+"Tout d'abord,<strong> créez un compte pour votre Nabaztag</strong> sur une "
+"instance Mastodon, vous trouverez <a href=\"https://joinmastodon.org/\" "
+"target=\"_blank\">ici</a> un répertoire des instances."
 
 #: templates/nabmastodond/settings.html:260
 msgid ""
-"Indicate the instance your Nabaztag's account is on in the instance box "
-"below and connect this account with the \"Connect\" button."
+"Enter the instance your Nabaztag's account is on in the instance box below "
+"and connect this account with the <kbd class=\"btn-primary\">Connect</kbd> "
+"button."
 msgstr ""
 "Indiquez l'instance de Mastodon sur laquelle est le compte de votre Nabaztag "
-"ci-dessous et connectez ce compte avec le bouton \"Connexion\"."
+"ci-dessous et connectez ce compte avec le bouton <kbd class=\"btn-primary"
+"\">Connexion</kbd>."
 
 #: templates/nabmastodond/settings.html:264
 msgid "Instance"
@@ -233,6 +231,3 @@ msgstr "Déconnexion de Mastodon ?"
 msgctxt "button"
 msgid "Disconnect"
 msgstr "Déconnexion"
-
-#~ msgid "Not connected to Mastodon."
-#~ msgstr "Pas connecté à Mastodon."

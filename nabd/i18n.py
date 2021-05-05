@@ -1,6 +1,6 @@
 from django.db import models
+
 from nabcommon import singleton_model
-from datetime import date
 
 
 class Config(singleton_model.SingletonModel):

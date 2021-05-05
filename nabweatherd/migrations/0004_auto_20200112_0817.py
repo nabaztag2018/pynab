@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('nabweatherd', '0003_config_weather_animation_type'),
+        ("nabweatherd", "0003_config_weather_animation_type"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='config',
-            name='weather_animation_type',
+            model_name="config",
+            name="weather_animation_type",
             field=models.TextField(null=True),
         ),
     ]

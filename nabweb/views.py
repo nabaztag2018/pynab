@@ -1,22 +1,23 @@
 import abc
 import asyncio
+import base64
 import datetime
 import json
 import os
 import re
 import subprocess
-import base64
 
 from django.apps import apps
-from django.views.generic import View
+from django.conf import settings
+from django.core.cache import cache
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.utils import translation
-from django.conf import settings
-from django.http import JsonResponse
-from django.core.cache import cache
-from nabd.i18n import Config
+from django.utils.translation import to_language, to_locale
+from django.views.generic import View
+
 from nabcommon.nabservice import NabService
-from django.utils.translation import to_locale, to_language
+from nabd.i18n import Config
 
 
 class NabdConnection:
@@ -33,9 +34,9 @@ class NabdConnection:
         try:
             async with NabdConnection() as conn:
                 return await fun(conn.reader, conn.writer, *args)
-        except ConnectionRefusedError as err:
+        except ConnectionRefusedError:
             return {"status": "error", "message": "Nabd is not running"}
-        except asyncio.TimeoutError as err:
+        except asyncio.TimeoutError:
             return {
                 "status": "error",
                 "message": "Communication with Nabd timed out",
@@ -91,7 +92,9 @@ class BaseView(View, metaclass=abc.ABCMeta):
                 if service_page == page:
                     services.append(
                         {
-                            "priority": config.module.NABAZTAG_SERVICE_PRIORITY,
+                            "priority": (
+                                config.module.NABAZTAG_SERVICE_PRIORITY
+                            ),
                             "name": config.name,
                         }
                     )
@@ -228,7 +231,7 @@ class NabWebRfidReadView(View):
                             and packet["event"] != "removed"
                         ):
                             return {"status": "ok", "event": packet}
-                except asyncio.TimeoutError as err:
+                except asyncio.TimeoutError:
                     return {
                         "status": "timeout",
                         "message": "No RFID tag was detected",
@@ -286,7 +289,7 @@ class NabWebRfidWriteView(View):
                     if "message" in packet:
                         response["message"] = packet["message"]
                     return response
-            except asyncio.TimeoutError as err:
+            except asyncio.TimeoutError:
                 return {
                     "status": "timeout",
                     "message": "No RFID tag was detected",
@@ -327,23 +330,37 @@ class NabWebSytemInfoView(BaseView):
             matchObj = re.match(r'PRETTY_NAME="(.+)"$', line, re.M)
             if matchObj:
                 version = matchObj.group(1)
-        with open("/etc/rpi-issue") as issue:
-            line = issue.readline()
-            matchObj = re.search(r" ([0-9-]+)$", line, re.M)
-            if matchObj:
-                version = version + ", issue " + matchObj.group(1)
+        kernel_release = os.popen("uname -rm").read().rstrip()
+        version = version + " - Kernel " + kernel_release
+        hostname = os.popen("hostname -a").read().rstrip()
+        ip_address = os.popen("hostname -I").read().rstrip()
         with open("/proc/uptime", "r") as uptime_f:
             uptime = int(float(uptime_f.readline().split()[0]))
         ssh_state = os.popen("systemctl is-active ssh").read().rstrip()
         if ssh_state == "active" and os.path.isfile("/run/sshwarn"):
             ssh_state = "sshwarn"
-        return {"version": version, "uptime": uptime, "ssh": ssh_state}
+        return {
+            "version": version,
+            "hostname": hostname,
+            "address": ip_address,
+            "uptime": uptime,
+            "ssh": ssh_state,
+        }
+
+    def get_pi_info(self):
+        try:
+            with open("/proc/device-tree/model") as model_f:
+                model = model_f.readline()
+        except (FileNotFoundError):
+            model = "unknown"
+        return {"model": model}
 
     def get_context(self):
         context = super().get_context()
         gestalt = asyncio.run(self.query_gestalt())
         context["gestalt"] = gestalt
         context["os"] = self.get_os_info()
+        context["pi"] = self.get_pi_info()
         return context
 
 
@@ -372,7 +389,7 @@ class NabWebHardwareTestView(View):
                     and packet["request_id"] == "test"
                 ):
                     return {"status": "ok", "result": packet}
-        except asyncio.TimeoutError as err:
+        except asyncio.TimeoutError:
             return {
                 "status": "error",
                 "message": "Communication with Nabd timed out (running test)",
@@ -490,7 +507,8 @@ class GitInfo:
         )
         info["tag"] = (
             os.popen(
-                f"cd {repo_dir} && sudo -u pi git describe --exact-match --tags"
+                f"cd {repo_dir} && "
+                "sudo -u pi git describe --exact-match --tags"
             )
             .read()
             .strip()
@@ -612,7 +630,8 @@ class NabWebUpgradeNowView(View):
             }
         locked = (
             os.popen(
-                "sudo -u pi flock -n /tmp/pynab.upgrade echo 'OK' || echo 'Locked'"
+                "sudo -u pi flock -n /tmp/pynab.upgrade echo 'OK' "
+                "|| echo 'Locked'"
             )
             .read()
             .rstrip()
@@ -643,3 +662,41 @@ class NabWebUpgradeNowView(View):
                 "message": "Could not acquire lock, a problem occurred",
             }
         )
+
+
+class NabWebShutdownView(View):
+    SHUTDOWN_TIMEOUT = 30.0
+
+    async def os_shutdown(self, mode):
+        return await NabdConnection.transaction(self._do_os_shutdown, mode)
+
+    async def _do_os_shutdown(self, reader, writer, mode):
+        try:
+            packet = (
+                f'{{"type":"shutdown","mode":"{mode}",'
+                f'"request_id":"shutdown"}}\r\n'
+            )
+            writer.write(packet.encode("utf8"))
+            await writer.drain()
+            while True:
+                line = await asyncio.wait_for(
+                    reader.readline(), NabWebShutdownView.SHUTDOWN_TIMEOUT
+                )
+                packet = json.loads(line.decode("utf8"))
+                if (
+                    "type" in packet
+                    and packet["type"] == "response"
+                    and "request_id" in packet
+                    and packet["request_id"] == "shutdown"
+                ):
+                    return {"status": "ok", "result": packet}
+        except asyncio.TimeoutError:
+            return {
+                "status": "error",
+                "message": "Communication with Nabd timed out (shutdown)",
+            }
+
+    def post(self, request, *args, **kwargs):
+        mode = kwargs.get("mode")
+        shutdown_result = asyncio.run(self.os_shutdown(mode))
+        return JsonResponse(shutdown_result)

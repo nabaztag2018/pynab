@@ -51,8 +51,8 @@ unzip -u "${rpi_zip}"
 
 mv "$(ls *.img | head -n 1)" "${image}"
 
-# Add 3G to the image size
-dd if=/dev/zero bs=1M count=3072 >> "${image}"
+# Add 3.2G to the image size
+dd if=/dev/zero bs=1M count=3276 >> "${image}"
 
 # Configure loopback device to expand partition 2
 loopdev=$(losetup --find --show "${image}")
@@ -106,7 +106,7 @@ cleanup
 
 # Compress the image
 if [ $TRAVIS_BRANCH = "releng" ]; then
-    zip -v pynab-prerelease.img.zip "${image}"
+    xz -0 -T 0 -v "${image}" && mv "${image}.xz" pynab-prerelease.img.xz
 else
-    zip -v pynab.img.zip "${image}"
+    xz -0 -T 0 -v "${image}" && mv "${image}.xz" pynab.img.xz
 fi

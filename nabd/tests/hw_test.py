@@ -1,12 +1,16 @@
-import unittest
 import asyncio
-import sys
+import os
 import platform
+import sys
+import unittest
+
 import pytest
 
 
 @pytest.mark.skipif(
-    sys.platform != "linux" or "arm" not in platform.machine(),
+    sys.platform != "linux"
+    or "arm" not in platform.machine()
+    or "CI" in os.environ,
     reason="HW test only makes sense on a physical Nabaztag",
 )
 class TestNabIOHW(unittest.TestCase):

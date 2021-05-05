@@ -1,7 +1,9 @@
-from django.test import TestCase, Client
-from nabmastodond.models import Config
 import datetime
+
 from dateutil.tz import tzutc
+from django.test import Client, TestCase
+
+from nabmastodond.models import Config
 
 
 class TestView(TestCase):
@@ -18,7 +20,6 @@ class TestView(TestCase):
         self.assertTrue("config" in response.context)
         config = Config.load()
         self.assertEqual(response.context["config"], config)
-        self.assertEqual(config.instance, "mstdn.fr")
         self.assertEqual(config.client_id, None)
         self.assertEqual(config.client_secret, None)
         self.assertEqual(config.redirect_uri, None)
@@ -37,7 +38,6 @@ class TestView(TestCase):
     def test_post_connect(self):
         c = Client()
         config = Config.load()
-        self.assertEqual(config.instance, "mstdn.fr")
         config.client_id = "test_client_id"
         config.client_secret = "test_client_secret"
         config.save()
@@ -106,7 +106,6 @@ class TestView(TestCase):
         self.assertTrue("status" in response_json)
         self.assertTrue("request_url" in response_json)
         config = Config.load()
-        self.assertEqual(config.instance, "mstdn.fr")
         self.assertNotEqual(config.client_id, ms2_client_id)
         self.assertNotEqual(config.client_secret, ms2_client_secret)
         self.assertEqual(
@@ -116,7 +115,6 @@ class TestView(TestCase):
     def test_delete_connect(self):
         c = Client()
         config = Config.load()
-        self.assertEqual(config.instance, "mstdn.fr")
         config.client_id = "test_client_id"
         config.client_secret = "test_client_secret"
         config.redirect_uri = "test_redirect_uri"

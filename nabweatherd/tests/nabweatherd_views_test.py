@@ -1,10 +1,18 @@
-from django.test import TestCase, Client
-from django.http import JsonResponse
-from nabweatherd.models import Config
 import datetime
+
+from django.http import JsonResponse
+from django.test import Client, TestCase
+
+from nabweatherd.models import Config
 
 
 class TestView(TestCase):
+    NYC_LOCATION_JSON = (
+        '{"insee":"","name":"New York City",'
+        '"lat":40.71427,"lon":-74.00597,"country":"US",'
+        '"admin":"New York","admin2":"","postCode":""}'
+    )
+
     def setUp(self):
         Config.load()
 
@@ -19,6 +27,7 @@ class TestView(TestCase):
         config = Config.load()
         self.assertEqual(response.context["config"], config)
         self.assertEqual(config.location, None)
+        self.assertEqual(config.location_user_friendly, None)
         self.assertEqual(config.unit, 1)
         self.assertEqual(config.next_performance_date, None)
 
@@ -38,7 +47,9 @@ class TestView(TestCase):
 
     def test_set_location(self):
         c = Client()
-        response = c.post("/nabweatherd/settings", {"location": "75005"})
+        response = c.post(
+            "/nabweatherd/settings", {"location": TestView.NYC_LOCATION_JSON}
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.templates[0].name, "nabweatherd/settings.html"
@@ -46,7 +57,10 @@ class TestView(TestCase):
         self.assertTrue("config" in response.context)
         config = Config.load()
         self.assertEqual(response.context["config"], config)
-        self.assertEqual(config.location, "75005")
+        self.assertEqual(config.location, TestView.NYC_LOCATION_JSON)
+        self.assertEqual(
+            config.location_user_friendly, "New York City - New York - US"
+        )
         self.assertEqual(config.next_performance_date, None)
         self.assertEqual(config.next_performance_type, None)
 

@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import SettingsView, RFIDDataView
+
+from .views import RFIDDataView, SettingsView
 
 urlpatterns = [
     path("settings", SettingsView.as_view()),

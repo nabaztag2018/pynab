@@ -4,10 +4,10 @@ import time
 from .button_gpio import ButtonGPIO
 from .ears import Ears
 from .ears_dev import EarsDev
-from .rfid_dev import RfidDev
 from .leds import Led
 from .leds_neopixel import LedsNeoPixel
 from .nabio import NabIO
+from .rfid_dev import RfidDev
 from .sound_alsa import SoundAlsa
 
 
@@ -140,14 +140,14 @@ class NabIOHW(NabIO):
             left_ear_status = "broken"
         else:
             if left_ear_position is None:
-                left_ear_status = f"ok (position unknown)"
+                left_ear_status = "ok (position unknown)"
             else:
                 left_ear_status = f"ok (position={left_ear_position})"
         if self.ears.is_broken(Ears.RIGHT_EAR):
             right_ear_status = "broken"
         else:
             if right_ear_position is None:
-                right_ear_status = f"ok (position unknown)"
+                right_ear_status = "ok (position unknown)"
             else:
                 right_ear_status = f"ok (position={right_ear_position})"
         return {
@@ -224,7 +224,11 @@ class NabIOHW(NabIO):
 
     @staticmethod
     def detect_model():
-        _, sound_configuration, _, = SoundAlsa.sound_configuration()
+        (
+            _,
+            sound_configuration,
+            _,
+        ) = SoundAlsa.sound_configuration()
 
         if sound_configuration == SoundAlsa.MODEL_2019_CARD_NAME:
             if RfidDev.is_available():

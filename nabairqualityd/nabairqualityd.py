@@ -1,9 +1,11 @@
-import sys
 import datetime
+import sys
+
 from asgiref.sync import sync_to_async
+
 from nabcommon.nabservice import NabInfoCachedService
+
 from . import aqicn
-import logging
 
 
 class NabAirqualityd(NabInfoCachedService):
@@ -58,10 +60,6 @@ class NabAirqualityd(NabInfoCachedService):
 
     ANIMATIONS = [ANIMATION_3, ANIMATION_2, ANIMATION_1]
 
-    def __init__(self):
-        self.index_airquality = 9
-        super().__init__()
-
     async def get_config(self):
         from . import models
 
@@ -69,7 +67,7 @@ class NabAirqualityd(NabInfoCachedService):
         return (
             config.next_performance_date,
             config.next_performance_type,
-            config.index_airquality,
+            (config.index_airquality, config.visual_airquality),
         )
 
     async def update_next(self, next_date, next_args):
@@ -80,10 +78,9 @@ class NabAirqualityd(NabInfoCachedService):
         config.next_performance_type = next_args
         await config.save_async()
 
-    async def fetch_info_data(self, index_airquality):
-        logging.debug("index_airquality=" + str(index_airquality))
-        if index_airquality == "9":
-            return None
+    async def fetch_info_data(self, config_t):
+
+        index_airquality, visual_airquality = config_t
         client = aqicn.aqicnClient(index_airquality)
         await sync_to_async(client.update)()
 
@@ -97,12 +94,19 @@ class NabAirqualityd(NabInfoCachedService):
             config.localisation = new_city
             await config.save_async()
 
-        return client.get_data()
+        return {
+            "visual_airquality": visual_airquality,
+            "data": client.get_data(),
+        }
 
     def get_animation(self, info_data):
-        if info_data is None:
+
+        if (info_data["visual_airquality"] == "nothing") or (
+            info_data["visual_airquality"] == "alert"
+            and info_data["data"] == 2
+        ):
             return None
-        info_animation = NabAirqualityd.ANIMATIONS[info_data]
+        info_animation = NabAirqualityd.ANIMATIONS[info_data["data"]]
         return info_animation
 
     async def perform_additional(self, expiration, type, info_data, config_t):
@@ -110,7 +114,7 @@ class NabAirqualityd(NabInfoCachedService):
             return
 
         if type == "today":
-            message = NabAirqualityd.MESSAGES[info_data]
+            message = NabAirqualityd.MESSAGES[info_data["data"]]
             packet = (
                 '{"type":"message",'
                 '"signature":{"audio":["nabairqualityd/signature.mp3"]},'
@@ -123,7 +127,7 @@ class NabAirqualityd(NabInfoCachedService):
     async def process_nabd_packet(self, packet):
         if (
             packet["type"] == "asr_event"
-            and packet["nlu"]["intent"] == "airquality_forecast"
+            and packet["nlu"]["intent"] == "nabairqualityd/forecast"
         ):
             next_date, next_args, config_t = await self.get_config()
             now = datetime.datetime.now(datetime.timezone.utc)

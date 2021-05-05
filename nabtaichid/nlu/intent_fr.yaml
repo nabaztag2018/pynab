@@ -1,6 +1,6 @@
 ---
 type: intent
-name: taichi
+name: nabtaichid/taichi
 utterances:
   - tai-chi
   - c'est l'heure du tai-chi

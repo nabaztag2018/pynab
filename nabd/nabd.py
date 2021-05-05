@@ -1,31 +1,32 @@
 import asyncio
-import json
-import datetime
 import collections
-import sys
+import datetime
+import gc
 import getopt
+import json
+import logging
 import os
 import socket
-import logging
 import subprocess
-import dateutil.parser
+import sys
 import time
 import traceback
-import gc
 from enum import Enum
-from lockfile.pidlockfile import PIDLockFile
+
+import dateutil.parser
 from lockfile import AlreadyLocked, LockFailed
-from django.conf import settings
-from django.apps import apps
-from nabcommon import nablogging
+from lockfile.pidlockfile import PIDLockFile
+
+from nabcommon import nablogging, settings
 from nabcommon.nabservice import NabService
-from .leds import Led
+
 from .ears import Ears
+from .leds import Led
 from .rfid import (
-    TagFlags,
-    TAG_APPLICATIONS,
-    TAG_APPLICATION_NONE,
     DEFAULT_RFID_TIMEOUT,
+    TAG_APPLICATION_NONE,
+    TAG_APPLICATIONS,
+    TagFlags,
 )
 
 
@@ -45,23 +46,7 @@ class Nabd:
     SYSTEMD_ACTIVATED_FD = 3
 
     def __init__(self, nabio):
-        if not settings.configured:
-            conf = {
-                "INSTALLED_APPS": [type(self).__name__.lower()],
-                "USE_TZ": True,
-                "DATABASES": {
-                    "default": {
-                        "ENGINE": "django.db.backends.postgresql",
-                        "NAME": "pynab",
-                        "USER": "pynab",
-                        "PASSWORD": "",
-                        "HOST": "",
-                        "PORT": "",
-                    }
-                },
-            }
-            settings.configure(**conf)
-            apps.populate(settings.INSTALLED_APPS)
+        settings.configure(type(self).__name__.lower())
         self.nabio = nabio
         self.idle_cv = asyncio.Condition()
         self.idle_queue = collections.deque()
@@ -83,6 +68,7 @@ class Nabd:
         self._ears_moved_task = None
         self.playing_cancelable = False
         self.playing_request_id = None
+        self.boot = True
         Nabd.leds_boot(self.nabio, 2)
         if self.nabio.has_sound_input():
             from . import i18n
@@ -101,6 +87,7 @@ class Nabd:
         """
         Reload configuration.
         """
+        self.boot = True
         if self.nabio.has_sound_input():
             from . import i18n
             from .asr import ASR
@@ -124,6 +111,16 @@ class Nabd:
                 self.nlu = NLU(self._nlu_locale)
                 Nabd.leds_boot(self.nabio, 4)
             self.nabio.set_leds(None, None, None, None, None)
+        self.nabio.pulse(Led.BOTTOM, (255, 0, 255))
+        await self.boot_playsound()
+
+    async def boot_playsound(self):
+        """
+        Play sound indicating end of boot.
+        """
+        if self.boot:
+            await self.nabio.play_sequence([{"audio": ["boot/*.mp3"]}])
+            self.boot = False
 
     async def _do_transition_to_idle(self):
         """
@@ -134,9 +131,11 @@ class Nabd:
         left, right = self.ears["left"], self.ears["right"]
         await self.nabio.move_ears_with_leds((255, 0, 255), left, right)
         self.nabio.pulse(Led.BOTTOM, (255, 0, 255))
+        await self.boot_playsound()
 
     async def sleep_setup(self):
         self.nabio.set_leds(None, None, None, None, None)
+        await self.boot_playsound()
         await self.nabio.move_ears(
             Nabd.SLEEP_EAR_POSITION, Nabd.SLEEP_EAR_POSITION
         )
@@ -306,7 +305,7 @@ class Nabd:
                 self.broadcast_state()
 
     async def process_info_packet(self, packet, writer):
-        """ Process an info packet """
+        """Process an info packet"""
         if "info_id" in packet:
             if "animation" in packet:
                 if (
@@ -343,21 +342,31 @@ class Nabd:
             )
 
     async def process_ears_packet(self, packet, writer):
-        """ Process an ears packet """
+        """Process an ears packet"""
         if "left" in packet:
             self.ears["left"] = packet["left"]
         if "right" in packet:
             self.ears["right"] = packet["right"]
         if self.state == State.IDLE:
+            if "event" in packet and packet["event"]:
+                # Simulate an ears_event
+                self.broadcast_event(
+                    "ears",
+                    {
+                        "type": "ears_event",
+                        "left": self.ears["left"],
+                        "right": self.ears["right"],
+                    },
+                )
             await self.nabio.move_ears(self.ears["left"], self.ears["right"])
         self.write_response_packet(packet, {"status": "ok"}, writer)
 
     async def process_command_packet(self, packet, writer):
-        """ Process a command packet """
+        """Process a command packet"""
         await self.process_perform_packet("sequence", packet, writer)
 
     async def process_message_packet(self, packet, writer):
-        """ Process a message packet """
+        """Process a message packet"""
         await self.process_perform_packet("body", packet, writer)
 
     async def process_perform_packet(self, slot, packet, writer):
@@ -381,7 +390,7 @@ class Nabd:
             )
 
     async def process_cancel_packet(self, packet, writer):
-        """ Process a cancel packet """
+        """Process a cancel packet"""
         if "request_id" in packet:
             request_id = packet["request_id"]
             if self.playing_request_id == request_id:
@@ -421,13 +430,13 @@ class Nabd:
             )
 
     async def process_wakeup_packet(self, packet, writer):
-        """ Process a wakeup packet """
+        """Process a wakeup packet"""
         self.write_response_packet(packet, {"status": "ok"}, writer)
         if self.state == State.ASLEEP:
             await self.transition_to(State.IDLE)
 
     async def process_sleep_packet(self, packet, writer):
-        """ Process a sleep packet """
+        """Process a sleep packet"""
         if self.state == State.ASLEEP:
             self.write_response_packet(packet, {"status": "ok"}, writer)
         else:
@@ -436,7 +445,7 @@ class Nabd:
                 self.idle_cv.notify()
 
     async def process_mode_packet(self, packet, writer):
-        """ Process a mode packet """
+        """Process a mode packet"""
         if "mode" in packet and packet["mode"] == "interactive":
             if writer == self.interactive_service_writer:
                 if "events" in packet:
@@ -480,7 +489,7 @@ class Nabd:
             )
 
     async def process_gestalt_packet(self, packet, writer):
-        """ Process a gestalt packet """
+        """Process a gestalt packet"""
         proc = subprocess.Popen(
             ["ps", "-o", "etimes", "-p", str(os.getpid()), "--no-headers"],
             stdout=subprocess.PIPE,
@@ -496,8 +505,8 @@ class Nabd:
         self.write_response_packet(packet, response, writer)
 
     async def process_config_update_packet(self, packet, writer):
-        """ Process a config_update packet """
-        if not "service" in packet:
+        """Process a config_update packet"""
+        if "service" not in packet:
             self.write_response_packet(
                 packet,
                 {
@@ -516,7 +525,7 @@ class Nabd:
                     )
 
     async def process_test_packet(self, packet, writer):
-        """ Process a test packet (for hardware tests) """
+        """Process a test packet (for hardware tests)"""
         if self.state == State.ASLEEP:
             await self.do_process_test_packet(packet, writer)
         else:
@@ -546,7 +555,7 @@ class Nabd:
             )
 
     async def process_rfid_write_packet(self, packet, writer):
-        """ Process a rfid_write packet """
+        """Process a rfid_write packet"""
         if self.state == State.ASLEEP:
             await self.do_process_rfid_write_packet(packet, writer)
         else:
@@ -555,7 +564,7 @@ class Nabd:
                 self.idle_cv.notify()
 
     async def do_process_rfid_write_packet(self, packet, writer):
-        """ Process a rfid_write packet """
+        """Process a rfid_write packet"""
         if "uid" in packet and "picture" in packet and "app" in packet:
             uid = bytes.fromhex(packet["uid"].replace(":", ""))
             picture = packet["picture"]
@@ -611,6 +620,14 @@ class Nabd:
                 writer,
             )
 
+    async def process_os_shutdown_packet(self, packet, writer):
+        self.write_response_packet(packet, {"status": "ok"}, writer)
+        if "mode" in packet:
+            perform_reboot = packet["mode"] == "reboot"
+        else:
+            perform_reboot = False
+        asyncio.ensure_future(self._shutdown(perform_reboot))
+
     async def process_packet(self, packet, writer):
         """
         Process a packet from a service
@@ -631,6 +648,7 @@ class Nabd:
                 "config-update": self.process_config_update_packet,
                 "test": self.process_test_packet,
                 "rfid_write": self.process_rfid_write_packet,
+                "shutdown": self.process_os_shutdown_packet,
             }
             if packet["type"] in processors:
                 await processors[packet["type"]](packet, writer)
@@ -775,7 +793,7 @@ class Nabd:
         elif button_event == "up" and self.state == State.RECORDING:
             asyncio.ensure_future(self.stop_asr())
         elif button_event == "triple_click":
-            asyncio.ensure_future(self._shutdown())
+            asyncio.ensure_future(self._shutdown(False))
         elif (
             button_event == "click"
             and (
@@ -816,17 +834,30 @@ class Nabd:
             # Did not understand
             await self.nabio.asr_failed()
         else:
+            event_type = "asr/*"
+            if "/" in response["intent"]:
+                app, _ = response["intent"].split("/", 1)
+                event_type = f"asr/{app}"
             self.broadcast_event(
-                "asr", {"type": "asr_event", "nlu": response, "time": now}
+                event_type, {"type": "asr_event", "nlu": response, "time": now}
             )
 
-    async def _shutdown(self):
+    async def _shutdown(self, doReboot):
         await self.stop_idle_worker()
         Nabd.leds_boot(self.nabio, 0)
         await self.nabio.move_ears(
             Nabd.SLEEP_EAR_POSITION, Nabd.SLEEP_EAR_POSITION
         )
-        os.system("/sbin/halt")
+        if doReboot:
+            await self._do_system_command("/sbin/reboot")
+        else:
+            await self._do_system_command("/sbin/halt")
+
+    async def _do_system_command(self, sytemCommandStr):
+        inTesting = os.path.basename(sys.argv[0]) in ("pytest", "py.test")
+        if not inTesting:
+            logging.debug(f"Initiating system command : {sytemCommandStr}")
+            os.system(sytemCommandStr)
 
     def ears_callback(self, ear):
         if self.interactive_service_writer:

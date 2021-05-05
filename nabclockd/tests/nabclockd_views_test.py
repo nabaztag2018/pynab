@@ -1,6 +1,8 @@
 import os
+
 import pytest
-from django.test import TestCase, Client
+from django.test import Client, TestCase
+
 from nabclockd.models import Config
 
 

@@ -1,9 +1,11 @@
+import datetime
+
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from django.http import JsonResponse
+
 from .models import Config
 from .nabtaichid import NabTaichid
-import datetime
 
 
 class SettingsView(TemplateView):

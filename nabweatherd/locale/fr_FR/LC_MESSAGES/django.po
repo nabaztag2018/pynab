@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-13 11:39+0100\n"
+"POT-Creation-Date: 2021-04-28 00:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,97 +17,122 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: templates/nabweatherd/rfid-data.html:3
+msgid "Day"
+msgstr "Jour"
+
+#: templates/nabweatherd/rfid-data.html:7
+#: templates/nabweatherd/settings.html:63
+msgid "Today"
+msgstr "Aujourd'hui"
+
+#: templates/nabweatherd/rfid-data.html:11
+#: templates/nabweatherd/settings.html:64
+msgid "Tomorrow"
+msgstr "Demain"
+
 #: templates/nabweatherd/settings.html:6
 msgid "Weather"
 msgstr "Météo"
 
+#: templates/nabweatherd/settings.html:9
+msgid ""
+"The animation can display, if available, a rain alert (Blue blinking means "
+"get an umbrella, nothing will be displayed otherwise), the current weather "
+"forecast or both"
+msgstr ""
+"L'animation lumineuse peut vous donner, si l'information est disponible, une "
+"alerte pluie (Si cela clignote bleu c'est qu'il va pleuvoir dans l'heure), "
+"les prévisions pour les prochaines heures ou les deux."
+
 #: templates/nabweatherd/settings.html:10
 msgid ""
-"The animation can display, if available, the chance of rain within the next "
-"hour (White blinking means no rain and blue means get an umbrella) or the "
-"current weather forecast."
-msgstr ""
-"L'animation lumineuse peut vous donner, si l'information est disponible, la "
-"probabilité qu'il pleuve dans l'heure (Blanc c'est qu'il ne va pas pleuvoir, "
-"bleu c'est très probable !) ou les prévisions pour les prochaines heures."
-
-#: templates/nabweatherd/settings.html:11
-msgid ""
-"You can also ask Nabaztag the weather forecast by saying 'What is the "
-"weather forecast for today ?' (for example)."
+"You can also ask Nabaztag the weather forecast by saying <q>What is the "
+"weather forecast for today ?</q> (for example)."
 msgstr ""
 "Vous pouvez aussi demander la météo à votre lapin en disant par exemple "
-"'Météo'."
+"<q>Météo</q>."
 
-#: templates/nabweatherd/settings.html:14
+#: templates/nabweatherd/settings.html:12
 msgid "Location"
 msgstr "Ville"
 
-#: templates/nabweatherd/settings.html:16
+#: templates/nabweatherd/settings.html:14
 msgid "City, Zip code, Country"
 msgstr "Ville, code postal, pays"
 
-#: templates/nabweatherd/settings.html:20
+#: templates/nabweatherd/settings.html:21
+msgid "Search..."
+msgstr "Rechercher..."
+
+#: templates/nabweatherd/settings.html:26
 msgid "Unit"
 msgstr "Unité"
 
-#: templates/nabweatherd/settings.html:23
+#: templates/nabweatherd/settings.html:29
 msgid "Celsius"
 msgstr "Celsius"
 
-#: templates/nabweatherd/settings.html:24
+#: templates/nabweatherd/settings.html:30
 msgid "Farenheit"
 msgstr "Farenheit"
 
-#: templates/nabweatherd/settings.html:25
+#: templates/nabweatherd/settings.html:31
 msgid "Kelvin"
 msgstr "Kelvin"
 
-#: templates/nabweatherd/settings.html:31
+#: templates/nabweatherd/settings.html:37
 msgid "Visual animation"
 msgstr "Information visuelle"
 
-#: templates/nabweatherd/settings.html:34
+#: templates/nabweatherd/settings.html:40
 msgid "Current weather forecast"
 msgstr "Prévision météo"
 
-#: templates/nabweatherd/settings.html:35
-msgid "Will it rain in the next hour?"
-msgstr "Va t-il pleuvoir dans l'heure ?"
+#: templates/nabweatherd/settings.html:41
+msgid "Rain alert"
+msgstr "Alerte pluie"
 
-#: templates/nabweatherd/settings.html:36
+#: templates/nabweatherd/settings.html:42
+msgid "Both"
+msgstr "Les deux"
+
+#: templates/nabweatherd/settings.html:43
 msgid "No visual animation"
 msgstr "Aucune information visuelle"
 
-#: templates/nabweatherd/settings.html:44
+#: templates/nabweatherd/settings.html:49
+msgid "Forecast frequency"
+msgstr "Fréquence de prévision"
+
+#: templates/nabweatherd/settings.html:52
+msgid "Every hour"
+msgstr "Toutes les heures"
+
+#: templates/nabweatherd/settings.html:53
+msgid "Every two to three hours"
+msgstr "Toutes les deux à trois heures"
+
+#: templates/nabweatherd/settings.html:54
+msgid "At wake up and at bedtime"
+msgstr "Au lever et au coucher"
+
+#: templates/nabweatherd/settings.html:55
+msgid "None"
+msgstr "Aucune"
+
+#: templates/nabweatherd/settings.html:61
 msgid "Forecast"
 msgstr "Prévision"
 
-#: templates/nabweatherd/settings.html:46
-msgid "Today"
-msgstr "Aujourd'hui"
-
-#: templates/nabweatherd/settings.html:47
-msgid "Tomorrow"
-msgstr "Demain"
-
-#: templates/nabweatherd/settings.html:55
+#: templates/nabweatherd/settings.html:72
 msgid "Save"
 msgstr "Enregistrer"
 
-#: templates/nabweatherd/settings.html:56
+#: templates/nabweatherd/settings.html:73
 msgid "Reset"
 msgstr "Annuler"
 
-#: templates/nabweatherd/settings.html:96
+#: templates/nabweatherd/settings.html:122
 msgid "Unknown server error"
 msgstr "Erreur inconnue du serveur"
-
-#: views.py:40
-msgid "Unknown location"
-msgstr "Ville inconnue"
-
-#, fuzzy
-#~| msgid "Weather"
-#~ msgid "Weather playtime"
-#~ msgstr "Météo"

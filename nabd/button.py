@@ -2,7 +2,7 @@ import abc
 
 
 class Button(object, metaclass=abc.ABCMeta):
-    """ Interface for button """
+    """Interface for button"""
 
     @abc.abstractmethod
     def on_event(self, loop, callback):

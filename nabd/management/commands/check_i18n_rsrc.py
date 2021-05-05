@@ -1,8 +1,8 @@
 import os
 import re
 
-from django.core.management.base import BaseCommand
 from django.conf import settings
+from django.core.management.base import BaseCommand
 
 LANGUAGES = [
     "de_DE",
@@ -48,7 +48,7 @@ class Command(BaseCommand):
                                 else:
                                     langlist = []
                                 langlist.append(lang)
-                                resources[relpath] = langlist                                
+                                resources[relpath] = langlist
                             else:
                                 for file in files:
                                     if file.startswith("."):

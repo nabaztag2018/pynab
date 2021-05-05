@@ -1,6 +1,6 @@
-from django.test import TestCase, Client
+from django.test import Client, TestCase
+
 from nab8balld.models import Config
-import datetime
 
 
 class TestView(TestCase):

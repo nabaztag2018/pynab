@@ -7,13 +7,13 @@
     </div>
     <div class="card-body">
       <div class="form-group row">
-        <label for="enableBtn" class="col-6 col-form-label">{% trans "Enable" %}</label>
+        <label for="enableBtn" class="col-6 col-form-label">{% trans "Wake up the guru" %}</label>
         <div class="col-6">
           <button id="enableBtn" type="button" class="btn btn-toggle{% if config.enabled %} active{% endif %}" data-name="enabled" data-toggle="button" aria-pressed="false" autocomplete="off"><div class="handle"></div></button>
           <input name="enabled" type="hidden" value="{% if config.enabled %}true{% else %}false{% endif %}" />
         </div>
       </div>
-      <p>{% trans "To use Magic 8 Ball, think about something you want to ask to the rabbit, then click and hold the button, say 'Tell me rabbit' and release the button for the answer." %}</p>
+      <p>{% blocktrans %}To use Magic 8 Ball, think about something you want to ask to the rabbit, then click and hold the button, say <q>Tell me rabbit</q> and release the button for the answer.{% endblocktrans %}</p>
     </div>
     <div class="card-footer">
       <div class="row mb-2">

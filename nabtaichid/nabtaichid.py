@@ -1,6 +1,7 @@
-import sys
 import datetime
 import random
+import sys
+
 from nabcommon.nabservice import NabRandomService
 
 
@@ -35,7 +36,7 @@ class NabTaichid(NabRandomService):
     async def process_nabd_packet(self, packet):
         if (
             packet["type"] == "asr_event"
-            and packet["nlu"]["intent"] == "taichi"
+            and packet["nlu"]["intent"] == "nabtaichid/taichi"
         ):
             now = datetime.datetime.now(datetime.timezone.utc)
             expiration = now + datetime.timedelta(minutes=1)

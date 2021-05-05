@@ -1,11 +1,12 @@
 import abc
 from asyncio import Event
+
 from .choreography import ChoreographyInterpreter
 from .ears import Ears
 
 
 class NabIO(object, metaclass=abc.ABCMeta):
-    """ Interface for I/O interactions with a nabaztag """
+    """Interface for I/O interactions with a nabaztag"""
 
     # https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF
     MODEL_2018 = 1
@@ -65,12 +66,12 @@ class NabIO(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def set_leds(self, nose, left, center, right, bottom):
-        """ Set the leds. None means to turn them off. """
+        """Set the leds. None means to turn them off."""
         raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
     def pulse(self, led, color):
-        """ Set a led to pulse. """
+        """Set a led to pulse."""
         raise NotImplementedError("Should have implemented")
 
     async def rfid_detected_feedback(self):
@@ -254,20 +255,20 @@ class NabIO(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     async def gestalt(self):
-        """ Return a structure representing hardware info. """
+        """Return a structure representing hardware info."""
         raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
     def has_sound_input(self):
-        """ Determine if we have sound input """
+        """Determine if we have sound input"""
         raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
     def has_rfid(self):
-        """ Determine if we have an rfid reader """
+        """Determine if we have an rfid reader"""
         raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
     async def test(self, test):
-        """ Run a given hardware test, returning True if everything is ok """
+        """Run a given hardware test, returning True if everything is ok"""
         raise NotImplementedError("Should have implemented")

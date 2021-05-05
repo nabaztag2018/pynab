@@ -1,0 +1,79 @@
+name: build (qemu)
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run tests in chroot
+      uses: pguyot/arm-runner-action@v1
+      id: arm_runner_tests
+      with:
+        image_additional_mb: 4096
+        base_image: 'raspios_lite:2021-03-04'
+        cpu: 'arm1176'
+        copy_repository_path: /home/pi/pynab
+        commands: |
+            sudo chown -R pi:pi /home/pi/pynab
+            sudo apt-get update -y
+            sudo apt-get install --no-install-recommends -y postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3 libopenblas-dev liblapack-dev gfortran zram-tools
+            sudo mkdir -p /run/systemd/timesync/ && sudo touch /run/systemd/timesync/synchronized
+            sudo -u pi taskset -c 0 /bin/bash install.sh ci-chroot-test
+    - name: Upload image if tests failed
+      uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        name: Image of failed tests
+        path: ${{ steps.arm_runner_tests.outputs.image }}
+  create_image:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/releng' || startsWith(github.ref, 'refs/tags/')
+    steps:
+    - uses: actions/checkout@v2
+    - name: Define the image name
+      id: image_and_branch_name
+      run: |
+        if [ ${GITHUB_REF/refs\/tags\//} != ${GITHUB_REF} ]; then
+          echo ::set-output name=LOCAL_BRANCH::${GITHUB_REF/refs\/tags\//}
+          echo ::set-output name=IMAGE_NAME_SUFFIX::${GITHUB_REF/refs\/tags\//}
+        elif [ ${GITHUB_REF/refs\/heads\//} = "releng" ]; then
+          echo ::set-output name=LOCAL_BRANCH::releng
+          echo ::set-output name=IMAGE_NAME_SUFFIX::releng
+        else
+          echo ::set-output name=LOCAL_BRANCH::${GITHUB_REF/refs\/heads\//}
+        fi
+    - name: Create a release image using chroot
+      uses: pguyot/arm-runner-action@v1
+      id: arm_runner_install
+      with:
+        image_additional_mb: 4096
+        base_image: 'raspios_lite:2021-03-04'
+        cpu: 'arm1176'
+        commands: |
+            echo GITHUB_BRANCH=${{ steps.image_and_branch_name.outputs.LOCAL_BRANCH }}
+            echo GITHUB_REPOSITORY=${{ github.repository }}
+            sudo GITHUB_BRANCH=${{ steps.image_and_branch_name.outputs.LOCAL_BRANCH }} GITHUB_REPOSITORY=${{ github.repository }} /bin/bash setup
+            sudo rm -rf /pynab
+    - name: Compress the release image
+      run: |
+        mv ${{ steps.arm_runner_install.outputs.image }} pynab-${{ steps.image_and_branch_name.outputs.IMAGE_NAME_SUFFIX }}.img
+        xz -0 -T 0 -v pynab-${{ steps.image_and_branch_name.outputs.IMAGE_NAME_SUFFIX }}.img
+    - name: Create release with releng image
+      if: github.ref == 'refs/heads/releng'
+      uses: "marvinpinto/action-automatic-releases@v1.1.2"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        draft: true
+        title: "Prerelease image"
+        files: pynab-${{ steps.image_and_branch_name.outputs.IMAGE_NAME_SUFFIX }}.img.xz
+    - name: Create release with release image
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: "marvinpinto/action-automatic-releases@v1.1.2"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
+        draft: true
+        files: pynab-${{ steps.image_and_branch_name.outputs.IMAGE_NAME_SUFFIX }}.img.xz

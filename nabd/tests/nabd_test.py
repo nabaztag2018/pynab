@@ -1,22 +1,26 @@
-import unittest
+import asyncio
+import datetime
+import io
+import json
+import socket
 import threading
 import time
-import asyncio
-import socket
-import json
-import io
+import unittest
+
 import pytest
-import datetime
-from nabd import nabd
-from nabd.rfid import TagFlags
+from django.db import close_old_connections
 from mock import NabIOMock
 from utils import close_old_async_connections
-from django.db import close_old_connections
+
 import nabtaichid
+from nabd import nabd
+from nabd.rfid import TagFlags
+
+# import unittest.mock
 
 
 class SocketIO(io.RawIOBase):
-    """ Use RawIOBase for buffering lines """
+    """Use RawIOBase for buffering lines"""
 
     def __init__(self, sock):
         self.sock = sock
@@ -542,6 +546,36 @@ class TestNabd(TestNabdBase):
             packet_j = json.loads(packet.decode("utf8"))
             self.assertEqual(packet_j["type"], "response")
             self.assertEqual(packet_j["status"], "expired")
+        finally:
+            s1.close()
+
+    def test_shutdown_api_method(self):
+        s1 = self.service_socket()
+        try:
+            packet = s1.readline()  # state packet
+            packet = (
+                '{"type":"shutdown",'
+                '"mode":"reboot",'
+                '"request_id":"shutdown"}\r\n'
+            )
+            s1.write(packet.encode("utf8"))
+            packet = s1.readline()  # response packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["request_id"], "shutdown")
+            time.sleep(1)
+            nabio = self.nabd.nabio
+            self.assertEqual(len(nabio.called_list), 1)
+            ear_pos = self.nabd.SLEEP_EAR_POSITION
+            self.assertEqual(
+                nabio.called_list[0],
+                f"move_ears({ear_pos}, {ear_pos})",
+            )
+            self.assertEqual(nabio.left_led, (255, 0, 255))
+            self.assertEqual(nabio.center_led, (255, 0, 255))
+            self.assertEqual(nabio.right_led, (255, 0, 255))
+            self.assertEqual(nabio.nose_led, (255, 0, 255))
+            self.assertEqual(nabio.bottom_led, (255, 0, 255))
         finally:
             s1.close()
 

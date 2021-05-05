@@ -7,27 +7,42 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Config',
+            name="Config",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('location', models.TextField(null=True)),
-                ('unit', models.IntegerField(default=1)),
-                ('next_performance_date', models.DateTimeField(null=True)),
-                ('next_performance_type', models.TextField(null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("location", models.TextField(null=True)),
+                ("unit", models.IntegerField(default=1)),
+                ("next_performance_date", models.DateTimeField(null=True)),
+                ("next_performance_type", models.TextField(null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='ScheduledMessage',
+            name="ScheduledMessage",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('hour', models.IntegerField()),
-                ('minute', models.IntegerField()),
-                ('type', models.TextField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("hour", models.IntegerField()),
+                ("minute", models.IntegerField()),
+                ("type", models.TextField()),
             ],
         ),
     ]

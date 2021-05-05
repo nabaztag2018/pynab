@@ -1,7 +1,9 @@
 import os
+
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from pytz import common_timezones
+
 from .models import Config
 from .nabclockd import NabClockd
 

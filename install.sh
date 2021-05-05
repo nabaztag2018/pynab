@@ -2,14 +2,13 @@
 
 set -xuo pipefail
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
-IFS=$'\n\t'
 
 # makerfaire2018: Paris Maker Faire 2018 card, only fits Nabaztag V1.
 # (default): Ulule 2019 card, fits Nabaztag V1 and Nabaztag V2. Features a microphone. Button is on GPIO 17.
 makerfaire2018=0
 
-# travis-chroot : we're building a release image on Travis CI
-travis_chroot=0
+# ci-chroot : we're running in CI to build a release image or run tests
+ci_chroot=0
 
 # test : user wants to run tests (good idea, makes sure sounds and leds are functional)
 test=0
@@ -22,8 +21,11 @@ if [ "${1:-}" == "--makerfaire2018" ]; then
   shift
 fi
 
-if [ "${1:-}" == "travis-chroot" ]; then
-  travis_chroot=1
+if [ "${1:-}" == "ci-chroot" ]; then
+  ci_chroot=1
+elif [ "${1:-}" == "ci-chroot-test" ]; then
+  ci_chroot=1
+  test=1
 elif [ "${1:-}" == "test" ]; then
   test=1
 elif [ "${1:-}" == "--upgrade" ]; then
@@ -48,7 +50,7 @@ cd `dirname "$0"`
 root_dir=`pwd`
 owner=`stat -c '%U' ${root_dir}`
 
-if [ $travis_chroot -eq 0 -a $makerfaire2018 -eq 0 -a `aplay -L | grep -c "tagtagtagsound"` -eq 0 ]; then
+if [ $ci_chroot -eq 0 -a $makerfaire2018 -eq 0 -a `aplay -L | grep -c "tagtagtagsound"` -eq 0 ]; then
   if [ `aplay -L | grep -c "hifiberry"` -gt 0 ]; then
     echo "Judging from the sound card, this looks likes a Paris Maker Faire 2018 card."
     echo "Please double-check and restart this script with --makerfaire2018"
@@ -94,7 +96,7 @@ if [ $upgrade -eq 1 ]; then
     sudo touch /tmp/pynab.upgrade.reboot
   fi
 else
-  if [ $travis_chroot -eq 0 -a ! -e "/dev/ear0" ]; then
+  if [ $ci_chroot -eq 0 -a ! -e "/dev/ear0" ]; then
     echo "Please install ears driver https://github.com/pguyot/tagtagtag-ears"
     exit 1
   fi
@@ -118,7 +120,7 @@ if [ $upgrade -eq 1 ]; then
     sudo touch /tmp/pynab.upgrade.reboot
   fi
 else
-  if [ $travis_chroot -eq 0 -a ! -e "/dev/rfid0" ]; then
+  if [ $ci_chroot -eq 0 -a ! -e "/dev/rfid0" ]; then
     echo "Please install cr14 RFID driver https://github.com/pguyot/cr14"
     exit 1
   fi
@@ -137,7 +139,7 @@ if [ $upgrade -eq 1 ]; then
     echo "You may want to install nabblockly from https://github.com/pguyot/nabblockly"
   fi
 else
-  if [ $travis_chroot -eq 0 -a ! -d "/home/pi/pynab/nabblockly" ]; then
+  if [ $ci_chroot -eq 0 -a ! -d "/home/pi/pynab/nabblockly" ]; then
     echo "You may want to install nabblockly from https://github.com/pguyot/nabblockly"
   fi
 fi
@@ -183,6 +185,7 @@ if [ $upgrade -eq 1 ]; then
   echo "Updating Python requirements - 7/14" > /tmp/pynab.upgrade
 fi
 # Start with wheel which is required to compile some of the other requirements
+venv/bin/pip uninstall -y meteofrance #remove old meteofrance API
 venv/bin/pip install wheel
 venv/bin/pip install -r requirements.txt
 
@@ -227,7 +230,7 @@ if [ $trust -ne 1 ]; then
     echo "Failed to configure PostgreSQL"
     exit 1
   fi
-  if [ $travis_chroot -eq 1 ]; then
+  if [ $ci_chroot -eq 1 ]; then
     cluster_version=`echo /etc/postgresql/*/main/pg_hba.conf  | sed -E 's|/etc/postgresql/(.+)/(.+)/pg_hba.conf|\1|g'`
     cluster_name=`echo /etc/postgresql/*/main/pg_hba.conf  | sed -E 's|/etc/postgresql/(.+)/(.+)/pg_hba.conf|\2|g'`
     sudo -u postgres /usr/lib/postgresql/${cluster_version}/bin/pg_ctl start -D /etc/postgresql/${cluster_version}/${cluster_name}/
@@ -243,9 +246,17 @@ if [ $upgrade -eq 0 ]; then
       sudo rm /etc/nginx/sites-enabled/default
     fi
     sudo cp nabweb/nginx-site.conf /etc/nginx/sites-enabled/pynab
-    if [ $travis_chroot -eq 0 ]; then
+    if [ $ci_chroot -eq 0 ]; then
       sudo systemctl restart nginx
     fi
+  else
+    diff -q '/etc/nginx/sites-enabled/pynab' nabweb/nginx-site.conf >/dev/null || {
+      echo "Updating nginx configuration file"
+      sudo cp nabweb/nginx-site.conf /etc/nginx/sites-enabled/pynab
+      if [ $ci_chroot -eq 0 ]; then
+        sudo systemctl restart nginx
+      fi
+    }
   fi
 else
   echo "Restarting Nginx - 9/14" > /tmp/pynab.upgrade
@@ -267,24 +278,30 @@ if [ $upgrade -eq 1 ]; then
 fi
 venv/bin/python manage.py migrate
 
+all_locales="-l fr_FR -l de_DE -l en_US -l en_GB -l it_IT -l es_ES -l ja_jp -l pt_BR -l de -l en -l es -l fr -l it -l ja -l pt"
+
 if [ $upgrade -eq 0 ]; then
-  venv/bin/django-admin compilemessages
+  venv/bin/django-admin compilemessages ${all_locales}
 else
   echo "Updating localization messages - 11/14" > /tmp/pynab.upgrade
   for module in nab*/locale; do
     (
       cd `dirname ${module}`
-      ../venv/bin/django-admin compilemessages
+      ../venv/bin/django-admin compilemessages ${all_locales}
     )
   done
 fi
 
 if [ $test -eq 1 ]; then
   echo "Running tests"
-  sudo venv/bin/pytest
+  if [ $ci_chroot -eq 1 ]; then
+      sudo CI=1 venv/bin/pytest
+  else
+      sudo venv/bin/pytest
+  fi
 fi
 
-if [ $travis_chroot -eq 1 ]; then
+if [ $ci_chroot -eq 1 ]; then
   sudo -u postgres /usr/lib/postgresql/${cluster_version}/bin/pg_ctl stop -D /etc/postgresql/${cluster_version}/${cluster_name}/
 fi
 
@@ -304,16 +321,78 @@ sudo mv /tmp/nabboot.py /lib/systemd/system-shutdown/nabboot.py
 sudo chown root /lib/systemd/system-shutdown/nabboot.py
 sudo chmod +x /lib/systemd/system-shutdown/nabboot.py
 
+# Fix Pynab logs not rotated #139 
+if [ ! -f "/etc/logrotate.d/pynab" ]; then
+	cat > '/tmp/pynab' <<- END
+	/var/log/nab*.log
+	 {
+	         daily
+	         rotate 7
+	         missingok
+	         notifempty
+	         copytruncate
+	         delaycompress
+	         compress
+	 }
+	END
+	sudo mv /tmp/pynab /etc/logrotate.d/pynab
+fi
+sudo chown root:root /etc/logrotate.d/pynab
+
+# Fix Advertise rabbit on local network #141 
+if [ ! -f "/etc/avahi/services/pynab.service" ]; then
+
+	cat > '/tmp/pynab.service' <<- END
+	<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+	<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+	<!-- See avahi.service(5) for more information about this configuration file -->
+
+	<service-group>
+	  <name replace-wildcards="yes">Nabaztag rabbit (%h)</name>
+	  <service>
+	    <type>_http._tcp</type>
+	    <port>80</port>
+	    <txt-record>vendor=violet</txt-record>
+	    <txt-record>model=tag:tag:tag</txt-record>
+	  </service>
+	</service-group>
+	END
+	sudo mv /tmp/pynab.service /etc/avahi/services/pynab.service
+
+fi
+
+if [ ! -f "/etc/avahi/services/nabblocky.service" ]; then
+
+	cat > '/tmp/nabblocky.service' <<- END
+	<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+	<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+	<!-- See avahi.service(5) for more information about this configuration file -->
+
+	<service-group>
+	  <name replace-wildcards="yes">NabBlockly (%h)</name>
+	  <service>
+	    <type>_http._tcp</type>
+	    <port>8080</port>
+	    <txt-record>vendor=Paul Guyot</txt-record>
+	    <txt-record>model=tag:tag:tag</txt-record>
+	  </service>
+	</service-group>
+	END
+	sudo mv /tmp/nabblocky.service /etc/avahi/services/nabblocky.service
+
+fi
+
 if [ -e /tmp/pynab.upgrade.reboot ]; then
   echo "Upgrade requires reboot, rebooting now - 14/14" > /tmp/pynab.upgrade
   sudo rm -f /tmp/pynab.upgrade
   sudo rm -f /tmp/pynab.upgrade.reboot
   sudo reboot
 else
-  if [ $travis_chroot -eq 0 ]; then
+  if [ $ci_chroot -eq 0 ]; then
     if [ $upgrade -eq 1 ]; then
       echo "Restarting services - 13/14" > /tmp/pynab.upgrade
     fi
+    sudo systemctl restart logrotate.service
     sudo systemctl start nabd.socket
     sudo systemctl start nabd.service
 

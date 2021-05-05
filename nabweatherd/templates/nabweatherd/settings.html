@@ -6,14 +6,20 @@
       <h5 class="card-title">{% trans "Weather" %}</h5>
     </div>
     <div class="card-body">
-		
-        <p>{% trans "The animation can display, if available, the chance of rain within the next hour (White blinking means no rain and blue means get an umbrella) or the current weather forecast." %}</p>
-        <p>{% trans "You can also ask Nabaztag the weather forecast by saying 'What is the weather forecast for today ?' (for example)." %}</p>
-		
+      <p>{% trans "The animation can display, if available, a rain alert (Blue blinking means get an umbrella, nothing will be displayed otherwise), the current weather forecast or both" %}</p>
+      <p>{% blocktrans %}You can also ask Nabaztag the weather forecast by saying <q>What is the weather forecast for today ?</q> (for example).{% endblocktrans %}</p>
       <div class="form-group row">
         <label for="weatherLocationInput" class="col-6 col-form-label">{% trans "Location" %}</label>
         <div class="col-6">
-          <input id="weatherLocationInput" name="location" type="text" class="form-control" placeholder="{% trans "City, Zip code, Country" %}" value="{{ config.location }}" />
+          <input id="weatherLocationInput" name="location_user_friendly" type="text" class="form-control" placeholder="{% trans "City, Zip code, Country" %}" value="{{ config.location_user_friendly }}" disabled/>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="test" class="col-6 col-form-label"></label>
+        <div class="col-6">
+          <select class="form-control basicAutoSelect" name="location"
+                  placeholder="{% trans 'Search...'%}"
+                  data-url="/nabweatherd/settings" autocomplete="off"></select>
         </div>
       </div>
       <div class="form-group row">
@@ -26,20 +32,31 @@
             </select>
         </div>
       </div>
-	  
+
       <div class="form-group row">
         <label for="weatherAnimationType" class="col-6 col-form-label">{% trans "Visual animation" %}</label>
         <div class="col-6">
           <select name="weather_animation_type" id="weatherAnimationType">
-            <option value="weather" {% if config.weather_animation_type == 'weather' %}selected{% endif %}>{% trans "Current weather forecast" %}</option>
-            <option value="rain" {% if config.weather_animation_type == 'rain' %}selected{% endif %}>{% trans "Will it rain in the next hour?" %}</option>
-            <option value="None" {% if config.weather_animation_type == 'None' %}selected{% endif %}>{% trans "No visual animation" %}</option>
-		  </select>
+            <option value="weather_only" {% if config.weather_animation_type == 'weather_only' %}selected{% endif %}>{% trans "Current weather forecast" %}</option>
+            <option value="rain_only" {% if config.weather_animation_type == 'rain_only' %}selected{% endif %}>{% trans "Rain alert" %}</option>
+            <option value="weather_and_rain" {% if config.weather_animation_type == 'weather_and_rain' %}selected{% endif %}>{% trans "Both" %}</option>
+            <option value="nothing" {% if config.weather_animation_type == 'nothing' %}selected{% endif %}>{% trans "No visual animation" %}</option>
+          </select>
         </div>
       </div>
-	  
-	  
-	  
+
+      <div class="form-group row">
+        <label for="weatherSelect" class="col-6 col-form-label">{% trans "Forecast frequency" %}</label>
+        <div class="col-6">
+          <select name="weather_frequency" id="weatherSelect">
+            <option value="1"{% if config.weather_frequency == 1 %} selected{% endif %}>{% trans "Every hour"%}</option>
+            <option value="2"{% if config.weather_frequency == 2 %} selected{% endif %}>{% trans "Every two to three hours"%}</option>
+            <option value="3"{% if config.weather_frequency == 3 %} selected{% endif %}>{% trans "At wake up and at bedtime"%}</option>
+            <option value="0"{% if config.weather_frequency == 0 %} selected{% endif %}>{% trans "None"%}</option>
+          </select>
+        </div>
+      </div>
+
       <div class="form-group row">
         <label class="col-6 col-form-label">{% trans "Forecast" %}</label>
         <div class="col-6">
@@ -47,7 +64,7 @@
           <button type="button" class="btn btn-primary now-button" data-forecast-day='tomorrow'>{% trans "Tomorrow" %}</button>
         </div>
       </div>
-	  	  
+
     </div>
     <div class="card-footer">
       <div class="row mb-2">
@@ -58,12 +75,21 @@
       </div>
     </div>
   </form>
-  <script type="text/javascript">
+
+<script>
+    $(function () {
+        $('.basicAutoSelect').autoComplete();
+    });
+</script>
+
+<script type="text/javascript">
   $(function() {
     var form = $('#nabweatherd-settings form');
     var saveBtn = form.find('button.save-button');
     var resetBtn = form.find('button.reset-button');
     var url = form.attr('action');
+
+
     form.find('button.btn-toggle').on('click', function() {
       saveBtn.removeClass('disabled');
       resetBtn.removeClass('disabled');

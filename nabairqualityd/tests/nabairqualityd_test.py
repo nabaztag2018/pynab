@@ -1,14 +1,14 @@
-import unittest
-import json
-import django
-import time
 import datetime
+import json
+import unittest
+
 import pytest
 from asgiref.sync import async_to_sync
-from nabairqualityd.nabairqualityd import NabAirqualityd
+
 from nabairqualityd import models
-from nabd.tests.utils import close_old_async_connections
+from nabairqualityd.nabairqualityd import NabAirqualityd
 from nabd.tests.mock import MockWriter, NabdMockTestCase
+from nabd.tests.utils import close_old_async_connections
 
 
 @pytest.mark.django_db(transaction=True)
@@ -19,25 +19,28 @@ class TestNabAirqualityd(unittest.TestCase):
     def test_fetch_info_data(self):
         config = models.Config.load()
         config.index_airquality = "aqi"
+        config.visual_airquality = "always"
         config.localisation = None
         config.save()
         service = NabAirqualityd()
-        data = async_to_sync(service.fetch_info_data)("aqi")
+        info_data = async_to_sync(service.fetch_info_data)(("aqi", "always"))
         config = models.Config.load()
-        self.assertIsNotNone(data)
-        self.assertTrue(data < 3)
-        self.assertTrue(data >= 0)
+        self.assertIsNotNone(info_data)
+        self.assertTrue("data" in info_data)
+        self.assertTrue(info_data["data"] < 4)
+        self.assertTrue(info_data["data"] >= 0)
         self.assertIsNotNone(config.localisation)
 
     def test_perform(self):
         config = models.Config.load()
         config.index_airquality = "aqi"
+        config.visual_airquality = "always"
         config.localisation = None
         config.save()
         service = NabAirqualityd()
         writer = MockWriter()
         service.writer = writer
-        config_t = "aqi"
+        config_t = ("aqi", "always")
         expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
         async_to_sync(service.perform)(expiration, "today", config_t)
         self.assertEqual(len(writer.written), 2)
@@ -55,19 +58,17 @@ class TestNabAirqualityd(unittest.TestCase):
     def test_asr(self):
         config = models.Config.load()
         config.index_airquality = "aqi"
+        config.visual_airquality = "always"
         config.localisation = None
         config.save()
         service = NabAirqualityd()
         writer = MockWriter()
         service.writer = writer
-        config_t = "aqi"
-        expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
         packet = {
             "type": "asr_event",
-            "nlu": {"intent": "airquality_forecast"},
+            "nlu": {"intent": "nabairqualityd/forecast"},
         }
         async_to_sync(service.process_nabd_packet)(packet)
-        print(writer.written)
         self.assertEqual(len(writer.written), 2)
         packet = writer.written[0]
         packet_json = json.loads(packet.decode("utf8"))

@@ -1,6 +1,6 @@
 ---
 type: intent
-name: airquality_forecast
+name: nabairqualityd/forecast
 utterances:
   - air
   - donne-moi la qualité de l'air

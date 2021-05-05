@@ -1,6 +1,5 @@
-from django.test import TestCase, Client
 from django.http import JsonResponse
-import datetime
+from django.test import Client, TestCase
 
 
 class TestView(TestCase):
@@ -65,7 +64,10 @@ class TestRFIDView(TestCase):
         c = Client()
         response = c.post(
             "/nabbookd/rfid-data",
-            {"book": "9782092512593", "voice": "default", },
+            {
+                "book": "9782092512593",
+                "voice": "default",
+            },
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(isinstance(response, JsonResponse))
@@ -77,7 +79,10 @@ class TestRFIDView(TestCase):
         c = Client()
         response = c.post(
             "/nabbookd/rfid-data",
-            {"book": "9782070548064", "voice": "nabaztag", },
+            {
+                "book": "9782070548064",
+                "voice": "nabaztag",
+            },
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(isinstance(response, JsonResponse))

@@ -1,9 +1,10 @@
 from django.db import models
+
 from nabcommon import singleton_model
 
 
 class Config(singleton_model.SingletonModel):
-    instance = models.TextField(default="mstdn.fr")
+    instance = models.TextField()
     client_id = models.TextField(null=True)
     client_secret = models.TextField(null=True)
     redirect_uri = models.TextField(null=True)
