@@ -93,7 +93,7 @@ class NabService(ABC):
 
     def _do_connect(self, retry_count):
         connection = asyncio.open_connection(
-            host="127.0.0.1", port=NabService.PORT_NUMBER
+            host=NabService.get_nabd_host(), port=NabService.PORT_NUMBER
         )
         try:
             (reader, writer) = self.loop.run_until_complete(connection)
@@ -146,6 +146,20 @@ class NabService(ABC):
             self.loop_cv.notify()
         """
         return None
+
+    @staticmethod
+    def get_nabd_host():
+        """
+        Returns the hostname to use to connect to nabd.
+        Typically that will be localhost / 127.0.0.1 however
+        when working with the Docker-based development environment
+        we connect to a dummy nabd daemon running in a separate
+        container under a specific hostname "nabdevd"
+        """
+        if os.getenv("PYNAB_DEVELOPMENT") is not None:
+            return "nabdevd"
+        else:
+            return "127.0.0.1"
 
     @classmethod
     def signal_daemon(cls):
