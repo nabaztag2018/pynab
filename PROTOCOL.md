@@ -124,12 +124,13 @@ Le slot `"sequence"` est requis et `sequence` est une [liste] d'éléments du ty
 
 Les slots `"audio"` et `"choreography"` sont optionnels.
 
-`audio_list` est une [liste] de sons à jouer.
+`audio_list` est une [liste] de sons à jouer. Chaque son peut être :
 
-Chaque son peut être :
+- une liste de ressources, séparées par des ";".
 
-- une liste de ressources, séparées par des ";", la première trouvée est celle qui sera jouée.
-Chaque ressource est un chemin vers un son tel que `"nabmastodon/communion.wav"`. L'algorithme essaie d'abord dans le sous-répertoire de chaque application correspondant à la langue actuelle du lapin (`"sounds/fr_FR"`) puis dans le répertoire `"sounds"`, les applications dans l'ordre de `"settings.py"`. Si la ressource termine par `"*"` ou `"*.suffixe"`, le son est choisi au hasard dans les éléments du répertoire correspondant.
+Chaque ressource est un chemin vers un son tel que `"nabmastodon/communion.wav"`. L'algorithme essaie d'abord dans le sous-répertoire de chaque application correspondant à la langue actuelle du lapin (`"sounds/fr_FR"`) puis dans le répertoire `"sounds"`, les applications dans l'ordre de `"settings.py"`. le premier son trouvé est celui qui sera joué.
+
+Si la ressource se termine par `"*"` ou `"*.suffixe"`, le son est choisi au hasard parmi la liste des sons correspondants trouvés dans ces répertoires.
 
 `choreography` peut être :
 - une liste de ressources vers les chorégraphies sur le même mécanisme que les sons, dans les répertoires `choreographies` des différentes applications.
