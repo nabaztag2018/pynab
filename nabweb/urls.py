@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 import os
+
 from django.apps import apps
 from django.urls import include, path
 
@@ -73,10 +74,11 @@ urlpatterns = [
     ),
 ]
 
-if os.getenv('PYNAB_DEVELOPMENT') is not None:
+if os.getenv("PYNAB_DEVELOPMENT") is not None:
     # Development environment does not use nginx, serve
     # static files directly
     from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
     urlpatterns += staticfiles_urlpatterns()
 
 # Service URLs added automatically
