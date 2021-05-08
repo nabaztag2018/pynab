@@ -32,6 +32,7 @@ jobs:
         rust-version: 1.44.1
     - name: Install dependencies
       run: |
+        sudo apt update -y
         sudo apt-get install -y libasound2-dev libmpg123-dev libatlas-base-dev curl
         sudo sh install_kaldi.sh
         python -m pip install --upgrade pip
