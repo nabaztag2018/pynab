@@ -15,8 +15,8 @@ Including another URLconf
 """
 
 from django.apps import apps
-from django.urls import include, path
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.urls import include, path
 
 from .views import (
     NabWebHardwareTestView,
