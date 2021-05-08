@@ -44,7 +44,6 @@ ENV PATH=${VIRTUAL_ENV}/bin:${PATH}
 COPY ./requirements_docker.txt /tmp
 RUN ${VIRTUAL_ENV}/bin/pip install -r /tmp/requirements_docker.txt
 
-ENV PYNAB_DEVELOPMENT=true
 ENV NABD_HOST=nabdevd
 
 EXPOSE 8000

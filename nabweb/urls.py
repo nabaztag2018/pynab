@@ -17,6 +17,7 @@ import os
 
 from django.apps import apps
 from django.urls import include, path
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from .views import (
     NabWebHardwareTestView,
@@ -74,12 +75,9 @@ urlpatterns = [
     ),
 ]
 
-if os.getenv("PYNAB_DEVELOPMENT") is not None:
-    # Development environment does not use nginx, serve
-    # static files directly
-    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-
-    urlpatterns += staticfiles_urlpatterns()
+# Static files are served by nginx in the complete
+# installation so this is only useful when nginx is not used
+urlpatterns += staticfiles_urlpatterns()
 
 # Service URLs added automatically
 for config in apps.get_app_configs():
