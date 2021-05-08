@@ -18,7 +18,8 @@ from nabcommon import nablogging, settings
 
 
 class NabService(ABC):
-    PORT_NUMBER = 10543
+    PORT_NUMBER = int(os.getenv("NABD_PORT_NUMBER", "10543"))
+    HOST = os.getenv("NABD_HOST", "127.0.0.1")
 
     def __init__(self):
         settings.configure(type(self).__name__.lower())
@@ -93,7 +94,7 @@ class NabService(ABC):
 
     def _do_connect(self, retry_count):
         connection = asyncio.open_connection(
-            host="127.0.0.1", port=NabService.PORT_NUMBER
+            host=NabService.HOST, port=NabService.PORT_NUMBER
         )
         try:
             (reader, writer) = self.loop.run_until_complete(connection)

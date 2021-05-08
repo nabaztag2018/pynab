@@ -18,6 +18,10 @@ services:
         depends_on:
             - db
         command: ["/bin/bash", "/usr/local/bin/run-migrate.sh"]
+    nabdevd:
+        image: registry.gitlab.com/nguillaumin/nabdevd:latest
+        ports:
+            - 3000:3000
     nabweb:
         build: ./nab
         volumes:
@@ -26,11 +30,80 @@ services:
         depends_on:
             - db
             - migrate
+            - nabdevd
         command: ["/bin/sh", "-c", "/home/pi/venv/bin/gunicorn --timeout 60 -b 0.0.0.0 nabweb.wsgi"]
         ports:
             - 8000:8000
-    # FIXME: nabmastodond will stop immediately because there's no nabd to connect to
-    # but at least it starts correctly, as a proof of concept
+    nab8balld:
+        build: ./nab
+        volumes:
+            - ../:/home/pi/pynab
+            - var-run-postgresql:/var/run/postgresql
+        depends_on:
+            - db
+            - migrate
+            - nabdevd
+        command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nab8balld.nab8balld"]
+    nabairqualityd:
+        build: ./nab
+        volumes:
+            - ../:/home/pi/pynab
+            - var-run-postgresql:/var/run/postgresql
+        depends_on:
+            - db
+            - migrate
+            - nabdevd
+        command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabairqualityd.nabairqualityd"]
+    nabbookd:
+        build: ./nab
+        volumes:
+            - ../:/home/pi/pynab
+            - var-run-postgresql:/var/run/postgresql
+        depends_on:
+            - db
+            - migrate
+            - nabdevd
+        command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabbookd.nabbookd"]
+    nabclockd:
+        build: ./nab
+        volumes:
+            - ../:/home/pi/pynab
+            - var-run-postgresql:/var/run/postgresql
+        depends_on:
+            - db
+            - migrate
+            - nabdevd
+        command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabclockd.nabclockd"]
+    nabsurprised:
+        build: ./nab
+        volumes:
+            - ../:/home/pi/pynab
+            - var-run-postgresql:/var/run/postgresql
+        depends_on:
+            - db
+            - migrate
+            - nabdevd
+        command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabsurprised.nabsurprised"]
+    nabtaichid:
+        build: ./nab
+        volumes:
+            - ../:/home/pi/pynab
+            - var-run-postgresql:/var/run/postgresql
+        depends_on:
+            - db
+            - migrate
+            - nabdevd
+        command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabtaichid.nabtaichid"]
+    nabweatherd:
+        build: ./nab
+        volumes:
+            - ../:/home/pi/pynab
+            - var-run-postgresql:/var/run/postgresql
+        depends_on:
+            - db
+            - migrate
+            - nabdevd
+        command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabweatherd.nabweatherd"]
     nabmastodond:
         build: ./nab
         volumes:
@@ -39,6 +112,7 @@ services:
         depends_on:
             - db
             - migrate
+            - nabdevd
         command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabmastodond.nabmastodond"]
 
 volumes:

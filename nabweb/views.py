@@ -22,7 +22,7 @@ from nabd.i18n import Config
 
 class NabdConnection:
     async def __aenter__(self):
-        conn = asyncio.open_connection("127.0.0.1", NabService.PORT_NUMBER)
+        conn = asyncio.open_connection(NabService.HOST, NabService.PORT_NUMBER)
         self.reader, self.writer = await asyncio.wait_for(conn, 0.5)
         return self
 
