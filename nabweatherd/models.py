@@ -7,8 +7,10 @@ from nabcommon import singleton_model
 class Config(singleton_model.SingletonModel):
     location = models.TextField(
         null=True,
-        default='{"insee": "29039", "name": "Concarneau", "lat": 47.87528, "lon": -3.91889, \
-    "country": "FR", "admin": "Bretagne", "admin2": "29", "postCode": "29900"}',
+        default='{"insee": "29039", "name": "Concarneau", \
+        "lat": 47.87528, "lon": -3.91889, \
+    "country": "FR", "admin": "Bretagne", \
+    "admin2": "29", "postCode": "29900"}',
     )
     location_user_friendly = models.TextField(
         default="\
