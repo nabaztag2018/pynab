@@ -13,8 +13,7 @@ class Config(singleton_model.SingletonModel):
     "admin2": "29", "postCode": "29900"}',
     )
     location_user_friendly = models.TextField(
-        default="\
-    Concarneau - Bretagne (29) - FR"
+        default="Concarneau - Bretagne (29) - FR"
     )
     unit = models.IntegerField(null=False, default=1)
     next_performance_date = models.DateTimeField(null=True)
