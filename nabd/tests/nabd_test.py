@@ -248,6 +248,7 @@ class TestNabd(TestNabdBase):
             self.assertEqual(packet_j["type"], "response")
             self.assertEqual(packet_j["request_id"], "test_id")
             self.assertEqual(packet_j["status"], "ok")
+            self.nabio.played_infos = []
             time.sleep(10)  # give time to play info once
             self.assertNotEqual(self.nabio.played_infos, [])
             last_info = self.nabio.played_infos.pop()
@@ -309,6 +310,7 @@ class TestNabd(TestNabdBase):
             self.assertEqual(packet_j["type"], "response")
             self.assertEqual(packet_j["request_id"], "clear_id")
             self.assertEqual(packet_j["status"], "ok")
+            self.nabio.played_infos = []
             time.sleep(20)  # make sure info is not played
             self.assertEqual(self.nabio.played_infos, [])
         finally:
