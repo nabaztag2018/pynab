@@ -6,28 +6,31 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('nabweatherd', '0010_auto_20210329_0921'),
+        ("nabweatherd", "0010_auto_20210329_0921"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='config',
-            name='location',
-            field=models.TextField(default='{"insee": "29039", "name": "Concarneau", "lat": 47.87528, "lon": -3.91889, "country": "FR", "admin": "Bretagne", "admin2": "29", "postCode": "29900"}', null=True),
+            model_name="config",
+            name="location",
+            field=models.TextField(
+                default='{"insee": "29039", "name": "Concarneau", "lat": 47.87528, "lon": -3.91889, "country": "FR", "admin": "Bretagne", "admin2": "29", "postCode": "29900"}',
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='config',
-            name='location_user_friendly',
-            field=models.TextField(null='Concarneau - Bretagne (29) - FR'),
+            model_name="config",
+            name="location_user_friendly",
+            field=models.TextField(null="Concarneau - Bretagne (29) - FR"),
         ),
         migrations.AlterField(
-            model_name='config',
-            name='weather_animation_type',
-            field=models.TextField(default='weather_and_rain', null=True),
+            model_name="config",
+            name="weather_animation_type",
+            field=models.TextField(default="weather_and_rain", null=True),
         ),
         migrations.AlterField(
-            model_name='config',
-            name='weather_frequency',
+            model_name="config",
+            name="weather_frequency",
             field=models.IntegerField(default=3),
         ),
     ]

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('nabairqualityd', '0005_auto_20200612_1416'),
+        ("nabairqualityd", "0005_auto_20200612_1416"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='config',
-            name='visual_airquality',
-            field=models.TextField(default='always', null=True),
+            model_name="config",
+            name="visual_airquality",
+            field=models.TextField(default="always", null=True),
         ),
     ]
