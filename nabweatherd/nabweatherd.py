@@ -249,7 +249,6 @@ class NabWeatherd(NabInfoService):
             next_performance_weather_vocal_flag
             and next_performance_weather_vocal_date < now
         ):
-            logging.debug("performing random weather forecast")
 
             if now.hour > 18:
                 weather_forecast = "tomorrow"
@@ -323,6 +322,7 @@ class NabWeatherd(NabInfoService):
         from . import models
 
         config = await models.Config.load_async()
+
         return (
             config.next_performance_date,
             config.next_performance_type,

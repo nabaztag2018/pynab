@@ -5,12 +5,21 @@ from nabcommon import singleton_model
 
 
 class Config(singleton_model.SingletonModel):
-    location = models.TextField(null=True, default='{"insee": "29039", "name": "Concarneau", "lat": 47.87528, "lon": -3.91889, "country": "FR", "admin": "Bretagne", "admin2": "29", "postCode": "29900"}')
-    location_user_friendly = models.TextField(default='Concarneau - Bretagne (29) - FR')
+    location = models.TextField(
+        null=True,
+        default='{"insee": "29039", "name": "Concarneau", "lat": 47.87528, "lon": -3.91889, \
+    "country": "FR", "admin": "Bretagne", "admin2": "29", "postCode": "29900"}',
+    )
+    location_user_friendly = models.TextField(
+        default="\
+    Concarneau - Bretagne (29) - FR"
+    )
     unit = models.IntegerField(null=False, default=1)
     next_performance_date = models.DateTimeField(null=True)
     next_performance_type = models.TextField(null=True)
-    weather_animation_type = models.TextField(null=True, default="weather_and_rain")
+    weather_animation_type = models.TextField(
+        null=True, default="weather_and_rain"
+    )
     weather_frequency = models.IntegerField(default=3)
 
     next_performance_weather_vocal_date = models.DateTimeField(null=True)
