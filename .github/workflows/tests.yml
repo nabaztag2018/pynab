@@ -43,7 +43,14 @@ jobs:
       run: |
         PGPASSWORD=postgres PGHOST=localhost PGPORT=5432 psql -U postgres -d postgres -c "CREATE USER pynab PASSWORD 'pynab'; ALTER ROLE pynab CREATEDB;"
     - name: Setup NLU engines
-      run: sh .travis_build_nlu_engines.sh
+      run: |
+        python -m snips_nlu download fr
+        python -m snips_nlu download en
+        mkdir -p nabd/nlu
+        python -m snips_nlu generate-dataset en */nlu/intent_en.yaml > nabd/nlu/nlu_dataset_en.json
+        python -m snips_nlu generate-dataset fr */nlu/intent_fr.yaml > nabd/nlu/nlu_dataset_fr.json
+        snips-nlu train nabd/nlu/nlu_dataset_en.json nabd/nlu/engine_en
+        snips-nlu train nabd/nlu/nlu_dataset_fr.json nabd/nlu/engine_fr
     - name: Fake NTP synchronization
       run: sudo mkdir -p /run/systemd/timesync/ && sudo touch /run/systemd/timesync/synchronized
     - name: Run tests with coverage
