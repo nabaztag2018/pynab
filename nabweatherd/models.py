@@ -17,7 +17,9 @@ class Config(singleton_model.SingletonModel):
     unit = models.IntegerField(null=False, default=1)
     next_performance_date = models.DateTimeField(null=True)
     next_performance_type = models.TextField(null=True)
-    weather_animation_type = models.TextField(null=True, default="nothing")
+    weather_animation_type = models.TextField(
+        null=True, default="weather_and_rain"
+    )
     weather_frequency = models.IntegerField(default=0)
 
     next_performance_weather_vocal_date = models.DateTimeField(null=True)
