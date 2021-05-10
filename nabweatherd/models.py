@@ -8,10 +8,12 @@ class Config(singleton_model.SingletonModel):
 
     location = models.TextField(
         null=True,
-        default='{"insee": "75056", "name": "Paris 14", \
-        "lat": 48.8331, "lon": 2.3264, "country": "FR", \
-        "admin": "Île-de-France", "admin2": "75", \
-        "postCode": "75014"}',
+        default=(
+            '{"insee":"75056","name":"Paris 14",'
+            '"lat":48.8331,"lon":2.3264,"country":"FR",'
+            '"admin":"Île-de-France","admin2":"75",'
+            '"postCode":"75014"}'
+        ),
     )
 
     location_user_friendly = models.TextField(
