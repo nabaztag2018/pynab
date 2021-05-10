@@ -13,8 +13,10 @@ class TestView(TestCase):
         '"admin":"New York","admin2":"","postCode":""}'
     )
 
-    PARIS_LOCATION_JSON = '{"insee": "75056", "name": "Paris 14", "lat": 48.8331, \
-    "lon": 2.3264, "country": "FR", "admin": "Île-de-France", \
+    PARIS_LOCATION_JSON = '{"insee": "75056", \
+    "name": "Paris 14", "lat": 48.8331, \
+    "lon": 2.3264, "country": "FR", \
+    "admin": "Île-de-France", \
     "admin2": "75", "postCode": "75014"}'
 
     PARIS_LOCATION_USERFRIENDLY = "Paris 14 - Île-de-France (75) - FR"
