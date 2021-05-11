@@ -5,12 +5,27 @@ from nabcommon import singleton_model
 
 
 class Config(singleton_model.SingletonModel):
-    location = models.TextField(null=True)
-    location_user_friendly = models.TextField(null=True)
+
+    location = models.TextField(
+        null=True,
+        default=(
+            '{"insee":"75056","name":"Paris 14",'
+            '"lat":48.8331,"lon":2.3264,"country":"FR",'
+            '"admin":"Île-de-France","admin2":"75",'
+            '"postCode":"75014"}'
+        ),
+    )
+
+    location_user_friendly = models.TextField(
+        null=True, default="Paris 14 - Île-de-France (75) - FR"
+    )
+
     unit = models.IntegerField(null=False, default=1)
     next_performance_date = models.DateTimeField(null=True)
     next_performance_type = models.TextField(null=True)
-    weather_animation_type = models.TextField(null=True, default="nothing")
+    weather_animation_type = models.TextField(
+        null=True, default="weather_and_rain"
+    )
     weather_frequency = models.IntegerField(default=0)
 
     next_performance_weather_vocal_date = models.DateTimeField(null=True)
