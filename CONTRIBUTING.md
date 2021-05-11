@@ -30,7 +30,7 @@ project and could simply exploit the Nabd PROTOCOL and be installed separately.
 If you intend to add a new feature or change an existing one, please engage
 discussion first about what you are proposing by filing
 [a new issue](/nabaztag2018/pynab/issues/new) or discussing it on the
-[community forum](http://tagtagtag.fr/forum/).
+[Discussions page](https://github.com/nabaztag2018/pynab/discussions).
 
 ### Submitting patches
 
@@ -89,11 +89,10 @@ sudo ./venv/bin/pytest
 sudo ./venv/bin/python manage.py start_all
 ```
 
-Before committing your code, make sure the style is conforming by running
-black.
+Before committing your code, make sure the style is conforming by running pre-commit
 
 ```
-./venv/bin/black -l79 modified_file.py
+./venv/bin/pre-commit
 ```
 
 Once you are happy with the result, rebase and push it to a dedicated branch on
@@ -115,13 +114,8 @@ remote:      https://github.com/user/pynab/pull/new/branch-name
 remote:
 ```
 
-If you have a [Travis](http://travis-ci.org/) account and configured it to work
-on your pynab fork (you should), you can wait for tests to pass on Travis
-(currently takes less than 10 minutes).
-
-Then create your pull request. More tests will be run, concerning style (if you
-ran black, the only problem you might have concern some issues black could not
-solve automatically), code quality and unit tests on Travis.
+Then create your pull request. More tests will be run, concerning style, 
+code quality and unit tests on GitHub Actions.
 
 If tests fail, fix them and push to the branch, either with new commits or
 by amending. Once tests pass, your request will be reviewed.
