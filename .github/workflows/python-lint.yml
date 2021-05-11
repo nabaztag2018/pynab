@@ -13,7 +13,7 @@ jobs:
           use-pylint: false
           use-mypy: false
           # https://github.com/PyCQA/pycodestyle/issues/373
-          extra-pycodestyle-options: "--ignore=E121,E123,E126,E226,E24,E704,W503,W504,E203"
-          extra-flake8-options: "--extend-ignore=E203"
+          extra-pycodestyle-options: "--ignore=E121,E123,E126,E226,E24,E704,W503,W504,E203 --exclude=*/migrations/"
+          extra-flake8-options: "--extend-ignore=E203,E501"
           extra-black-options: "-l 79"
           extra-isort-options: "-l 79 --profile black --indent 4"
