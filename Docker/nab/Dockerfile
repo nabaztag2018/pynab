@@ -3,9 +3,10 @@ FROM python:3.7-buster
 RUN apt-get update && apt-get install -y \
     postgresql-client \
     libasound2-dev \
-    sudo
+    sudo \
+    netcat
 
-COPY *.sh /usr/local/bin/
+COPY Docker/nab/*.sh /usr/local/bin/
 
 RUN echo "pi ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/010_pi-nopasswd 
 
@@ -41,9 +42,13 @@ ENV VIRTUAL_ENV=/home/pi/venv
 RUN python3.7 -m venv ${VIRTUAL_ENV}
 ENV PATH=${VIRTUAL_ENV}/bin:${PATH}
 
-COPY ./requirements_docker.txt /tmp
+COPY requirements.txt /tmp/requirements.txt
+RUN grep -vE py-kaldi-asr < /tmp/requirements.txt > /tmp/requirements_docker.txt
 RUN ${VIRTUAL_ENV}/bin/pip install -r /tmp/requirements_docker.txt
 
-ENV NABD_HOST=nabdevd
+ENV NABD_HOST=nabd
+ENV NABD_PORT_NUMBER=10543
 
 EXPOSE 8000
+EXPOSE 10543
+EXPOSE 10544
