@@ -459,7 +459,7 @@ class NabWeatherd(NabInfoService):
             return
 
         logging.debug(f"get_animation :{info_data['weather_animation_type']}")
-        
+
         # Rain
         if (info_data["weather_animation_type"] == "weather_and_rain") or (
             info_data["weather_animation_type"] == "rain_only"
@@ -493,7 +493,7 @@ class NabWeatherd(NabInfoService):
         if info_data["weather_animation_type"] == "nothing":
             # Return mais avant on supprime l'animation rain
             packet = '{"type":"info",' '"info_id":"nabweatherd_rain"}\r\n'
-            self.writer.write(packet.encode("utf8"))        
+            self.writer.write(packet.encode("utf8"))
             logging.debug("get_animation : no visual information")
             return None
 
