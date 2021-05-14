@@ -38,11 +38,14 @@ services:
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
+            - /var/run/docker.sock:/var/run/docker.sock
         depends_on:
             - db
             - migrate
             - nabd
-        command: ["/bin/sh", "-c", "/home/pi/venv/bin/gunicorn --timeout 60 -b 0.0.0.0 nabweb.wsgi"]
+        environment:
+            - PID_DAEMONS=nab8balld nabairqualityd nabbookd nabclockd nabsurprised nabtaichid nabweatherd
+        command: ["/bin/bash", "/usr/local/bin/run-webserver.sh"]
         ports:
             - 8000:8000
     nab8balld:

@@ -56,7 +56,7 @@ class NabIOVirtual(NabIO):
         for writer in self.virtual_clients:
             self.display_rabbit(writer)
 
-    def color_to_ascii(self, color):
+    def color_to_ascii(self, color, black_char=None):
         ANSI_COLORS = {
             (0, 0, 0): 0,
             (255, 0, 0): 1,
@@ -80,28 +80,35 @@ class NabIOVirtual(NabIO):
             if min_delta is None or delta < min_delta:
                 min_delta = delta
                 min_ix = ix
+        if min_ix == 0 and black_char is not None:
+            return black_char
         return f"\033[4{min_ix}m \033[49m"
 
     def display_rabbit(self, writer):
         leds = self.leds.leds
-        nose = self.color_to_ascii(leds[Led.NOSE])
-        left = self.color_to_ascii(leds[Led.LEFT])
-        center = self.color_to_ascii(leds[Led.CENTER])
-        right = self.color_to_ascii(leds[Led.RIGHT])
-        bottom = self.color_to_ascii(leds[Led.BOTTOM])
+        nose = self.color_to_ascii(leds[Led.NOSE], "T")
+        left = self.color_to_ascii(leds[Led.LEFT], "▊")
+        center = self.color_to_ascii(leds[Led.CENTER], "▊")
+        right = self.color_to_ascii(leds[Led.RIGHT], "▊")
+        bottom = self.color_to_ascii(leds[Led.BOTTOM], "▊")
         writer.write("\033[2J\033[H".encode("utf8"))
+        if self.sound.currently_playing:
+            sound_str = f"🔊 {self.sound.sound_file}\n"
+        else:
+            sound_str = ""
         rabbit = (
-            "     X   X\n"
-            "     X   X\n"
-            "     X   X\n"
-            "     X   X\n"
-            "     XXXXX\n"
-            "    XoXXXoX\n"
-            f"    XXX{nose}XXX\n"
-            "   XXXXXXXXX\n"
-            f"   XX{left}X{center}X{right}XX\n"
-            "  XXXXXXXXXXX\n"
-            f"   XXX{bottom}{bottom}{bottom}XXX\n"
+            "     ▊   ▊\n"
+            "     ▊   ▊\n"
+            "     ▊   ▊\n"
+            "     ▊   ▊\n"
+            "     ▊▊▊▊▊\n"
+            "    ▊◉▊▊▊◉▊\n"
+            f"    ▊▊▊{nose}▊▊▊\n"
+            "   ▊▊▊▊▊▊▊▊▊\n"
+            f"   ▊▊{left}▊{center}▊{right}▊▊\n"
+            "  ▊▊▊▊▊▊▊▊▊▊▊\n"
+            f"   ▊▊▊{bottom}{bottom}{bottom}▊▊▊\n"
+            f"{sound_str}\n"
         )
         writer.write(rabbit.encode("utf8"))
 

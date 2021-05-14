@@ -4,7 +4,8 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     libasound2-dev \
     sudo \
-    netcat
+    netcat-openbsd \
+    libmpg123-dev
 
 COPY Docker/nab/*.sh /usr/local/bin/
 
