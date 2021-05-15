@@ -82,7 +82,7 @@ Le slot `"animation"`, optionnel, indique l'animation visuelle. S'il est absent,
 `{"tempo":tempo, "colors":colors}`
 
 `tempo` est en ms.
-`colors` est une liste pour les couleurs des leds :
+`colors` est une __[__ liste __]__ pour les couleurs des leds :
 
 `{"left":color,"center":color,"right":color}`
 
@@ -118,13 +118,13 @@ Le slot `"request_id"` est optionnel et est retourné dans la réponse.
 
 Le slot `"expiration"` est optionnel et indique la date d'expiration de la commande. La commande est jouée quand le lapin est disponible (pas endormi, pas en train de faire autre chose) et si la date d'expiration n'est pas atteinte.
 
-Le slot `"sequence"` est requis et `sequence` est une [liste] d'éléments du type :
+Le slot `"sequence"` est requis et `sequence` est une __[__ liste __]__ d'éléments du type :
 
 `{"audio":audio_list,"choreography":choreography}`
 
 Les slots `"audio"` et `"choreography"` sont optionnels.
 
-`audio_list` est une [liste] de sons à jouer. Chaque son peut être :
+`audio_list` est une __[__ liste __]__ de sons à jouer. Chaque son peut être :
 
 - une liste de ressources, séparées par des ";".
 
@@ -160,13 +160,13 @@ Le slot `"signature"` est optionnel et est du type :
 
 `{"audio":audio_list,"choreography":choreography}`
 
-Le slot `"body"` est requis et est une [liste] d'éléments du type :
+Le slot `"body"` est requis et est une __[__ liste __]__ d'éléments du type :
 
 `{"audio":audio_list,"choreography":choreography}`
 
 Les slots `"audio"` et `"choreography"` sont optionnels.
 
-`audio_list` est une liste de sons à jouer, comme pour les paquets `"command"`.
+`audio_list` est une __[__ liste __]__ de sons à jouer, comme pour les paquets `"command"`.
 `choreography` est une chorégraphie, comme pour les paquets `"command"`. Cependant, si la chorégraphie n'est pas précisée, alors c'est la chorégraphie de streaming qui est utilisée.
 
 La signature est jouée en premier, suivi du corps du message, puis la signature est rejouée.
@@ -286,7 +286,7 @@ Le statut `"error"` signifie une erreur dans le protocole. `class` et `message` 
 
 Utilisés en interne pour la configuration des tags RFID.
 
-## Paquets `gestalt`, `test` et `config-update`
+## Paquets `gestalt`, `test`, `config-update` et `shutdown`
 
 Utilisés en interne pour la communication entre le site web et nabd.
 
