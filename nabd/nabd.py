@@ -256,6 +256,7 @@ class Nabd:
                         self.interactive_service_events = ["ears", "button"]
                     break
                 elif item[0]["type"] == "test":
+                    await self.set_state(State.PLAYING)
                     await self.do_process_test_packet(item[0], item[1])
                     if len(self.idle_queue) == 0:
                         await self.set_state(State.IDLE)
