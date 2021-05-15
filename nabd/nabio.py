@@ -328,7 +328,65 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """Determine if we have an rfid reader"""
         raise NotImplementedError("Should have implemented")
 
-    @abc.abstractmethod
     async def test(self, test):
-        """Run a given hardware test, returning True if everything is ok"""
-        raise NotImplementedError("Should have implemented")
+        if test == "ears":
+            (
+                left_ear_position,
+                right_ear_position,
+            ) = await self.ears.get_positions()
+            await self.ears.go(Ears.LEFT_EAR, 8, Ears.BACKWARD_DIRECTION)
+            await self.ears.go(Ears.RIGHT_EAR, 8, Ears.BACKWARD_DIRECTION)
+            await self.ears.wait_while_running()
+            for x in range(0, 17):
+                await self.ears.move(Ears.LEFT_EAR, 1, Ears.FORWARD_DIRECTION)
+                await self.ears.move(
+                    Ears.RIGHT_EAR, 1, Ears.BACKWARD_DIRECTION
+                )
+                await self.ears.wait_while_running()
+                await asyncio.sleep(0.2)
+            for x in range(0, 17):
+                await self.ears.move(Ears.LEFT_EAR, 1, Ears.BACKWARD_DIRECTION)
+                await self.ears.move(Ears.RIGHT_EAR, 1, Ears.FORWARD_DIRECTION)
+                await self.ears.wait_while_running()
+                await asyncio.sleep(0.2)
+            await self.ears.go(Ears.LEFT_EAR, 0, Ears.FORWARD_DIRECTION)
+            await self.ears.go(Ears.RIGHT_EAR, 0, Ears.FORWARD_DIRECTION)
+            await self.ears.wait_while_running()
+            if left_ear_position is not None:
+                await self.ears.go(
+                    Ears.LEFT_EAR, left_ear_position, Ears.FORWARD_DIRECTION
+                )
+            if right_ear_position is not None:
+                await self.ears.go(
+                    Ears.RIGHT_EAR, right_ear_position, Ears.FORWARD_DIRECTION
+                )
+            await self.ears.wait_while_running()
+            if self.ears.is_broken(Ears.LEFT_EAR):
+                return False
+            if self.ears.is_broken(Ears.RIGHT_EAR):
+                return False
+            return True
+        elif test == "leds":
+            for color in [
+                (0, 0, 0),
+                (255, 0, 0),
+                (0, 255, 0),
+                (0, 0, 255),
+                (255, 255, 255),
+                (127, 127, 127),
+                (0, 0, 0),
+            ]:
+                r, g, b = color
+                for led_ix in [
+                    Led.NOSE,
+                    Led.LEFT,
+                    Led.CENTER,
+                    Led.RIGHT,
+                    Led.BOTTOM,
+                ]:
+                    self.leds.set1(led_ix, r, g, b)
+                    await asyncio.sleep(0.2)
+                await asyncio.sleep(1.0)
+            return True
+        else:
+            return False
