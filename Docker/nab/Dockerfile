@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
     netcat-openbsd \
     libmpg123-dev
 
-COPY Docker/nab/*.sh /usr/local/bin/
+COPY *.sh /usr/local/bin/
 
 RUN echo "pi ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/010_pi-nopasswd 
 

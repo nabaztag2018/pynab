@@ -33,7 +33,7 @@ class NabIOVirtual(NabIO):
         self.button = ButtonVirtual()
         self.rfid = RfidVirtual()
 
-    def gestalt(self):
+    async def gestalt(self):
         return {
             "model": "Virtual nab",
             "sound_card": "Virtual sound",

@@ -12,8 +12,8 @@ services:
     # Once off container to run the DB migrations
     migrate:
         build:
-            context: ..
-            dockerfile: Docker/nab/Dockerfile
+            context: nab/
+            dockerfile: Dockerfile
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -22,8 +22,8 @@ services:
         command: ["/bin/bash", "/usr/local/bin/run-migrate.sh"]
     nabd:
         build:
-            context: ..
-            dockerfile: Docker/nab/Dockerfile
+            context: nab/
+            dockerfile: Dockerfile
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -33,8 +33,8 @@ services:
             - 10544:10544
     nabweb:
         build:
-            context: ..
-            dockerfile: Docker/nab/Dockerfile
+            context: nab/
+            dockerfile: Dockerfile
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -50,8 +50,8 @@ services:
             - 8000:8000
     nab8balld:
         build:
-            context: ..
-            dockerfile: Docker/nab/Dockerfile
+            context: nab/
+            dockerfile: Dockerfile
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -62,8 +62,8 @@ services:
         command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nab8balld"]
     nabairqualityd:
         build:
-            context: ..
-            dockerfile: Docker/nab/Dockerfile
+            context: nab/
+            dockerfile: Dockerfile
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -74,8 +74,8 @@ services:
         command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabairqualityd"]
     nabbookd:
         build:
-            context: ..
-            dockerfile: Docker/nab/Dockerfile
+            context: nab/
+            dockerfile: Dockerfile
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -86,8 +86,8 @@ services:
         command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabbookd"]
     nabclockd:
         build:
-            context: ..
-            dockerfile: Docker/nab/Dockerfile
+            context: nab/
+            dockerfile: Dockerfile
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -98,8 +98,8 @@ services:
         command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabclockd"]
     nabsurprised:
         build:
-            context: ..
-            dockerfile: Docker/nab/Dockerfile
+            context: nab/
+            dockerfile: Dockerfile
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -110,8 +110,8 @@ services:
         command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabsurprised"]
     nabtaichid:
         build:
-            context: ..
-            dockerfile: Docker/nab/Dockerfile
+            context: nab/
+            dockerfile: Dockerfile
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -122,8 +122,8 @@ services:
         command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabtaichid"]
     nabweatherd:
         build:
-            context: ..
-            dockerfile: Docker/nab/Dockerfile
+            context: nab/
+            dockerfile: Dockerfile
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -134,8 +134,8 @@ services:
         command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabweatherd"]
     nabmastodond:
         build:
-            context: ..
-            dockerfile: Docker/nab/Dockerfile
+            context: nab/
+            dockerfile: Dockerfile
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
