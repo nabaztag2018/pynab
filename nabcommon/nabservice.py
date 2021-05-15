@@ -83,7 +83,8 @@ class NabService(ABC):
             pass
         finally:
             if self.running:
-                self.loop.run_until_complete(self.stop_service_loop())
+                await self.stop_service_loop()
+            self.loop.stop()
 
     MAX_RETRY = 10
 
