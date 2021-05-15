@@ -98,7 +98,9 @@ class NabIOVirtual(NabIO):
         for left_l, right_l in zip(left_ear, right_ear):
             if ears_line_ix == 0:
                 left_l = left_l.replace("XX", "{:2d}".format(self.ears.left))
-                right_l = right_l.replace("XX", "{:2d}".format(self.ears.left))
+                right_l = right_l.replace(
+                    "XX", "{:2d}".format(self.ears.right)
+                )
             sep = "   "
             if ears_line_ix == 4:
                 sep = "▊▊▊"
