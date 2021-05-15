@@ -81,8 +81,29 @@ class NabIOVirtual(NabIO):
             return black_char
         return f"\033[4{min_ix}m \033[49m"
 
+    def display_ear(self, ear):
+        if ear < 3 or ear > 14:
+            return ["XX   ▊", "     ▊", "     ▊", "     ▊", "     ▊"]
+        if ear >= 8 and ear < 12:
+            return ["XX    ", "      ", "      ", "      ", " ▊▊▊▊▊"]
+        return ["XX    ", "  ▊   ", "   ▊  ", "    ▊ ", "     ▊"]
+
     def display_rabbit(self, writer):
         leds = self.leds.leds
+        left_ear = self.display_ear(self.ears.left)
+        right_ear = self.display_ear(self.ears.right)
+        right_ear = [line[::-1] for line in right_ear]
+        ears = ""
+        ears_line_ix = 0
+        for left_l, right_l in zip(left_ear, right_ear):
+            if ears_line_ix == 0:
+                left_l = left_l.replace("XX", "{:2d}".format(self.ears.left))
+                right_l = right_l.replace("XX", "{:2d}".format(self.ears.left))
+            sep = "   "
+            if ears_line_ix == 4:
+                sep = "▊▊▊"
+            ears = ears + left_l + sep + right_l + "\n"
+            ears_line_ix = ears_line_ix + 1
         nose = self.color_to_ascii(leds[Led.NOSE], "T")
         left = self.color_to_ascii(leds[Led.LEFT], "▊")
         center = self.color_to_ascii(leds[Led.CENTER], "▊")
@@ -94,11 +115,7 @@ class NabIOVirtual(NabIO):
         else:
             sound_str = ""
         rabbit = (
-            "     ▊   ▊\n"
-            "     ▊   ▊\n"
-            "     ▊   ▊\n"
-            "     ▊   ▊\n"
-            "     ▊▊▊▊▊\n"
+            f"{ears}"
             "    ▊◉▊▊▊◉▊\n"
             f"    ▊▊▊{nose}▊▊▊\n"
             "   ▊▊▊▊▊▊▊▊▊\n"
