@@ -37,17 +37,18 @@ The following containers are started (See
 - `migrate`: Runs `manage.py migrate` to apply DB migrations.
 - `nabweb`: Web interface WSGI.
 - `nab*d`: One container for each service.
-- `nabdevd`: A dummy nabd replacement, since all services need to talk to nabd
-  but it cannot run without the real hardware.
+- `nabd`: Nabd running with NabIOVirtual interface.
 
 `db` is using the official PostgreSQL image. `nabdevd` is using a publicly
 available custom container. All other containers are using a custom image based
 on the official Python image (See [nab/Dockerfile](nab/Dockerfile)).
 
-The dummy nabd daemon is a
-[separate open-source project](https://gitlab.com/nguillaumin/nabdevd). It's
-quite minimal for now but will be extended to simulate as many functions
-provided by nabd as possible.
+To access NabIOVirtual, you can connect over TCP on port 10544:
+```
+nc 127.0.0.1 10544
+```
+
+This interface currently displays leds and sounds.
 
 ### Access to the database
 

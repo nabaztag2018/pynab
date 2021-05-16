@@ -6,6 +6,7 @@ import getopt
 import json
 import logging
 import os
+import platform
 import socket
 import subprocess
 import sys
@@ -255,6 +256,7 @@ class Nabd:
                         self.interactive_service_events = ["ears", "button"]
                     break
                 elif item[0]["type"] == "test":
+                    await self.set_state(State.PLAYING)
                     await self.do_process_test_packet(item[0], item[1])
                     if len(self.idle_queue) == 0:
                         await self.set_state(State.IDLE)
@@ -965,7 +967,7 @@ class Nabd:
         else:
             server_task = self.loop.create_task(
                 asyncio.start_server(
-                    self.service_loop, "localhost", NabService.PORT_NUMBER
+                    self.service_loop, NabService.HOST, NabService.PORT_NUMBER
                 )
             )
         try:
@@ -1052,10 +1054,20 @@ class Nabd:
     def main(argv):
         nablogging.setup_logging("nabd")
         pidfilepath = "/run/nabd.pid"
+        if sys.platform == "linux" and "arm" in platform.machine():
+            from .nabio_hw import NabIOHW
+
+            nabiocls = NabIOHW
+        else:
+            from .nabio_virtual import NabIOVirtual
+
+            nabiocls = NabIOVirtual
         usage = (
             f"nabd [options]\n"
             f" -h                  display this message\n"
             f" --pidfile=<pidfile> define pidfile (default = {pidfilepath})\n"
+            " --nabio=<nabio> define nabio class "
+            f"(default = {nabiocls.__module__}.{nabiocls.__name__})\n"
         )
         try:
             opts, args = getopt.getopt(argv, "h", ["pidfile=", "nabio="])
@@ -1068,12 +1080,14 @@ class Nabd:
                 exit(0)
             elif opt == "--pidfile":
                 pidfilepath = arg
+            elif opt == "--nabio":
+                from pydoc import locate
+
+                nabiocls = locate(arg)
         pidfile = PIDLockFile(pidfilepath, timeout=-1)
         try:
             with pidfile:
-                from .nabio_hw import NabIOHW
-
-                nabio = NabIOHW()
+                nabio = nabiocls()
                 Nabd.leds_boot(nabio, 1)
                 nabd = Nabd(nabio)
                 nabd.run()
