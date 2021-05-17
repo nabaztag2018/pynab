@@ -62,9 +62,6 @@ sudo apt update -y
 sudo apt dist-upgrade -y
 sudo apt-get install --no-install-recommends -y postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3 libopenblas-dev liblapack-dev zram-tools
 
-echo "Making sure /var/log/nginx exists"
-sudo mkdir -p /var/log/nginx
-
 echo "Installing sound driver for Ulule 2019 cards"
 sudo apt-get install --no-install-recommends raspberrypi-kernel-headers
 cd /home/pi
