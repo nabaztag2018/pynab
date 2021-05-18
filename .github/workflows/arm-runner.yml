@@ -61,7 +61,7 @@ jobs:
       run: |
         mv ${{ steps.arm_runner_install.outputs.image }} pynab-${{ steps.image_and_branch_name.outputs.IMAGE_NAME_SUFFIX }}.img
         wget https://raw.githubusercontent.com/Drewsif/PiShrink/fa3c7a27406e7c0a1c7b8688e330f14a766be1ba/pishrink.sh
-        sudo bash pishrink.sh -Z -a -p pynab-${{ steps.image_and_branch_name.outputs.IMAGE_NAME_SUFFIX }}.img
+        sudo bash pishrink.sh -Z -a pynab-${{ steps.image_and_branch_name.outputs.IMAGE_NAME_SUFFIX }}.img
     - name: Create release with releng image
       if: github.ref == 'refs/heads/releng'
       uses: "marvinpinto/action-automatic-releases@v1.1.2"
