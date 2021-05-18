@@ -9,7 +9,7 @@ jobs:
       uses: pguyot/arm-runner-action@v1
       id: arm_runner_tests
       with:
-        image_additional_mb: 4096
+        image_additional_mb: 3584
         base_image: 'raspios_lite:2021-03-04'
         cpu: 'arm1176'
         copy_repository_path: /home/pi/pynab
@@ -47,7 +47,7 @@ jobs:
       uses: pguyot/arm-runner-action@v1
       id: arm_runner_install
       with:
-        image_additional_mb: 4096
+        image_additional_mb: 3584
         base_image: 'raspios_lite:2021-03-04'
         cpu: 'arm1176'
         commands: |
@@ -55,10 +55,13 @@ jobs:
             echo GITHUB_REPOSITORY=${{ github.repository }}
             sudo GITHUB_BRANCH=${{ steps.image_and_branch_name.outputs.LOCAL_BRANCH }} GITHUB_REPOSITORY=${{ github.repository }} /bin/bash setup
             sudo rm -rf /pynab
-    - name: Compress the release image
+            sudo apt-get autoremove -y
+            sudo apt-get clean
+    - name: Compress the release image with pishrink
       run: |
         mv ${{ steps.arm_runner_install.outputs.image }} pynab-${{ steps.image_and_branch_name.outputs.IMAGE_NAME_SUFFIX }}.img
-        xz -0 -T 0 -v pynab-${{ steps.image_and_branch_name.outputs.IMAGE_NAME_SUFFIX }}.img
+        wget https://raw.githubusercontent.com/Drewsif/PiShrink/fa3c7a27406e7c0a1c7b8688e330f14a766be1ba/pishrink.sh
+        sudo bash pishrink.sh -Z -a -p pynab-${{ steps.image_and_branch_name.outputs.IMAGE_NAME_SUFFIX }}.img
     - name: Create release with releng image
       if: github.ref == 'refs/heads/releng'
       uses: "marvinpinto/action-automatic-releases@v1.1.2"

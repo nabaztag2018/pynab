@@ -22,7 +22,7 @@ from nabd.i18n import Config
 
 class NabdConnection:
     async def __aenter__(self):
-        conn = asyncio.open_connection("127.0.0.1", NabService.PORT_NUMBER)
+        conn = asyncio.open_connection(NabService.HOST, NabService.PORT_NUMBER)
         self.reader, self.writer = await asyncio.wait_for(conn, 0.5)
         return self
 
@@ -507,8 +507,7 @@ class GitInfo:
         )
         info["tag"] = (
             os.popen(
-                f"cd {repo_dir} && "
-                "sudo -u pi git describe --exact-match --tags"
+                f"cd {repo_dir} && " "sudo -u pi git describe --long --tags"
             )
             .read()
             .strip()

@@ -66,6 +66,7 @@ class Resources(object):
         basepath = Path(settings.BASE_DIR)
         locale = await get_locale()
 
+        filelist = []
         for app in os.listdir(basepath):
             if not os.path.isdir(app):
                 continue
@@ -74,7 +75,7 @@ class Resources(object):
                 basepath.joinpath(app, type, parent),
             ]:
                 if path.is_dir():
-                    list = path.glob(pattern)
-                    if list != []:
-                        return random.choice(sorted(list))
+                    filelist = filelist + list(path.glob(pattern))
+        if filelist != []:
+            return random.choice(sorted(filelist))
         return None

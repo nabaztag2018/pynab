@@ -73,7 +73,7 @@ if [ $upgrade -eq 1 -a $makerfaire2018 -eq 0 -a -d /home/pi/wm8960 ]; then
   sudo chown -R ${owner} .git
   pull=`git pull`
   if [ "$pull" != "Already up to date." ]; then
-    make && sudo make install
+    make && sudo make install && make clean
     sudo touch /tmp/pynab.upgrade.reboot
   fi
 fi
@@ -85,14 +85,14 @@ if [ $upgrade -eq 1 ]; then
     sudo chown -R ${owner} .git
     pull=`git pull`
     if [ "$pull" != "Already up to date." ]; then
-      make && sudo make install
+      make && sudo make install && make clean
       sudo touch /tmp/pynab.upgrade.reboot
     fi
   else
     cd /home/pi
     git clone https://github.com/pguyot/tagtagtag-ears
     cd tagtagtag-ears
-    make && sudo make install
+    make && sudo make install && make clean
     sudo touch /tmp/pynab.upgrade.reboot
   fi
 else
@@ -109,14 +109,14 @@ if [ $upgrade -eq 1 ]; then
     sudo chown -R ${owner} .git
     pull=`git pull`
     if [ "$pull" != "Already up to date." ]; then
-      make && sudo make install
+      make && sudo make install && make clean
       sudo touch /tmp/pynab.upgrade.reboot
     fi
   else
     cd /home/pi
     git clone https://github.com/pguyot/cr14
     cd cr14
-    make && sudo make install
+    make && sudo make install && make clean
     sudo touch /tmp/pynab.upgrade.reboot
   fi
 else
@@ -185,9 +185,8 @@ if [ $upgrade -eq 1 ]; then
   echo "Updating Python requirements - 7/14" > /tmp/pynab.upgrade
 fi
 # Start with wheel which is required to compile some of the other requirements
-venv/bin/pip uninstall -y meteofrance #remove old meteofrance API
-venv/bin/pip install wheel
-venv/bin/pip install -r requirements.txt
+venv/bin/pip install --no-cache-dir wheel
+venv/bin/pip install --no-cache-dir -r requirements.txt
 
 if [ $makerfaire2018 -eq 0 ]; then
   if [ $upgrade -eq 1 ]; then

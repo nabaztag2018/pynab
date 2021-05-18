@@ -15,6 +15,12 @@ RUN echo "Raspberry Pi reference 1970-01-01" > /etc/rpi-issue
 # Fake nabd systemd service file used to retrieve the working directory
 RUN echo "WorkingDirectory=/home/pi/pynab" > /lib/systemd/system/nabd.service
 
+# Fake systemd-time-wait-sync.service needed by nabclockd
+RUN mkdir -p /run/systemd/timesync/ && touch /run/systemd/timesync/synchronized
+
+# Naively fake systemctl, used to check if the SSH service is active
+RUN ln -s /bin/false /bin/systemctl
+
 # Make /var/log/ writable for service log files, /run for PID files
 RUN chmod a+w /var/log /run
 
@@ -38,6 +44,6 @@ ENV PATH=${VIRTUAL_ENV}/bin:${PATH}
 COPY ./requirements_docker.txt /tmp
 RUN ${VIRTUAL_ENV}/bin/pip install -r /tmp/requirements_docker.txt
 
-ENV PYNAB_DEVELOPMENT=true
+ENV NABD_HOST=nabdevd
 
 EXPOSE 8000

@@ -60,40 +60,46 @@ cat /boot/config.txt | grep "dtoverlay=hifiberry-dac"
 echo "Installing required packages"
 sudo apt update -y
 sudo apt dist-upgrade -y
-sudo apt-get install --no-install-recommends -y postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3 libopenblas-dev liblapack-dev gfortran zram-tools
+sudo apt-get install --no-install-recommends -y postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3 libopenblas-dev liblapack-dev zram-tools
+
+echo "Making sure /var/log/nginx exists"
+sudo mkdir -p /var/log/nginx
 
 echo "Installing sound driver for Ulule 2019 cards"
 sudo apt-get install --no-install-recommends raspberrypi-kernel-headers
 cd /home/pi
-sudo -u pi git clone -b tagtagtag-sound https://github.com/pguyot/wm8960
+sudo -u pi git clone --depth 1 -b tagtagtag-sound https://github.com/pguyot/wm8960
 cd /home/pi/wm8960
 make
 sudo make install
+make clean
 
 echo "Installing ears driver"
 cd /home/pi
-sudo -u pi git clone https://github.com/pguyot/tagtagtag-ears
+sudo -u pi git clone --depth 1 https://github.com/pguyot/tagtagtag-ears
 cd /home/pi/tagtagtag-ears
 make
 sudo make install
+make clean
 
 echo "Installing cr14 driver"
 cd /home/pi
-sudo -u pi git clone https://github.com/pguyot/cr14
+sudo -u pi git clone --depth 1 https://github.com/pguyot/cr14
 cd /home/pi/cr14
 make
 sudo make install
+make clean
 
 repository=${GITHUB_REPOSITORY:-nabaztag2018/pynab}
 branch=${GITHUB_BRANCH:-release}
 echo "Cloning pynab ${branch} branch from ${repository}"
 cd /home/pi
-sudo -u pi git clone -b ${branch} https://github.com/${repository}.git
+sudo -u pi git clone --depth 1 -b ${branch} https://github.com/${repository}.git
 
 echo "Installing nabblockly"
-sudo apt-get install --no-install-recommends -y erlang
+sudo apt-get install --no-install-recommends -y erlang-base erlang-dev erlang-inets erlang-tools erlang-xmerl
 cd /home/pi/pynab
-sudo -u pi git clone https://github.com/pguyot/nabblockly
+sudo -u pi git clone --depth 1 https://github.com/pguyot/nabblockly
 cd nabblockly
 sudo -u pi wget https://s3.amazonaws.com/rebar3/rebar3 && chmod +x rebar3
 sudo -u pi ./rebar3 release
