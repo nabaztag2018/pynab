@@ -13,6 +13,15 @@ class TestView(TestCase):
         '"admin":"New York","admin2":"","postCode":""}'
     )
 
+    PARIS_LOCATION_JSON = (
+        '{"insee":"75056","name":"Paris 14",'
+        '"lat":48.8331,"lon":2.3264,"country":"FR",'
+        '"admin":"Île-de-France","admin2":"75",'
+        '"postCode":"75014"}'
+    )
+
+    PARIS_LOCATION_USERFRIENDLY = "Paris 14 - Île-de-France (75) - FR"
+
     def setUp(self):
         Config.load()
 
@@ -26,8 +35,10 @@ class TestView(TestCase):
         self.assertTrue("config" in response.context)
         config = Config.load()
         self.assertEqual(response.context["config"], config)
-        self.assertEqual(config.location, None)
-        self.assertEqual(config.location_user_friendly, None)
+        self.assertEqual(config.location, TestView.PARIS_LOCATION_JSON)
+        self.assertEqual(
+            config.location_user_friendly, TestView.PARIS_LOCATION_USERFRIENDLY
+        )
         self.assertEqual(config.unit, 1)
         self.assertEqual(config.next_performance_date, None)
 

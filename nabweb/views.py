@@ -325,17 +325,23 @@ class NabWebSytemInfoView(BaseView):
 
     def get_os_info(self):
         version = "unknown"
-        with open("/etc/os-release") as release:
-            line = release.readline()
-            matchObj = re.match(r'PRETTY_NAME="(.+)"$', line, re.M)
-            if matchObj:
-                version = matchObj.group(1)
+        try:
+            with open("/etc/os-release") as release:
+                line = release.readline()
+                matchObj = re.match(r'PRETTY_NAME="(.+)"$', line, re.M)
+                if matchObj:
+                    version = matchObj.group(1)
+        except FileNotFoundError:
+            pass
         kernel_release = os.popen("uname -rm").read().rstrip()
         version = version + " - Kernel " + kernel_release
         hostname = os.popen("hostname -a").read().rstrip()
         ip_address = os.popen("hostname -I").read().rstrip()
-        with open("/proc/uptime", "r") as uptime_f:
-            uptime = int(float(uptime_f.readline().split()[0]))
+        try:
+            with open("/proc/uptime", "r") as uptime_f:
+                uptime = int(float(uptime_f.readline().split()[0]))
+        except FileNotFoundError:
+            uptime = 0
         ssh_state = os.popen("systemctl is-active ssh").read().rstrip()
         if ssh_state == "active" and os.path.isfile("/run/sshwarn"):
             ssh_state = "sshwarn"
@@ -430,7 +436,7 @@ class GitInfo:
             .rstrip()
         )
         if root_dir == "":
-            root_dir = None
+            root_dir = os.path.dirname(os.path.dirname(__file__))
         return root_dir
 
     @staticmethod

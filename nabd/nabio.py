@@ -1,8 +1,11 @@
 import abc
+import asyncio
+import time
 from asyncio import Event
 
 from .choreography import ChoreographyInterpreter
 from .ears import Ears
+from .leds import Led
 
 
 class NabIO(object, metaclass=abc.ABCMeta):
@@ -23,20 +26,20 @@ class NabIO(object, metaclass=abc.ABCMeta):
         super().__init__()
         self.cancel_event = Event()
 
-    @abc.abstractmethod
     async def setup_ears(self, left_ear, right_ear):
         """
         Init ears and move them to the initial position.
         """
-        raise NotImplementedError("Should have implemented")
+        await self.ears.reset_ears(left_ear, right_ear)
 
-    @abc.abstractmethod
     async def move_ears(self, left_ear, right_ear):
         """
         Move ears to a given position and return only when they reached this
         position.
         """
-        raise NotImplementedError("Should have implemented")
+        await self.ears.go(Ears.LEFT_EAR, left_ear, Ears.FORWARD_DIRECTION)
+        await self.ears.go(Ears.RIGHT_EAR, right_ear, Ears.FORWARD_DIRECTION)
+        await self.ears.wait_while_running()
 
     async def move_ears_with_leds(self, color, new_left, new_right):
         """
@@ -56,23 +59,36 @@ class NabIO(object, metaclass=abc.ABCMeta):
             await self.move_ears(new_left, new_right)
         self.set_leds(None, None, None, None, None)
 
-    @abc.abstractmethod
     async def detect_ears_positions(self):
         """
         Detect ears positions and return the position before the detection.
         A second call will return the current position.
         """
-        raise NotImplementedError("Should have implemented")
+        return await self.ears.detect_positions()
 
-    @abc.abstractmethod
     def set_leds(self, nose, left, center, right, bottom):
-        """Set the leds. None means to turn them off."""
-        raise NotImplementedError("Should have implemented")
+        """
+        Set the leds. None means to turn them off.
+        """
+        for (led_ix, led) in [
+            (Led.NOSE, nose),
+            (Led.LEFT, left),
+            (Led.CENTER, center),
+            (Led.RIGHT, right),
+            (Led.BOTTOM, bottom),
+        ]:
+            if led is None:
+                (r, g, b) = (0, 0, 0)
+            else:
+                (r, g, b) = led
+            self.leds.set1(led_ix, r, g, b)
 
-    @abc.abstractmethod
     def pulse(self, led, color):
-        """Set a led to pulse."""
-        raise NotImplementedError("Should have implemented")
+        """
+        Set a led to pulse.
+        """
+        (r, g, b) = color
+        self.leds.pulse(led, r, g, b)
 
     async def rfid_detected_feedback(self):
         ci = ChoreographyInterpreter(self.leds, self.ears, self.sound)
@@ -85,9 +101,7 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """
         Turn nose red.
         """
-        self.set_leds(
-            (255, 0, 255), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)
-        )
+        self.leds.set1(Led.NOSE, 255, 0, 0)
 
     def rfid_done_feedback(self):
         """
@@ -95,7 +109,6 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """
         self.set_leds((0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0))
 
-    @abc.abstractmethod
     def bind_button_event(self, loop, callback):
         """
         Define the callback for button events.
@@ -109,9 +122,8 @@ class NabIO(object, metaclass=abc.ABCMeta):
         Make sure the callback is called on the provided event loop, with
         loop.call_soon_threadsafe
         """
-        raise NotImplementedError("Should have implemented")
+        self.button.on_event(loop, callback)
 
-    @abc.abstractmethod
     def bind_ears_event(self, loop, callback):
         """
         Define the callback for ears events.
@@ -120,9 +132,8 @@ class NabIO(object, metaclass=abc.ABCMeta):
         Make sure the callback is called on the provided event loop, with
         loop.call_soon_threadsafe
         """
-        raise NotImplementedError("Should have implemented")
+        self.ears.on_move(loop, callback)
 
-    @abc.abstractmethod
     def bind_rfid_event(self, loop, callback):
         """
         Define the callback for rfid events.
@@ -131,9 +142,8 @@ class NabIO(object, metaclass=abc.ABCMeta):
         Make sure the callback is called on the provided event loop, with
         loop.call_soon_threadsafe
         """
-        raise NotImplementedError("Should have implemented")
+        self.rfid.on_detect(loop, callback)
 
-    @abc.abstractmethod
     async def play_info(self, condvar, tempo, colors):
         """
         Play an info animation.
@@ -144,7 +154,57 @@ class NabIO(object, metaclass=abc.ABCMeta):
         If 'left'/'center'/'right' slots are absent, the light is off.
         Return true if condvar was notified
         """
-        raise NotImplementedError("Should have implemented")
+        animation = [NabIO._convert_info_color(color) for color in colors]
+        step_ms = tempo * 10
+        start = time.time()
+        index = 0
+        notified = False
+        while time.time() - start < NabIO.INFO_LOOP_LENGTH:
+            step = animation[index]
+            for led_ix, rgb in step:
+                r, g, b = rgb
+                self.leds.set1(led_ix, r, g, b)
+            if await NabIO._wait_on_condvar(condvar, step_ms):
+                index = (index + 1) % len(animation)
+            else:
+                notified = True
+                break
+        self.clear_info()
+        return notified
+
+    def clear_info(self):
+        for led in (Led.LEFT, Led.CENTER, Led.RIGHT):
+            self.leds.set1(led, 0, 0, 0)
+
+    @staticmethod
+    async def _wait_on_condvar(condvar, ms):
+        timeout = False
+        try:
+            await asyncio.wait_for(condvar.wait(), ms / 1000)
+        except asyncio.TimeoutError:
+            timeout = True
+        return timeout
+
+    @staticmethod
+    def _convert_info_color(color):
+        animation = []
+        for led_ix, led in [
+            (Led.LEFT, "left"),
+            (Led.CENTER, "center"),
+            (Led.RIGHT, "right"),
+        ]:
+            values = []
+            if color[led]:
+                int_value = int(color[led], 16)
+                values.append((int_value >> 16) & 0xFF)  # r
+                values.append((int_value >> 8) & 0xFF)  # g
+                values.append(int_value & 0xFF)  # b
+            else:
+                values.append(0)
+                values.append(0)
+                values.append(0)
+            animation.append((led_ix, values))
+        return animation
 
     async def start_acquisition(self, acquisition_cb):
         """
@@ -268,7 +328,65 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """Determine if we have an rfid reader"""
         raise NotImplementedError("Should have implemented")
 
-    @abc.abstractmethod
     async def test(self, test):
-        """Run a given hardware test, returning True if everything is ok"""
-        raise NotImplementedError("Should have implemented")
+        if test == "ears":
+            (
+                left_ear_position,
+                right_ear_position,
+            ) = await self.ears.get_positions()
+            await self.ears.go(Ears.LEFT_EAR, 8, Ears.BACKWARD_DIRECTION)
+            await self.ears.go(Ears.RIGHT_EAR, 8, Ears.BACKWARD_DIRECTION)
+            await self.ears.wait_while_running()
+            for x in range(0, 17):
+                await self.ears.move(Ears.LEFT_EAR, 1, Ears.FORWARD_DIRECTION)
+                await self.ears.move(
+                    Ears.RIGHT_EAR, 1, Ears.BACKWARD_DIRECTION
+                )
+                await self.ears.wait_while_running()
+                await asyncio.sleep(0.2)
+            for x in range(0, 17):
+                await self.ears.move(Ears.LEFT_EAR, 1, Ears.BACKWARD_DIRECTION)
+                await self.ears.move(Ears.RIGHT_EAR, 1, Ears.FORWARD_DIRECTION)
+                await self.ears.wait_while_running()
+                await asyncio.sleep(0.2)
+            await self.ears.go(Ears.LEFT_EAR, 0, Ears.FORWARD_DIRECTION)
+            await self.ears.go(Ears.RIGHT_EAR, 0, Ears.FORWARD_DIRECTION)
+            await self.ears.wait_while_running()
+            if left_ear_position is not None:
+                await self.ears.go(
+                    Ears.LEFT_EAR, left_ear_position, Ears.FORWARD_DIRECTION
+                )
+            if right_ear_position is not None:
+                await self.ears.go(
+                    Ears.RIGHT_EAR, right_ear_position, Ears.FORWARD_DIRECTION
+                )
+            await self.ears.wait_while_running()
+            if self.ears.is_broken(Ears.LEFT_EAR):
+                return False
+            if self.ears.is_broken(Ears.RIGHT_EAR):
+                return False
+            return True
+        elif test == "leds":
+            for color in [
+                (0, 0, 0),
+                (255, 0, 0),
+                (0, 255, 0),
+                (0, 0, 255),
+                (255, 255, 255),
+                (127, 127, 127),
+                (0, 0, 0),
+            ]:
+                r, g, b = color
+                for led_ix in [
+                    Led.NOSE,
+                    Led.LEFT,
+                    Led.CENTER,
+                    Led.RIGHT,
+                    Led.BOTTOM,
+                ]:
+                    self.leds.set1(led_ix, r, g, b)
+                    await asyncio.sleep(0.2)
+                await asyncio.sleep(1.0)
+            return True
+        else:
+            return False

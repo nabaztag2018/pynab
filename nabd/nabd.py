@@ -6,6 +6,7 @@ import getopt
 import json
 import logging
 import os
+import platform
 import socket
 import subprocess
 import sys
@@ -68,7 +69,6 @@ class Nabd:
         self._ears_moved_task = None
         self.playing_cancelable = False
         self.playing_request_id = None
-        self.boot = True
         Nabd.leds_boot(self.nabio, 2)
         if self.nabio.has_sound_input():
             from . import i18n
@@ -87,7 +87,6 @@ class Nabd:
         """
         Reload configuration.
         """
-        self.boot = True
         if self.nabio.has_sound_input():
             from . import i18n
             from .asr import ASR
@@ -112,15 +111,6 @@ class Nabd:
                 Nabd.leds_boot(self.nabio, 4)
             self.nabio.set_leds(None, None, None, None, None)
         self.nabio.pulse(Led.BOTTOM, (255, 0, 255))
-        await self.boot_playsound()
-
-    async def boot_playsound(self):
-        """
-        Play sound indicating end of boot.
-        """
-        if self.boot:
-            await self.nabio.play_sequence([{"audio": ["boot/*.mp3"]}])
-            self.boot = False
 
     async def _do_transition_to_idle(self):
         """
@@ -131,11 +121,9 @@ class Nabd:
         left, right = self.ears["left"], self.ears["right"]
         await self.nabio.move_ears_with_leds((255, 0, 255), left, right)
         self.nabio.pulse(Led.BOTTOM, (255, 0, 255))
-        await self.boot_playsound()
 
     async def sleep_setup(self):
         self.nabio.set_leds(None, None, None, None, None)
-        await self.boot_playsound()
         await self.nabio.move_ears(
             Nabd.SLEEP_EAR_POSITION, Nabd.SLEEP_EAR_POSITION
         )
@@ -255,6 +243,7 @@ class Nabd:
                         self.interactive_service_events = ["ears", "button"]
                     break
                 elif item[0]["type"] == "test":
+                    await self.set_state(State.PLAYING)
                     await self.do_process_test_packet(item[0], item[1])
                     if len(self.idle_queue) == 0:
                         await self.set_state(State.IDLE)
@@ -965,7 +954,7 @@ class Nabd:
         else:
             server_task = self.loop.create_task(
                 asyncio.start_server(
-                    self.service_loop, "localhost", NabService.PORT_NUMBER
+                    self.service_loop, NabService.HOST, NabService.PORT_NUMBER
                 )
             )
         try:
@@ -1052,10 +1041,20 @@ class Nabd:
     def main(argv):
         nablogging.setup_logging("nabd")
         pidfilepath = "/run/nabd.pid"
+        if sys.platform == "linux" and "arm" in platform.machine():
+            from .nabio_hw import NabIOHW
+
+            nabiocls = NabIOHW
+        else:
+            from .nabio_virtual import NabIOVirtual
+
+            nabiocls = NabIOVirtual
         usage = (
             f"nabd [options]\n"
             f" -h                  display this message\n"
             f" --pidfile=<pidfile> define pidfile (default = {pidfilepath})\n"
+            " --nabio=<nabio> define nabio class "
+            f"(default = {nabiocls.__module__}.{nabiocls.__name__})\n"
         )
         try:
             opts, args = getopt.getopt(argv, "h", ["pidfile=", "nabio="])
@@ -1068,12 +1067,14 @@ class Nabd:
                 exit(0)
             elif opt == "--pidfile":
                 pidfilepath = arg
+            elif opt == "--nabio":
+                from pydoc import locate
+
+                nabiocls = locate(arg)
         pidfile = PIDLockFile(pidfilepath, timeout=-1)
         try:
             with pidfile:
-                from .nabio_hw import NabIOHW
-
-                nabio = NabIOHW()
+                nabio = nabiocls()
                 Nabd.leds_boot(nabio, 1)
                 nabd = Nabd(nabio)
                 nabd.run()
