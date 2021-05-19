@@ -22,6 +22,8 @@ class NabClockd(nabservice.NabService):
         self.last_chime = None
         self.current_tz = self.get_system_tz()
         self.__synchronized_since_boot = False
+        ## debug
+        self.__synchronized_since_boot = True
         self.__boot_date = None
         self.last_time_idle_state = None
         self.ignore_next_idle_packet = False
@@ -83,9 +85,7 @@ class NabClockd(nabservice.NabService):
                 # Until 3am, we keep the same day name
                 # to obtain the settings from the current (previous) day,
                 # so the user can put until 3am for the sleep time.
-                curDateValue = datetime.datetime.now() + datetime.timedelta(
-                    hours=-3
-                )
+                curDateValue = now + datetime.timedelta(hours=-3)
                 dayOfTheWeek = curDateValue.strftime("%A").lower()
                 wakeup_hour = getattr(
                     self.config, "wakeup_hour_" + dayOfTheWeek
@@ -244,7 +244,6 @@ class NabClockd(nabservice.NabService):
             and packet["state"] != "playing"
         ):
             async with self.loop_cv:
-
                 # If wakeup/sleep sounds are enabled and we receive
                 # an idle packet ..
                 if (

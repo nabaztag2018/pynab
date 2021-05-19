@@ -25,6 +25,10 @@ class TestNabclockd(NabdMockTestCase):
         close_old_async_connections()
         close_old_connections()
 
+    def get_system_tz(self):
+        with open("/etc/timezone") as w:
+            return w.read().strip()
+
     async def connect_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
         self.connect_handler_called += 1
@@ -67,7 +71,8 @@ class TestNabclockd(NabdMockTestCase):
     def _do_update_wakeup_hours(self):
         time.sleep(1)
         config = models.Config.load()
-        now = datetime.datetime.now()
+        current_tz = self.get_system_tz()
+        now = datetime.datetime.now(tz=tz.gettz(current_tz))
         if not config.settings_per_day:
             config.wakeup_hour = now.hour - 2
             if config.wakeup_hour < 0:
@@ -112,7 +117,10 @@ class TestNabclockd(NabdMockTestCase):
         this_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(this_loop)
         config = models.Config.load()
-        now = datetime.datetime.now()
+        config.settings_per_day = False
+        config.play_wakeup_sleep_sounds = True
+        current_tz = self.get_system_tz()
+        now = datetime.datetime.now(tz=tz.gettz(current_tz))
         config.wakeup_hour = now.hour + 2
         if config.wakeup_hour >= 24:
             config.wakeup_hour -= 24
@@ -126,12 +134,14 @@ class TestNabclockd(NabdMockTestCase):
         this_loop.call_later(1, lambda: self._update_wakeup_hours(service))
         service.run()
         self.assertEqual(self.wakeup_handler_called, 1)
-        self.assertEqual(len(self.wakeup_handler_packets), 2)
+        self.assertEqual(len(self.wakeup_handler_packets), 3)
         # NLU packet
         self.assertTrue("type" in self.wakeup_handler_packets[0])
         self.assertEqual(self.wakeup_handler_packets[0]["type"], "mode")
         self.assertTrue("type" in self.wakeup_handler_packets[1])
-        self.assertEqual(self.wakeup_handler_packets[1]["type"], "wakeup")
+        self.assertEqual(self.wakeup_handler_packets[1]["type"], "message")
+        self.assertTrue("type" in self.wakeup_handler_packets[2])
+        self.assertEqual(self.wakeup_handler_packets[2]["type"], "wakeup")
 
     def test_wakeup_perday(self):
         self.mock_connection_handler = self.wakeup_handler
@@ -140,8 +150,10 @@ class TestNabclockd(NabdMockTestCase):
         this_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(this_loop)
         config = models.Config.load()
-        now = datetime.datetime.now()
         config.settings_per_day = True
+        config.play_wakeup_sleep_sounds = True
+        current_tz = self.get_system_tz()
+        now = datetime.datetime.now(tz=tz.gettz(current_tz))
         wakeup_hour = now.hour + 2
         if wakeup_hour >= 24:
             wakeup_hour -= 24
@@ -161,12 +173,14 @@ class TestNabclockd(NabdMockTestCase):
         this_loop.call_later(1, lambda: self._update_wakeup_hours(service))
         service.run()
         self.assertEqual(self.wakeup_handler_called, 1)
-        self.assertEqual(len(self.wakeup_handler_packets), 2)
+        self.assertEqual(len(self.wakeup_handler_packets), 3)
         # NLU packet
         self.assertTrue("type" in self.wakeup_handler_packets[0])
         self.assertEqual(self.wakeup_handler_packets[0]["type"], "mode")
         self.assertTrue("type" in self.wakeup_handler_packets[1])
-        self.assertEqual(self.wakeup_handler_packets[1]["type"], "wakeup")
+        self.assertEqual(self.wakeup_handler_packets[1]["type"], "message")
+        self.assertTrue("type" in self.wakeup_handler_packets[2])
+        self.assertEqual(self.wakeup_handler_packets[2]["type"], "wakeup")
 
     def test_sleep(self):
         self.mock_connection_handler = self.sleep_handler
@@ -175,7 +189,10 @@ class TestNabclockd(NabdMockTestCase):
         this_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(this_loop)
         config = models.Config.load()
-        now = datetime.datetime.now()
+        config.settings_per_day = False
+        config.play_wakeup_sleep_sounds = False
+        current_tz = self.get_system_tz()
+        now = datetime.datetime.now(tz=tz.gettz(current_tz))
         config.wakeup_hour = now.hour + 2
         if config.wakeup_hour >= 24:
             config.wakeup_hour -= 24
@@ -203,8 +220,10 @@ class TestNabclockd(NabdMockTestCase):
         this_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(this_loop)
         config = models.Config.load()
-        now = datetime.datetime.now()
         config.settings_per_day = True
+        config.play_wakeup_sleep_sounds = False
+        current_tz = self.get_system_tz()
+        now = datetime.datetime.now(tz=tz.gettz(current_tz))
         wakeup_hour = now.hour + 2
         if wakeup_hour >= 24:
             wakeup_hour -= 24
@@ -238,7 +257,10 @@ class TestNabclockd(NabdMockTestCase):
         this_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(this_loop)
         config = models.Config.load()
-        now = datetime.datetime.now()
+        config.settings_per_day = False
+        config.play_wakeup_sleep_sounds = False
+        current_tz = self.get_system_tz()
+        now = datetime.datetime.now(tz=tz.gettz(current_tz))
         config.wakeup_hour = now.hour + 2
         if config.wakeup_hour >= 24:
             config.wakeup_hour -= 24
@@ -268,7 +290,10 @@ class TestNabclockd(NabdMockTestCase):
         this_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(this_loop)
         config = models.Config.load()
-        now = datetime.datetime.now()
+        config.settings_per_day = False
+        config.play_wakeup_sleep_sounds = False
+        current_tz = self.get_system_tz()
+        now = datetime.datetime.now(tz=tz.gettz(current_tz))
         config.settings_per_day = True
         wakeup_hour = now.hour + 2
         if wakeup_hour >= 24:
