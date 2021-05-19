@@ -22,8 +22,6 @@ class NabClockd(nabservice.NabService):
         self.last_chime = None
         self.current_tz = self.get_system_tz()
         self.__synchronized_since_boot = False
-        ## debug
-        self.__synchronized_since_boot = True
         self.__boot_date = None
         self.last_time_idle_state = None
         self.ignore_next_idle_packet = False
