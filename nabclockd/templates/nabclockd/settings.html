@@ -14,27 +14,171 @@
         </div>
       </div>
       <div class="form-group row">
-        <label for="wakeupTime" class="col-6 col-form-label">{% trans "Wake-up time" %}</label>
+        <label for="distinctTimesBtn" class="col-6 col-form-label">{% trans "Custom hours for each day of the week" %}</label>
         <div class="col-6">
-          <div class="input-group clockpicker" data-autoclose="true">
-            <input id="wakeupTime" name="wakeup_time" type="text" class="form-control" value="{% if config.wakeup_hour < 10 %}0{% endif %}{{ config.wakeup_hour }}:{% if config.wakeup_min < 10 %}0{% endif %}{{ config.wakeup_min }}">
-            <span class="input-group-addon">
-              <span class="glyphicon glyphicon-time"></span>
-            </span>
+          <button id="distinctTimesBtn" type="button" class="btn btn-toggle{% if config.settings_per_day %} active{% endif %}" data-name="settings_per_day" data-toggle="button" aria-pressed="false" autocomplete="off"><div class="handle"></div></button>
+          <input name="settings_per_day" type="hidden" value="{% if config.settings_per_day %}true{% else %}false{% endif %}" />
+        </div>
+      </div>      
+      <div id="commonWakeUpTimes" style="{% if config.settings_per_day %}display:none{% endif %}">      
+        <div class="form-group row">
+          <label for="wakeupTime" class="col-6 col-form-label">{% trans "Wake-up time" %}</label>
+          <div class="col-6">
+            <div class="input-group clockpicker" data-autoclose="true">
+              <input id="wakeupTime" name="wakeup_time" type="text" class="form-control" value="{% if config.wakeup_hour < 10 %}0{% endif %}{{ config.wakeup_hour }}:{% if config.wakeup_min < 10 %}0{% endif %}{{ config.wakeup_min }}">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-time"></span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="sleepTime" class="col-6 col-form-label">{% trans "Sleep time" %}</label>
+          <div class="col-6">
+            <div class="input-group clockpicker" data-autoclose="true">
+              <input id="sleepTime" name="sleep_time" type="text" class="form-control" value="{% if config.sleep_hour < 10 %}0{% endif %}{{ config.sleep_hour }}:{% if config.sleep_min < 10 %}0{% endif %}{{ config.sleep_min }}">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-time"></span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
-      <div class="form-group row">
-        <label for="sleepTime" class="col-6 col-form-label">{% trans "Sleep time" %}</label>
-        <div class="col-6">
-          <div class="input-group clockpicker" data-autoclose="true">
-            <input id="sleepTime" name="sleep_time" type="text" class="form-control" value="{% if config.sleep_hour < 10 %}0{% endif %}{{ config.sleep_hour }}:{% if config.sleep_min < 10 %}0{% endif %}{{ config.sleep_min }}">
-            <span class="input-group-addon">
-              <span class="glyphicon glyphicon-time"></span>
-            </span>
+      <div id="distinctWakeUpTimes" style="{% if not config.settings_per_day %}display:none{% endif %}">
+        <div class="form-group row">
+          <label for="wakeupTimeMonday" class="col-4 col-form-label">{% trans "Monday - Wake-up / Sleep" %}</label>
+          <div class="col-4">
+            <div class="input-group clockpicker" data-autoclose="true">
+              <input id="wakeupTimeMonday" name="wakeup_time_monday" type="text" class="form-control" value="{% if config.wakeup_hour_monday < 10 %}0{% endif %}{{ config.wakeup_hour_monday }}:{% if config.wakeup_min_monday < 10 %}0{% endif %}{{ config.wakeup_min_monday }}">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-time"></span>
+              </span>
+            </div>
           </div>
+          <div class="col-4">
+            <div class="input-group clockpicker" data-autoclose="true">
+              <input id="sleepTimeMonday" name="sleep_time_monday" type="text" class="form-control" value="{% if config.sleep_hour_monday < 10 %}0{% endif %}{{ config.sleep_hour_monday }}:{% if config.sleep_min_monday < 10 %}0{% endif %}{{ config.sleep_min_monday }}">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-time"></span>
+              </span>
+            </div>
+          </div>          
         </div>
-      </div>
+        <div class="form-group row">
+          <label for="wakeupTimeTuesday" class="col-4 col-form-label">{% trans "Tuesday - Wake-up / Sleep" %}</label>
+          <div class="col-4">
+            <div class="input-group clockpicker" data-autoclose="true">
+              <input id="wakeupTimeTuesday" name="wakeup_time_tuesday" type="text" class="form-control" value="{% if config.wakeup_hour_tuesday < 10 %}0{% endif %}{{ config.wakeup_hour_tuesday }}:{% if config.wakeup_min_tuesday < 10 %}0{% endif %}{{ config.wakeup_min_tuesday }}">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-time"></span>
+              </span>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="input-group clockpicker" data-autoclose="true">
+              <input id="sleepTimeTuesday" name="sleep_time_tuesday" type="text" class="form-control" value="{% if config.sleep_hour_tuesday < 10 %}0{% endif %}{{ config.sleep_hour_tuesday }}:{% if config.sleep_min_tuesday < 10 %}0{% endif %}{{ config.sleep_min_tuesday }}">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-time"></span>
+              </span>
+            </div>
+          </div>          
+        </div>
+        <div class="form-group row">
+          <label for="wakeupTimeWednesday" class="col-4 col-form-label">{% trans "Wednesday - Wake-up / Sleep" %}</label>
+          <div class="col-4">
+            <div class="input-group clockpicker" data-autoclose="true">
+              <input id="wakeupTimeWednesday" name="wakeup_time_wednesday" type="text" class="form-control" value="{% if config.wakeup_hour_wednesday < 10 %}0{% endif %}{{ config.wakeup_hour_wednesday }}:{% if config.wakeup_min_wednesday < 10 %}0{% endif %}{{ config.wakeup_min_wednesday }}">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-time"></span>
+              </span>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="input-group clockpicker" data-autoclose="true">
+              <input id="sleepTimeWednesday" name="sleep_time_wednesday" type="text" class="form-control" value="{% if config.sleep_hour_wednesday < 10 %}0{% endif %}{{ config.sleep_hour_wednesday }}:{% if config.sleep_min_wednesday < 10 %}0{% endif %}{{ config.sleep_min_wednesday }}">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-time"></span>
+              </span>
+            </div>
+          </div>          
+        </div>
+        <div class="form-group row">
+          <label for="wakeupTimeThursday" class="col-4 col-form-label">{% trans "Thursday - Wake-up / Sleep" %}</label>
+          <div class="col-4">
+            <div class="input-group clockpicker" data-autoclose="true">
+              <input id="wakeupTimeThursday" name="wakeup_time_thursday" type="text" class="form-control" value="{% if config.wakeup_hour_thursday < 10 %}0{% endif %}{{ config.wakeup_hour_thursday }}:{% if config.wakeup_min_thursday < 10 %}0{% endif %}{{ config.wakeup_min_thursday }}">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-time"></span>
+              </span>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="input-group clockpicker" data-autoclose="true">
+              <input id="sleepTimeThursday" name="sleep_time_thursday" type="text" class="form-control" value="{% if config.sleep_hour_thursday < 10 %}0{% endif %}{{ config.sleep_hour_thursday }}:{% if config.sleep_min_thursday < 10 %}0{% endif %}{{ config.sleep_min_thursday }}">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-time"></span>
+              </span>
+            </div>
+          </div>          
+        </div>
+        <div class="form-group row">
+          <label for="wakeupTimeFriday" class="col-4 col-form-label">{% trans "Friday - Wake-up / Sleep" %}</label>
+          <div class="col-4">
+            <div class="input-group clockpicker" data-autoclose="true">
+              <input id="wakeupTimeFriday" name="wakeup_time_friday" type="text" class="form-control" value="{% if config.wakeup_hour_friday < 10 %}0{% endif %}{{ config.wakeup_hour_friday }}:{% if config.wakeup_min_friday < 10 %}0{% endif %}{{ config.wakeup_min_friday }}">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-time"></span>
+              </span>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="input-group clockpicker" data-autoclose="true">
+              <input id="sleepTimeFriday" name="sleep_time_friday" type="text" class="form-control" value="{% if config.sleep_hour_friday < 10 %}0{% endif %}{{ config.sleep_hour_friday }}:{% if config.sleep_min_friday < 10 %}0{% endif %}{{ config.sleep_min_friday }}">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-time"></span>
+              </span>
+            </div>
+          </div>          
+        </div>
+        <div class="form-group row">
+          <label for="wakeupTimeSaturday" class="col-4 col-form-label">{% trans "Saturday - Wake-up / Sleep" %}</label>
+          <div class="col-4">
+            <div class="input-group clockpicker" data-autoclose="true">
+              <input id="wakeupTimeSaturday" name="wakeup_time_saturday" type="text" class="form-control" value="{% if config.wakeup_hour_saturday < 10 %}0{% endif %}{{ config.wakeup_hour_saturday }}:{% if config.wakeup_min_saturday < 10 %}0{% endif %}{{ config.wakeup_min_saturday }}">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-time"></span>
+              </span>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="input-group clockpicker" data-autoclose="true">
+              <input id="sleepTimeSaturday" name="sleep_time_saturday" type="text" class="form-control" value="{% if config.sleep_hour_saturday < 10 %}0{% endif %}{{ config.sleep_hour_saturday }}:{% if config.sleep_min_saturday < 10 %}0{% endif %}{{ config.sleep_min_saturday }}">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-time"></span>
+              </span>
+            </div>
+          </div>          
+        </div>
+        <div class="form-group row">
+          <label for="wakeupTimeSunday" class="col-4 col-form-label">{% trans "Sunday - Wake-up / Sleep" %}</label>
+          <div class="col-4">
+            <div class="input-group clockpicker" data-autoclose="true">
+              <input id="wakeupTimeSunday" name="wakeup_time_sunday" type="text" class="form-control" value="{% if config.wakeup_hour_sunday < 10 %}0{% endif %}{{ config.wakeup_hour_sunday }}:{% if config.wakeup_min_sunday < 10 %}0{% endif %}{{ config.wakeup_min_sunday }}">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-time"></span>
+              </span>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="input-group clockpicker" data-autoclose="true">
+              <input id="sleepTimeSunday" name="sleep_time_sunday" type="text" class="form-control" value="{% if config.sleep_hour_sunday < 10 %}0{% endif %}{{ config.sleep_hour_sunday }}:{% if config.sleep_min_sunday < 10 %}0{% endif %}{{ config.sleep_min_sunday }}">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-time"></span>
+              </span>
+            </div>
+          </div>          
+        </div>
+      </div>      
       <div class="form-group row">
         <label for="timezoneSel" class="col-6 col-form-label">{% trans "Time zone" %}</label>
         <div class="col-6">
@@ -43,6 +187,13 @@
             <option value="{{ timezone }}" {% if timezone == current_timezone %}selected{% endif %}>{{ timezone }}</option>
             {% endfor %}
             </select>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="playSoundsBtn" class="col-6 col-form-label">{% trans "Play wake up and sleep sound" %}</label>
+        <div class="col-6">
+          <button id="playSoundsBtn" type="button" class="btn btn-toggle{% if config.play_wakeup_sleep_sounds %} active{% endif %}" data-name="play_wakeup_sleep_sounds" data-toggle="button" aria-pressed="false" autocomplete="off"><div class="handle"></div></button>
+          <input name="play_wakeup_sleep_sounds" type="hidden" value="{% if config.play_wakeup_sleep_sounds %}true{% else %}false{% endif %}" />
         </div>
       </div>
     </div>
@@ -65,6 +216,16 @@
       saveBtn.removeClass('disabled');
       resetBtn.removeClass('disabled');
     });
+    form.find("button[id='distinctTimesBtn']").on('click', function() {
+      var isBtnActive = (!(form.find("button[id='distinctTimesBtn']").hasClass('active')))
+      if (isBtnActive ) {
+        form.find("div[id='commonWakeUpTimes']").hide();
+        form.find("div[id='distinctWakeUpTimes']").show();
+      } else {
+        form.find("div[id='distinctWakeUpTimes']").hide();
+        form.find("div[id='commonWakeUpTimes']").show();
+      }
+    });
     form.find('.clockpicker').clockpicker();
     form.find('input').on('change', function() {
       saveBtn.removeClass('disabled');
@@ -75,15 +236,17 @@
       resetBtn.removeClass('disabled');
     });
     form.on('submit', function() {
-      form.find("input[name='chime_hour']").val(form.find('button.btn-toggle').hasClass('active'));
+      form.find("input[name='chime_hour']").val(form.find("button[id='chimeHoursBtn']").hasClass('active'));
+      form.find("input[name='play_wakeup_sleep_sounds']").val(form.find("button[id='playSoundsBtn']").hasClass('active'));
+      form.find("input[name='settings_per_day']").val(form.find("button[id='distinctTimesBtn']").hasClass('active'));
       var formdata = form.serialize();
       $.ajax({
-        url: url,
-        method: "POST",
-        data: formdata,
-        success: function (data) {
-          $("#nabclockd-settings").replaceWith(data);
-        }
+       url: url,
+       method: "POST",
+       data: formdata,
+       success: function (data) {
+         $("#nabclockd-settings").replaceWith(data);
+       }
       });
       return false;
     });

@@ -23,6 +23,8 @@ class NabClockd(nabservice.NabService):
         self.current_tz = self.get_system_tz()
         self.__synchronized_since_boot = False
         self.__boot_date = None
+        self.last_time_idle_state = None
+        self.ignore_next_idle_packet = False
 
     async def reload_config(self):
         from . import models
@@ -77,30 +79,48 @@ class NabClockd(nabservice.NabService):
         response = []
         if self.synchronized_since_boot():
             should_sleep = None
+            if self.config.settings_per_day:
+                # Until 3am, we keep the same day name
+                # to obtain the settings from the current (previous) day,
+                # so the user can put until 3am for the sleep time.
+                curDateValue = now + datetime.timedelta(hours=-3)
+                dayOfTheWeek = curDateValue.strftime("%A").lower()
+                wakeup_hour = getattr(
+                    self.config, "wakeup_hour_" + dayOfTheWeek
+                )
+                sleep_hour = getattr(self.config, "sleep_hour_" + dayOfTheWeek)
+                wakeup_min = getattr(self.config, "wakeup_min_" + dayOfTheWeek)
+                sleep_min = getattr(self.config, "sleep_min_" + dayOfTheWeek)
+            else:
+                wakeup_hour = self.config.wakeup_hour
+                sleep_hour = self.config.sleep_hour
+                wakeup_min = self.config.wakeup_min
+                sleep_min = self.config.sleep_min
+
             if (
-                self.config.wakeup_hour is not None
-                and self.config.sleep_hour is not None
-                and self.config.wakeup_min is not None
-                and self.config.sleep_min is not None
+                wakeup_hour is not None
+                and sleep_hour is not None
+                and wakeup_min is not None
+                and sleep_min is not None
             ):
-                if (self.config.wakeup_hour, self.config.wakeup_min) < (
-                    self.config.sleep_hour,
-                    self.config.sleep_min,
+                if (wakeup_hour, wakeup_min) < (
+                    sleep_hour,
+                    sleep_min,
                 ):
                     should_sleep = (now.hour, now.minute) < (
-                        self.config.wakeup_hour,
-                        self.config.wakeup_min,
+                        wakeup_hour,
+                        wakeup_min,
                     ) or (now.hour, now.minute) >= (
-                        self.config.sleep_hour,
-                        self.config.sleep_min,
+                        sleep_hour,
+                        sleep_min,
                     )
                 else:
                     should_sleep = (now.hour, now.minute) < (
-                        self.config.wakeup_hour,
-                        self.config.wakeup_min,
+                        wakeup_hour,
+                        wakeup_min,
                     ) and (now.hour, now.minute) >= (
-                        self.config.sleep_hour,
-                        self.config.sleep_min,
+                        sleep_hour,
+                        sleep_min,
                     )
             if (
                 should_sleep is not None
@@ -120,6 +140,7 @@ class NabClockd(nabservice.NabService):
                     response.append("chime")
             if now.minute > 5:  # account for time drifts
                 response.append("reset_last_chime")
+
         return response
 
     async def clock_loop(self):
@@ -141,10 +162,53 @@ class NabClockd(nabservice.NabService):
                         response = self.clock_response(now)
                         for r in response:
                             if r == "sleep":
+                                # Check if we need to play the sleep sound
+                                if self.config.play_wakeup_sleep_sounds:
+                                    idle_elapsed_seconds = (
+                                        datetime.datetime.now()
+                                        - self.last_time_idle_state
+                                    ).total_seconds()
+
+                                    # Skip the sound if less than 1 second
+                                    # has elapsed since the last idle packet,
+                                    # that means it went to sleep
+                                    # right after boot
+                                    if idle_elapsed_seconds > 1:
+                                        # We dont want the next idle packet
+                                        # that is sent after the sound to
+                                        # trigger a loop-cv-notify, so skip it
+                                        self.ignore_next_idle_packet = True
+                                        packet = (
+                                            '{"type":"message",'
+                                            '"body":[{"audio":["sleep/*.mp3"],'
+                                            '"choreography":null}],'
+                                            '"request_id":"sleep_sound"}\r\n'
+                                        )
+                                        self.writer.write(
+                                            packet.encode("utf8")
+                                        )
+                                        await self.writer.drain()
+
                                 self.writer.write(b'{"type":"sleep"}\r\n')
                                 await self.writer.drain()
                                 self.asleep = None
+
                             elif r == "wakeup":
+                                # Check if we need to play the wakeup sound
+                                if self.config.play_wakeup_sleep_sounds:
+                                    # We dont want the next idle packet
+                                    # that is sent after the sound to
+                                    # trigger a loop-cv-notify, so skip it
+                                    self.ignore_next_idle_packet = True
+                                    packet = (
+                                        '{"type":"message",'
+                                        '"body":[{"audio":["wakeup/*.mp3"],'
+                                        '"choreography":null}],'
+                                        '"request_id":"wakeup_sound"}\r\n'
+                                    )
+                                    self.writer.write(packet.encode("utf8"))
+                                    await self.writer.drain()
+
                                 self.writer.write(b'{"type":"wakeup"}\r\n')
                                 await self.writer.drain()
                                 self.asleep = None
@@ -153,6 +217,7 @@ class NabClockd(nabservice.NabService):
                                 self.last_chime = now.hour
                             elif r == "reset_last_chime":
                                 self.last_chime = None
+
                         sleep_amount = 60 - now.second
                         await asyncio.wait_for(
                             self.loop_cv.wait(), sleep_amount
@@ -174,8 +239,23 @@ class NabClockd(nabservice.NabService):
             "type" in packet
             and packet["type"] == "state"
             and "state" in packet
+            and packet["state"] != "playing"
         ):
             async with self.loop_cv:
+                # If wakeup/sleep sounds are enabled and we receive
+                # an idle packet ..
+                if (
+                    self.config.play_wakeup_sleep_sounds
+                    and packet["state"] == "idle"
+                ):
+                    if self.ignore_next_idle_packet:
+                        # .. ignore this idle packet if specified
+                        self.ignore_next_idle_packet = False
+                        return
+                    else:
+                        # .. or store the current time and continue
+                        self.last_time_idle_state = datetime.datetime.now()
+
                 self.asleep = packet["state"] == "asleep"
                 self.loop_cv.notify()
 

@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+
 #: templates/nabclockd/settings.html:6
 msgid "Clock"
 msgstr "Horloge"
@@ -25,22 +26,64 @@ msgstr "Horloge"
 msgid "Chime hours"
 msgstr "Sonner les heures"
 
-#: templates/nabclockd/settings.html:17
+#: templates/nabclockd/settings.html:18
+msgid "Custom hours for each day of the week"
+msgstr "Horaires personnalisés pour chaque jour de la semaine"
+
+#: templates/nabclockd/settings.html:27
 msgid "Wake-up time"
 msgstr "Heure de réveil"
 
-#: templates/nabclockd/settings.html:28
+#: templates/nabclockd/settings.html:38
 msgid "Sleep time"
 msgstr "Heure du coucher"
 
-#: templates/nabclockd/settings.html:39
+#: templates/nabclockd/settings.html:52
+msgid "Monday - Wake-up / Sleep"
+msgstr "Lundi - Réveil / Coucher"
+
+#: templates/nabclockd/settings.html:72
+msgid "Tuesday - Wake-up / Sleep"
+msgstr "Mardi - Réveil / Coucher"
+
+#: templates/nabclockd/settings.html:92
+msgid "Wednesday - Wake-up / Sleep"
+msgstr "Mercredi - Réveil / Coucher"
+
+#: templates/nabclockd/settings.html:112
+msgid "Thursday - Wake-up / Sleep"
+msgstr "Jeudi - Réveil / Coucher"
+
+#: templates/nabclockd/settings.html:132
+msgid "Friday - Wake-up / Sleep"
+msgstr "Vendredi - Réveil / Coucher"
+
+#: templates/nabclockd/settings.html:152
+msgid "Saturday - Wake-up / Sleep"
+msgstr "Samedi - Réveil / Coucher"
+
+#: templates/nabclockd/settings.html:172
+msgid "Sunday - Wake-up / Sleep"
+msgstr "Dimanche - Réveil / Coucher"
+
+#: templates/nabclockd/settings.html:61 templates/nabclockd/settings.html:81
+#: templates/nabclockd/settings.html:101 templates/nabclockd/settings.html:121
+#: templates/nabclockd/settings.html:141 templates/nabclockd/settings.html:161
+msgid "Sleep"
+msgstr "Coucher"
+
+#: templates/nabclockd/settings.html:194
 msgid "Time zone"
 msgstr "Fuseau horaire"
 
-#: templates/nabclockd/settings.html:52
-msgid "Save"
-msgstr "Enregister"
+#: templates/nabclockd/settings.html:204
+msgid "Play wake up and sleep sound"
+msgstr "Jouer un son au reveil et coucher"
 
-#: templates/nabclockd/settings.html:53
+#: templates/nabclockd/settings.html:214
+msgid "Save"
+msgstr ""
+
+#: templates/nabclockd/settings.html:215
 msgid "Reset"
-msgstr "Annuler"
+msgstr ""
