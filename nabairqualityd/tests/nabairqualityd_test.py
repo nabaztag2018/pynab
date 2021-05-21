@@ -20,10 +20,14 @@ class TestNabAirqualityd(unittest.TestCase):
         config = models.Config.load()
         config.index_airquality = "aqi"
         config.visual_airquality = "always"
+        config.latitude = "48.8331"
+        config.longitude = "2.3264"
         config.localisation = None
         config.save()
         service = NabAirqualityd()
-        info_data = async_to_sync(service.fetch_info_data)(("aqi", "always"))
+        info_data = async_to_sync(service.fetch_info_data)(
+            ("aqi", "always", "48.8331", "2.3264")
+        )
         config = models.Config.load()
         self.assertIsNotNone(info_data)
         self.assertTrue("data" in info_data)
@@ -35,12 +39,14 @@ class TestNabAirqualityd(unittest.TestCase):
         config = models.Config.load()
         config.index_airquality = "aqi"
         config.visual_airquality = "always"
+        config.latitude = "48.8331"
+        config.longitude = "2.3264"
         config.localisation = None
         config.save()
         service = NabAirqualityd()
         writer = MockWriter()
         service.writer = writer
-        config_t = ("aqi", "always")
+        config_t = ("aqi", "always", "48.8331", "2.3264")
         expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
         async_to_sync(service.perform)(expiration, "today", config_t)
         self.assertEqual(len(writer.written), 2)

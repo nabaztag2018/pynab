@@ -16,11 +16,13 @@ class aqicnError(Exception):
 class aqicnClient:
     """Client to fetch and parse data from aqicn"""
 
-    def __init__(self, indice, update=False):
+    def __init__(self, indice, latitude, longitude, update=False):
         """Initialize the client object."""
         self._airquality = 0
         self._city = "-"
         self._indice = indice
+        self._latitude = latitude
+        self._longitude = longitude
         if update:
             self.update()
 
@@ -44,18 +46,9 @@ class aqicnClient:
             )
 
     def _fetch_airquality_data(self):
-
-        from nabweatherd import models as weather_models
-
-        weather_config = weather_models.Config.load()
-
-        location = json.loads(weather_config.location)
-        latitude = str(location["lat"])
-        longitude = str(location["lon"])
-
         try:
             result = requests.get(
-                self._aqicn_url(latitude, longitude), timeout=10
+                self._aqicn_url(self._latitude, self._longitude), timeout=10
             )
             raw_data = result.text
             json_data = json.loads(raw_data)
