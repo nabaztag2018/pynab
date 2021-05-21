@@ -264,29 +264,24 @@ class NabWeatherd(NabInfoService):
             await config_t.save_async()
 
         if weather_frequency == 3:
-            import sys
+            from nabclockd import models as clock_models
 
-            sys.path.append(
-                ".."
-            )  # Adds higher directory to python modules path.
-            from nabclockd import models
-
-            config_clockd = await models.Config.load_async()
+            clock_config = await clock_models.Config.load_async()
 
             bedtime = datetime.datetime(
                 now.year,
                 now.month,
                 now.day,
-                config_clockd.sleep_hour,
-                config_clockd.sleep_min,
+                clock_config.sleep_hour,
+                clock_config.sleep_min,
                 tzinfo=tz.gettz(current_tz),
             )
             wakeup = datetime.datetime(
                 now.year,
                 now.month,
                 now.day,
-                config_clockd.wakeup_hour,
-                config_clockd.wakeup_min,
+                clock_config.wakeup_hour,
+                clock_config.wakeup_min,
                 tzinfo=tz.gettz(current_tz),
             )
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-28 00:53+0200\n"
+"POT-Creation-Date: 2021-05-21 17:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,25 +37,25 @@ msgstr "Météo"
 
 #: templates/nabweatherd/settings.html:9
 msgid ""
-"The animation can display, if available, a rain alert (Blue blinking means "
+"The animation can display, if available, a rain alert (blue blinking means "
 "get an umbrella, nothing will be displayed otherwise), the current weather "
-"forecast or both"
+"forecast or both."
 msgstr ""
 "L'animation lumineuse peut vous donner, si l'information est disponible, une "
-"alerte pluie (Si cela clignote bleu c'est qu'il va pleuvoir dans l'heure), "
+"alerte pluie (si cela clignote bleu c'est qu'il va pleuvoir dans l'heure), "
 "les prévisions pour les prochaines heures ou les deux."
 
 #: templates/nabweatherd/settings.html:10
 msgid ""
-"You can also ask Nabaztag the weather forecast by saying <q>What is the "
-"weather forecast for today ?</q> (for example)."
+"You can also ask Nabaztag the weather forecast by saying for example <q>What "
+"is the weather forecast for today ?</q>."
 msgstr ""
 "Vous pouvez aussi demander la météo à votre lapin en disant par exemple "
 "<q>Météo</q>."
 
 #: templates/nabweatherd/settings.html:12
 msgid "Location"
-msgstr "Ville"
+msgstr "Localisation"
 
 #: templates/nabweatherd/settings.html:14
 msgid "City, Zip code, Country"
