@@ -8,11 +8,6 @@ import logging
 
 import requests
 
-AQICN_URL = (
-    "http://api.waqi.info/feed/here/"
-    "?token=4cf7f445134f3fb69a4c3f0e5001e507a6cc386f"
-)
-
 
 class aqicnError(Exception):
     """Raise when errors occur while fetching or parsing data"""
@@ -33,10 +28,35 @@ class aqicnClient:
         """Fetch new data and format it"""
         self._fetch_airquality_data()
 
+    def _aqicn_url(self, lat, lon):
+        """Select AQICN URL to use"""
+        if lat and lon:
+            # Use geolocalized API
+            return (
+                "https://api.waqi.info/feed/geo:" + lat + ";" + lon + "/"
+                "?token=4cf7f445134f3fb69a4c3f0e5001e507a6cc386f"
+            )
+        else:
+            # fallback to IP-based API
+            return (
+                "http://api.waqi.info/feed/here/"
+                "?token=4cf7f445134f3fb69a4c3f0e5001e507a6cc386f"
+            )
+
     def _fetch_airquality_data(self):
 
+        from nabweatherd import models as weather_models
+
+        weather_config = weather_models.Config.load()
+
+        location = json.loads(weather_config.location)
+        latitude = str(location["lat"])
+        longitude = str(location["lon"])
+
         try:
-            result = requests.get(AQICN_URL, timeout=10)
+            result = requests.get(
+                self._aqicn_url(latitude, longitude), timeout=10
+            )
             raw_data = result.text
             json_data = json.loads(raw_data)
             logging.debug(json_data)
@@ -45,16 +65,16 @@ class aqicnClient:
             if "pm25" in json_data["data"]["iaqi"]:
                 indice_pm25 = json_data["data"]["iaqi"]["pm25"]["v"]
             else:
-                logging.debug("no pm25 information available")
+                logging.debug("no PM25 information available")
                 indice_pm25 = indice_aqi
             logging.debug(
-                "air quality from aqicn.org and for "
+                "Air quality indices from aqicn.org for "
                 + str(city)
-                + " is "
+                + " are: AQI="
                 + str(indice_aqi)
-                + " (AQI) and "
+                + " PM25="
                 + str(indice_pm25)
-                + " (PM25) selected ->"
+                + " - selected index: "
                 + str(self._indice)
             )
 
