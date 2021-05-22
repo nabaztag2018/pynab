@@ -98,7 +98,8 @@ sudo apt-get install --no-install-recommends -y erlang-base erlang-dev erlang-in
 cd /home/pi/pynab
 sudo -u pi git clone --depth 1 https://github.com/pguyot/nabblockly
 cd nabblockly
-sudo -u pi wget https://s3.amazonaws.com/rebar3/rebar3 && chmod +x rebar3
+# Until we can get OTP 24 from Raspian or Erlang Solutions, get an older rebar binary
+sudo -u pi wget https://github.com/erlang/rebar3/releases/download/3.15.1/rebar3 && chmod +x rebar3
 sudo -u pi ./rebar3 release
 
 echo "Running pynab install script"
