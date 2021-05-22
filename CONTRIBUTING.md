@@ -62,7 +62,7 @@ Then add comments on pull request 😉.
 
 ## How-to work with GitHub and Pull Requests
 
-You can develop directly on your rabbit (Rasperry Pi) that you have of course
+You can develop directly on your rabbit (Rasbperry Pi) that you have of course
 configured with ssh access (make sure you changed the default password). We
 use editors with SFTP support.
 
