@@ -62,7 +62,7 @@ Then add comments on pull request 😉.
 
 ## How-to work with GitHub and Pull Requests
 
-You can develop directly on your rabbit (RasperryPi) that you have of course
+You can develop directly on your rabbit (Rasbperry Pi) that you have of course
 configured with ssh access (make sure you changed the default password). We
 use editors with SFTP support.
 
@@ -114,8 +114,12 @@ remote:      https://github.com/user/pynab/pull/new/branch-name
 remote:
 ```
 
-Then create your pull request. More tests will be run, concerning style, 
-code quality and unit tests on GitHub Actions.
+Then create your pull request, adding relevant comments.
+If your pull request is related to an open issue XXX, make sure your initial comment
+starts with *Resolves #XXX*, so that the pull request is automatically linked to the issue.
+
+Tests will be run through GitHub Actions, covering code style, code quality
+and unit tests.
 
 If tests fail, fix them and push to the branch, either with new commits or
 by amending. Once tests pass, your request will be reviewed.
