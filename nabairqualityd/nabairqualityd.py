@@ -1,4 +1,5 @@
 import datetime
+import json
 import sys
 
 from asgiref.sync import sync_to_async
@@ -61,13 +62,25 @@ class NabAirqualityd(NabInfoCachedService):
     ANIMATIONS = [ANIMATION_3, ANIMATION_2, ANIMATION_1]
 
     async def get_config(self):
+        from nabweatherd import models as weather_models
+
         from . import models
+
+        weather_config = await weather_models.Config.load_async()
+        location = json.loads(weather_config.location)
+        latitude = str(location["lat"])
+        longitude = str(location["lon"])
 
         config = await models.Config.load_async()
         return (
             config.next_performance_date,
             config.next_performance_type,
-            (config.index_airquality, config.visual_airquality),
+            (
+                config.index_airquality,
+                config.visual_airquality,
+                latitude,
+                longitude,
+            ),
         )
 
     async def update_next(self, next_date, next_args):
@@ -80,8 +93,8 @@ class NabAirqualityd(NabInfoCachedService):
 
     async def fetch_info_data(self, config_t):
 
-        index_airquality, visual_airquality = config_t
-        client = aqicn.aqicnClient(index_airquality)
+        index_airquality, visual_airquality, latitude, longitude = config_t
+        client = aqicn.aqicnClient(index_airquality, latitude, longitude)
         await sync_to_async(client.update)()
 
         # Save inferred localization to configuration for display on web
