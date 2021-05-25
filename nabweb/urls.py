@@ -17,6 +17,7 @@ Including another URLconf
 from django.apps import apps
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
+from django.views.generic import TemplateView
 
 from .views import (
     NabWebHardwareTestView,
@@ -71,6 +72,11 @@ urlpatterns = [
         "upgrade/checknow",
         NabWebUpgradeCheckNowView.as_view(),
         name="nabweb.upgrade.checknow",
+    ),
+    path(
+        "help/weather",
+        TemplateView.as_view(template_name="nabweatherd/animations_help.html"),
+        name="nabweatherd.help.animations",
     ),
 ]
 

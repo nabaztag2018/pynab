@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-30 18:33+0200\n"
+"POT-Creation-Date: 2021-05-25 23:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,35 +17,35 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: settings.py:140
+#: settings.py:141
 msgid "French"
 msgstr "Français"
 
-#: settings.py:141
+#: settings.py:142
 msgid "German"
 msgstr "Allemand"
 
-#: settings.py:142
+#: settings.py:143
 msgid "U.S. English"
 msgstr "Anglais des États-Unis"
 
-#: settings.py:143
+#: settings.py:144
 msgid "British English"
 msgstr "Anglais britannique"
 
-#: settings.py:144
+#: settings.py:145
 msgid "Italian"
 msgstr "Italien"
 
-#: settings.py:145
+#: settings.py:146
 msgid "Spanish"
 msgstr "Espagnol"
 
-#: settings.py:146
+#: settings.py:147
 msgid "Japanese"
 msgstr "Japonais"
 
-#: settings.py:147
+#: settings.py:148
 msgid "Brazilian Portuguese"
 msgstr "Portugais brésilien"
 
@@ -83,7 +83,7 @@ msgstr "Information système"
 msgid "Upgrade"
 msgstr "Mise à jour"
 
-#: templates/nabweb/_base.html:37
+#: templates/nabweb/_base.html:37 templates/nabweb/_help.html:43
 msgid "Help!"
 msgstr "Aide !"
 
@@ -98,6 +98,10 @@ msgstr "Veuillez patienter pendant la mise à jour de pynab"
 #: templates/nabweb/_base.html:85
 msgid "Unknown server error"
 msgstr "Erreur serveur inconnue"
+
+#: templates/nabweb/_help.html:13 templates/nabweb/_help.html:37
+msgid "Nabaztag help"
+msgstr "Aide du Nabaztag"
 
 #: templates/nabweb/index.html:8
 msgid "You're currently deeply connected with your inner rabbit."
