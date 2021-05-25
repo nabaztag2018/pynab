@@ -1,3 +1,4 @@
+{% load static %}
 {% load i18n %}
 <div class="card" id="nabweatherd-settings">
   <form action="/nabweatherd/settings">
@@ -6,7 +7,7 @@
       <h5 class="card-title">{% trans "Weather" %}</h5>
     </div>
     <div class="card-body">
-      <p>{% trans "The animation can display, if available, a rain alert (blue blinking means get an umbrella, nothing will be displayed otherwise), the current weather forecast or both." %}</p>
+      <p>{% trans "The " %}<a href='{% static "nabweb/weather_animations.html" %}' target='_blank'>{% trans "visual animation" %}</a>{% trans " can display, if available, a rain alert (blue blinking means get an umbrella, nothing will be displayed otherwise), the current weather forecast or both." %}</p>
       <p>{% blocktrans %}You can also ask Nabaztag the weather forecast by saying for example <q>What is the weather forecast for today ?</q>.{% endblocktrans %}</p>
       <div class="form-group row">
         <label for="weatherLocationInput" class="col-6 col-form-label">{% trans "Location" %}</label>
