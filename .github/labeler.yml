@@ -18,40 +18,40 @@
   - .pre-commit-config.yaml
   - requirements.txt
 
-'Service: 8ball'
+'Service: 8ball':
   - nab8balld/**
 
-'Service: Air Quality'
+'Service: Air Quality':
   - nabairqualityd/**
 
-'Service: Book'
+'Service: Book':
   - nabbookd/**
 
-'boot'
+'boot':
   - nabboot/**
 
-'Service: Clock'
+'Service: Clock':
   - nabclockd/**
 
-'common'
+'common':
   - nabcommon/**
 
-'Service : Nab'
+'Service : Nab':
   - nabd/**
 
-'Service: Mastodon'
+'Service: Mastodon':
   - nabmastodond/**
 
-'Service: Surprise'
+'Service: Surprise':
   - nabsurprised/**
 
-'Service: Tai chi'
+'Service: Tai chi':
   - nabtaichid/**
 
-'Service: Weather'
+'Service: Weather':
   - nabweatherd/**
 
-'web'
+'web':
   - nabweb/**
 
 'Translations':
