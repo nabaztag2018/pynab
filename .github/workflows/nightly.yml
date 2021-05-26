@@ -15,7 +15,7 @@ jobs:
       - name: ⬇ Checkout pynab
         uses: actions/checkout@v2
         with:
-          repository: nabaztag2018/pynab
+          repository: ${{ github.repository }}
 
       - name: 🖨 Print latest commit
         shell: bash
@@ -39,7 +39,7 @@ jobs:
       - name: ⬇ Checkout pynab
         uses: actions/checkout@v2
         with:
-          repository: nabaztag2018/pynab
+          repository: ${{ github.repository }}
 
       - name: 🚀 Run test suite in chroot
         uses: pguyot/arm-runner-action@v1
@@ -73,7 +73,7 @@ jobs:
       - name: ⬇ Checkout pynab
         uses: actions/checkout@v2
         with:
-          repository: nabaztag2018/pynab
+          repository: ${{ github.repository }}
 
       - name: 🏗 Define the image name
         id: image_and_branch_name
@@ -134,7 +134,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           # ⚠️ repository hosting the nigthly build
-          repository: nabaztag2018/pynab
+          repository: ${{ github.repository }}
 
       - name: 🧹 Remove old nightly releases
         shell: bash
