@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-26 08:28+0200\n"
+"POT-Creation-Date: 2021-05-30 14:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -85,12 +85,20 @@ msgstr ""
 "pour les prochaines heures ou les deux."
 
 #: templates/nabweatherd/settings.html:10
-msgid ""
-"You can also ask Nabaztag the weather forecast by saying for example <q>What "
-"is the weather forecast for today ?</q>."
-msgstr ""
-"Vous pouvez aussi demander la météo à votre lapin en disant par exemple "
-"<q>Météo</q>."
+msgid "You can also "
+msgstr "Vous pouvez aussi "
+
+#: templates/nabweatherd/settings.html:10
+msgid "Speech recognition"
+msgstr "Reconnaissance vocale"
+
+#: templates/nabweatherd/settings.html:10
+msgid "ask your rabbit"
+msgstr "demander à votre lapin"
+
+#: templates/nabweatherd/settings.html:10
+msgid " by saying for example <q>What is the weather forecast for today ?</q>."
+msgstr " en disant par exemple <q>Météo</q>."
 
 #: templates/nabweatherd/settings.html:12
 msgid "Location"

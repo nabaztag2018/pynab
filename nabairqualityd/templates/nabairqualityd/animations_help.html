@@ -1,0 +1,27 @@
+{% extends 'nabweb/_help.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block subtitle %}{% trans "Air quality" %}{% endblock %}
+{% block content %}
+     <div class="row justify-content-center">
+      <div class="col-xl-8 col-lg-10 col-md-10 mb-3">
+        <div class="card" id="nabairqualityd-animations">
+          <div class="card-header">
+            <h5 class="card-title">{% trans "The air quality visual animations" %}</h5>
+          </div>
+
+          <div class="card-body">
+            <table>
+              <tr>
+                <td>{% trans "Bad" %}<img src="{% static "nabweb/images/air_bad.gif" %}"></td>
+                <td>{% trans "Moderate" %}<img src="{% static "nabweb/images/air_middle.gif" %}"></td>
+                <td>{% trans "Good" %}<img src="{% static "nabweb/images/air_ok.gif" %}"></td>
+              </tr>
+            </table>
+          </div>
+
+        </div>
+     </div>
+    </div>
+{% endblock %}
