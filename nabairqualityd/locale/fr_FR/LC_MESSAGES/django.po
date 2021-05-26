@@ -74,49 +74,57 @@ msgid " by saying such things as <q>What is the air quality today ?</q>."
 msgstr " en disant par exemple <q>Qualité de l'air</q>."
 
 #: templates/nabairqualityd/settings.html:13
+msgid "Location"
+msgstr "Localisation"
+
+#: templates/nabairqualityd/settings.html:15
+msgid "Station location"
+msgstr "Locatisation de la station"
+
+#: templates/nabairqualityd/settings.html:20
 msgid "Index"
 msgstr "Indice"
 
-#: templates/nabairqualityd/settings.html:16
+#: templates/nabairqualityd/settings.html:23
 msgid "AQI"
 msgstr "AQI"
 
-#: templates/nabairqualityd/settings.html:17
+#: templates/nabairqualityd/settings.html:24
 msgid "PM 2.5"
 msgstr "PM 2.5"
 
-#: templates/nabairqualityd/settings.html:23
+#: templates/nabairqualityd/settings.html:30
 msgid "Visual animation"
 msgstr "Information visuelle"
 
-#: templates/nabairqualityd/settings.html:26
+#: templates/nabairqualityd/settings.html:33
 msgid "Always-on"
 msgstr "Toujours afficher"
 
-#: templates/nabairqualityd/settings.html:27
+#: templates/nabairqualityd/settings.html:34
 msgid "Alert only"
 msgstr "Afficher les alertes uniquement"
 
-#: templates/nabairqualityd/settings.html:28
+#: templates/nabairqualityd/settings.html:35
 msgid "No visual animation"
 msgstr "Aucune information visuelle"
 
-#: templates/nabairqualityd/settings.html:34
+#: templates/nabairqualityd/settings.html:41
 msgid "Forecast"
 msgstr "Prévision"
 
-#: templates/nabairqualityd/settings.html:36
+#: templates/nabairqualityd/settings.html:43
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: templates/nabairqualityd/settings.html:43
+#: templates/nabairqualityd/settings.html:50
 msgid "Save"
 msgstr "Enregistrer"
 
-#: templates/nabairqualityd/settings.html:44
+#: templates/nabairqualityd/settings.html:51
 msgid "Reset"
 msgstr "Annuler"
 
-#: templates/nabairqualityd/settings.html:74
+#: templates/nabairqualityd/settings.html:81
 msgid "Unknown server error"
 msgstr "Erreur inconnue du serveur"

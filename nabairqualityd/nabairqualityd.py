@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import sys
 
 from asgiref.sync import sync_to_async
@@ -102,9 +103,15 @@ class NabAirqualityd(NabInfoCachedService):
         from . import models
 
         config = await models.Config.load_async()
-        new_city = client.get_city()
-        if new_city != config.localisation:
-            config.localisation = new_city
+        city = client.get_city()
+        if city != config.localisation:
+            logging.debug(
+                "Air quality city changed from: "
+                + str(config.localisation)
+                + " to: "
+                + str(city)
+            )
+            config.localisation = city
             await config.save_async()
 
         return {

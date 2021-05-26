@@ -8,6 +8,9 @@ import logging
 
 import requests
 
+AQICN_FEED = "http://api.waqi.info/feed/"
+AQICN_TOKEN = "4cf7f445134f3fb69a4c3f0e5001e507a6cc386f"
+
 
 class aqicnError(Exception):
     """Raise when errors occur while fetching or parsing data"""
@@ -35,15 +38,17 @@ class aqicnClient:
         if lat and lon:
             # Use geolocalized API
             return (
-                "https://api.waqi.info/feed/geo:" + lat + ";" + lon + "/"
-                "?token=4cf7f445134f3fb69a4c3f0e5001e507a6cc386f"
+                AQICN_FEED
+                + "geo:"
+                + lat
+                + ";"
+                + lon
+                + "/?token="
+                + AQICN_TOKEN
             )
         else:
             # fallback to IP-based API
-            return (
-                "http://api.waqi.info/feed/here/"
-                "?token=4cf7f445134f3fb69a4c3f0e5001e507a6cc386f"
-            )
+            return AQICN_FEED + "here/?token=" + AQICN_TOKEN
 
     def _fetch_airquality_data(self):
         try:
