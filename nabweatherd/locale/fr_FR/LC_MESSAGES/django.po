@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-21 17:53+0200\n"
+"POT-Creation-Date: 2021-05-26 08:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,41 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: templates/nabweatherd/animations_help.html:5
+#: templates/nabweatherd/settings.html:6
+msgid "Weather"
+msgstr "Météo"
+
+#: templates/nabweatherd/animations_help.html:11
+#: templates/nabweatherd/settings.html:9
+msgid "The weather forecast visual animations"
+msgstr "Les animations visuelles Météo"
+
+#: templates/nabweatherd/animations_help.html:17
+msgid "Sunshine"
+msgstr "Soleil"
+
+#: templates/nabweatherd/animations_help.html:18
+msgid "Rain"
+msgstr "Pluie"
+
+#: templates/nabweatherd/animations_help.html:19
+msgid "Cloudy"
+msgstr "Nuages"
+
+#: templates/nabweatherd/animations_help.html:22
+msgid "Thunderstorm"
+msgstr "Orage"
+
+#: templates/nabweatherd/animations_help.html:23
+msgid "Snow"
+msgstr "Neige"
+
+#: templates/nabweatherd/animations_help.html:24
+#: templates/nabweatherd/settings.html:41
+msgid "Rain alert"
+msgstr "Alerte pluie"
 
 #: templates/nabweatherd/rfid-data.html:3
 msgid "Day"
@@ -31,19 +66,23 @@ msgstr "Aujourd'hui"
 msgid "Tomorrow"
 msgstr "Demain"
 
-#: templates/nabweatherd/settings.html:6
-msgid "Weather"
-msgstr "Météo"
+#: templates/nabweatherd/settings.html:9
+msgid "The "
+msgstr "L'"
+
+#: templates/nabweatherd/settings.html:9
+msgid "visual animation"
+msgstr "animation visuelle"
 
 #: templates/nabweatherd/settings.html:9
 msgid ""
-"The animation can display, if available, a rain alert (blue blinking means "
-"get an umbrella, nothing will be displayed otherwise), the current weather "
-"forecast or both."
+" can display, if available, a rain alert (blue blinking means get an "
+"umbrella, nothing will be displayed otherwise), the current weather forecast "
+"or both."
 msgstr ""
-"L'animation lumineuse peut vous donner, si l'information est disponible, une "
-"alerte pluie (si cela clignote bleu c'est qu'il va pleuvoir dans l'heure), "
-"les prévisions pour les prochaines heures ou les deux."
+" peut vous donner, si l'information est disponible, une alerte pluie (si "
+"cela clignote bleu c'est qu'il va pleuvoir dans l'heure), les prévisions "
+"pour les prochaines heures ou les deux."
 
 #: templates/nabweatherd/settings.html:10
 msgid ""
@@ -88,10 +127,6 @@ msgstr "Information visuelle"
 #: templates/nabweatherd/settings.html:40
 msgid "Current weather forecast"
 msgstr "Prévision météo"
-
-#: templates/nabweatherd/settings.html:41
-msgid "Rain alert"
-msgstr "Alerte pluie"
 
 #: templates/nabweatherd/settings.html:42
 msgid "Both"

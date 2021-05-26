@@ -1,0 +1,32 @@
+{% extends 'nabweb/_help.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block subtitle %}{% trans "Weather" %}{% endblock %}
+{% block content %}
+     <div class="row justify-content-center">
+      <div class="col-xl-8 col-lg-10 col-md-10 mb-3">
+        <div class="card" id="nabweatherd-animations">
+          <div class="card-header">
+            <h5 class="card-title">{% trans "The weather forecast visual animations" %}</h5>
+          </div>
+
+          <div class="card-body">
+            <table>
+              <tr>
+                <td>{% trans "Sunshine" %}<img src="{% static "nabweb/images/soleil.gif" %}"></td>
+                <td>{% trans "Rain" %}<img src="{% static "nabweb/images/pluie.gif" %}"></td>
+                <td>{% trans "Cloudy" %}<img src="{% static "nabweb/images/nuages.gif" %}"></td>
+              </tr>
+              <tr>
+                <td>{% trans "Thunderstorm" %}<img src="{% static "nabweb/images/orage.gif" %}"></td>
+                <td>{% trans "Snow" %}<img src="{% static "nabweb/images/neige.gif" %}"></td>
+                <td>{% trans "Rain alert" %}<img src="{% static "nabweb/images/pluie1h.gif" %}"></td>
+              </tr>
+            </table>
+          </div>
+
+        </div>
+     </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon" href="{% static 'nabweb/favicon/favicon.ico' %}"/>
+    <link rel="stylesheet" href="{% static "nabweb/css/bootstrap.min.css" %}">
+    <link rel="stylesheet/less" type="text/css" href="{% static "nabweb/css/bootstrap-button-toggle.less" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "nabweb/css/bootstrap4-clockpicker.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "nabweb/css/nabweb.css" %}">
+    <title>{% trans "Nabaztag help" %} :: {% block subtitle %}{% endblock %}</title>
+    <script src="{% static "nabweb/js/jquery-3.3.1.min.js" %}"></script>
+    <script src="{% static "nabweb/js/popper.min.js" %}"></script>
+    <script src="{% static "nabweb/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "nabweb/js/less.min.js" %}"></script>
+    <script src="{% static "nabweb/js/bootstrap4-clockpicker.min.js" %}"></script>
+    <script src="{% static "nabweb/js/jquery.bootstrap-growl.min.js" %}"></script>
+
+	<script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
+
+    <style>
+      table, th, td {
+        text-align: center;
+        vertical-align: middle;
+        border: 1px solid #dee2e6;
+      }
+      img {
+        max-width: 100%;
+        max-height: 100%;
+      }
+    </style>
+  </head>
+  
+  <body>
+    <header class="navbar navbar-expand-lg navbar-light bg-light">
+      <span class="navbar-brand mb-0 h1">{% trans "Nabaztag help" %}</span>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li><a class="nav-link" href="https://tagtagtag.fr/help.html" target="_new">{% trans "Help!" %}  </a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a class="nav-link pull-right" href="https://github.com/nabaztag2018/pynab" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="{% static "nabweb/images/GitHub-Mark-32px.png" %}" title="GitHub" width="20" height="20" /></a></li>
+        </ul>
+      </div>
+    </header>
+    <div class="container-fluid mt-3">
+        {% block content %}{% endblock %}
+    </div>
+  </body>
+</html>
