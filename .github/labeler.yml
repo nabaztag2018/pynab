@@ -1,0 +1,58 @@
+# Add Documentation Label
+'Documentation':
+  - docs/**/*
+  - CONTRIBUTING.md
+  - LICENSE
+  - PROTOCOL.md
+  - README.md
+
+'Environment':
+  - .github/*
+  - .github/**/*
+  - .coveragerc
+  - .editorconfig
+  - .flake8
+  - .gitignore
+  - .isort.cfg
+  - .pep8speaks.yml
+  - .pre-commit-config.yaml
+  - requirements.txt
+
+'Service: 8ball'
+  - nab8balld/**
+
+'Service: Air Quality'
+  - nabairqualityd/**
+
+'Service: Book'
+  - nabbookd/**
+
+'boot'
+  - nabboot/**
+
+'Service: Clock'
+  - nabclockd/**
+
+'common'
+  - nabcommon/**
+
+'Service : Nab'
+  - nabd/**
+
+'Service: Mastodon'
+  - nabmastodond/**
+
+'Service: Surprise'
+  - nabsurprised/**
+
+'Service: Tai chi'
+  - nabtaichid/**
+
+'Service: Weather'
+  - nabweatherd/**
+
+'web'
+  - nabweb/**
+
+'Translations':
+  - **/*.po
