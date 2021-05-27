@@ -1,0 +1,27 @@
+{% extends 'nabweb/_help.html' %}
+{% load i18n %}
+{% block subtitle %}{% trans "Home" %}{% endblock %}
+{% block content %}
+  <div class="jumbotron">
+    <div class="container">
+      <h1 class="display-3">{% trans "Nabaztag help" %}</h1>
+      <hr class="my-4">
+      <p class="lead">{% trans "On your rabbit" %}</p>
+      <p>{% trans "<b>The " %}<a href='/help/weather' title='{% trans "The weather forecast visual animations" %}'>{% trans "weather forecast visual animations" %}</b></a>.</p>
+<!-- uncomment once available...
+      <p>{% trans "<b>The " %}<a href='/help/airquality' title='{% trans "The air quality visual animations" %}'>{% trans "air quality visual animations" %}</b></a>.</p>
+-->
+      <p id="asr"><b>{% trans "Talking to the rabbit (speech recognition)" %}</b><br>{% trans "You need to push and hold the button on the rabbit's head long enough to hear a 'beep', then wait a couple of seconds and speak. When you are done just release the button." %}<br>{% trans "The speech processing is done locally and the answer should come shortly!" %}</p>
+      <p><b>{% trans "Reboot or shutdown the rabbit" %}</b><br>{% blocktrans %}You can do this cleanly by using the <kbd class="btn-warning">Reboot</kbd> or <kbd class="btn-danger">Shutdown</kbd> buttons on the <a  target='_parent' href='/system-info/'>System information</a> tab of the configuration page.{% endblocktrans %}<br>{% trans "As a last resort, you can also shutdown the rabbit by pushing its head button quickly three times in a row." %}</p>
+     <hr class="my-4">
+      <p class="lead">{% trans "On the Internet" %}</p>
+      <p><b>{% trans "<a target='_blank' href='https://tinyletter.com/nabaztag' rel='noopener noreferrer'>Nabaztag is back!</a>" %}</b><br>{% trans "Subscribe to the newsletter." %}</p>
+      <p><b>{% trans "The <a target='_blank' href='https://www.tagtagtag.fr/forum/' rel='noopener noreferrer'>Tag:Tag:Tag user forum</a>" %}</b><br>{% trans "Share your problems and solutions with other rabbit breeders." %}</p>
+      <p><b>{% trans "The <a target='_blank' href='https://github.com/nabaztag2018/pynab/#readme' rel='noopener noreferrer'>GitHub repository</a>" %}</b><br>{% trans "Report bugs or contribute to the project with other developers." %}</p>
+      <p><b>{% trans "<a target='_blank' href='https://twitter.com/nabaztagtagtag' rel='noopener noreferrer'>Nabaztag on Twitter</a>" %}</b></p>
+      <p><b>{% trans "The <a target='_blank' href='https://www.instructables.com/member/tagtagtag/' rel='noopener noreferrer'>TagTagTag assembly instructions</a>" %}</b><br>{% trans "The open heart operation to transplant the card into your rabbit. At this stage you probably do not need this anymore..." %}</p>
+      <p><b>{% trans "<a target='_blank' href='https://www.ulule.com/le-retour-du-retour-du-nabaztag/' rel='noopener noreferrer'>Nabaztag is BackBack</a>" %}</b><br>{% trans "Some project history..." %}</p>
+      <hr class="my-4">
+    </div>
+  </div>
+{% endblock %}
