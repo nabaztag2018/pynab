@@ -37,18 +37,10 @@ class aqicnClient:
         """Select AQICN URL to use"""
         if lat and lon:
             # Use geolocalized API
-            return (
-                AQICN_FEED
-                + "geo:"
-                + lat
-                + ";"
-                + lon
-                + "/?token="
-                + AQICN_TOKEN
-            )
+            return f"{AQICN_FEED}geo:{lat};{lon}/?token={AQICN_TOKEN}"
         else:
             # fallback to IP-based API
-            return AQICN_FEED + "here/?token=" + AQICN_TOKEN
+            return f"{AQICN_FEED}here/?token={AQICN_TOKEN}"
 
     def _fetch_airquality_data(self):
         try:
