@@ -74,9 +74,21 @@ urlpatterns = [
         name="nabweb.upgrade.checknow",
     ),
     path(
+        "help/",
+        TemplateView.as_view(template_name="nabweb/help.html"),
+        name="nabweb.help",
+    ),
+    path(
         "help/weather",
         TemplateView.as_view(template_name="nabweatherd/animations_help.html"),
         name="nabweatherd.help.animations",
+    ),
+    path(
+        "help/airquality",
+        TemplateView.as_view(
+            template_name="nabairqualityd/animations_help.html"
+        ),
+        name="nabairqualityd.help.animations",
     ),
 ]
 

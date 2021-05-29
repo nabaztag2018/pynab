@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-28 08:57+0200\n"
+"POT-Creation-Date: 2021-05-28 10:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
 
 #: templates/nabclockd/settings.html:6
 msgid "Clock"
@@ -26,64 +25,58 @@ msgstr "Horloge"
 msgid "Chime hours"
 msgstr "Sonner les heures"
 
-#: templates/nabclockd/settings.html:18
+#: templates/nabclockd/settings.html:17
 msgid "Custom hours for each day of the week"
 msgstr "Horaires personnalisés pour chaque jour de la semaine"
 
-#: templates/nabclockd/settings.html:27
-msgid "Wake-up time"
+#: templates/nabclockd/settings.html:25
+msgid "Wake up time"
 msgstr "Heure de réveil"
 
-#: templates/nabclockd/settings.html:38
+#: templates/nabclockd/settings.html:36
 msgid "Sleep time"
 msgstr "Heure du coucher"
 
-#: templates/nabclockd/settings.html:52
-msgid "Monday - Wake-up / Sleep"
+#: templates/nabclockd/settings.html:49
+msgid "Monday - Wake up / Sleep"
 msgstr "Lundi - Réveil / Coucher"
 
-#: templates/nabclockd/settings.html:72
-msgid "Tuesday - Wake-up / Sleep"
+#: templates/nabclockd/settings.html:68
+msgid "Tuesday - Wake up / Sleep"
 msgstr "Mardi - Réveil / Coucher"
 
-#: templates/nabclockd/settings.html:92
-msgid "Wednesday - Wake-up / Sleep"
+#: templates/nabclockd/settings.html:87
+msgid "Wednesday - Wake up / Sleep"
 msgstr "Mercredi - Réveil / Coucher"
 
-#: templates/nabclockd/settings.html:112
-msgid "Thursday - Wake-up / Sleep"
+#: templates/nabclockd/settings.html:106
+msgid "Thursday - Wake up / Sleep"
 msgstr "Jeudi - Réveil / Coucher"
 
-#: templates/nabclockd/settings.html:132
-msgid "Friday - Wake-up / Sleep"
+#: templates/nabclockd/settings.html:125
+msgid "Friday - Wake up / Sleep"
 msgstr "Vendredi - Réveil / Coucher"
 
-#: templates/nabclockd/settings.html:152
-msgid "Saturday - Wake-up / Sleep"
+#: templates/nabclockd/settings.html:144
+msgid "Saturday - Wake up / Sleep"
 msgstr "Samedi - Réveil / Coucher"
 
-#: templates/nabclockd/settings.html:172
-msgid "Sunday - Wake-up / Sleep"
+#: templates/nabclockd/settings.html:163
+msgid "Sunday - Wake up / Sleep"
 msgstr "Dimanche - Réveil / Coucher"
 
-#: templates/nabclockd/settings.html:61 templates/nabclockd/settings.html:81
-#: templates/nabclockd/settings.html:101 templates/nabclockd/settings.html:121
-#: templates/nabclockd/settings.html:141 templates/nabclockd/settings.html:161
-msgid "Sleep"
-msgstr "Coucher"
-
-#: templates/nabclockd/settings.html:194
+#: templates/nabclockd/settings.html:183
 msgid "Time zone"
 msgstr "Fuseau horaire"
 
-#: templates/nabclockd/settings.html:204
+#: templates/nabclockd/settings.html:193
 msgid "Play wake up and sleep sound"
-msgstr "Jouer un son au reveil et coucher"
+msgstr "Jouer un son au réveil et au coucher"
 
-#: templates/nabclockd/settings.html:214
+#: templates/nabclockd/settings.html:203
 msgid "Save"
-msgstr ""
+msgstr "Enregistrer"
 
-#: templates/nabclockd/settings.html:215
+#: templates/nabclockd/settings.html:204
 msgid "Reset"
-msgstr ""
+msgstr "Annuler"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-25 23:42+0200\n"
+"POT-Creation-Date: 2021-05-28 18:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,14 +54,16 @@ msgstr "Portugais brésilien"
 msgid "Nabaztag configuration"
 msgstr "Configuration du Nabaztag"
 
-#: templates/nabweb/_base.html:32 templates/nabweb/index.html:3
+#: templates/nabweb/_base.html:32 templates/nabweb/_help.html:44
+#: templates/nabweb/help.html:3 templates/nabweb/index.html:3
 #: templates/nabweb/upgrade/index.html:3
 msgid "Home"
 msgstr "Accueil"
 
 #: templates/nabweb/_base.html:32 templates/nabweb/_base.html:33
 #: templates/nabweb/_base.html:34 templates/nabweb/_base.html:35
-#: templates/nabweb/_base.html:36
+#: templates/nabweb/_base.html:36 templates/nabweb/_base.html:37
+#: templates/nabweb/_help.html:44
 msgid "(current)"
 msgstr "(actif)"
 
@@ -83,9 +85,9 @@ msgstr "Information système"
 msgid "Upgrade"
 msgstr "Mise à jour"
 
-#: templates/nabweb/_base.html:37 templates/nabweb/_help.html:43
-msgid "Help!"
-msgstr "Aide !"
+#: templates/nabweb/_base.html:37
+msgid "Help"
+msgstr "Aide"
 
 #: templates/nabweb/_base.html:51
 msgid "Upgrading"
@@ -99,72 +101,220 @@ msgstr "Veuillez patienter pendant la mise à jour de pynab"
 msgid "Unknown server error"
 msgstr "Erreur serveur inconnue"
 
-#: templates/nabweb/_help.html:13 templates/nabweb/_help.html:37
+#: templates/nabweb/_help.html:13 templates/nabweb/_help.html:38
+#: templates/nabweb/help.html:7
 msgid "Nabaztag help"
 msgstr "Aide du Nabaztag"
 
+#: templates/nabweb/help.html:9
+msgid "On your rabbit"
+msgstr "Sur votre lapin"
+
+#: templates/nabweb/help.html:10 templates/nabweb/help.html:11
+msgid "<b>The "
+msgstr "<b>Les "
+
+#: templates/nabweb/help.html:10
+msgid "The weather forecast visual animations"
+msgstr "Les animations visuelles Météo"
+
+#: templates/nabweb/help.html:10
+msgid "weather forecast visual animations"
+msgstr "animations visuelles Météo"
+
+#: templates/nabweb/help.html:11
+msgid "The air quality visual animations"
+msgstr "Les animations visuelles Qualité de l'air"
+
+#: templates/nabweb/help.html:11
+msgid "air quality visual animations"
+msgstr "animations visuelles Qualité de l'air"
+
+#: templates/nabweb/help.html:12
+msgid "Talking to the rabbit (speech recognition)"
+msgstr "Commnent parler au lapin (reconnaissance vocale)"
+
+#: templates/nabweb/help.html:12
+msgid ""
+"You need to push and hold the button on the rabbit's head long enough to "
+"hear a 'beep', then wait a couple of seconds and speak. When you are done "
+"just release the button."
+msgstr ""
+"Il vous faut maintenir le bouton sur la tête du lapin appuyé assez longtemps "
+"pour entendre le 'bip', attendre quelques secondes puis parler. Relachez "
+"quand vous avez terminé."
+
+#: templates/nabweb/help.html:12
+msgid ""
+"The speech processing is done locally and the answer should come shortly!"
+msgstr ""
+"La reconnaissance vocale est effectuée localement et la réponse devrait être "
+"rapide !"
+
+#: templates/nabweb/help.html:13
+msgid "Reboot or shutdown the rabbit"
+msgstr "Redémarrer ou arrêter le lapin"
+
+#: templates/nabweb/help.html:13
+msgid ""
+"You can do this cleanly by using the <kbd class=\"btn-warning\">Reboot</kbd> "
+"or <kbd class=\"btn-danger\">Shutdown</kbd> buttons on the <a  "
+"target='_parent' href='/system-info/'>System information</a> tab of the "
+"configuration page."
+msgstr ""
+"You pouvez le faire proprement en utilisant les boutons <kbd class=\"btn-"
+"warning\">Redémarrer</kbd> ou <kbd class=\"btn-danger\">Arrêter</kbd> sur "
+"l'onglet <a  target='_parent' href='/system-info/'>Information système</a> "
+"de la page de configuration."
+
+#: templates/nabweb/help.html:13
+msgid ""
+"As a last resort, you can also shutdown the rabbit by pushing its head "
+"button quickly three times in a row."
+msgstr ""
+"En dernier ressort, vous pouvez aussi arrêter le lapin en appuyant le bouton "
+"sur sa tête rapidement trois fois à la suite."
+
+#: templates/nabweb/help.html:15
+msgid "On the Internet"
+msgstr "Sur l'Internet"
+
+#: templates/nabweb/help.html:16
+msgid ""
+"<a target='_blank' href='https://tinyletter.com/nabaztag' rel='noopener "
+"noreferrer'>Nabaztag is back!</a>"
+msgstr ""
+"<a target='_blank' href='https://tinyletter.com/nabaztag' rel='noopener "
+"noreferrer'>Nabaztag revient !</a>"
+
+#: templates/nabweb/help.html:16
+msgid "Subscribe to the newsletter."
+msgstr "Abonnez vous à la lettre d'information."
+
+#: templates/nabweb/help.html:17
+msgid ""
+"The <a target='_blank' href='https://www.tagtagtag.fr/forum/' rel='noopener "
+"noreferrer'>Tag:Tag:Tag user forum</a>"
+msgstr ""
+"Le <a target='_blank' href='https://www.tagtagtag.fr/forum/' rel='noopener "
+"noreferrer'>forum d'utilisateurs Tag:Tag:Tag</a>"
+
+#: templates/nabweb/help.html:17
+msgid "Share your problems and solutions with other rabbit breeders."
+msgstr ""
+"Partagez vos problèmes et vos solutions avec d'autres éleveurs de lapins."
+
+#: templates/nabweb/help.html:18
+msgid ""
+"The <a target='_blank' href='https://github.com/nabaztag2018/pynab/#readme' "
+"rel='noopener noreferrer'>GitHub repository</a>"
+msgstr ""
+"Le <a target='_blank' href='https://github.com/nabaztag2018/pynab/#readme' "
+"rel='noopener noreferrer'>référentiel GitHub</a>"
+
+#: templates/nabweb/help.html:18
+msgid "Report bugs or contribute to the project with other developers."
+msgstr ""
+"Signalez des bogues ou contribuez au projet avec d'autres développeurs."
+
+#: templates/nabweb/help.html:19
+msgid ""
+"<a target='_blank' href='https://twitter.com/nabaztagtagtag' rel='noopener "
+"noreferrer'>Nabaztag on Twitter</a>"
+msgstr ""
+"<a target='_blank' href='https://twitter.com/nabaztagtagtag' rel='noopener "
+"noreferrer'>Nabaztag sur Twitter</a>"
+
+#: templates/nabweb/help.html:20
+msgid ""
+"The <a target='_blank' href='https://www.instructables.com/member/"
+"tagtagtag/' rel='noopener noreferrer'>TagTagTag assembly instructions</a>"
+msgstr ""
+"Les <a target='_blank' href='https://www.instructables.com/member/"
+"tagtagtag/' rel='noopener noreferrer'>instructions de montage TagTagTag</a>"
+
+#: templates/nabweb/help.html:20
+msgid ""
+"The open heart operation to transplant the card into your rabbit. At this "
+"stage you probably do not need this anymore..."
+msgstr ""
+"L'opération à cœur ouvert pour transplanter la carte dans votre lapin. A ce "
+"stade, vous n'en avez probablement plus besoin ..."
+
+#: templates/nabweb/help.html:21
+msgid ""
+"<a target='_blank' href='https://www.ulule.com/le-retour-du-retour-du-"
+"nabaztag/' rel='noopener noreferrer'>Nabaztag is BackBack</a>"
+msgstr ""
+"Le <a target='_blank' href='https://fr.ulule.com/le-retour-du-retour-du-"
+"nabaztag/' rel='noopener noreferrer'>retour du retour du Nabaztag</a>"
+
+#: templates/nabweb/help.html:21
+msgid "Some project history..."
+msgstr "Un peu d'histoire ..."
+
 #: templates/nabweb/index.html:8
-msgid "You're currently deeply connected with your inner rabbit."
+msgid "You are currently connected to your rabbit."
 msgstr "Vous êtes actuellement en connexion avec votre lapin."
 
 #: templates/nabweb/index.html:10
-msgid ""
-"First, make sure the language is properly configured below. Maybe create an "
-"account to connect your Nabaztag to <a href='https://mstdn.fr/auth/"
-"sign_up'>Mastodon</a> where it will join fellow rabbits <small>(for now, "
-"this is only used by ear communion service)</small>."
+msgid "First, make sure the language is properly configured below."
 msgstr ""
-"Le mieux est de commencer par sélectionner la langue dans laquelle votre "
-"Nabaztag va s'exprimer. Ensuite, si vous connaissez d'autres lapins, vous "
-"pouvez aussi <a href='https://mstdn.fr/auth/sign_up'>créer un profil "
-"Mastodon</a> pour qu'il puisse dialoguer avec d'autres lapins (Mastodon est "
-"une sorte de Twitter open-source)."
+"Sélectionnez d'abord ci-dessous la langue dans laquelle votre Nabaztag va "
+"s'exprimer."
+
+#: templates/nabweb/index.html:10
+msgid ""
+"Then maybe create an account to connect your Nabaztag to <a target='_blank' "
+"href='https://joinmastodon.org' rel='noopener noreferrer'>Mastodon</a> where "
+"it may join fellow rabbits <small>(for now, this is only used by ear "
+"communion service)</small>."
+msgstr ""
+"Ensuite, si vous connaissez d'autres lapins, vous pouvez aussi créer un "
+"profil <a target='_blank' href='https://joinmastodon.org' rel='noopener "
+"noreferrer'>Mastodon</a> pour qu'il puisse dialoguer avec eux <small>(pour "
+"l'instant, ceci est utilisé uniquement pour la communion d'oreilles)</small>."
 
 #: templates/nabweb/index.html:11
 msgid ""
-"Eventually, explore top navigation bar to configure <a href='/"
-"services/'>Nabaztag services</a>, <a href='/upgrade/'>upgrade software</a> "
-"or even visit the <a target='_blank' href='https://github.com/nabaztag2018/"
-"pynab' rel='noopener noreferrer'>GitHub repository</a> to start hacking, "
-"adding features or simply report bugs."
+"Eventually, explore the top navigation bar to configure <a href='/"
+"services/'>Nabaztag services</a> or <a href='/rfid/'>RFID tags</a>, <a "
+"href='/upgrade/'>upgrade software</a>, <a target='_blank' href='/help/'>get "
+"help</a> or even visit the <a target='_blank' href='https://github.com/"
+"nabaztag2018/pynab' rel='noopener noreferrer'>GitHub repository</a> to start "
+"hacking, adding features or simply report bugs."
 msgstr ""
-"Pour configurer les services, allez dans l'onglet <a href='/"
-"services/'>Services</a>, ou <a href='/upgrade/'>Mise à jour</a> pour mettre "
-"à jour le logiciel. Vous pouvez aussi visiter le <a target='_blank' "
-"href='https://github.com/nabaztag2018/pynab' rel='noopener "
-"noreferrer'>GitHub repository</a> pour contribuer ou simplement nous "
-"reporter des bugs !"
+"Utilisez la barre de navigation pour configurer les <a href='/"
+"services/'>services du Nabaztag</a> ou des <a href='/rfid/'>tags RFID</a>, "
+"<a href='/upgrade/'>mettre à jour</a> le logiciel, ou <a target='_blank' "
+"href='/help/'>obtenir de l'aide</a>. Vous pouvez aussi visiter le <a "
+"target='_blank' href='https://github.com/nabaztag2018/pynab' rel='noopener "
+"noreferrer'>référentiel GitHub</a> pour contribuer ou simplement signaler "
+"des bogues."
 
 #: templates/nabweb/index.html:13
 msgid ""
-"You can trigger some services with your voice. The processing is done "
-"locally and you need to push the button long enough to hear a 'bip' (keep "
-"the button pushed), then wait a couple of seconds (We'll have a look at this "
-"later!) then speak and when you're done just release the button. Your "
-"service should be played shortly!"
+"You can also trigger some services with your voice by pushing and holding "
+"the button on the rabbit's head."
 msgstr ""
-"Vous pouvez aussi déclencher certains services en demandant à Nabaztag. La "
-"reconnaissance vocale est effectuée localement et il vous faut appuyer sur "
-"le bouton (en le maintenant appuyé), attendre le 'bip', attendre encore "
-"quelques secondes (oui c'est un bug) puis parler. Relacher quand vous n'avez "
-"plus rien à dire et attendez que Nabaztag vous réponde."
+"Vous pouvez aussi déclencher certains services à la voix en maintenant "
+"appuyé le bouton sur la tête du lapin."
 
-#: templates/nabweb/index.html:14
+#: templates/nabweb/index.html:15
 msgid ""
-"And don't forget to try <a href='/' onclick='javascript:event.target."
-"port=8080' target='_blank' rel='noopener noreferrer'>Nabblocky</a> and learn "
-"how to code with Nabaztag. It's fantastic."
+"And do not forget to try <a href='/' onclick='javascript:event.target."
+"port=8080' target='_blank' rel='noopener noreferrer'>NabBlockly</a> and "
+"learn how to code with Nabaztag. It's fantastic."
 msgstr ""
 "Et n'oubliez pas d'essayer <a href='/' onclick='javascript:event.target."
-"port=8080' target='_blank' rel='noopener noreferrer'>Nabblocky</a>. Pour "
-"tous ceux qui veulent apprendre à développer avec Nabaztag. C'est "
-"fantastique !"
+"port=8080' target='_blank' rel='noopener noreferrer'>NabBlockly</a> pour "
+"apprendre à coder avec Nabaztag. C'est fantastique !"
 
-#: templates/nabweb/index.html:23 templates/nabweb/index.html:28
+#: templates/nabweb/index.html:24 templates/nabweb/index.html:29
 msgid "Language"
 msgstr "Langue"
 
-#: templates/nabweb/index.html:26
+#: templates/nabweb/index.html:27
 msgid ""
 "The language is used by services with recorded sounds. U.S. English and "
 "British English are based on distinct voices."
@@ -172,11 +322,11 @@ msgstr ""
 "La langue est utilisée par les services avec des sons enregistrés. Une "
 "nouvelle façon d'apprendre des langues étrangères !"
 
-#: templates/nabweb/index.html:41
+#: templates/nabweb/index.html:42
 msgid "Save"
 msgstr "Enregistrer"
 
-#: templates/nabweb/index.html:42
+#: templates/nabweb/index.html:43
 msgid "Reset"
 msgstr "Annuler"
 

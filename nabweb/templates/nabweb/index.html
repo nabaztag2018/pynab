@@ -5,17 +5,18 @@
   <div class="jumbotron">
     <div class="container">
       <h1 class="display-3">{% trans "Nabaztag configuration" %}</h1>
-      <p class="lead">{% trans "You're currently deeply connected with your inner rabbit." %}</p>
+      <p class="lead">{% trans "You are currently connected to your rabbit." %}</p>
       <hr class="my-4">
-      <p>{% trans "First, make sure the language is properly configured below. Maybe create an account to connect your Nabaztag to <a href='https://mstdn.fr/auth/sign_up'>Mastodon</a> where it will join fellow rabbits <small>(for now, this is only used by ear communion service)</small>." %}</p>
-      <p>{% trans "Eventually, explore top navigation bar to configure <a href='/services/'>Nabaztag services</a>, <a href='/upgrade/'>upgrade software</a> or even visit the <a target='_blank' href='https://github.com/nabaztag2018/pynab' rel='noopener noreferrer'>GitHub repository</a> to start hacking, adding features or simply report bugs." %}</p>
+      <p>{% trans "First, make sure the language is properly configured below." %}<br>{% trans "Then maybe create an account to connect your Nabaztag to <a target='_blank' href='https://joinmastodon.org' rel='noopener noreferrer'>Mastodon</a> where it may join fellow rabbits <small>(for now, this is only used by ear communion service)</small>." %}</p>
+      <p>{% trans "Eventually, explore the top navigation bar to configure <a href='/services/'>Nabaztag services</a> or <a href='/rfid/'>RFID tags</a>, <a href='/upgrade/'>upgrade software</a>, <a target='_blank' href='/help/'>get help</a> or even visit the <a target='_blank' href='https://github.com/nabaztag2018/pynab' rel='noopener noreferrer'>GitHub repository</a> to start hacking, adding features or simply report bugs." %}</p>
 
-      <p>{% trans "You can trigger some services with your voice. The processing is done locally and you need to push the button long enough to hear a 'bip' (keep the button pushed), then wait a couple of seconds (We'll have a look at this later!) then speak and when you're done just release the button. Your service should be played shortly!" %}</p>
-      <p>{% trans "And don't forget to try <a href='/' onclick='javascript:event.target.port=8080' target='_blank' rel='noopener noreferrer'>Nabblocky</a> and learn how to code with Nabaztag. It's fantastic." %}</p>
+      <p>{% trans "You can also trigger some services with your voice by pushing and holding the button on the rabbit's head." %}</p>
+      <hr class="my-4">
+      <p>{% trans "And do not forget to try <a href='/' onclick='javascript:event.target.port=8080' target='_blank' rel='noopener noreferrer'>NabBlockly</a> and learn how to code with Nabaztag. It's fantastic." %}</p>
     </div>
   </div>
-  <div class="row justify-content-center">
-    <div class="col-xl-8 col-lg-10 col-md-10 mb-3">
+  <div class="row">
+    <div class="col-md-6 mb-3">
       <div class="card" id="language-settings">
         <form method="post" action="/">
           {% csrf_token %}
@@ -46,12 +47,16 @@
         </form>
       </div>
     </div>
-  </div>
   {% for service in services %}
-    <div class="row justify-content-center">
-      <div class="settings col-xl-8 col-lg-10 col-md-10 mb-3" data-url="/{{ service }}/settings"></div>
+    {% if forloop.counter|divisibleby:2 %}
+    <div class="row">
+    {% endif %}
+      <div class="settings col-md-6 mb-3" data-url="/{{ service }}/settings"></div>
+    {% if not forloop.counter|divisibleby:2 or forloop.last %}
     </div>
+    {% endif %}
   {% endfor %}
+  </div>
   <script type="text/javascript">
   $(function() {
     var form = $('#language-settings form');
