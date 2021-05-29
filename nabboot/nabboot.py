@@ -4,6 +4,8 @@
 # At boot, set leds to orange.
 # At shutdown, turn leds off.
 
+import platform
+import re
 import sys
 
 from rpi_ws281x import Adafruit_NeoPixel, Color
@@ -52,8 +54,15 @@ def set_system_led(shutdown):
     with open("/sys/class/leds/led0/trigger", "w") as f:
         f.write("none")
 
-    with open("/sys/class/leds/led0/brightness", "w") as f:
-        f.write("0")
+    kernel_version = platform.release()
+    matchObj = re.match(r"[0-9]+", kernel_version)
+    if matchObj:
+        major_version = int(matchObj.group())
+        with open("/sys/class/leds/led0/brightness", "w") as f:
+            if major_version >= 5:
+                f.write("0")
+            else:
+                f.write("255")
 
 
 if __name__ == "__main__":
