@@ -7,7 +7,7 @@
     <div class="col-xl-8 col-lg-10 col-md-10 mb-3">
       <div class="card">
         <div class="card-header">
-          <h5 class="card-title">{% trans "Raspberry Pi OS" %}</h5>
+          <h5 class="card-title"><a class="help-link" href='https://www.raspberrypi.org/software/operating-systems/#raspberry-pi-os-32-bit' target='_blank' rel='noopener noreferrer'>{% trans "Raspberry Pi OS" %}</a></h5>
         </div>
         <div class="card-body">
           <dl class="row">
@@ -17,9 +17,13 @@
             <dd class="col-sm-8">{{ os.hostname }}</dd>
             <dt class="col-sm-4">{% trans "IP address" %}</dt>
             <dd class="col-sm-8">{{ os.address }}</dd>
+            {% if os.network %}
+            <dt class="col-sm-4"><a class="help-link" href='https://www.raspberrypi.org/documentation/configuration/wireless/' target='_blank' rel='noopener noreferrer'>{% trans "Wireless network" %}</a></dt>
+            <dd class="col-sm-8">{{ os.network }}</dd>
+            {% endif %}
             <dt class="col-sm-4">{% trans "Uptime" %}</dt>
             <dd class="col-sm-8">{{ os.uptime|duration }}</dd>
-            <dt class="col-sm-4"><a class="help-link" href="https://www.raspberrypi.org/documentation/remote-access/ssh/" >{% trans "SSH (Secure shell)" %}</a></dt>
+            <dt class="col-sm-4"><a class="help-link" href='https://www.raspberrypi.org/documentation/remote-access/ssh/' target='_blank' rel='noopener noreferrer'>{% trans "SSH (Secure shell)" %}</a></dt>
             <dd class="col-sm-8">{% if os.ssh == "sshwarn" %}<span class="text-danger">{% trans "Enabled with default password" %}</span>{% else %}{% if os.ssh == "active" %}{% trans "Enabled" %}{% else %}{% trans "Disabled" %}{% endif %}{% endif %}</dd>
           </dl>
           <dl class="row">

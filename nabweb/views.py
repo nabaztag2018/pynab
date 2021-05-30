@@ -4,6 +4,7 @@ import base64
 import datetime
 import json
 import os
+import platform
 import re
 import subprocess
 
@@ -324,19 +325,28 @@ class NabWebSytemInfoView(BaseView):
         return "nabweb/system-info/index.html"
 
     def get_os_info(self):
-        version = "unknown"
+        version = "(unknown)"
         try:
-            with open("/etc/os-release") as release:
-                line = release.readline()
+            with open("/etc/os-release") as release_f:
+                line = release_f.readline()
                 matchObj = re.match(r'PRETTY_NAME="(.+)"$', line, re.M)
                 if matchObj:
                     version = matchObj.group(1)
         except FileNotFoundError:
             pass
-        kernel_release = os.popen("uname -rm").read().rstrip()
-        version = version + " - Kernel " + kernel_release
+        kernel_release = platform.release()
+        kernel_build = platform.version()
+        kernel_machine = platform.machine()
+        matchObj = re.match(r"#[0-9]+", kernel_build)
+        if matchObj:
+            kernel_build = matchObj.group()
+        version = (
+            f"{version} - "
+            f"Kernel {kernel_release} {kernel_build} {kernel_machine}"
+        )
         hostname = os.popen("hostname -a").read().rstrip()
         ip_address = os.popen("hostname -I").read().rstrip()
+        wifi_essid = os.popen("iwgetid -r").read().rstrip()
         try:
             with open("/proc/uptime", "r") as uptime_f:
                 uptime = int(float(uptime_f.readline().split()[0]))
@@ -349,6 +359,7 @@ class NabWebSytemInfoView(BaseView):
             "version": version,
             "hostname": hostname,
             "address": ip_address,
+            "network": wifi_essid,
             "uptime": uptime,
             "ssh": ssh_state,
         }
@@ -358,7 +369,7 @@ class NabWebSytemInfoView(BaseView):
             with open("/proc/device-tree/model") as model_f:
                 model = model_f.readline()
         except (FileNotFoundError):
-            model = "unknown"
+            model = "(unknown)"
         return {"model": model}
 
     def get_context(self):
@@ -422,7 +433,7 @@ class GitInfo:
         "sound_driver": "Tagtagtag sound card driver",
         "ears_driver": "Ears driver",
         "rfid_driver": "RFID reader driver",
-        "nabblockly": "Nabblockly",
+        "nabblockly": "NabBlockly",
     }
 
     @staticmethod
