@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-28 09:49+0200\n"
+"POT-Creation-Date: 2021-05-30 14:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,14 +26,24 @@ msgid "Wake up the guru"
 msgstr "Réveiller le gourou"
 
 #: templates/nab8balld/settings.html:16
+msgid "To use Magic 8 Ball, think about something you want to "
+msgstr "Pour invoquer le Gourou : réflechissez à ce que vous désirez "
+
+#: templates/nab8balld/settings.html:16
+msgid "Speech recognition"
+msgstr "Reconnaissance vocale"
+
+#: templates/nab8balld/settings.html:16
+msgid "ask to your rabbit"
+msgstr "demander à votre lapin"
+
+#: templates/nab8balld/settings.html:16
 msgid ""
-"To use Magic 8 Ball, think about something you want to ask to the rabbit, "
-"then click and hold the button, say <q>Tell me rabbit</q> and release the "
+", then click and hold the button, say <q>Tell me rabbit</q> and release the "
 "button for the answer."
 msgstr ""
-"Pour poser une question au Gourou : réflechissez à votre question, puis "
-"quand vous êtes prêt, appuyez sur le bouton, dites <q>T'en penses quoi "
-"Nabaztag ?</q>, relachez et attendez la réponse."
+", puis maintenez le bouton appuyé, dites <q>T'en penses quoi Nabaztag ?</q>, "
+"relachez et attendez la réponse."
 
 #: templates/nab8balld/settings.html:21
 msgid "Save"

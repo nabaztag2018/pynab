@@ -12,8 +12,9 @@ a.help-link:link {
 }
 
 a.help-link:hover {
-  color: inherit;
+  color: #fff;
   text-decoration: inherit;
+  background-color: #007bff;
 }
 
 /* select elements */

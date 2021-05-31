@@ -13,7 +13,7 @@
           <input name="enabled" type="hidden" value="{% if config.enabled %}true{% else %}false{% endif %}" />
         </div>
       </div>
-      <p>{% blocktrans %}To use Magic 8 Ball, think about something you want to ask to the rabbit, then click and hold the button, say <q>Tell me rabbit</q> and release the button for the answer.{% endblocktrans %}</p>
+      <p>{% trans "To use Magic 8 Ball, think about something you want to " %}<a class="help-link" href='/help/#asr' target='_blank' title='{% trans "Speech recognition" %}'>{% trans "ask to your rabbit" %}</a>{% blocktrans %}, then click and hold the button, say <q>Tell me rabbit</q> and release the button for the answer.{% endblocktrans %}</p>
     </div>
     <div class="card-footer">
       <div class="row mb-2">

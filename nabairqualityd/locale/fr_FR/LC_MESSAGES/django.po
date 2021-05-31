@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-21 17:44+0200\n"
+"POT-Creation-Date: 2021-05-30 14:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,26 +17,61 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: templates/nabairqualityd/animations_help.html:5
 #: templates/nabairqualityd/settings.html:6
 msgid "Air quality"
 msgstr "Qualité de l'air"
 
+#: templates/nabairqualityd/animations_help.html:11
+#: templates/nabairqualityd/settings.html:9
+msgid "The air quality visual animations"
+msgstr "Les animations visuelles Qualité de l'air"
+
+#: templates/nabairqualityd/animations_help.html:17
+msgid "Bad"
+msgstr "Mauvaise"
+
+#: templates/nabairqualityd/animations_help.html:18
+msgid "Moderate"
+msgstr "Modérée"
+
+#: templates/nabairqualityd/animations_help.html:19
+msgid "Good"
+msgstr "Bonne"
+
+#: templates/nabairqualityd/settings.html:9
+msgid "The "
+msgstr "L'"
+
+#: templates/nabairqualityd/settings.html:9
+msgid "visual animation"
+msgstr "animation visuelle"
+
 #: templates/nabairqualityd/settings.html:9
 msgid ""
-"Air quality information is provided based on the location selected for "
+" displays air quality information based on the location selected for "
 "Weather. You can select the type of information you want : Aggregate index "
 "(AQI) or just particulate matter (PM 2.5)."
 msgstr ""
-"La qualité de l'air est donnée en fonction de la localisation choisie pour "
-"la Météo. Vous pouvez sélectionner le type d'information que vous "
-"souhaitez : Indice agrégé (AQI) ou simplement les particules fines (PM 2.5)."
+" affiche la qualité de l'air en fonction de la localisation choisie pour la "
+"Météo. Vous pouvez sélectionner le type d'information que vous souhaitez : "
+"Indice agrégé (AQI) ou simplement les particules fines (PM 2.5)."
 
 #: templates/nabairqualityd/settings.html:10
-msgid ""
-"You can also ask your rabbit by saying such things as <q>What is the air "
-"quality today ?</q>."
-msgstr ""
-"Vous pouvez aussi demander à votre lapin en disant <q>Qualité de l'air</q>."
+msgid "You can also "
+msgstr "Vous pouvez aussi "
+
+#: templates/nabairqualityd/settings.html:10
+msgid "Speech recognition"
+msgstr "Reconnaissance vocale"
+
+#: templates/nabairqualityd/settings.html:10
+msgid "ask your rabbit"
+msgstr "demander à votre lapin"
+
+#: templates/nabairqualityd/settings.html:10
+msgid " by saying such things as <q>What is the air quality today ?</q>."
+msgstr " en disant par exemple <q>Qualité de l'air</q>."
 
 #: templates/nabairqualityd/settings.html:13
 msgid "Index"
