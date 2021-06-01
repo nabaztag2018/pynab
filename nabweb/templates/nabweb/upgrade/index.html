@@ -40,12 +40,13 @@
           <h5 class="card-title">{% trans "Upgrade" %}</h5>
         </div>
         <div class="card-body">
-          <p>{% trans "Through this interface, you can upgrade your Nabaztag software (provided that it is connected to the internet). This can take up a while depending on the size and the scope of the update : <b>don't restart your rabbit before the process is finished</b>." %}</p>
-          {% if pynab.upstream_branch == "origin/master" %}
-          <p>{% trans "Your Nabaztag is apparently tracking the master branch. Please note that web-based upgrade mechanism may fail and require that you connect over SSH." %}</p>
-          {% endif %}
+          <p>{% blocktrans %}Through this interface, you can upgrade your Nabaztag software (provided it is connected to the internet). This may take a while depending on the size and the scope of the update. <strong class="text-warning">Do not restart your rabbit before the process is finished</strong>.{% endblocktrans %}</p>
           {% if pynab.upstream_branch == "origin/release" %}
-          <p class="text-secondary">{% trans "You can switch to master branch to benefit from changes between releases, however this is not for the faint-hearted and requires good command of <a href='https://www.raspberrypi.org/documentation/remote-access/ssh/' target='_blanck'>SSH</a> and <a href='https://en.wikipedia.org/wiki/Git' target='_blanck'>Git</a>." %}</p>
+          <p class="text-secondary">{% trans "You can switch to the Pynab <b>master</b> branch to benefit from changes between releases, however this is not for the faint-hearted and requires good command of <a href='https://www.raspberrypi.org/documentation/remote-access/ssh/' target='_blanck' rel='noopener noreferrer'>SSH</a> and <a href='https://git-scm.com/docs/' target='_blanck' rel='noopener noreferrer'>Git</a>." %}</p>
+          {% elif pynab.upstream_branch == "" %}
+          <p class="text-warning">{% trans "Your Nabaztag is using a purely local Pynab branch. Upgrade is not applicable." %}</p>
+          {% else %}
+          <p class="text-warning">{% trans "Your Nabaztag is apparently not tracking the Pynab <b>release</b> branch. Please note that web-based upgrade mechanism may fail and require that you connect over SSH." %}</p>
           {% endif %}
           <h5>{% trans "Current versions" %}</h5>
           {% include "nabweb/upgrade/_repository.html" with repo=pynab %}
