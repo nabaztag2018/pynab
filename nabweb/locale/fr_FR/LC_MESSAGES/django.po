@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-31 15:16+0200\n"
+"POT-Creation-Date: 2021-05-28 18:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -73,7 +73,7 @@ msgstr "Services"
 
 #: templates/nabweb/_base.html:34 templates/nabweb/rfid/index.html:4
 #: templates/nabweb/rfid/index.html:26
-#: templates/nabweb/system-info/index.html:104
+#: templates/nabweb/system-info/index.html:100
 msgid "RFID"
 msgstr "RFID"
 
@@ -341,15 +341,15 @@ msgstr ""
 "remplacer?"
 
 #: templates/nabweb/rfid/index.html:16
-#: templates/nabweb/system-info/index.html:99
-#: templates/nabweb/system-info/index.html:105
+#: templates/nabweb/system-info/index.html:95
+#: templates/nabweb/system-info/index.html:101
 #: templates/nabweb/upgrade/index.html:30
 msgid "Yes"
 msgstr "Oui"
 
 #: templates/nabweb/rfid/index.html:17
-#: templates/nabweb/system-info/index.html:99
-#: templates/nabweb/system-info/index.html:105
+#: templates/nabweb/system-info/index.html:95
+#: templates/nabweb/system-info/index.html:101
 #: templates/nabweb/upgrade/index.html:31
 msgid "No"
 msgstr "Non"
@@ -615,129 +615,125 @@ msgstr "Nom d'hôte"
 msgid "IP address"
 msgstr "Adresse IP"
 
-#: templates/nabweb/system-info/index.html:21
-msgid "Wireless network"
-msgstr "Réseau sans fil"
-
-#: templates/nabweb/system-info/index.html:24
-#: templates/nabweb/system-info/index.html:67
+#: templates/nabweb/system-info/index.html:20
+#: templates/nabweb/system-info/index.html:63
 msgid "Uptime"
 msgstr "Levé depuis"
 
-#: templates/nabweb/system-info/index.html:26
+#: templates/nabweb/system-info/index.html:22
 msgid "SSH (Secure shell)"
 msgstr "SSH (shell sécurisé)"
 
-#: templates/nabweb/system-info/index.html:27
+#: templates/nabweb/system-info/index.html:23
 msgid "Enabled with default password"
 msgstr "Activé avec le mot de passe par défaut"
 
-#: templates/nabweb/system-info/index.html:27
+#: templates/nabweb/system-info/index.html:23
 msgid "Enabled"
 msgstr "Activé"
 
-#: templates/nabweb/system-info/index.html:27
+#: templates/nabweb/system-info/index.html:23
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: templates/nabweb/system-info/index.html:30
+#: templates/nabweb/system-info/index.html:26
 msgid "Maintenance"
 msgstr "Maintenance"
 
-#: templates/nabweb/system-info/index.html:32
-#: templates/nabweb/system-info/index.html:122
-#: templates/nabweb/system-info/index.html:132
+#: templates/nabweb/system-info/index.html:28
+#: templates/nabweb/system-info/index.html:118
+#: templates/nabweb/system-info/index.html:128
 msgid "Reboot"
 msgstr "Redémarrer"
 
-#: templates/nabweb/system-info/index.html:33
-#: templates/nabweb/system-info/index.html:141
-#: templates/nabweb/system-info/index.html:151
+#: templates/nabweb/system-info/index.html:29
+#: templates/nabweb/system-info/index.html:137
+#: templates/nabweb/system-info/index.html:147
 msgid "Shutdown"
 msgstr "Arrêter"
 
-#: templates/nabweb/system-info/index.html:39
+#: templates/nabweb/system-info/index.html:35
 msgid "<b>Reboot is in progress!</b>"
 msgstr "<b>Le redémarrage est en cours!</b>"
 
-#: templates/nabweb/system-info/index.html:45
+#: templates/nabweb/system-info/index.html:41
 msgid "<b>Shutdown is in progress!</b>"
 msgstr "<b>L'arrêt est en cours!</b>"
 
-#: templates/nabweb/system-info/index.html:45
+#: templates/nabweb/system-info/index.html:41
 msgid "Please wait at least 10 seconds before unplugging the power cable."
 msgstr ""
 "Veuillez attendre au moins 10 secondes avant de débrancher le cable "
 "d'alimentation."
 
-#: templates/nabweb/system-info/index.html:56
+#: templates/nabweb/system-info/index.html:52
 msgid "Nabd daemon"
 msgstr "Processus Nabd"
 
-#: templates/nabweb/system-info/index.html:65
+#: templates/nabweb/system-info/index.html:61
 msgid "State"
 msgstr "État"
 
-#: templates/nabweb/system-info/index.html:69
+#: templates/nabweb/system-info/index.html:65
 msgid "Clients (including website)"
-msgstr "Clients (y compris le site Web)"
+msgstr "Clients (y compris ce site Web)"
 
-#: templates/nabweb/system-info/index.html:81
+#: templates/nabweb/system-info/index.html:77
 msgid "Hardware"
 msgstr "Matériel"
 
-#: templates/nabweb/system-info/index.html:85
+#: templates/nabweb/system-info/index.html:81
 msgid "Computer"
 msgstr "Ordinateur"
 
-#: templates/nabweb/system-info/index.html:94
+#: templates/nabweb/system-info/index.html:90
 msgid "Hat card"
 msgstr "Carte chapeau"
 
-#: templates/nabweb/system-info/index.html:96
+#: templates/nabweb/system-info/index.html:92
 msgid "Sound card"
 msgstr "Carte son"
 
-#: templates/nabweb/system-info/index.html:98
+#: templates/nabweb/system-info/index.html:94
 msgid "Sound input"
 msgstr "Entrée son"
 
-#: templates/nabweb/system-info/index.html:100
+#: templates/nabweb/system-info/index.html:96
 msgid "Left ear"
 msgstr "Oreille gauche"
 
-#: templates/nabweb/system-info/index.html:102
+#: templates/nabweb/system-info/index.html:98
 msgid "Right ear"
 msgstr "Oreille droite"
 
-#: templates/nabweb/system-info/index.html:109
+#: templates/nabweb/system-info/index.html:105
 msgid "Hardware test"
 msgstr "Test matériel"
 
-#: templates/nabweb/system-info/index.html:111
+#: templates/nabweb/system-info/index.html:107
 msgid "LEDs"
 msgstr "LEDs"
 
-#: templates/nabweb/system-info/index.html:112
+#: templates/nabweb/system-info/index.html:108
 msgid "Ears"
 msgstr "Oreilles"
 
-#: templates/nabweb/system-info/index.html:128
+#: templates/nabweb/system-info/index.html:124
 msgid "You are about to <b>reboot</b> the Raspberry Pi Linux system."
 msgstr ""
 "Vous êtes sur le point de <b>redémarrer</b> le système Linux du Raspberry Pi."
 
-#: templates/nabweb/system-info/index.html:128
-#: templates/nabweb/system-info/index.html:147
+#: templates/nabweb/system-info/index.html:124
+#: templates/nabweb/system-info/index.html:143
 msgid "Do you want to proceed?"
 msgstr "Voulez-vous continuer?"
 
-#: templates/nabweb/system-info/index.html:131
-#: templates/nabweb/system-info/index.html:150
+#: templates/nabweb/system-info/index.html:127
+#: templates/nabweb/system-info/index.html:146
 msgid "Cancel"
 msgstr "Annuler"
 
-#: templates/nabweb/system-info/index.html:147
+#: templates/nabweb/system-info/index.html:143
 msgid "You are about to <b>shutdown</b> the Raspberry Pi Linux system."
 msgstr ""
 "Vous êtes sur le point d'<b>éteindre</b> le système Linux du Raspberry Pi."
@@ -748,19 +744,19 @@ msgstr "À jour"
 
 #: templates/nabweb/upgrade/_repository.html:17
 msgid "Branch:"
-msgstr "Branche :"
+msgstr "Branche"
 
 #: templates/nabweb/upgrade/_repository.html:20
 msgid "Version:"
-msgstr "Version :"
+msgstr "Version"
 
 #: templates/nabweb/upgrade/_repository.html:23
 msgid "You have unpushed local commits in this repository."
-msgstr "Vous avez des commits locaux non publiés dans ce référentiel."
+msgstr "Vous avez des commits locaux non publiés"
 
 #: templates/nabweb/upgrade/_repository.html:26
 msgid "You have local changes in this repository."
-msgstr "Vous avez des modifications locales dans ce référentiel."
+msgstr "Vous avez des modifications locales dans ce repository"
 
 #: templates/nabweb/upgrade/index.html:9
 msgid "Upgrade in progress"
@@ -768,7 +764,7 @@ msgstr "Mise à jour en cours"
 
 #: templates/nabweb/upgrade/index.html:15
 msgid "Upgrade is currently in progress..."
-msgstr "La mise à jour est en cours ..."
+msgstr "La mise à jour est en cours"
 
 #: templates/nabweb/upgrade/index.html:24
 msgid "Local changes"
@@ -779,75 +775,64 @@ msgid ""
 "Local changes have been detected in at least one repository. Automatic "
 "upgrade may fail. Are you sure you want to proceed?"
 msgstr ""
-"Des modifications locales ont été détectées dans au moins un référentiel. La "
+"Des modifications locales ont été détectées dans au moins un repository. La "
 "mise à jour automatique risque d'échouer. Souhaitez-vous néanmoins continuer?"
 
 #: templates/nabweb/upgrade/index.html:43
 msgid ""
-"Through this interface, you can upgrade your Nabaztag software (provided it "
-"is connected to the internet). This may take a while depending on the size "
-"and the scope of the update. <strong class=\"text-warning\">Do not restart "
-"your rabbit before the process is finished</strong>."
+"Through this interface, you can upgrade your Nabaztag software (provided "
+"that it is connected to the internet). This can take up a while depending on "
+"the size and the scope of the update : <b>don't restart your rabbit before "
+"the process is finished</b>."
 msgstr ""
-"Grâce à cette interface, vous pouvez mettre à jour le logiciel de votre "
-"Nabaztag (s'il est connecté à Internet). Attention, cela peut être assez "
-"long en fonction de ce qu'il y a à faire. <strong class=\"text-warning"
-"\">Attendez la fin de la mise à jour sinon on ne répond plus de rien</"
-"strong>."
+"Grâce à cette interface, vous pouvez mettre à jour votre Nabaztag (mais il "
+"doit être connecté à Internet). Attention, le process peut être assez long "
+"en fonction de ce qu'il y a à faire. <b>Attendez la fin de la mise à jour "
+"sinon on ne répond plus de rien</b>."
 
 #: templates/nabweb/upgrade/index.html:45
 msgid ""
-"You can switch to the Pynab <b>master</b> branch to benefit from changes "
-"between releases, however this is not for the faint-hearted and requires "
-"good command of <a href='https://www.raspberrypi.org/documentation/remote-"
-"access/ssh/' target='_blanck' rel='noopener noreferrer'>SSH</a> and <a "
-"href='https://git-scm.com/docs/' target='_blanck' rel='noopener "
-"noreferrer'>Git</a>."
+"Your Nabaztag is apparently tracking the master branch. Please note that web-"
+"based upgrade mechanism may fail and require that you connect over SSH."
 msgstr ""
-"Vous pouvez basculer sur la branche <b>master</b> de Pynab pour avoir les "
-"dernières nouveautés, mais ceci suppose que vous n'avez pas peur de <a "
+"Attention, apparemment, votre Nabaztag est monté sur la branche master : la "
+"mise à jour avec l'interface web peut échouer. Et là, que la force soit avec "
+"vous, il faudra terminer en SSH."
+
+#: templates/nabweb/upgrade/index.html:48
+msgid ""
+"You can switch to master branch to benefit from changes between releases, "
+"however this is not for the faint-hearted and requires good command of <a "
 "href='https://www.raspberrypi.org/documentation/remote-access/ssh/' "
-"target='_blanck' rel='noopener noreferrer'>SSH</a> et de <a href='https://"
-"git-scm.com/docs/' target='_blanck' rel='noopener noreferrer'>Git</a>."
-
-#: templates/nabweb/upgrade/index.html:47
-msgid ""
-"Your Nabaztag is using a purely local Pynab branch. Upgrade is not "
-"applicable."
+"target='_blanck'>SSH</a> and <a href='https://en.wikipedia.org/wiki/Git' "
+"target='_blanck'>Git</a>."
 msgstr ""
-"Votre Nabaztag utilise une branche purement locale de Pynab. Pas de mise à "
-"jour dans ce cas."
+"Vous pouvez sauter sur la branche master pour avoir les dernières "
+"nouveautés, mais attention j'espère juste que vous n'avez pas peur de <a "
+"href='https://www.raspberrypi.org/documentation/remote-access/ssh/' "
+"target='_blanck'>SSH</a> et de  <a href='https://en.wikipedia.org/wiki/Git' "
+"target='_blanck'>Git</a>."
 
-#: templates/nabweb/upgrade/index.html:49
-msgid ""
-"Your Nabaztag is apparently not tracking the Pynab <b>release</b> branch. "
-"Please note that web-based upgrade mechanism may fail and require that you "
-"connect over SSH."
-msgstr ""
-"Attention, apparemment, votre Nabaztag ne suit pas la branche <b>release</b> "
-"de Pynab : la mise à jour avec l'interface web peut échouer. Et là, que la "
-"force soit avec vous, il faudra terminer en SSH."
-
-#: templates/nabweb/upgrade/index.html:51
+#: templates/nabweb/upgrade/index.html:50
 msgid "Current versions"
-msgstr "Versions actuelles"
+msgstr "Version actuelle"
 
-#: templates/nabweb/upgrade/index.html:74
+#: templates/nabweb/upgrade/index.html:73
 msgid "Last check:"
 msgstr "Dernière vérification :"
 
-#: templates/nabweb/upgrade/index.html:74
+#: templates/nabweb/upgrade/index.html:73
 #, python-format
 msgid "%(last_check_since)s ago"
 msgstr "il y a %(last_check_since)s"
 
-#: templates/nabweb/upgrade/index.html:79
+#: templates/nabweb/upgrade/index.html:78
 msgid "Check now"
 msgstr "Vérifier maintenant"
 
-#: templates/nabweb/upgrade/index.html:80
+#: templates/nabweb/upgrade/index.html:79
 msgid "Upgrade now"
-msgstr "Mettre à jour"
+msgstr "Mise à jour"
 
 #: templatetags/duration_filter.py:12
 msgid "less than one minute"
