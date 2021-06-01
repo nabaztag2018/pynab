@@ -30,11 +30,11 @@ Les releases actuelles (>0.7.x) ne fonctionnent que sur les cartes 2019 (cf [#44
 
 Le script d'installation requiert désormais une version basée sur Debian 10 (Buster), pour bénéficier de Python 3.7.
 
-Il est nécessaire que les 'kernel headers' installés via `apt` correspondent à la version installée du noyau.
+Il est nécessaire que les 'kernel headers' installés via `apt-get` correspondent à la version installée du noyau.
 
 ```sh
-sudo apt update
-sudo apt upgrade
+sudo apt-get update
+sudo apt-get upgrade
 ```
 
 ### 1. Configurer les pilotes pour le son, les oreilles et le lecteur RFID et redémarrer.
@@ -50,7 +50,7 @@ sudo apt upgrade
 ### 2. Installer PostgreSQL et les paquets requis
 
 ```sh
-sudo apt-get install postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3 libopenblas-dev liblapack-dev gfortran
+sudo apt-get install postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3 libopenblas-dev liblapack-dev zram-tools
 ```
 
 ### 3. Récupérer le code
@@ -88,7 +88,7 @@ bash upgrade.sh
 
 ## Architecture
 
-Cf le document [PROTOCOL.md](PROTOCOL.md)
+Cf le [protocole nabd](PROTOCOL.md)
 
 - `nabd` : daemon qui gère le lapin (i/o, chorégraphies)
 - `nab8balld` : daemon pour le service gourou
