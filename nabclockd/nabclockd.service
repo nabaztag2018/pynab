@@ -9,6 +9,7 @@ Restart=always
 RestartSec=1
 User=root
 WorkingDirectory=/home/pi/pynab
+EnvironmentFile=/home/pi/pynab/nabclockd/nabclockd.conf
 ExecStart=/home/pi/pynab/venv/bin/python -m nabclockd.nabclockd
 PIDFile=/run/nabclockd.pid
 

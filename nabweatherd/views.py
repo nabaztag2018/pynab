@@ -1,6 +1,5 @@
 import datetime
 import json
-import logging
 
 from django.http import JsonResponse, QueryDict
 from django.shortcuts import render
@@ -59,7 +58,6 @@ class SettingsView(TemplateView):
         config = Config.load()
         if "location" in request.POST:
             location = request.POST["location"]
-            logging.info(location)
             if location != "":
                 location = location.replace("None", "''")
                 location = location.replace("'", '"')

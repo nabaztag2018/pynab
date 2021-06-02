@@ -435,6 +435,6 @@ class ChoreographyInterpreter:
         except asyncio.CancelledError:
             raise
         except Exception:
-            logging.info(
+            logging.error(
                 f"Crash in choreography interpreter: {traceback.format_exc()}"
             )

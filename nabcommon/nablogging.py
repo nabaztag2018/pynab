@@ -4,11 +4,16 @@ import os
 
 
 def setup_logging(daemon):
-    logdir = os.environ.get("NABD_LOGDIR", "/var/log/")
+    logdir = os.environ.get("LOGDIR", "/var/log/")
+    loglevel = os.environ.get("LOGLEVEL", "INFO")
     log_handler = logging.handlers.WatchedFileHandler(f"{logdir}/{daemon}.log")
     formatter = logging.Formatter("%(levelname)s %(asctime)s %(message)s")
     log_handler.setFormatter(formatter)
     logger = logging.getLogger()
     logger.addHandler(log_handler)
-    logger.setLevel(logging.DEBUG)
-    logging.info(f"{daemon} started")
+    try:
+        logger.setLevel(loglevel)
+    except ValueError:
+        loglevel = "DEBUG"
+        logger.setLevel(loglevel)
+    logging.info(f"{daemon} started with log level {loglevel}")

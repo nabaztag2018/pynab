@@ -69,7 +69,7 @@ class RfidDev(Rfid):  # pragma: no cover
             self._process_write_blocks(data)
         else:
             logging.error(
-                f"Unexpected packet from rfid reader, header={packet_header}"
+                f"Unexpected packet from RFID reader, header={packet_header}"
             )
 
     def _timer_cb(self):
@@ -288,7 +288,7 @@ class RfidDev(Rfid):  # pragma: no cover
                     return True
                 else:
                     logging.error(
-                        f"rfid_dev.write write data mismatch, wrote "
+                        f"RFID write data mismatch, wrote "
                         f"{write_data}, got {self.__written_data}"
                     )
                     return False

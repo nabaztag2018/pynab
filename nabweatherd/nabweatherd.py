@@ -14,6 +14,10 @@ from nabcommon.nabservice import NabInfoService
 from . import rfid_data
 
 
+class meteoError(Exception):
+    """Raise when errors occur while fetching or parsing data"""
+
+
 class NabWeatherd(NabInfoService):
     UNIT_CELSIUS = 1
     UNIT_FARENHEIT = 2
@@ -396,20 +400,24 @@ class NabWeatherd(NabInfoService):
             return None
 
         location_string_json = json.loads(location)
-        logging.debug(location_string_json)
+        logging.debug(f"location: {location_string_json}")
 
         place = Place(location_string_json)
 
         client = await sync_to_async(MeteoFranceClient)()
-        my_place_weather_forecast = client.get_forecast_for_place(place)
-        data = my_place_weather_forecast.daily_forecast
-        logging.debug(data)
+        try:
+            my_place_weather_forecast = client.get_forecast_for_place(place)
+            data = my_place_weather_forecast.daily_forecast
+            logging.debug(f"data: {data}")
+        except Exception as err:
+            logging.critical(f"connection error: {err}")
+            raise meteoError(err)
 
         # Rain info
         next_rain = False
         try:
             raininfo = client.get_rain(place.latitude, place.longitude)
-            logging.debug(raininfo.forecast)
+            logging.debug(f"rain forecast: {raininfo.forecast}")
             for five_min_slots in raininfo.forecast:
                 if five_min_slots["rain"] != 1:
                     next_rain = True
@@ -445,7 +453,7 @@ class NabWeatherd(NabInfoService):
     def normalize_weather_class(self, weather_class):
         if weather_class in NabWeatherd.WEATHER_CLASSES:
             return weather_class
-        logging.warning(weather_class)
+        logging.warning(f"unexpected weather class: {weather_class}")
         return None
 
     def get_animation(self, info_data):
@@ -453,7 +461,7 @@ class NabWeatherd(NabInfoService):
         if info_data is None:
             return
 
-        logging.debug(f"get_animation :{info_data['weather_animation_type']}")
+        logging.debug(f"get_animation: {info_data['weather_animation_type']}")
 
         # Rain
         if (info_data["weather_animation_type"] == "weather_and_rain") or (
@@ -489,7 +497,7 @@ class NabWeatherd(NabInfoService):
             # Return mais avant on supprime l'animation rain
             packet = '{"type":"info",' '"info_id":"nabweatherd_rain"}\r\n'
             self.writer.write(packet.encode("utf8"))
-            logging.debug("get_animation : no visual information")
+            logging.debug("get_animation: no visual information")
             return None
 
     async def perform_additional(self, expiration, type, info_data, config_t):

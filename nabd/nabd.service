@@ -9,6 +9,7 @@ Restart=always
 RestartSec=1
 User=root
 WorkingDirectory=/home/pi/pynab
+EnvironmentFile=/home/pi/pynab/nabd/nabd.conf
 ExecStart=/home/pi/pynab/venv/bin/python -m nabd.nabd
 PIDFile=/run/nabd.pid
 
