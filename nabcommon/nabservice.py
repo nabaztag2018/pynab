@@ -316,8 +316,8 @@ class NabRecurrentService(NabService, ABC):
                         else:
                             sleep_amount = (next_date - now).total_seconds()
                         try:
-                            logging.info(f"reason = {self.reason}")
-                            logging.info(f"sleep_amount = {sleep_amount}")
+                            logging.debug(f"reason = {self.reason}")
+                            logging.debug(f"sleep_amount = {sleep_amount}")
                             await asyncio.wait_for(
                                 self.loop_cv.wait(), sleep_amount
                             )
@@ -381,7 +381,7 @@ class NabRandomService(NabRecurrentService, ABC):
     def compute_next(self, saved_date, saved_args, frequency, reason):
         now = datetime.datetime.now(datetime.timezone.utc)
         if saved_date is not None and saved_date < now:
-            logging.info("compute_next saved_date < now")
+            logging.debug("compute_next saved_date < now")
             return saved_date, saved_args
         if reason == NabRecurrentService.Reason.BOOT:
             return saved_date, saved_args
@@ -437,7 +437,7 @@ class NabInfoService(NabRecurrentService, ABC):
 
     async def perform(self, expiration_date, type, config):
         # Always fetch info data.
-        logging.info(f"fetch_info_data type = {type}")
+        logging.debug(f"fetch_info_data type = {type}")
         info_data = await self._do_fetch_info_data(config)
         info_animation = self.get_animation(info_data)
         service_name = self.__class__.__name__.lower()
@@ -460,16 +460,16 @@ class NabInfoService(NabRecurrentService, ABC):
             )
 
     def compute_next(self, saved_date, saved_args, config, reason):
-        logging.info(f"compute_next saved_date={saved_date}")
+        logging.debug(f"compute_next saved_date={saved_date}")
         now = datetime.datetime.now(datetime.timezone.utc)
         if saved_date is not None and saved_date < now:
-            logging.info("compute_next saved_date < now")
+            logging.debug("compute_next saved_date < now")
             return saved_date, saved_args
         if reason == NabRecurrentService.Reason.BOOT:
-            logging.info("compute_next reason == BOOT")
+            logging.debug("compute_next reason == BOOT")
             return now, "info"
         if reason == NabRecurrentService.Reason.CONFIG_RELOADED:
-            logging.info("compute_next reason == CONFIG_RELOADED")
+            logging.debug("compute_next reason == CONFIG_RELOADED")
             return now, "info"
         next_date = self.next_info_update(config)
         return next_date, "info"

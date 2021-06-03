@@ -845,7 +845,7 @@ class Nabd:
     async def _do_system_command(self, sytemCommandStr):
         inTesting = os.path.basename(sys.argv[0]) in ("pytest", "py.test")
         if not inTesting:
-            logging.debug(f"Initiating system command : {sytemCommandStr}")
+            logging.info(f"Initiating system command: {sytemCommandStr}")
             os.system(sytemCommandStr)
 
     def ears_callback(self, ear):

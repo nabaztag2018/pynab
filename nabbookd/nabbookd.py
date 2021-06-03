@@ -257,7 +257,7 @@ class NabBookd(NabService):
         elif type == "ear_event":
             pass
         else:
-            logging.debug(f"[backward] Unknown packet {packet}")
+            logging.debug(f"[forward] Unknown packet {packet}")
 
     async def process_nabd_packet_outro(self, packet):
         type = packet["type"]

@@ -9,6 +9,7 @@ Restart=always
 RestartSec=1
 User=root
 WorkingDirectory=/home/pi/pynab
+EnvironmentFile=/home/pi/pynab/nabweatherd/nabweatherd.conf
 ExecStart=/home/pi/pynab/venv/bin/python -m nabweatherd.nabweatherd
 PIDFile=/run/nabweatherd.pid
 

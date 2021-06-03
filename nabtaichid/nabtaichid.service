@@ -9,6 +9,7 @@ Restart=always
 RestartSec=1
 User=root
 WorkingDirectory=/home/pi/pynab
+EnvironmentFile=/home/pi/pynab/nabtaichid/nabtaichid.conf
 ExecStart=/home/pi/pynab/venv/bin/python -m nabtaichid.nabtaichid
 PIDFile=/run/nabtaichid.pid
 

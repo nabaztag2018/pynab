@@ -9,6 +9,7 @@ Restart=always
 RestartSec=1
 User=root
 WorkingDirectory=/home/pi/pynab
+EnvironmentFile=/home/pi/pynab/nabsurprised/nabsurprised.conf
 ExecStart=/home/pi/pynab/venv/bin/python -m nabsurprised.nabsurprised
 PIDFile=/run/nabsurprised.pid
 

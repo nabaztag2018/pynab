@@ -59,7 +59,9 @@ class NabClockd(nabservice.NabService):
                 logging.debug("Clock has been synchronized")
             return True
         if first_run:
-            logging.debug("Clock is not synchronized, disabling chime & sleep")
+            logging.warning(
+                "Clock is not synchronized, disabling chime & sleep"
+            )
         return False
 
     async def chime(self, hour):

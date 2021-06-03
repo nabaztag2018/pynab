@@ -13,14 +13,14 @@ from . import aqicn
 class NabAirqualityd(NabInfoCachedService):
 
     MESSAGES = ["bad", "moderate", "good"]
-    ANIMATION_1 = (
+    ANIMATION_GOOD = (
         '{"tempo":42,"colors":['
         '{"left":"00ffff","center":"00ffff","right":"00ffff"},'
         '{"left":"00ffff","center":"00ffff","right":"00ffff"},'
         '{"left":"00ffff","center":"00ffff","right":"00ffff"},'
         '{"left":"000000","center":"000000","right":"000000"}]}'
     )
-    ANIMATION_2 = (
+    ANIMATION_MODERATE = (
         '{"tempo":14,"colors":['
         '{"left":"000000","center":"00ffff","right":"00ffff"},'
         '{"left":"00ffff","center":"00ffff","right":"000000"},'
@@ -40,7 +40,7 @@ class NabAirqualityd(NabInfoCachedService):
         '{"left":"00ffff","center":"000000","right":"00ffff"},'
         '{"left":"000000","center":"00ffff","right":"00ffff"}]}'
     )
-    ANIMATION_3 = (
+    ANIMATION_BAD = (
         '{"tempo":14,"colors":['
         '{"left":"000000","center":"00ffff","right":"000000"},'
         '{"left":"000000","center":"00ffff","right":"00ffff"},'
@@ -60,7 +60,7 @@ class NabAirqualityd(NabInfoCachedService):
         '{"left":"000000","center":"00ffff","right":"000000"}]}'
     )
 
-    ANIMATIONS = [ANIMATION_3, ANIMATION_2, ANIMATION_1]
+    ANIMATIONS = [ANIMATION_BAD, ANIMATION_MODERATE, ANIMATION_GOOD]
 
     async def get_config(self):
         from nabweatherd import models as weather_models
@@ -105,11 +105,9 @@ class NabAirqualityd(NabInfoCachedService):
         config = await models.Config.load_async()
         city = client.get_city()
         if city != config.localisation:
-            logging.debug(
-                "Air quality city changed from: "
-                + str(config.localisation)
-                + " to: "
-                + str(city)
+            logging.info(
+                f"location changed from: "
+                f"{str(config.localisation)} to: {str(city)}"
             )
             config.localisation = city
             await config.save_async()

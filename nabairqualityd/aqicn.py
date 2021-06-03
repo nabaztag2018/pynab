@@ -49,23 +49,18 @@ class aqicnClient:
             )
             raw_data = result.text
             json_data = json.loads(raw_data)
-            logging.debug(json_data)
+            logging.debug(f"data: {json_data}")
             city = json_data["data"]["city"]["name"]
             indice_aqi = json_data["data"]["aqi"]
             if "pm25" in json_data["data"]["iaqi"]:
                 indice_pm25 = json_data["data"]["iaqi"]["pm25"]["v"]
             else:
-                logging.debug("no PM25 information available")
+                logging.info("no PM25 index available - using AQI index")
                 indice_pm25 = indice_aqi
             logging.debug(
-                "Air quality indices from aqicn.org for "
-                + str(city)
-                + " are: AQI="
-                + str(indice_aqi)
-                + " PM25="
-                + str(indice_pm25)
-                + " - selected index: "
-                + str(self._indice)
+                f"Air quality indices from aqicn.org for {str(city)}"
+                f" are: AQI={str(indice_aqi)} PM25= {str(indice_pm25)}"
+                f" - selected index: {str(self._indice)}"
             )
 
             if self._indice == "aqi":
@@ -89,6 +84,7 @@ class aqicnClient:
             self._city = city
 
         except Exception as err:
+            logging.critical(f"connection error: {err}")
             raise aqicnError(err)
 
     def get_data(self):
