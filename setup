@@ -10,9 +10,24 @@ IFS=$'\n\t'
 GPU_MEM=16
 LC_ALL=C
 
+install_env="ci-chroot"
+if [ "${1:-}" == "--local" ]
+then
+    # Local setup: allows doing initial or replacing existing setup on Pi Zero.
+    install_env=""
+    if [ "$(id -u)" != "0" ]
+    then
+	echo "$(basename ${0}) ${1} must be run as root."
+	echo "WARNING: Removes any existing Pynab setup."
+	exit 1
+    fi
+    cd /home/pi
+    rm -rf /home/pi/pynab /home/pi/wm8960 /home/pi/tagtagtag-ears /home/pi/cr14
+fi
+
 # Replace /boot/cmdline.txt since it contains root device mapping to a PARTUUID that 
 # changed during parted resize.
-echo "Replace /boot/cmdline.txt"
+echo "Replacing /boot/cmdline.txt."
 echo "dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet init=/usr/lib/raspi-config/init_resize.sh" > "/boot/cmdline.txt"
 cat "/boot/cmdline.txt"
 
@@ -23,7 +38,7 @@ chmod +x /etc/init.d/resize2fs_once
 systemctl enable resize2fs_once
 
 # Replace /etc/fstab since the non existing PARTUUID has to be changed here as well.
-echo "Replace /etc/fstab"
+echo "Replacing /etc/fstab."
 echo "proc            /proc           proc    defaults          0       0" > "/etc/fstab"
 echo "/dev/mmcblk0p1  /boot           vfat    defaults          0       2" >> "/etc/fstab"
 echo "/dev/mmcblk0p2  /               ext4    defaults,noatime  0       1" >> "/etc/fstab"
@@ -47,23 +62,26 @@ echo "Europe/Paris" > /etc/timezone
 ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime
 
 echo "Disabling onboard sound."
-if grep -q "dtparam=audio=on" /boot/config.txt
+if grep -q "^dtparam=audio=on" /boot/config.txt
 then
     sed -i "s/dtparam=audio=on/#dtparam=audio=on/" /boot/config.txt
 fi
 cat /boot/config.txt | grep "dtparam=audio=on"
 
-echo "Enabling DAC for Maker Faire 2018 cards"
-echo "dtoverlay=hifiberry-dac" >> /boot/config.txt
+echo "Enabling DAC for Maker Faire 2018 cards."
+if ! grep -q "^dtoverlay=hifiberry-dac" /boot/config.txt
+then
+    echo "dtoverlay=hifiberry-dac" >> /boot/config.txt
+fi
 cat /boot/config.txt | grep "dtoverlay=hifiberry-dac"
 
-echo "Installing required packages"
-sudo apt update -y
-sudo apt dist-upgrade -y
+echo "Installing required packages."
+sudo apt-get update -y
+sudo apt-get dist-upgrade -y
 sudo apt-get install --no-install-recommends -y postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3 libopenblas-dev liblapack-dev zram-tools
-
-echo "Installing sound driver for Ulule 2019 cards"
 sudo apt-get install --no-install-recommends raspberrypi-kernel-headers
+
+echo "Installing sound driver for Ulule 2019 cards."
 cd /home/pi
 sudo -u pi git clone --depth 1 -b tagtagtag-sound https://github.com/pguyot/wm8960
 cd /home/pi/wm8960
@@ -71,7 +89,7 @@ make
 sudo make install
 make clean
 
-echo "Installing ears driver"
+echo "Installing ears driver."
 cd /home/pi
 sudo -u pi git clone --depth 1 https://github.com/pguyot/tagtagtag-ears
 cd /home/pi/tagtagtag-ears
@@ -79,7 +97,7 @@ make
 sudo make install
 make clean
 
-echo "Installing cr14 driver"
+echo "Installing RFID reader driver."
 cd /home/pi
 sudo -u pi git clone --depth 1 https://github.com/pguyot/cr14
 cd /home/pi/cr14
@@ -89,11 +107,11 @@ make clean
 
 repository=${GITHUB_REPOSITORY:-nabaztag2018/pynab}
 branch=${GITHUB_BRANCH:-release}
-echo "Cloning pynab ${branch} branch from ${repository}"
+echo "Cloning Pynab ${branch} branch from ${repository}."
 cd /home/pi
 sudo -u pi git clone --depth 1 -b ${branch} https://github.com/${repository}.git
 
-echo "Installing nabblockly"
+echo "Installing NabBlockly."
 sudo apt-get install --no-install-recommends -y erlang-base erlang-dev erlang-inets erlang-tools erlang-xmerl
 cd /home/pi/pynab
 sudo -u pi git clone --depth 1 https://github.com/pguyot/nabblockly
@@ -102,6 +120,13 @@ cd nabblockly
 sudo -u pi wget https://github.com/erlang/rebar3/releases/download/3.15.1/rebar3 && chmod +x rebar3
 sudo -u pi ./rebar3 release
 
-echo "Running pynab install script"
+echo "Running Pynab install script."
 cd /home/pi/pynab
-sudo -u pi /bin/bash install.sh ci-chroot
+sudo -u pi /bin/bash install.sh ${install_env}
+
+echo "Cleaning up."
+# Cleanup any leftovers (from Kaldi install).
+sudo find / -xdev -name "._*" -exec rm {} \;
+sudo find / -xdev -user 501 -exec chown -h root:root {} \;
+
+echo "Pynab setup done."
