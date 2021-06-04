@@ -202,6 +202,11 @@ class NabService(ABC):
             print(error_msg)
             logging.critical(error_msg)
             exit(1)
+        except Exception:
+            error_msg = f"Unhandled error: {sys.exc_info()[0]}"
+            print(error_msg)
+            logging.critical(error_msg)
+            exit(3)
 
 
 class NabRecurrentService(NabService, ABC):
