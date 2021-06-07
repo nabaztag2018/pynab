@@ -20,7 +20,7 @@
       <strong>{% trans "Version:" %}</strong> {{ repo.tag }}<br />
     {% endif %}
     {% if repo.local_commits_count > 0 %}
-      <div class="text-primary">{% trans "You have unpushed local commits in this repository." %}</div>
+      <div class="text-info">{% trans "You have unpushed local commits in this repository." %}</div>
     {% else %}
       {% if repo.local_changes %}
         <div class="text-info">{% trans "You have local changes in this repository." %}</div>

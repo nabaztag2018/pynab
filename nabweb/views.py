@@ -344,7 +344,7 @@ class NabWebSytemInfoView(BaseView):
             f"{version} - "
             f"Kernel {kernel_release} {kernel_build} {kernel_machine}"
         )
-        hostname = os.popen("hostname -a").read().rstrip()
+        hostname = os.popen("hostname").read().rstrip()
         ip_address = os.popen("hostname -I").read().rstrip()
         wifi_essid = os.popen("iwgetid -r").read().rstrip()
         try:
@@ -489,33 +489,33 @@ class GitInfo:
         info = {}
         info["head"] = head_sha1
         info["branch"] = (
-            os.popen(
-                f"cd {repo_dir} && sudo -u pi git rev-parse --abbrev-ref HEAD"
-            )
+            os.popen(f"cd {repo_dir} && git rev-parse --abbrev-ref HEAD")
             .read()
             .rstrip()
         )
         upstream_branch = (
             os.popen(
                 f"cd {repo_dir} "
-                f"&& sudo -u pi git rev-parse --abbrev-ref @{{upstream}}"
+                f"&& git rev-parse --abbrev-ref @{{upstream}} 2>/dev/null"
             )
             .read()
             .rstrip()
         )
-        remote = upstream_branch.split("/")[0]
+        # note: upstream_branch will be "" if on purely local branch
         info["upstream_branch"] = upstream_branch
+        remote = upstream_branch.split("/")[0]
+        # note: url will be "" if on purely local branch
         info["url"] = (
             os.popen(
-                f"cd {repo_dir} && sudo -u pi git remote get-url {remote}"
+                f"cd {repo_dir} && git remote get-url {remote} 2>/dev/null"
             )
             .read()
             .rstrip()
         )
         info["local_changes"] = (
             os.popen(
-                f"cd {repo_dir} && (sudo -u pi git status -s) > /dev/null "
-                f"&& sudo -u pi git diff-index --quiet HEAD -- "
+                f"cd {repo_dir} && (git status -s) >/dev/null "
+                f"&& git diff-index --quiet HEAD -- "
                 f"|| echo 'local_changes' "
             )
             .read()
@@ -523,16 +523,14 @@ class GitInfo:
             != ""
         )
         info["tag"] = (
-            os.popen(
-                f"cd {repo_dir} && " "sudo -u pi git describe --long --tags"
-            )
+            os.popen(f"cd {repo_dir} && git describe --long --tags")
             .read()
             .strip()
         )
         commits_count = (
             os.popen(
-                f"cd {repo_dir} && sudo -u pi git fetch "
-                f"&& sudo -u pi git rev-list --count HEAD..{upstream_branch}"
+                f"cd {repo_dir} && sudo -u pi git fetch --no-tags >/dev/null "
+                f"&& git rev-list --count HEAD..{upstream_branch}"
             )
             .read()
             .rstrip()
@@ -540,7 +538,7 @@ class GitInfo:
         local_commits_count = (
             os.popen(
                 f"cd {repo_dir} "
-                f"&& sudo -u pi git rev-list --count {upstream_branch}..HEAD"
+                f"&& git rev-list --count {upstream_branch}..HEAD"
             )
             .read()
             .rstrip()
