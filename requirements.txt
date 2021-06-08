@@ -1,7 +1,7 @@
 # Direct dependencies & pre-built binaries
 wheel
 black==21.4b2
-Django==3.0.14
+Django==3.1.9
 flake8==3.9.1
 gunicorn==20.0.4
 isort==5.8.0
@@ -30,7 +30,7 @@ https://files.pythonhosted.org/packages/b4/e6/f33077deb4aa1d4b79cb392887bc1de4fd
 # Indirect frozen dependencies
 apipkg==1.5
 appdirs==1.4.3
-asgiref==3.2.3
+asgiref==3.3.4
 atomicwrites==1.3.0
 attrs==19.3.0
 beautifulsoup4==4.8.1
@@ -65,7 +65,7 @@ python-magic==0.4.15
 pytz==2020.1
 PyYAML==5.4
 regex==2021.4.4
-requests==2.24.0
+requests==2.25.1
 scipy==1.6.2
 scikit-learn==0.22.2.post1
 semantic-version==2.8.3
@@ -77,6 +77,6 @@ tabulate==0.8.6
 toml==0.10.2
 tqdm==4.40.2
 typed-ast==1.4.3
-urllib3==1.25.8
+urllib3==1.26.5
 wcwidth==0.1.7
 zipp==0.6.0
