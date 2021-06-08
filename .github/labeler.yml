@@ -1,7 +1,9 @@
-# Add Documentation Label
+# Pynab PR labels
 'Documentation':
+  - _config.yml
   - docs/**/*
   - CONTRIBUTING.md
+  - index.md
   - LICENSE
   - PROTOCOL.md
   - README.md
@@ -16,7 +18,18 @@
   - .isort.cfg
   - .pep8speaks.yml
   - .pre-commit-config.yaml
+  - pyproject.toml
+  - pytest.ini
+
+'Setup':
+  - install.sh
+  - manage.py
   - requirements.txt
+  - setup
+  - upgrade.sh
+
+'Docker environment':
+  - Docker/**
 
 'Service: 8ball':
   - nab8balld/**
