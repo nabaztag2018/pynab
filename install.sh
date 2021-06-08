@@ -320,25 +320,23 @@ sudo mv /tmp/nabboot.py /lib/systemd/system-shutdown/nabboot.py
 sudo chown root /lib/systemd/system-shutdown/nabboot.py
 sudo chmod +x /lib/systemd/system-shutdown/nabboot.py
 
-# Fix Pynab logs not rotated #139 
-if [ ! -f "/etc/logrotate.d/pynab" ]; then
-	cat > '/tmp/pynab' <<- END
-	/var/log/nab*.log
-	 {
-	         daily
-	         rotate 7
-	         missingok
-	         notifempty
-	         copytruncate
-	         delaycompress
-	         compress
-	 }
-	END
-	sudo mv /tmp/pynab /etc/logrotate.d/pynab
-fi
+# setup Pynab logs rotation
+cat > '/tmp/pynab' <<- END
+/var/log/nab*.log
+ {
+         weekly
+         rotate 4
+         missingok
+         notifempty
+         copytruncate
+         delaycompress
+         compress
+ }
+END
+sudo mv /tmp/pynab /etc/logrotate.d/pynab
 sudo chown root:root /etc/logrotate.d/pynab
 
-# Fix Advertise rabbit on local network #141 
+# advertise rabbit on local network
 if [ ! -f "/etc/avahi/services/pynab.service" ]; then
 
 	cat > '/tmp/pynab.service' <<- END
