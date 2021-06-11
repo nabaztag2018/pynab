@@ -473,8 +473,10 @@ class GitInfo:
         if root_dir is None:
             return {
                 "status": "error",
-                "message": "Cannot find pynab installation from "
-                "Raspbian systemd services",
+                "message": "Cannot find Pynab installation from "
+                "OS systemd services",
+                "info_date": datetime.datetime.now(),
+                "name": GitInfo.NAMES[repository],
             }
         repo_dir = root_dir + "/" + relpath
         head_sha1 = (
@@ -485,6 +487,8 @@ class GitInfo:
                 "status": "error",
                 "message": "Cannot get HEAD - not a git repository? "
                 "Check /var/log/syslog",
+                "info_date": datetime.datetime.now(),
+                "name": GitInfo.NAMES[repository],
             }
         info = {}
         info["head"] = head_sha1
@@ -523,7 +527,10 @@ class GitInfo:
             != ""
         )
         info["tag"] = (
-            os.popen(f"cd {repo_dir} && git describe --long --tags")
+            os.popen(
+                f"cd {repo_dir} && git describe --long 2>/dev/null "
+                f"|| git describe --long --tags 2>/dev/null"
+            )
             .read()
             .strip()
         )
@@ -639,8 +646,8 @@ class NabWebUpgradeNowView(View):
         if root_dir is None:
             return {
                 "status": "error",
-                "message": "Cannot find pynab installation from "
-                "Raspbian systemd services",
+                "message": "Cannot find Pynab installation from "
+                "OS systemd services",
             }
         locked = (
             os.popen(
