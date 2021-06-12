@@ -1,11 +1,27 @@
 #!/bin/bash
 set -uo pipefail
+shopt -s extglob
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 IFS=$'\n\t'
 
 # Source for this script:
 # https://github.com/kr15h/travis-raspbian-image
 # https://disconnected.systems/blog/custom-rpi-image-with-github-travis/
+
+pynab_repository=${GITHUB_REPOSITORY:-nabaztag2018/pynab}
+pynab_branch=${GITHUB_BRANCH:-release}
+case ${pynab_branch} in
+    v+([0-9]).+([0-9]).+([0-9])*)
+	# vX.Y.Z tag-driven build: assume release branch
+	pynab_tag=" (tag ${pynab_branch})"
+	pynab_branch=release
+	;;
+    *)
+	# sssume branch-driven build on given branch
+	pynab_tag=""
+	;;
+esac
+echo "Doing setup for ${pynab_repository} ${pynab_branch} branch${pynab_tag}."
 
 GPU_MEM=16
 LC_ALL=C
@@ -105,11 +121,9 @@ make
 sudo make install
 make clean
 
-repository=${GITHUB_REPOSITORY:-nabaztag2018/pynab}
-branch=${GITHUB_BRANCH:-release}
-echo "Cloning Pynab ${branch} branch from ${repository}."
+echo "Cloning Pynab ${pynab_branch} branch from ${pynab_repository}."
 cd /home/pi
-sudo -u pi git clone --depth 1 -b ${branch} https://github.com/${repository}.git
+sudo -u pi git clone --depth 1 -b ${pynab_branch} https://github.com/${pynab_repository}.git
 
 echo "Installing NabBlockly."
 sudo apt-get install --no-install-recommends -y erlang-base erlang-dev erlang-inets erlang-tools erlang-xmerl
