@@ -142,5 +142,8 @@ echo "Cleaning up."
 # Cleanup any leftovers (from Kaldi install).
 sudo find / -xdev -name "._*" -exec rm {} \;
 sudo find / -xdev -user 501 -exec chown -h root:root {} \;
+# Cleanup caches.
+sudo rm -rf /root/.cache /root/.local /root/.wget-hsts
+sudo rm -rf /home/pi/.cache /home/pi/.local /home/pi/.wget-hsts
 
 echo "Pynab setup done."
