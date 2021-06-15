@@ -1,9 +1,9 @@
 name: 🧪 Tests
-
 on: [push, pull_request]
 
 jobs:
-  build:
+  test_suite:
+    name: Run test suite
     runs-on: ubuntu-latest
     # Service containers
     services:
@@ -21,39 +21,50 @@ jobs:
         ports:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.7
-    - uses: hecrj/setup-rust-action@v1
-      with:
-        rust-version: 1.44.1
-    - name: Install dependencies
-      run: |
-        sudo apt update -y
-        sudo apt-get install -y libasound2-dev libmpg123-dev libatlas-base-dev curl
-        wget -q -O - "https://github.com/pguyot/kaldi/releases/download/v5.4.1/kaldi-c3260f2-linux_x86_64-vfp.tar.xz" | sudo tar xJ -C /
-        sudo ldconfig
-        python -m pip install --upgrade pip
-        pip install cython numpy setuptools_rust wheel
-    - name: Install requirements
-      run: pip install -r requirements.txt
-    - name: Setup PostgreSQL database
-      run: |
-        PGPASSWORD=postgres PGHOST=localhost PGPORT=5432 psql -U postgres -d postgres -c "CREATE USER pynab PASSWORD 'pynab'; ALTER ROLE pynab CREATEDB;"
-    - name: Setup NLU engines
-      run: |
-        python -m snips_nlu download fr
-        python -m snips_nlu download en
-        mkdir -p nabd/nlu
-        python -m snips_nlu generate-dataset en */nlu/intent_en.yaml > nabd/nlu/nlu_dataset_en.json
-        python -m snips_nlu generate-dataset fr */nlu/intent_fr.yaml > nabd/nlu/nlu_dataset_fr.json
-        snips-nlu train nabd/nlu/nlu_dataset_en.json nabd/nlu/engine_en
-        snips-nlu train nabd/nlu/nlu_dataset_fr.json nabd/nlu/engine_fr
-    - name: Fake NTP synchronization
-      run: sudo mkdir -p /run/systemd/timesync/ && sudo touch /run/systemd/timesync/synchronized
-    - name: Run tests with coverage
-      run: |
-        PGPASSWORD=pynab PGHOST=localhost PGPORT=5432 coverage run -m pytest
+      - name: Checkout pynab
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: Set up Rust
+        uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: 1.44.1
+
+      - name: Install dependencies
+        run: |
+          sudo apt update -y
+          sudo apt-get install -y libasound2-dev libmpg123-dev libatlas-base-dev curl
+          wget -q -O - "https://github.com/pguyot/kaldi/releases/download/v5.4.1/kaldi-c3260f2-linux_x86_64-vfp.tar.xz" | sudo tar xJ -C /
+          sudo ldconfig
+          python -m pip install --upgrade pip
+          pip install cython numpy setuptools_rust wheel
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Setup PostgreSQL database
+        run: |
+          PGPASSWORD=postgres PGHOST=localhost PGPORT=5432 psql -U postgres -d postgres -c "CREATE USER pynab PASSWORD 'pynab'; ALTER ROLE pynab CREATEDB;"
+
+      - name: Setup NLU engines
+        run: |
+          python -m snips_nlu download fr
+          python -m snips_nlu download en
+          mkdir -p nabd/nlu
+          python -m snips_nlu generate-dataset en */nlu/intent_en.yaml > nabd/nlu/nlu_dataset_en.json
+          python -m snips_nlu generate-dataset fr */nlu/intent_fr.yaml > nabd/nlu/nlu_dataset_fr.json
+          snips-nlu train nabd/nlu/nlu_dataset_en.json nabd/nlu/engine_en
+          snips-nlu train nabd/nlu/nlu_dataset_fr.json nabd/nlu/engine_fr
+
+      - name: Fake NTP synchronization
+        run: sudo mkdir -p /run/systemd/timesync/ && sudo touch /run/systemd/timesync/synchronized
+
+      - name: Run test suite with coverage
+        run: |
+          PGPASSWORD=pynab PGHOST=localhost PGPORT=5432 coverage run -m pytest
