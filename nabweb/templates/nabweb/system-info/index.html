@@ -7,7 +7,13 @@
     <div class="col-xl-8 col-lg-10 col-md-10 mb-3">
       <div class="card">
         <div class="card-header">
-          <h5 class="card-title"><a class="help-link" href='https://www.raspberrypi.org/software/operating-systems/#raspberry-pi-os-32-bit' target='_blank' rel='noopener noreferrer'>{% trans "Raspberry Pi OS" %}</a></h5>
+          {% if os.variant == "Raspberry Pi" %}
+          <h5 class="card-title"><a class="help-link" href='https://www.raspberrypi.org/software/operating-systems/#raspberry-pi-os-32-bit' target='_blank' rel='noopener noreferrer'>{% blocktrans with variant=os.variant %}{{ variant }} OS{% endblocktrans %}</a></h5>
+          {% elif os.variant == "DietPi" %}
+          <h5 class="card-title"><a class="help-link" href=https://dietpi.com target='_blank' rel='noopener noreferrer'>{% blocktrans with variant=os.variant %}{{ variant }} OS{% endblocktrans %}</a></h5>
+          {% else %}
+          <h5 class="card-title">{% blocktrans with variant=os.variant %}{{ variant }} OS{% endblocktrans %}</h5>
+          {% endif %}
         </div>
         <div class="card-body">
           <dl class="row">
@@ -18,12 +24,20 @@
             <dt class="col-sm-4">{% trans "IP address" %}</dt>
             <dd class="col-sm-8">{{ os.address }}</dd>
             {% if os.network %}
+            {% if os.variant == "Raspberry Pi" %}
             <dt class="col-sm-4"><a class="help-link" href='https://www.raspberrypi.org/documentation/configuration/wireless/' target='_blank' rel='noopener noreferrer'>{% trans "Wireless network" %}</a></dt>
+            {% else %}
+            <dt class="col-sm-4">{% trans "Wireless network" %}</dt>
+            {% endif %}
             <dd class="col-sm-8">{{ os.network }}</dd>
             {% endif %}
             <dt class="col-sm-4">{% trans "Uptime" %}</dt>
             <dd class="col-sm-8">{{ os.uptime|duration }}</dd>
+            {% if os.variant == "Raspberry Pi" %}
             <dt class="col-sm-4"><a class="help-link" href='https://www.raspberrypi.org/documentation/remote-access/ssh/' target='_blank' rel='noopener noreferrer'>{% trans "SSH (Secure shell)" %}</a></dt>
+            {% else %}
+            <dt class="col-sm-4">{% trans "SSH (Secure shell)" %}</dt>
+            {% endif %}
             <dd class="col-sm-8">{% if os.ssh == "sshwarn" %}<span class="text-danger">{% trans "Enabled with default password" %}</span>{% else %}{% if os.ssh == "active" %}{% trans "Enabled" %}{% else %}{% trans "Disabled" %}{% endif %}{% endif %}</dd>
           </dl>
           <dl class="row">
