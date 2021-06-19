@@ -20,11 +20,13 @@ Pour être prévenu de la prochaine campagne, vous pouvez vous inscrire à la [l
 
 ## Images
 
-Les [releases](https://github.com/nabaztag2018/pynab/releases) sont des images de Raspberry Pi OS (Raspbian) Lite avec pynab pré-installé. Elles ont les mêmes réglages que [Raspberry Pi OS](https://www.raspberrypi.org/software/operating-systems/#raspberry-pi-os-32-bit).
+Les [releases](https://github.com/nabaztag2018/pynab/releases) sont des images de Raspberry Pi OS (Raspbian) Lite avec Pynab pré-installé. Elles ont les mêmes réglages que [Raspberry Pi OS](https://www.raspberrypi.org/software/operating-systems/#raspberry-pi-os-32-bit).
+
+Pynab peut aussi s'installer sur [DietPi](https://dietpi.com/).
 
 Les releases actuelles (>0.7.x) ne fonctionnent que sur les cartes 2019 (cf [#44](https://github.com/nabaztag2018/pynab/issues/44)).
 
-## Installation sur Raspberry Pi OS (pour développeurs!)
+## Installation sur Raspberry Pi OS ou DietPi (pour développeurs!)
 
 ### 0. S'assurer que le système est bien à jour
 
@@ -47,10 +49,19 @@ sudo apt-get upgrade
 
   - Lecteur RFID : [pilote CR14](https://github.com/pguyot/cr14) (Nabaztag:tag uniquement, non requis sur les Nabaztag, mais installé par les mises à jour)
 
+Les 'kernel headers' sont nécessaires pour la compilation des pilotes:
+```sh
+sudo apt-get install gcc make raspberrypi-kernel-headers
+```
+
 ### 2. Installer PostgreSQL et les paquets requis
 
 ```sh
 sudo apt-get install postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3 libopenblas-dev liblapack-dev zram-tools
+```
+Sur DietPi les paquets suivants sont aussi nécessaires:
+```sh
+sudo apt-get install alsa-utils xz-utils avahi-daemon
 ```
 
 ### 3. Récupérer le code
