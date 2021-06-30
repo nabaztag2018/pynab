@@ -22,9 +22,11 @@ https://github.com/pguyot/py-kaldi-asr/releases/download/v0.5.3/py_kaldi_asr-0.5
 git+https://github.com/pguyot/py-kaldi-asr@v0.5.3; sys_platform != 'linux' or 'armv6l' not in platform_machine or python_version != '3.7'
 https://github.com/pguyot/snips-nlu/releases/download/0.20.2/snips_nlu-0.20.2-py3-none-any.whl
 https://github.com/pguyot/snips-nlu-parsers/releases/download/v0.4.3/snips_nlu_parsers-0.4.3-cp37-cp37m-linux_armv6l.whl; sys_platform == 'linux' and 'armv6l' in platform_machine and python_version == '3.7'
-snips-nlu-parsers==0.4.3; sys_platform != 'linux' or 'armv6l' not in platform_machine or python_version != '3.7'
+https://github.com/pguyot/snips-nlu-parsers/releases/download/v0.4.3/snips_nlu_parsers-0.4.3-cp37-cp37m-linux_armv7l.whl; sys_platform == 'linux' and 'armv7l' in platform_machine and python_version == '3.7'
+snips-nlu-parsers==0.4.3; sys_platform != 'linux' or ('armv6l' not in platform_machine and 'armv7l' not in platform_machine) or python_version != '3.7'
 https://github.com/pguyot/snips-nlu-utils/releases/download/v0.9.1/snips_nlu_utils-0.9.1-cp37-cp37m-linux_armv6l.whl; sys_platform == 'linux' and 'armv6l' in platform_machine and python_version == '3.7'
-snips-nlu-utils==0.9.1; sys_platform != 'linux' or 'armv6l' not in platform_machine or python_version != '3.7'
+https://github.com/pguyot/snips-nlu-utils/releases/download/v0.9.1/snips_nlu_utils-0.9.1-cp37-cp37m-linux_armv7l.whl; sys_platform == 'linux' and 'armv7l' in platform_machine and python_version == '3.7'
+snips-nlu-utils==0.9.1;  sys_platform != 'linux' or ('armv6l' not in platform_machine and 'armv7l' not in platform_machine) or python_version != '3.7'
 https://files.pythonhosted.org/packages/b4/e6/f33077deb4aa1d4b79cb392887bc1de4fd0dab324c5923323e5bc0ad55d1/meteofrance_api-0.1.1-py3-none-any.whl
 
 # Indirect frozen dependencies

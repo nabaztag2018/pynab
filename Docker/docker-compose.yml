@@ -1,11 +1,12 @@
-version: '3.8'
+version: '2.0'
 services:
     # PostgreSQL database
     db:
         image: postgres:11-alpine
         environment:
-            POSTGRES_PASSWORD: pynab
-            POSTGRES_USER: pynab
+            - POSTGRES_USER=pynab
+            - POSTGRES_PASSWORD=pynab
+            - TZ=Europe/Paris
         volumes:
             - var-lib-postgresql-data:/var/lib/postgresql/data
             - var-run-postgresql:/var/run/postgresql
@@ -14,6 +15,8 @@ services:
         build:
             context: nab/
             dockerfile: Dockerfile
+        environment:
+            - TZ=Europe/Paris
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -24,10 +27,12 @@ services:
         build:
             context: nab/
             dockerfile: Dockerfile
+        environment:
+            - TZ=Europe/Paris
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
-        command: ["/bin/sh", "-c", "ln -sf /dev/stdout /var/log/nabd && /home/pi/venv/bin/python3 -m nabd.nabd"]
+        command: ["/bin/sh", "-c", "ln -sf /dev/stdout /var/log/nabd.log && /home/pi/venv/bin/python3 -m nabd.nabd"]
         ports:
             - 10543:10543
             - 10544:10544
@@ -35,6 +40,9 @@ services:
         build:
             context: nab/
             dockerfile: Dockerfile
+        environment:
+            - PID_DAEMONS=nab8balld nabairqualityd nabbookd nabclockd nabmastodond nabsurprised nabtaichid nabweatherd
+            - TZ=Europe/Paris
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -43,8 +51,6 @@ services:
             - db
             - migrate
             - nabd
-        environment:
-            - PID_DAEMONS=nab8balld nabairqualityd nabbookd nabclockd nabsurprised nabtaichid nabweatherd
         command: ["/bin/bash", "/usr/local/bin/run-webserver.sh"]
         ports:
             - 8000:8000
@@ -52,6 +58,8 @@ services:
         build:
             context: nab/
             dockerfile: Dockerfile
+        environment:
+            - TZ=Europe/Paris
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -64,6 +72,8 @@ services:
         build:
             context: nab/
             dockerfile: Dockerfile
+        environment:
+            - TZ=Europe/Paris
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -76,6 +86,8 @@ services:
         build:
             context: nab/
             dockerfile: Dockerfile
+        environment:
+            - TZ=Europe/Paris
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -88,6 +100,8 @@ services:
         build:
             context: nab/
             dockerfile: Dockerfile
+        environment:
+            - TZ=Europe/Paris
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -100,6 +114,8 @@ services:
         build:
             context: nab/
             dockerfile: Dockerfile
+        environment:
+            - TZ=Europe/Paris
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -112,6 +128,8 @@ services:
         build:
             context: nab/
             dockerfile: Dockerfile
+        environment:
+            - TZ=Europe/Paris
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -124,6 +142,8 @@ services:
         build:
             context: nab/
             dockerfile: Dockerfile
+        environment:
+            - TZ=Europe/Paris
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql
@@ -136,6 +156,8 @@ services:
         build:
             context: nab/
             dockerfile: Dockerfile
+        environment:
+            - TZ=Europe/Paris
         volumes:
             - ../:/home/pi/pynab
             - var-run-postgresql:/var/run/postgresql

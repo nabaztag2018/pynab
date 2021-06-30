@@ -5,7 +5,7 @@ rather than on the Raspberry Pi.
 
 ## How to (tl;dr)
 
-All commands must be run inside the `Docker/` folder.
+All commands must be run from the `Docker/` directory.
 
 Start everything:
 
@@ -34,14 +34,14 @@ The following containers are started (See
 [docker-compose.yml](docker-compose.yml))
 - `db`: PostgreSQL database, with automatic creation of the `pynab` user and
   database.
-- `migrate`: Runs `manage.py migrate` to apply DB migrations.
+- `migrate`: Runs `manage.py migrate` to apply DB migrations
+  and `manage.py compilemessages` to update localization messages.
 - `nabweb`: Web interface WSGI.
-- `nab*d`: One container for each service.
+- `nab.*d`: One container for each service.
 - `nabd`: Nabd running with NabIOVirtual interface.
 
-`db` is using the official PostgreSQL image. `nabdevd` is using a publicly
-available custom container. All other containers are using a custom image based
-on the official Python image (See [nab/Dockerfile](nab/Dockerfile)).
+`db` uses the official PostgreSQL image. All other containers use a custom image
+based on the official Python image (See [nab/Dockerfile](nab/Dockerfile)).
 
 To access NabIOVirtual, you can connect over TCP on port 10544:
 ```
@@ -59,7 +59,7 @@ without having to modify pynab which assumes socket-based DB communication.
 
 ### Host volume
 
-The pynab project folder is shared via a host volume, mounted in
+The pynab project directory is shared via a host volume, mounted in
 `/home/pi/pynab` inside the containers to replicate the Raspberry Pi location.
 
 ### Synchronization between containers

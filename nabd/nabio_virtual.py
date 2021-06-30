@@ -34,13 +34,16 @@ class NabIOVirtual(NabIO):
         self.rfid = RfidVirtual()
 
     async def gestalt(self):
+        left_ear_position, right_ear_position = await self.ears.get_positions()
+        left_ear_status = f"virtual (position={left_ear_position})"
+        right_ear_status = f"virtual (position={right_ear_position})"
         return {
             "model": "Virtual nab",
             "sound_card": "Virtual sound",
             "sound_input": self.has_sound_input(),
             "rfid": self.has_rfid(),
-            "left_ear_status": "virtual",
-            "right_ear_status": "virtual",
+            "left_ear_status": left_ear_status,
+            "right_ear_status": right_ear_status,
         }
 
     def has_sound_input(self):

@@ -1041,7 +1041,7 @@ class Nabd:
     def main(argv):
         nablogging.setup_logging("nabd")
         pidfilepath = "/run/nabd.pid"
-        if sys.platform == "linux" and "arm" in platform.machine():
+        if sys.platform == "linux" and platform.machine() == "armv6l":
             from .nabio_hw import NabIOHW
 
             nabiocls = NabIOHW
