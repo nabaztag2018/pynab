@@ -369,7 +369,7 @@ class NabWebSytemInfoView(BaseView):
             with open("/proc/device-tree/model") as model_f:
                 model = model_f.readline()
         except (FileNotFoundError):
-            model = "(unknown)"
+            model = platform.platform()
         return {"model": model}
 
     def get_context(self):
