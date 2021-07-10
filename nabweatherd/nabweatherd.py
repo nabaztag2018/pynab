@@ -568,8 +568,14 @@ class NabWeatherd(NabInfoService):
             packet["type"] == "asr_event"
             and packet["nlu"]["intent"] == "nabweatherd/forecast"
         ):
-            # todo : detect today/tomorrow
-            await self._do_perform("today")
+            if "date" in packet["nlu"] and packet["nlu"]["date"][
+                :10
+            ] != datetime.datetime.now().strftime("%Y-%m-%d"):
+                type = "tomorrow"
+            else:
+                type = "today"
+            logging.debug(f"ASR triggered forecast for {type}")
+            await self._do_perform(type)
         elif (
             packet["type"] == "rfid_event"
             and packet["app"] == "nabweatherd"
@@ -579,6 +585,7 @@ class NabWeatherd(NabInfoService):
                 type = rfid_data.unserialize(packet["data"].encode("utf8"))
             else:
                 type = "today"
+            logging.debug(f"RFID triggered forecast for {type}")
             await self._do_perform(type)
 
 
