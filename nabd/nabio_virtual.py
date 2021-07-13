@@ -52,6 +52,9 @@ class NabIOVirtual(NabIO):
     def has_rfid(self):
         return True
 
+    def network_interface(self):
+        return "eth0"
+
     def update_rabbit(self):
         for writer in self.virtual_clients:
             self.display_rabbit(writer)

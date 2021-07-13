@@ -328,6 +328,11 @@ class NabIO(object, metaclass=abc.ABCMeta):
         """Determine if we have an rfid reader"""
         raise NotImplementedError("Should have implemented")
 
+    @abc.abstractmethod
+    def network_interface(self):
+        """Return name of network interface"""
+        raise NotImplementedError("Should have implemented")
+
     async def test(self, test):
         if test == "ears":
             (

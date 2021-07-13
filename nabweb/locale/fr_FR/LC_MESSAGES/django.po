@@ -175,11 +175,37 @@ msgstr ""
 "En dernier ressort, vous pouvez aussi arrêter le lapin en appuyant le bouton "
 "sur sa tête rapidement trois fois à la suite."
 
-#: templates/nabweb/help.html:15
+#: templates/nabweb/help.html:14
+msgid "Base LED pulse color"
+msgstr "La couleur de pulsation de la LED de base"
+
+#: templates/nabweb/help.html:14
+msgid "indicates the rabbit's network connection state"
+msgstr "indique l'état de la connexion réseau du lapin"
+
+#: templates/nabweb/help.html:14
+msgid ""
+"<span class=\"badge badge-pill badge-info\">Fuchsia</span> means <i>all is "
+"fine</i>: rabbit has an IP address on your local network, and access to the "
+"Internet.<br><span class=\"badge badge-pill badge-warning\">Orange</span> "
+"means <i>not so good</i>: rabbit has a local IP address, but no Internet "
+"connection (check your router).<br><span class=\"badge badge-pill badge-"
+"danger\">Red</span> means <i>real bad</i>: rabbit has no IP address (check "
+"your WiFi access point / DHCP server)."
+msgstr ""
+"<span class=\"badge badge-pill badge-info\">Fuchsia</span> signifie <i>tout va "
+"bien</i> : le lapin a une adresse IP sur votre réseau local, et accès à "
+"l'Internet.<br><span class=\"badge badge-pill badge-warning\">Orange</span> "
+"signifie <i>pas très bon</i> : le lapin a une adresse IP locale, mais pas de "
+"connexion Internet (vérifiez votre routeur).<br><span class=\"badge badge-"
+"pill badge-danger\">Rouge</span> signifie <i>pas bon du tout</i> : le lapin "
+"n'a pas d'adresse IP (vérifiez votre point d'accès WiFi / serveur DHCP)."
+
+#: templates/nabweb/help.html:16
 msgid "On the Internet"
 msgstr "Sur l'Internet"
 
-#: templates/nabweb/help.html:16
+#: templates/nabweb/help.html:17
 msgid ""
 "<a target='_blank' href='https://tinyletter.com/nabaztag' rel='noopener "
 "noreferrer'>Nabaztag is back!</a>"
@@ -187,11 +213,11 @@ msgstr ""
 "<a target='_blank' href='https://tinyletter.com/nabaztag' rel='noopener "
 "noreferrer'>Nabaztag revient !</a>"
 
-#: templates/nabweb/help.html:16
+#: templates/nabweb/help.html:17
 msgid "Subscribe to the newsletter."
 msgstr "Abonnez vous à la lettre d'information."
 
-#: templates/nabweb/help.html:17
+#: templates/nabweb/help.html:18
 msgid ""
 "The <a target='_blank' href='https://www.tagtagtag.fr/forum/' rel='noopener "
 "noreferrer'>Tag:Tag:Tag user forum</a>"
@@ -199,12 +225,12 @@ msgstr ""
 "Le <a target='_blank' href='https://www.tagtagtag.fr/forum/' rel='noopener "
 "noreferrer'>forum d'utilisateurs Tag:Tag:Tag</a>"
 
-#: templates/nabweb/help.html:17
+#: templates/nabweb/help.html:18
 msgid "Share your problems and solutions with other rabbit breeders."
 msgstr ""
 "Partagez vos problèmes et vos solutions avec d'autres éleveurs de lapins."
 
-#: templates/nabweb/help.html:18
+#: templates/nabweb/help.html:19
 msgid ""
 "The <a target='_blank' href='https://github.com/nabaztag2018/pynab/#readme' "
 "rel='noopener noreferrer'>GitHub repository</a>"
@@ -212,12 +238,12 @@ msgstr ""
 "Le <a target='_blank' href='https://github.com/nabaztag2018/pynab/#readme' "
 "rel='noopener noreferrer'>référentiel GitHub</a>"
 
-#: templates/nabweb/help.html:18
+#: templates/nabweb/help.html:19
 msgid "Report bugs or contribute to the project with other developers."
 msgstr ""
 "Signalez des bogues ou contribuez au projet avec d'autres développeurs."
 
-#: templates/nabweb/help.html:19
+#: templates/nabweb/help.html:20
 msgid ""
 "<a target='_blank' href='https://twitter.com/nabaztagtagtag' rel='noopener "
 "noreferrer'>Nabaztag on Twitter</a>"
@@ -225,7 +251,7 @@ msgstr ""
 "<a target='_blank' href='https://twitter.com/nabaztagtagtag' rel='noopener "
 "noreferrer'>Nabaztag sur Twitter</a>"
 
-#: templates/nabweb/help.html:20
+#: templates/nabweb/help.html:21
 msgid ""
 "The <a target='_blank' href='https://www.instructables.com/member/"
 "tagtagtag/' rel='noopener noreferrer'>TagTagTag assembly instructions</a>"
@@ -233,7 +259,7 @@ msgstr ""
 "Les <a target='_blank' href='https://www.instructables.com/member/"
 "tagtagtag/' rel='noopener noreferrer'>instructions de montage TagTagTag</a>"
 
-#: templates/nabweb/help.html:20
+#: templates/nabweb/help.html:21
 msgid ""
 "The open heart operation to transplant the card into your rabbit. At this "
 "stage you probably do not need this anymore..."
@@ -241,7 +267,7 @@ msgstr ""
 "L'opération à cœur ouvert pour transplanter la carte dans votre lapin. A ce "
 "stade, vous n'en avez probablement plus besoin ..."
 
-#: templates/nabweb/help.html:21
+#: templates/nabweb/help.html:22
 msgid ""
 "The <a target='_blank' href='https://www.tagtagtag.fr/index_eng.html' "
 "rel='noopener noreferrer'>Eternal Sunshine of the Nabaztag</a>"
@@ -249,7 +275,7 @@ msgstr ""
 "L'<a target='_blank' href='https://www.tagtagtag.fr/index.html' "
 "rel='noopener noreferrer'>éternel retour du Nabaztag</a>"
 
-#: templates/nabweb/help.html:21
+#: templates/nabweb/help.html:22
 msgid "The TagtagTag project..."
 msgstr "Le projet TagTagTag ..."
 
