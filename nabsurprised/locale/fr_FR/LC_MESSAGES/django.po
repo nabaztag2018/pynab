@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-12 14:21+0100\n"
+"POT-Creation-Date: 2021-07-17 15:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -84,32 +84,37 @@ msgstr "Fréquence des humeurs"
 
 #: templates/nabsurprised/settings.html:13
 msgctxt "Surprise frequency"
+msgid "Rarely"
+msgstr "Rarement"
+
+#: templates/nabsurprised/settings.html:14
+msgctxt "Surprise frequency"
 msgid "Sometimes"
 msgstr "De temps en temps"
 
-#: templates/nabsurprised/settings.html:14
+#: templates/nabsurprised/settings.html:15
 msgctxt "Surprise frequency"
 msgid "Often"
 msgstr "Souvent"
 
-#: templates/nabsurprised/settings.html:15
+#: templates/nabsurprised/settings.html:16
 msgctxt "Surprise frequency"
 msgid "Very often"
 msgstr "Très souvent"
 
-#: templates/nabsurprised/settings.html:16
+#: templates/nabsurprised/settings.html:17
 msgctxt "Surprise frequency"
-msgid "Disabled"
+msgid "Never"
 msgstr "Jamais"
 
-#: templates/nabsurprised/settings.html:22
+#: templates/nabsurprised/settings.html:23
 msgid "Surprise me now!"
 msgstr "Chatouille"
 
-#: templates/nabsurprised/settings.html:29
+#: templates/nabsurprised/settings.html:30
 msgid "Save"
 msgstr "Enregistrer"
 
-#: templates/nabsurprised/settings.html:30
+#: templates/nabsurprised/settings.html:31
 msgid "Reset"
 msgstr "Annuler"
