@@ -96,7 +96,11 @@ class NabAirqualityd(NabInfoCachedService):
 
         index_airquality, visual_airquality, latitude, longitude = config_t
         client = aqicn.aqicnClient(index_airquality, latitude, longitude)
-        await sync_to_async(client.update)()
+        try:
+            await sync_to_async(client.update)()
+        except Exception as err:
+            logging.error(f"{err}")
+            return None
 
         # Save inferred localization to configuration for display on web
         # interface
@@ -119,9 +123,13 @@ class NabAirqualityd(NabInfoCachedService):
 
     def get_animation(self, info_data):
 
-        if (info_data["visual_airquality"] == "nothing") or (
-            info_data["visual_airquality"] == "alert"
-            and info_data["data"] == 2
+        if (
+            (info_data is None)
+            or (info_data["visual_airquality"] == "nothing")
+            or (
+                info_data["visual_airquality"] == "alert"
+                and info_data["data"] == 2
+            )
         ):
             return None
         info_animation = NabAirqualityd.ANIMATIONS[info_data["data"]]
@@ -129,9 +137,16 @@ class NabAirqualityd(NabInfoCachedService):
 
     async def perform_additional(self, expiration, type, info_data, config_t):
         if info_data is None:
-            return
-
-        if type == "today":
+            logging.debug("No data available")
+            packet = (
+                '{"type":"message",'
+                '"signature":{"audio":["nabairqualityd/signature.mp3"]},'
+                '"body":[{"audio":["nabairqualityd/no-data-error.mp3"]}],'
+                '"expiration":"' + expiration.isoformat() + '"}\r\n'
+            )
+            self.writer.write(packet.encode("utf8"))
+            await self.writer.drain()
+        elif type == "today":
             message = NabAirqualityd.MESSAGES[info_data["data"]]
             packet = (
                 '{"type":"message",'

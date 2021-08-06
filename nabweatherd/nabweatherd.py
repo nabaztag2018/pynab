@@ -4,7 +4,6 @@ import logging
 import random
 import sys
 
-import requests
 from asgiref.sync import sync_to_async
 from dateutil import tz
 from meteofrance.client import MeteoFranceClient, Place
@@ -16,7 +15,7 @@ from . import rfid_data
 
 class NabWeatherd(NabInfoService):
     class meteoError(Exception):
-        """Raise when errors occur while fetching or parsing data"""
+        """Raise when errors occur while parsing data"""
 
     UNIT_CELSIUS = 1
     UNIT_FARENHEIT = 2
@@ -409,8 +408,8 @@ class NabWeatherd(NabInfoService):
             data = my_place_weather_forecast.daily_forecast
             logging.debug(f"data: {data}")
         except Exception as err:
-            logging.error(f"error: {err}")
-            raise self.meteoError(err)
+            logging.error(f"{err}")
+            return None
 
         # Rain info
         next_rain = False
@@ -421,7 +420,8 @@ class NabWeatherd(NabInfoService):
                 if five_min_slots["rain"] != 1:
                     next_rain = True
                     break
-        except requests.HTTPError:
+        except Exception as err:
+            logging.error(f"{err}")
             next_rain = False
             # todo : prevenir que les infos de rain ne sont pas dispo
 
@@ -509,12 +509,22 @@ class NabWeatherd(NabInfoService):
             next_performance_weather_vocal_local,
         ) = config_t
         if location is None:
-            logging.debug("location is None (service is unconfigured)")
+            logging.debug("No location (service is unconfigured)")
             packet = (
                 '{"type":"message",'
                 '"signature":{"audio":['
                 '"nabweatherd/signature.mp3"]},'
                 '"body":[{"audio":["nabweatherd/no-location-error.mp3"]}],'
+                '"expiration":"' + expiration.isoformat() + '"}\r\n'
+            )
+            self.writer.write(packet.encode("utf8"))
+        elif info_data is None:
+            logging.debug("No data available")
+            packet = (
+                '{"type":"message",'
+                '"signature":{"audio":['
+                '"nabweatherd/signature.mp3"]},'
+                '"body":[{"audio":["nabweatherd/no-data-error.mp3"]}],'
                 '"expiration":"' + expiration.isoformat() + '"}\r\n'
             )
             self.writer.write(packet.encode("utf8"))
@@ -568,8 +578,14 @@ class NabWeatherd(NabInfoService):
             packet["type"] == "asr_event"
             and packet["nlu"]["intent"] == "nabweatherd/forecast"
         ):
-            # todo : detect today/tomorrow
-            await self._do_perform("today")
+            if "date" in packet["nlu"] and packet["nlu"]["date"][
+                :10
+            ] != datetime.datetime.now().strftime("%Y-%m-%d"):
+                type = "tomorrow"
+            else:
+                type = "today"
+            logging.debug(f"ASR triggered forecast for {type}")
+            await self._do_perform(type)
         elif (
             packet["type"] == "rfid_event"
             and packet["app"] == "nabweatherd"
@@ -579,6 +595,7 @@ class NabWeatherd(NabInfoService):
                 type = rfid_data.unserialize(packet["data"].encode("utf8"))
             else:
                 type = "today"
+            logging.debug(f"RFID triggered forecast for {type}")
             await self._do_perform(type)
 
 
