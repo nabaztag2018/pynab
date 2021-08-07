@@ -12,77 +12,92 @@ pynab_repository=${GITHUB_REPOSITORY:-nabaztag2018/pynab}
 pynab_branch=${GITHUB_BRANCH:-release}
 case ${pynab_branch} in
     v+([0-9]).+([0-9]).+([0-9])*)
-	# vX.Y.Z tag-driven build: assume release branch
-	pynab_tag=" (tag ${pynab_branch})"
-	pynab_branch=release
-	;;
+        # vX.Y.Z tag-driven build: assume release branch
+        pynab_tag=" (tag ${pynab_branch})"
+        pynab_branch=release
+        ;;
     *)
-	# sssume branch-driven build on given branch
-	pynab_tag=""
-	;;
+        # sssume branch-driven build on given branch
+        pynab_tag=""
+        ;;
 esac
-echo "Doing setup for ${pynab_repository} ${pynab_branch} branch${pynab_tag}."
 
-GPU_MEM=16
 LC_ALL=C
 
-install_env="ci-chroot"
-if [ "${1:-}" == "--local" ]
+if [ -f "/etc/rpi-issue" ]
+then
+    if [ -d "/boot/dietpi" ]
+    then
+        # DietPi distro
+        owner=dietpi
+        home_dir=/home/${owner}
+    else
+        # assume Raspberry Pi OS distro
+        owner=pi
+        home_dir=/home/${owner}
+    fi
+else
+    echo "$(basename ${0}): unsupported Linux distribution!"
+    exit 3
+fi
+
+if [ "${1:-}" == "ci-chroot" ]
+then
+     # CI chroot setup: building image in chroot environment.
+    install_env="ci-chroot"
+elif [ "${1:-}" == "pi-zero" ]
 then
     # Local setup: allows doing initial or replacing existing setup on Pi Zero.
     install_env=""
     if [ "$(id -u)" != "0" ]
     then
-	echo "$(basename ${0}) ${1} must be run as root."
-	echo "WARNING: Removes any existing Pynab setup."
-	exit 1
+        echo "$(basename ${0}) ${1} must be run as root."
+        echo "WARNING: Removes any existing Pynab setup."
+        exit 1
     fi
-    cd /home/pi
-    rm -rf /home/pi/pynab /home/pi/wm8960 /home/pi/tagtagtag-ears /home/pi/cr14
+    rm -rf ${home_dir}/pynab ${home_dir}/wm8960 ${home_dir}/tagtagtag-ears ${home_dir}/cr14
+else
+    echo "Usage: $(basename ${0}) pi-zero|ci-chroot"
+    exit 2
 fi
+echo "Doing setup for ${pynab_repository} ${pynab_branch} branch${pynab_tag}."
 
-# Replace /boot/cmdline.txt since it contains root device mapping to a PARTUUID that 
-# changed during parted resize.
-echo "Replacing /boot/cmdline.txt."
-echo "dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet init=/usr/lib/raspi-config/init_resize.sh" > "/boot/cmdline.txt"
+# Edit /boot/cmdline.txt since it contains root device mapping to a PARTUUID that
+# changed during parted resize when image was built.
+echo "Editing /boot/cmdline.txt."
+sed -i "s|root=PARTUUID=........-02|root=/dev/mmcblk0p2|" /boot/cmdline.txt
 cat "/boot/cmdline.txt"
 
 # Resize partition on first boot.
 # https://www.raspberrypi.org/forums/viewtopic.php?p=1503766#p1503766
-wget -O /etc/init.d/resize2fs_once https://raw.githubusercontent.com/RPi-Distro/pi-gen/master/stage2/01-sys-tweaks/files/resize2fs_once
-chmod +x /etc/init.d/resize2fs_once
-systemctl enable resize2fs_once
+# (not needed anymore on recent distros)
+#wget -O /etc/init.d/resize2fs_once https://raw.githubusercontent.com/RPi-Distro/pi-gen/master/stage2/01-sys-tweaks/files/resize2fs_once
+#chmod +x /etc/init.d/resize2fs_once
+#systemctl enable resize2fs_once
 
 # Replace /etc/fstab since the non existing PARTUUID has to be changed here as well.
-echo "Replacing /etc/fstab."
-echo "proc            /proc           proc    defaults          0       0" > "/etc/fstab"
-echo "/dev/mmcblk0p1  /boot           vfat    defaults          0       2" >> "/etc/fstab"
-echo "/dev/mmcblk0p2  /               ext4    defaults,noatime  0       1" >> "/etc/fstab"
-cat "/etc/fstab"
+echo "Editing /etc/fstab."
+sed -i -e "s|PARTUUID=........-01|/dev/mmcblk0p1|" -e "s|PARTUUID=........-02|/dev/mmcblk0p2|" /etc/fstab
+cat "/etc/fstab" | grep "^/dev/"
 
 echo "Setting gpu_mem."
-if grep -q "gpu_mem" /boot/config.txt
+GPU_MEM=16
+if grep -q "^gpu_mem.*=" /boot/config.txt
 then
-    sed -i "s/gpu_mem.*/gpu_mem=${GPU_MEM}/" /boot/config.txt
+    sed -i "s/\(gpu_mem.*\)=.*/\1=${GPU_MEM}/" /boot/config.txt
 else
     echo "gpu_mem=${GPU_MEM}" >> /boot/config.txt
 fi
-cat /boot/config.txt | grep "gpu_mem"
-
-echo "Setting hostname."
-sed -i "s/raspberrypi/nabaztag/" /etc/hostname
-sed -i "s/raspberrypi/nabaztag/" /etc/hosts
-
-echo "Setting timezone."
-echo "Europe/Paris" > /etc/timezone
-ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime
+cat /boot/config.txt | grep "gpu_mem.*="
 
 echo "Disabling onboard sound."
-if grep -q "^dtparam=audio=on" /boot/config.txt
+if grep -q "^dtparam=audio" /boot/config.txt
 then
-    sed -i "s/dtparam=audio=on/#dtparam=audio=on/" /boot/config.txt
+    sed -i "s/dtparam=audio.*/dtparam=audio=off/" /boot/config.txt
+else
+    echo "dtparam=audio=off" >> /boot/config.txt
 fi
-cat /boot/config.txt | grep "dtparam=audio=on"
+cat /boot/config.txt | grep "dtparam=audio"
 
 echo "Enabling DAC for Maker Faire 2018 cards."
 if ! grep -q "^dtoverlay=hifiberry-dac" /boot/config.txt
@@ -91,52 +106,123 @@ then
 fi
 cat /boot/config.txt | grep "dtoverlay=hifiberry-dac"
 
+if [ "${install_env}" == "ci-chroot" ]
+then
+    if [ -f "/boot/dietpi.txt" ]
+    then
+        # DietPi distro
+        hostname="DietPi"
+        echo "Setting DietPi 'first boot' parameters."
+        sed -i "s/\(AUTO_SETUP_KEYBOARD_LAYOUT\)=.*/\1=fr/" /boot/dietpi.txt
+        sed -i "s/\(AUTO_SETUP_TIMEZONE\)=.*/\1=Europe\/Paris/" /boot/dietpi.txt
+        sed -i "s/\(AUTO_SETUP_NET_WIFI_ENABLED\)=.*/\1=1/" /boot/dietpi.txt
+        sed -i "s/\(AUTO_SETUP_NET_WIFI_COUNTRY_CODE\)=.*/\1=FR/" /boot/dietpi.txt
+        sed -i "s/\(AUTO_SETUP_NET_HOSTNAME\)=.*/\1=Nabaztag/" /boot/dietpi.txt
+        # zram rather than /var/swap (DietPi default):
+        sed -i "s/\(AUTO_SETUP_SWAPFILE_LOCATION\)=.*/\1=zram/" /boot/dietpi.txt
+        sed -i "s/\(AUTO_SETUP_HEADLESS\)=.*/\1=1/" /boot/dietpi.txt
+        # -1=Nginx rather than -2=Lighttpd (DietPi default):
+        sed -i "s/\(AUTO_SETUP_WEB_SERVER_INDEX\)=.*/\1=-1/" /boot/dietpi.txt
+        # -4=Daemon + Drift rather than 2=boot + daily (DietPi default):
+        sed -i "s/\(CONFIG_NTP_MODE\)=.*/\1=4/" /boot/dietpi.txt
+        sed -i "s/\(CONFIG_SERIAL_CONSOLE_ENABLE\)=.*/\1=0/" /boot/dietpi.txt
+    else
+        # assume Rasberry Pi OS distro
+        hostname="raspberrypi"
+        # be kind to users:
+        if [ ! -f "/boot/ssh" ]
+        then
+            touch /boot/ssh
+        fi
+        if [ ! -f "/boot/wpa_supplicant.conf" ]
+        then
+            cat > '/boot/wpa_supplicant.conf' <<- END
+ctrl_interface=DIR=/run/wpa_supplicant GROUP=netdev
+update_config=1
+country=FR
+network={
+  ssid="Name of your wireless LAN"
+  psk="Password for your wireless LAN"
+}
+network={
+  key_mgmt=NONE
+  priority=-999
+}
+END
+        fi
+    fi
+
+    echo "Setting hostname."
+    sed -i "s/${hostname}/Nabaztag/" /etc/hostname
+    sed -i "s/${hostname}/Nabaztag/" /etc/hosts
+
+    echo "Setting timezone."
+    echo "Europe/Paris" > /etc/timezone
+    ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime
+fi
+
+if ! grep -q "^${owner}:" /etc/passwd
+then
+    echo "Creating user ${owner} with home directory ${home_dir}."
+    useradd -d ${home_dir} -m ${owner}
+    echo "${owner} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/010_${owner}-nopasswd
+fi
+echo "Ensuring user ${owner} has appropriate sudo privileges."
+usermod -aG sudo ${owner}
+if [ "${owner}" == "dietpi" ]
+then
+    # patch for DietPi, to allow sudo -u: ALL=(ALL) needed:
+    echo "${owner} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${owner}
+fi
+
 echo "Installing required packages."
 sudo apt-get update -y
 sudo apt-get dist-upgrade -y
 sudo apt-get install --no-install-recommends -y postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3 libopenblas-dev liblapack-dev zram-tools
-sudo apt-get install --no-install-recommends raspberrypi-kernel-headers
+sudo apt-get install --no-install-recommends -y gcc make raspberrypi-kernel-headers
 
 echo "Installing sound driver for Ulule 2019 cards."
-cd /home/pi
-sudo -u pi git clone --depth 1 -b tagtagtag-sound https://github.com/pguyot/wm8960
-cd /home/pi/wm8960
+cd ${home_dir}
+sudo -u ${owner} git clone --depth 1 -b tagtagtag-sound https://github.com/pguyot/wm8960
+cd ${home_dir}/wm8960
 make
 sudo make install
 make clean
 
 echo "Installing ears driver."
-cd /home/pi
-sudo -u pi git clone --depth 1 https://github.com/pguyot/tagtagtag-ears
-cd /home/pi/tagtagtag-ears
+cd ${home_dir}
+sudo -u ${owner} git clone --depth 1 https://github.com/pguyot/tagtagtag-ears
+cd ${home_dir}/tagtagtag-ears
 make
 sudo make install
 make clean
 
 echo "Installing RFID reader driver."
-cd /home/pi
-sudo -u pi git clone --depth 1 https://github.com/pguyot/cr14
-cd /home/pi/cr14
+cd ${home_dir}
+sudo -u ${owner} git clone --depth 1 https://github.com/pguyot/cr14
+cd ${home_dir}/cr14
 make
 sudo make install
 make clean
 
 echo "Cloning Pynab ${pynab_branch} branch from ${pynab_repository}."
-cd /home/pi
-sudo -u pi git clone --depth 1 -b ${pynab_branch} https://github.com/${pynab_repository}.git
+cd ${home_dir}
+sudo -u ${owner} git clone --depth 1 -b ${pynab_branch} https://github.com/${pynab_repository}.git
 
 echo "Installing NabBlockly."
 sudo apt-get install --no-install-recommends -y erlang-base erlang-dev erlang-inets erlang-tools erlang-xmerl
-cd /home/pi/pynab
-sudo -u pi git clone --depth 1 https://github.com/pguyot/nabblockly
+cd ${home_dir}/pynab
+sudo -u ${owner} git clone --depth 1 https://github.com/pguyot/nabblockly
 cd nabblockly
 # Until we can get OTP 24 from Raspian or Erlang Solutions, get an older rebar binary
-sudo -u pi wget https://github.com/erlang/rebar3/releases/download/3.15.1/rebar3 && chmod +x rebar3
-sudo -u pi ./rebar3 release
+sudo -u ${owner} wget https://github.com/erlang/rebar3/releases/download/3.15.1/rebar3 && chmod +x rebar3
+sudo apt-get install --no-install-recommends -y g++
+sudo -u ${owner} ./rebar3 release
 
 echo "Running Pynab install script."
-cd /home/pi/pynab
-sudo -u pi /bin/bash install.sh ${install_env}
+sudo apt-get install --no-install-recommends -y alsa-utils xz-utils avahi-daemon
+cd ${home_dir}/pynab
+sudo -u ${owner} /bin/bash install.sh ${install_env}
 
 echo "Cleaning up."
 # Cleanup any leftovers (from Kaldi install).
@@ -144,6 +230,6 @@ sudo find / -xdev -name "._*" -exec rm {} \;
 sudo find / -xdev -user 501 -exec chown -h root:root {} \;
 # Cleanup caches.
 sudo rm -rf /root/.cache /root/.local /root/.wget-hsts
-sudo rm -rf /home/pi/.cache /home/pi/.local /home/pi/.wget-hsts
+sudo rm -rf ${home_dir}/.cache ${home_dir}/.local ${home_dir}/.wget-hsts
 
 echo "Pynab setup done."

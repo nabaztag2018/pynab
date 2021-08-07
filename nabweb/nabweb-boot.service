@@ -1,0 +1,12 @@
+[Unit]
+Description=Nabaztag web server "boot" script: make sure nginx starts correctly
+Before=nginx.service
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/home/pi/pynab
+ExecStart=mkdir -p /var/log/nginx
+
+[Install]
+WantedBy=multi-user.target

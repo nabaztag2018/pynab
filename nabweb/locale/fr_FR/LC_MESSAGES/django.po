@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-01 10:33+0200\n"
+"POT-Creation-Date: 2021-06-18 22:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -73,7 +73,7 @@ msgstr "Services"
 
 #: templates/nabweb/_base.html:34 templates/nabweb/rfid/index.html:4
 #: templates/nabweb/rfid/index.html:26
-#: templates/nabweb/system-info/index.html:104
+#: templates/nabweb/system-info/index.html:118
 msgid "RFID"
 msgstr "RFID"
 
@@ -341,15 +341,15 @@ msgstr ""
 "remplacer?"
 
 #: templates/nabweb/rfid/index.html:16
-#: templates/nabweb/system-info/index.html:99
-#: templates/nabweb/system-info/index.html:105
+#: templates/nabweb/system-info/index.html:113
+#: templates/nabweb/system-info/index.html:119
 #: templates/nabweb/upgrade/index.html:30
 msgid "Yes"
 msgstr "Oui"
 
 #: templates/nabweb/rfid/index.html:17
-#: templates/nabweb/system-info/index.html:99
-#: templates/nabweb/system-info/index.html:105
+#: templates/nabweb/system-info/index.html:113
+#: templates/nabweb/system-info/index.html:119
 #: templates/nabweb/upgrade/index.html:31
 msgid "No"
 msgstr "Non"
@@ -599,145 +599,150 @@ msgstr "Une erreur serveur inconnue est survenue"
 msgid "System information"
 msgstr "Information système"
 
-#: templates/nabweb/system-info/index.html:10
-msgid "Raspberry Pi OS"
-msgstr "Système d'exploitation Raspberry Pi"
+#: templates/nabweb/system-info/index.html:11
+#: templates/nabweb/system-info/index.html:13
+#: templates/nabweb/system-info/index.html:15
+#, python-format
+msgid "%(variant)s OS"
+msgstr "Système d'exploitation %(variant)s"
 
-#: templates/nabweb/system-info/index.html:14
+#: templates/nabweb/system-info/index.html:20
 msgid "Version"
 msgstr "Version"
 
-#: templates/nabweb/system-info/index.html:16
+#: templates/nabweb/system-info/index.html:22
 msgid "Hostname"
 msgstr "Nom d'hôte"
 
-#: templates/nabweb/system-info/index.html:18
+#: templates/nabweb/system-info/index.html:24
 msgid "IP address"
 msgstr "Adresse IP"
 
-#: templates/nabweb/system-info/index.html:21
+#: templates/nabweb/system-info/index.html:28
+#: templates/nabweb/system-info/index.html:30
 msgid "Wireless network"
 msgstr "Réseau sans fil"
 
-#: templates/nabweb/system-info/index.html:24
-#: templates/nabweb/system-info/index.html:67
+#: templates/nabweb/system-info/index.html:34
+#: templates/nabweb/system-info/index.html:81
 msgid "Uptime"
 msgstr "Levé depuis"
 
-#: templates/nabweb/system-info/index.html:26
+#: templates/nabweb/system-info/index.html:37
+#: templates/nabweb/system-info/index.html:39
 msgid "SSH (Secure shell)"
 msgstr "SSH (shell sécurisé)"
 
-#: templates/nabweb/system-info/index.html:27
+#: templates/nabweb/system-info/index.html:41
 msgid "Enabled with default password"
 msgstr "Activé avec le mot de passe par défaut"
 
-#: templates/nabweb/system-info/index.html:27
+#: templates/nabweb/system-info/index.html:41
 msgid "Enabled"
 msgstr "Activé"
 
-#: templates/nabweb/system-info/index.html:27
+#: templates/nabweb/system-info/index.html:41
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: templates/nabweb/system-info/index.html:30
+#: templates/nabweb/system-info/index.html:44
 msgid "Maintenance"
 msgstr "Maintenance"
 
-#: templates/nabweb/system-info/index.html:32
-#: templates/nabweb/system-info/index.html:122
-#: templates/nabweb/system-info/index.html:132
+#: templates/nabweb/system-info/index.html:46
+#: templates/nabweb/system-info/index.html:136
+#: templates/nabweb/system-info/index.html:146
 msgid "Reboot"
 msgstr "Redémarrer"
 
-#: templates/nabweb/system-info/index.html:33
-#: templates/nabweb/system-info/index.html:141
-#: templates/nabweb/system-info/index.html:151
+#: templates/nabweb/system-info/index.html:47
+#: templates/nabweb/system-info/index.html:155
+#: templates/nabweb/system-info/index.html:165
 msgid "Shutdown"
 msgstr "Arrêter"
 
-#: templates/nabweb/system-info/index.html:39
+#: templates/nabweb/system-info/index.html:53
 msgid "<b>Reboot is in progress!</b>"
 msgstr "<b>Le redémarrage est en cours!</b>"
 
-#: templates/nabweb/system-info/index.html:45
+#: templates/nabweb/system-info/index.html:59
 msgid "<b>Shutdown is in progress!</b>"
 msgstr "<b>L'arrêt est en cours!</b>"
 
-#: templates/nabweb/system-info/index.html:45
+#: templates/nabweb/system-info/index.html:59
 msgid "Please wait at least 10 seconds before unplugging the power cable."
 msgstr ""
 "Veuillez attendre au moins 10 secondes avant de débrancher le cable "
 "d'alimentation."
 
-#: templates/nabweb/system-info/index.html:56
+#: templates/nabweb/system-info/index.html:70
 msgid "Nabd daemon"
 msgstr "Processus Nabd"
 
-#: templates/nabweb/system-info/index.html:65
+#: templates/nabweb/system-info/index.html:79
 msgid "State"
 msgstr "État"
 
-#: templates/nabweb/system-info/index.html:69
+#: templates/nabweb/system-info/index.html:83
 msgid "Clients (including website)"
 msgstr "Clients (y compris le site Web)"
 
-#: templates/nabweb/system-info/index.html:81
+#: templates/nabweb/system-info/index.html:95
 msgid "Hardware"
 msgstr "Matériel"
 
-#: templates/nabweb/system-info/index.html:85
+#: templates/nabweb/system-info/index.html:99
 msgid "Computer"
 msgstr "Ordinateur"
 
-#: templates/nabweb/system-info/index.html:94
+#: templates/nabweb/system-info/index.html:108
 msgid "Hat card"
 msgstr "Carte chapeau"
 
-#: templates/nabweb/system-info/index.html:96
+#: templates/nabweb/system-info/index.html:110
 msgid "Sound card"
 msgstr "Carte son"
 
-#: templates/nabweb/system-info/index.html:98
+#: templates/nabweb/system-info/index.html:112
 msgid "Sound input"
 msgstr "Entrée son"
 
-#: templates/nabweb/system-info/index.html:100
+#: templates/nabweb/system-info/index.html:114
 msgid "Left ear"
 msgstr "Oreille gauche"
 
-#: templates/nabweb/system-info/index.html:102
+#: templates/nabweb/system-info/index.html:116
 msgid "Right ear"
 msgstr "Oreille droite"
 
-#: templates/nabweb/system-info/index.html:109
+#: templates/nabweb/system-info/index.html:123
 msgid "Hardware test"
 msgstr "Test matériel"
 
-#: templates/nabweb/system-info/index.html:111
+#: templates/nabweb/system-info/index.html:125
 msgid "LEDs"
 msgstr "LEDs"
 
-#: templates/nabweb/system-info/index.html:112
+#: templates/nabweb/system-info/index.html:126
 msgid "Ears"
 msgstr "Oreilles"
 
-#: templates/nabweb/system-info/index.html:128
+#: templates/nabweb/system-info/index.html:142
 msgid "You are about to <b>reboot</b> the Raspberry Pi Linux system."
 msgstr ""
 "Vous êtes sur le point de <b>redémarrer</b> le système Linux du Raspberry Pi."
 
-#: templates/nabweb/system-info/index.html:128
-#: templates/nabweb/system-info/index.html:147
+#: templates/nabweb/system-info/index.html:142
+#: templates/nabweb/system-info/index.html:161
 msgid "Do you want to proceed?"
 msgstr "Voulez-vous continuer?"
 
-#: templates/nabweb/system-info/index.html:131
-#: templates/nabweb/system-info/index.html:150
+#: templates/nabweb/system-info/index.html:145
+#: templates/nabweb/system-info/index.html:164
 msgid "Cancel"
 msgstr "Annuler"
 
-#: templates/nabweb/system-info/index.html:147
+#: templates/nabweb/system-info/index.html:161
 msgid "You are about to <b>shutdown</b> the Raspberry Pi Linux system."
 msgstr ""
 "Vous êtes sur le point d'<b>éteindre</b> le système Linux du Raspberry Pi."
@@ -791,8 +796,8 @@ msgid ""
 msgstr ""
 "Grâce à cette interface, vous pouvez mettre à jour le logiciel de votre "
 "Nabaztag (s'il est connecté à Internet). Attention, cela peut être assez "
-"long en fonction de ce qu'il y a à faire. <strong>Attendez la fin de la "
-"mise à jour sinon on ne répond plus de rien</strong>."
+"long en fonction de ce qu'il y a à faire. <strong>Attendez la fin de la mise "
+"à jour sinon on ne répond plus de rien</strong>."
 
 #: templates/nabweb/upgrade/index.html:45
 msgid ""
