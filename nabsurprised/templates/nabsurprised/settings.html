@@ -10,10 +10,11 @@
         <label for="surpriseSelect" class="col-6 col-form-label">{% trans "Surprise Frequency" %}</label>
         <div class="col-6">
           <select name="surprise_frequency" id="surpriseSelect">
+            <option value="30"{% if config.surprise_frequency == 30 %} selected{% endif %}>{% trans "Rarely" context "Surprise frequency" %}</option>
             <option value="50"{% if config.surprise_frequency == 50 %} selected{% endif %}>{% trans "Sometimes" context "Surprise frequency" %}</option>
             <option value="125"{% if config.surprise_frequency == 125 %} selected{% endif %}>{% trans "Often" context "Surprise frequency" %}</option>
             <option value="250"{% if config.surprise_frequency == 250 %} selected{% endif %}>{% trans "Very often" context "Surprise frequency" %}</option>
-            <option value="0"{% if config.surprise_frequency == 0 %} selected{% endif %}>{% trans "Disabled" context "Surprise frequency" %}</option>
+            <option value="0"{% if config.surprise_frequency == 0 %} selected{% endif %}>{% trans "Never" context "Surprise frequency" %}</option>
           </select>
         </div>
       </div>

@@ -8,6 +8,14 @@ from . import rfid_data
 
 
 class NabSurprised(NabRandomService):
+    RARELY, SOMETIMES, OFTEN, VERY_OFTEN = 30, 50, 125, 250
+    FREQUENCY_SECONDS = {
+        RARELY: 10800,
+        SOMETIMES: 7200,
+        OFTEN: 3600,
+        VERY_OFTEN: 1200,
+    }
+
     NLU_INTENTS = [
         "nabsurprised/surprise",
         "nabsurprised/carrot",
@@ -61,7 +69,10 @@ class NabSurprised(NabRandomService):
         await self.writer.drain()
 
     def compute_random_delta(self, frequency):
-        return (256 - frequency) * 60 * (random.uniform(0, 255) + 64) / 128
+        key = frequency
+        if key not in NabSurprised.FREQUENCY_SECONDS:
+            key = NabSurprised.RARELY
+        return random.uniform(0, NabSurprised.FREQUENCY_SECONDS[key])
 
     async def process_nabd_packet(self, packet):
         if packet["type"] == "asr_event":
