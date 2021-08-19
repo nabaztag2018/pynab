@@ -69,10 +69,25 @@ class NabSurprised(NabRandomService):
         await self.writer.drain()
 
     def compute_random_delta(self, frequency):
-        key = frequency
-        if key not in NabSurprised.FREQUENCY_SECONDS:
-            key = NabSurprised.RARELY
-        return random.uniform(0, NabSurprised.FREQUENCY_SECONDS[key])
+        if frequency == NabSurprised.VERY_OFTEN:
+            return random.uniform(
+                0, NabSurprised.FREQUENCY_SECONDS[NabSurprised.VERY_OFTEN]
+            )
+        elif frequency == NabSurprised.OFTEN:
+            return random.uniform(
+                NabSurprised.FREQUENCY_SECONDS[NabSurprised.VERY_OFTEN],
+                NabSurprised.FREQUENCY_SECONDS[NabSurprised.OFTEN],
+            )
+        elif frequency == NabSurprised.SOMETIMES:
+            return random.uniform(
+                NabSurprised.FREQUENCY_SECONDS[NabSurprised.OFTEN],
+                NabSurprised.FREQUENCY_SECONDS[NabSurprised.SOMETIMES],
+            )
+        else:
+            return random.uniform(
+                NabSurprised.FREQUENCY_SECONDS[NabSurprised.SOMETIMES],
+                NabSurprised.FREQUENCY_SECONDS[NabSurprised.RARELY],
+            )
 
     async def process_nabd_packet(self, packet):
         if packet["type"] == "asr_event":
