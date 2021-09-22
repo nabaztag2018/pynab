@@ -1,7 +1,7 @@
 # Direct dependencies & pre-built binaries
 wheel
 black==21.4b2
-Django==3.1.12
+Django==3.1.13
 flake8==3.9.1
 gunicorn==20.0.4
 isort==5.8.0
