@@ -108,11 +108,10 @@ jobs:
             sudo apt-get autoremove --purge -y
             sudo apt-get clean
 
-      - name: Compress the release image with PiShrink
+      - name: Compress the release image
         run: |
           mv ${{ steps.arm_runner_install.outputs.image }} pynab-${{ steps.image_and_branch_name.outputs.IMAGE_NAME_SUFFIX }}.img
-          wget https://raw.githubusercontent.com/Drewsif/PiShrink/fa3c7a27406e7c0a1c7b8688e330f14a766be1ba/pishrink.sh
-          sudo bash pishrink.sh -s -Z -a -p pynab-${{ steps.image_and_branch_name.outputs.IMAGE_NAME_SUFFIX }}.img
+          sudo xz -T 0 -v pynab-${{ steps.image_and_branch_name.outputs.IMAGE_NAME_SUFFIX }}.img
 
       - name: Upload the image artifact
         uses: actions/upload-artifact@v2
