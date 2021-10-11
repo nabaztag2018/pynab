@@ -94,6 +94,9 @@ class NabIOMock(NabIO):
     def has_rfid(self):
         return False
 
+    def network_interface(self):
+        return "eth0"
+
     async def gestalt(self):
         return {"model": "Test mock"}
 

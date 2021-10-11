@@ -18,7 +18,7 @@ import dateutil.parser
 from lockfile import AlreadyLocked, LockFailed
 from lockfile.pidlockfile import PIDLockFile
 
-from nabcommon import nablogging, settings
+from nabcommon import nablogging, network, settings
 from nabcommon.nabservice import NabService
 
 from .ears import Ears
@@ -29,6 +29,8 @@ from .rfid import (
     TAG_APPLICATIONS,
     TagFlags,
 )
+
+_PYTEST = os.path.basename(sys.argv[0]) != "nabd.py"
 
 
 class State(Enum):
@@ -110,7 +112,7 @@ class Nabd:
                 self.nlu = NLU(self._nlu_locale)
                 Nabd.leds_boot(self.nabio, 4)
             self.nabio.set_leds(None, None, None, None, None)
-        self.nabio.pulse(Led.BOTTOM, (255, 0, 255))
+        self.nabio.pulse(Led.BOTTOM, (255, 0, 255))  # Fuchsia
 
     async def _do_transition_to_idle(self):
         """
@@ -120,7 +122,15 @@ class Nabd:
         """
         left, right = self.ears["left"], self.ears["right"]
         await self.nabio.move_ears_with_leds((255, 0, 255), left, right)
-        self.nabio.pulse(Led.BOTTOM, (255, 0, 255))
+        self.nabio.pulse(Led.BOTTOM, (255, 0, 255))  # Fuchsia
+        if network.ip_address(self.nabio.network_interface()) is None:
+            # not even a local network connection: real bad
+            logging.error("no network connection")
+            self.nabio.pulse(Led.BOTTOM, (255, 0, 0))  # Red
+        elif not network.internet_connection():
+            # local network connection, but no Internet access: not so good
+            logging.warning("no Internet access")
+            self.nabio.pulse(Led.BOTTOM, (255, 165, 0))  # Orange
 
     async def sleep_setup(self):
         self.nabio.set_leds(None, None, None, None, None)
@@ -843,9 +853,8 @@ class Nabd:
             await self._do_system_command("/sbin/halt")
 
     async def _do_system_command(self, sytemCommandStr):
-        inTesting = os.path.basename(sys.argv[0]) in ("pytest", "py.test")
-        if not inTesting:
-            logging.info(f"Initiating system command: {sytemCommandStr}")
+        logging.info(f"Initiating system command: {sytemCommandStr}")
+        if not _PYTEST:
             os.system(sytemCommandStr)
 
     def ears_callback(self, ear):
