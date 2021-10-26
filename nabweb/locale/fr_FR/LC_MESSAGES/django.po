@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-19 19:18+0200\n"
+"POT-Creation-Date: 2022-01-23 19:09+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,7 +53,7 @@ msgstr "Portugais brésilien"
 msgid "Nabaztag configuration"
 msgstr "Configuration du Nabaztag"
 
-#: templates/nabweb/_base.html:32 templates/nabweb/_help.html:40
+#: templates/nabweb/_base.html:32 templates/nabweb/_help.html:44
 #: templates/nabweb/help.html:3 templates/nabweb/index.html:3
 msgid "Home"
 msgstr "Accueil"
@@ -62,7 +61,7 @@ msgstr "Accueil"
 #: templates/nabweb/_base.html:32 templates/nabweb/_base.html:33
 #: templates/nabweb/_base.html:34 templates/nabweb/_base.html:35
 #: templates/nabweb/_base.html:36 templates/nabweb/_base.html:37
-#: templates/nabweb/_help.html:40
+#: templates/nabweb/_help.html:44
 msgid "(current)"
 msgstr "(actif)"
 
@@ -72,7 +71,7 @@ msgstr "Services"
 
 #: templates/nabweb/_base.html:34 templates/nabweb/rfid/index.html:4
 #: templates/nabweb/rfid/index.html:26
-#: templates/nabweb/system-info/index.html:118
+#: templates/nabweb/system-info/index.html:104
 msgid "RFID"
 msgstr "RFID"
 
@@ -101,7 +100,7 @@ msgstr "Veuillez patienter pendant la mise à jour de pynab"
 msgid "Unknown server error"
 msgstr "Erreur serveur inconnue"
 
-#: templates/nabweb/_help.html:13 templates/nabweb/_help.html:34
+#: templates/nabweb/_help.html:13 templates/nabweb/_help.html:38
 #: templates/nabweb/help.html:7
 msgid "Nabaztag help"
 msgstr "Aide du Nabaztag"
@@ -132,17 +131,17 @@ msgstr "animations visuelles Qualité de l'air"
 
 #: templates/nabweb/help.html:12
 msgid "Talking to the rabbit (speech recognition)"
-msgstr "Commnent parler au lapin (reconnaissance vocale)"
+msgstr "Comment parler au lapin (reconnaissance vocale)"
 
 #: templates/nabweb/help.html:12
 msgid ""
 "You need to push and hold the button on the rabbit's head long enough to "
-"hear a 'beep', then wait a couple of seconds and speak. When you are done "
+"hear a sound, then wait a couple of seconds and speak. When you are done "
 "just release the button."
 msgstr ""
 "Il vous faut maintenir le bouton sur la tête du lapin appuyé assez longtemps "
-"pour entendre le 'bip', attendre quelques secondes puis parler. Relachez "
-"quand vous avez terminé."
+"pour entendre un son, attendre quelques secondes puis parler. Relachez quand "
+"vous avez terminé."
 
 #: templates/nabweb/help.html:12
 msgid ""
@@ -162,7 +161,7 @@ msgid ""
 "target='_parent' href='/system-info/'>System information</a> tab of the "
 "configuration page."
 msgstr ""
-"You pouvez le faire proprement en utilisant les boutons <kbd class=\"btn-"
+"Vous pouvez le faire proprement en utilisant les boutons <kbd class=\"btn-"
 "warning\">Redémarrer</kbd> ou <kbd class=\"btn-danger\">Arrêter</kbd> sur "
 "l'onglet <a  target='_parent' href='/system-info/'>Information système</a> "
 "de la page de configuration."
@@ -193,8 +192,8 @@ msgid ""
 "danger\">Red</span> means <i>real bad</i>: rabbit has no IP address (check "
 "your WiFi access point / DHCP server)."
 msgstr ""
-"<span class=\"badge badge-pill badge-info\">Fuchsia</span> signifie <i>tout va "
-"bien</i> : le lapin a une adresse IP sur votre réseau local, et accès à "
+"<span class=\"badge badge-pill badge-info\">Fuchsia</span> signifie <i>tout "
+"va bien</i> : le lapin a une adresse IP sur votre réseau local, et accès à "
 "l'Internet.<br><span class=\"badge badge-pill badge-warning\">Orange</span> "
 "signifie <i>pas très bon</i> : le lapin a une adresse IP locale, mais pas de "
 "connexion Internet (vérifiez votre routeur).<br><span class=\"badge badge-"
@@ -215,9 +214,21 @@ msgstr ""
 
 #: templates/nabweb/help.html:17
 msgid "Subscribe to the newsletter."
-msgstr "Abonnez vous à la lettre d'information."
+msgstr "Abonnez-vous à la lettre d'information."
 
 #: templates/nabweb/help.html:18
+msgid ""
+"<a target='_blank' href='https://dsc.gg/nabaztagtagtag' rel='noopener "
+"noreferrer'>Discord Nabaztag & Tag:Tag:Tag</a>"
+msgstr ""
+"<a target='_blank' href='https://dsc.gg/nabaztag' rel='noopener "
+"noreferrer'>Discord Nabaztag & Tag:Tag:Tag</a>"
+
+#: templates/nabweb/help.html:18
+msgid "Modern place to discuss."
+msgstr "Salon de discussoin."
+
+#: templates/nabweb/help.html:19
 msgid ""
 "The <a target='_blank' href='https://www.tagtagtag.fr/forum/' rel='noopener "
 "noreferrer'>Tag:Tag:Tag user forum</a>"
@@ -225,12 +236,12 @@ msgstr ""
 "Le <a target='_blank' href='https://www.tagtagtag.fr/forum/' rel='noopener "
 "noreferrer'>forum d'utilisateurs Tag:Tag:Tag</a>"
 
-#: templates/nabweb/help.html:18
+#: templates/nabweb/help.html:19
 msgid "Share your problems and solutions with other rabbit breeders."
 msgstr ""
 "Partagez vos problèmes et vos solutions avec d'autres éleveurs de lapins."
 
-#: templates/nabweb/help.html:19
+#: templates/nabweb/help.html:20
 msgid ""
 "The <a target='_blank' href='https://github.com/nabaztag2018/pynab/#readme' "
 "rel='noopener noreferrer'>GitHub repository</a>"
@@ -238,12 +249,12 @@ msgstr ""
 "Le <a target='_blank' href='https://github.com/nabaztag2018/pynab/#readme' "
 "rel='noopener noreferrer'>référentiel GitHub</a>"
 
-#: templates/nabweb/help.html:19
+#: templates/nabweb/help.html:20
 msgid "Report bugs or contribute to the project with other developers."
 msgstr ""
 "Signalez des bogues ou contribuez au projet avec d'autres développeurs."
 
-#: templates/nabweb/help.html:20
+#: templates/nabweb/help.html:21
 msgid ""
 "<a target='_blank' href='https://twitter.com/nabaztagtagtag' rel='noopener "
 "noreferrer'>Nabaztag on Twitter</a>"
@@ -251,7 +262,7 @@ msgstr ""
 "<a target='_blank' href='https://twitter.com/nabaztagtagtag' rel='noopener "
 "noreferrer'>Nabaztag sur Twitter</a>"
 
-#: templates/nabweb/help.html:21
+#: templates/nabweb/help.html:22
 msgid ""
 "The <a target='_blank' href='https://www.instructables.com/member/"
 "tagtagtag/' rel='noopener noreferrer'>TagTagTag assembly instructions</a>"
@@ -259,7 +270,7 @@ msgstr ""
 "Les <a target='_blank' href='https://www.instructables.com/member/"
 "tagtagtag/' rel='noopener noreferrer'>instructions de montage TagTagTag</a>"
 
-#: templates/nabweb/help.html:21
+#: templates/nabweb/help.html:22
 msgid ""
 "The open heart operation to transplant the card into your rabbit. At this "
 "stage you probably do not need this anymore..."
@@ -267,17 +278,34 @@ msgstr ""
 "L'opération à cœur ouvert pour transplanter la carte dans votre lapin. A ce "
 "stade, vous n'en avez probablement plus besoin ..."
 
-#: templates/nabweb/help.html:22
+#: templates/nabweb/help.html:23
+#, fuzzy
+#| msgid ""
+#| "<a target='_blank' href='https://fr.ulule.com/l-eternel-retour-du-"
+#| "nabaztag/' rel='noopener noreferrer'>The eternal return of the Nabaztag</"
+#| "a>"
 msgid ""
-"The <a target='_blank' href='https://www.tagtagtag.fr/index_eng.html' "
-"rel='noopener noreferrer'>Eternal Sunshine of the Nabaztag</a>"
+"<a target='_blank' href='https://fr.ulule.com/le-retour-du-retour-du-"
+"nabaztag/' rel='noopener noreferrer'>Nabaztag is BackBack</a>"
 msgstr ""
-"L'<a target='_blank' href='https://www.tagtagtag.fr/index.html' "
-"rel='noopener noreferrer'>éternel retour du Nabaztag</a>"
+"<a target='_blank' href='https://fr.ulule.com/l-eternel-retour-du-nabaztag/' "
+"rel='noopener noreferrer'>L'éternel retour du Nabaztag</a>"
 
-#: templates/nabweb/help.html:22
-msgid "The TagtagTag project..."
-msgstr "Le projet TagTagTag ..."
+#: templates/nabweb/help.html:23
+msgid "Some project history..."
+msgstr "Un peu d'histoire ..."
+
+#: templates/nabweb/help.html:24
+msgid ""
+"<a target='_blank' href='https://fr.ulule.com/l-eternel-retour-du-nabaztag/' "
+"rel='noopener noreferrer'>The eternal return of the Nabaztag</a>"
+msgstr ""
+"<a target='_blank' href='https://fr.ulule.com/l-eternel-retour-du-nabaztag/' "
+"rel='noopener noreferrer'>L'éternel retour du Nabaztag</a>"
+
+#: templates/nabweb/help.html:24
+msgid "Collection 2021-2022"
+msgstr "Collection 2021-2022"
 
 #: templates/nabweb/index.html:8
 msgid "You are currently connected to your rabbit."
@@ -367,15 +395,15 @@ msgstr ""
 "remplacer?"
 
 #: templates/nabweb/rfid/index.html:16
-#: templates/nabweb/system-info/index.html:113
-#: templates/nabweb/system-info/index.html:119
+#: templates/nabweb/system-info/index.html:99
+#: templates/nabweb/system-info/index.html:105
 #: templates/nabweb/upgrade/index.html:30
 msgid "Yes"
 msgstr "Oui"
 
 #: templates/nabweb/rfid/index.html:17
-#: templates/nabweb/system-info/index.html:113
-#: templates/nabweb/system-info/index.html:119
+#: templates/nabweb/system-info/index.html:99
+#: templates/nabweb/system-info/index.html:105
 #: templates/nabweb/upgrade/index.html:31
 msgid "No"
 msgstr "Non"
@@ -625,150 +653,145 @@ msgstr "Une erreur serveur inconnue est survenue"
 msgid "System information"
 msgstr "Information système"
 
-#: templates/nabweb/system-info/index.html:11
-#: templates/nabweb/system-info/index.html:13
-#: templates/nabweb/system-info/index.html:15
-#, python-format
-msgid "%(variant)s OS"
-msgstr "Système d'exploitation %(variant)s"
+#: templates/nabweb/system-info/index.html:10
+msgid "Raspberry Pi OS"
+msgstr ""
 
-#: templates/nabweb/system-info/index.html:20
+#: templates/nabweb/system-info/index.html:14
 msgid "Version"
 msgstr "Version"
 
-#: templates/nabweb/system-info/index.html:22
+#: templates/nabweb/system-info/index.html:16
 msgid "Hostname"
 msgstr "Nom d'hôte"
 
-#: templates/nabweb/system-info/index.html:24
+#: templates/nabweb/system-info/index.html:18
 msgid "IP address"
 msgstr "Adresse IP"
 
-#: templates/nabweb/system-info/index.html:28
-#: templates/nabweb/system-info/index.html:30
+#: templates/nabweb/system-info/index.html:21
 msgid "Wireless network"
 msgstr "Réseau sans fil"
 
-#: templates/nabweb/system-info/index.html:34
-#: templates/nabweb/system-info/index.html:81
+#: templates/nabweb/system-info/index.html:24
+#: templates/nabweb/system-info/index.html:67
 msgid "Uptime"
 msgstr "Levé depuis"
 
-#: templates/nabweb/system-info/index.html:37
-#: templates/nabweb/system-info/index.html:39
+#: templates/nabweb/system-info/index.html:26
 msgid "SSH (Secure shell)"
 msgstr "SSH (shell sécurisé)"
 
-#: templates/nabweb/system-info/index.html:41
+#: templates/nabweb/system-info/index.html:27
 msgid "Enabled with default password"
 msgstr "Activé avec le mot de passe par défaut"
 
-#: templates/nabweb/system-info/index.html:41
+#: templates/nabweb/system-info/index.html:27
 msgid "Enabled"
 msgstr "Activé"
 
-#: templates/nabweb/system-info/index.html:41
+#: templates/nabweb/system-info/index.html:27
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: templates/nabweb/system-info/index.html:44
+#: templates/nabweb/system-info/index.html:30
 msgid "Maintenance"
 msgstr "Maintenance"
 
-#: templates/nabweb/system-info/index.html:46
-#: templates/nabweb/system-info/index.html:136
-#: templates/nabweb/system-info/index.html:146
+#: templates/nabweb/system-info/index.html:32
+#: templates/nabweb/system-info/index.html:122
+#: templates/nabweb/system-info/index.html:132
 msgid "Reboot"
 msgstr "Redémarrer"
 
-#: templates/nabweb/system-info/index.html:47
-#: templates/nabweb/system-info/index.html:155
-#: templates/nabweb/system-info/index.html:165
+#: templates/nabweb/system-info/index.html:33
+#: templates/nabweb/system-info/index.html:141
+#: templates/nabweb/system-info/index.html:151
 msgid "Shutdown"
 msgstr "Arrêter"
 
-#: templates/nabweb/system-info/index.html:53
+#: templates/nabweb/system-info/index.html:39
 msgid "<b>Reboot is in progress!</b>"
 msgstr "<b>Le redémarrage est en cours!</b>"
 
-#: templates/nabweb/system-info/index.html:59
+#: templates/nabweb/system-info/index.html:45
 msgid "<b>Shutdown is in progress!</b>"
 msgstr "<b>L'arrêt est en cours!</b>"
 
-#: templates/nabweb/system-info/index.html:59
+#: templates/nabweb/system-info/index.html:45
 msgid "Please wait at least 10 seconds before unplugging the power cable."
 msgstr ""
 "Veuillez attendre au moins 10 secondes avant de débrancher le cable "
 "d'alimentation."
 
-#: templates/nabweb/system-info/index.html:70
+#: templates/nabweb/system-info/index.html:56
 msgid "Nabd daemon"
 msgstr "Processus Nabd"
 
-#: templates/nabweb/system-info/index.html:79
+#: templates/nabweb/system-info/index.html:65
 msgid "State"
 msgstr "État"
 
-#: templates/nabweb/system-info/index.html:83
+#: templates/nabweb/system-info/index.html:69
 msgid "Clients (including website)"
 msgstr "Clients (y compris le site Web)"
 
-#: templates/nabweb/system-info/index.html:95
+#: templates/nabweb/system-info/index.html:81
 msgid "Hardware"
 msgstr "Matériel"
 
-#: templates/nabweb/system-info/index.html:99
+#: templates/nabweb/system-info/index.html:85
 msgid "Computer"
 msgstr "Ordinateur"
 
-#: templates/nabweb/system-info/index.html:108
+#: templates/nabweb/system-info/index.html:94
 msgid "Hat card"
 msgstr "Carte chapeau"
 
-#: templates/nabweb/system-info/index.html:110
+#: templates/nabweb/system-info/index.html:96
 msgid "Sound card"
 msgstr "Carte son"
 
-#: templates/nabweb/system-info/index.html:112
+#: templates/nabweb/system-info/index.html:98
 msgid "Sound input"
 msgstr "Entrée son"
 
-#: templates/nabweb/system-info/index.html:114
+#: templates/nabweb/system-info/index.html:100
 msgid "Left ear"
 msgstr "Oreille gauche"
 
-#: templates/nabweb/system-info/index.html:116
+#: templates/nabweb/system-info/index.html:102
 msgid "Right ear"
 msgstr "Oreille droite"
 
-#: templates/nabweb/system-info/index.html:123
+#: templates/nabweb/system-info/index.html:109
 msgid "Hardware test"
 msgstr "Test matériel"
 
-#: templates/nabweb/system-info/index.html:125
+#: templates/nabweb/system-info/index.html:111
 msgid "LEDs"
 msgstr "LEDs"
 
-#: templates/nabweb/system-info/index.html:126
+#: templates/nabweb/system-info/index.html:112
 msgid "Ears"
 msgstr "Oreilles"
 
-#: templates/nabweb/system-info/index.html:142
+#: templates/nabweb/system-info/index.html:128
 msgid "You are about to <b>reboot</b> the Raspberry Pi Linux system."
 msgstr ""
 "Vous êtes sur le point de <b>redémarrer</b> le système Linux du Raspberry Pi."
 
-#: templates/nabweb/system-info/index.html:142
-#: templates/nabweb/system-info/index.html:161
+#: templates/nabweb/system-info/index.html:128
+#: templates/nabweb/system-info/index.html:147
 msgid "Do you want to proceed?"
 msgstr "Voulez-vous continuer?"
 
-#: templates/nabweb/system-info/index.html:145
-#: templates/nabweb/system-info/index.html:164
+#: templates/nabweb/system-info/index.html:131
+#: templates/nabweb/system-info/index.html:150
 msgid "Cancel"
 msgstr "Annuler"
 
-#: templates/nabweb/system-info/index.html:161
+#: templates/nabweb/system-info/index.html:147
 msgid "You are about to <b>shutdown</b> the Raspberry Pi Linux system."
 msgstr ""
 "Vous êtes sur le point d'<b>éteindre</b> le système Linux du Raspberry Pi."
@@ -830,15 +853,15 @@ msgid ""
 "You can switch to the Pynab <b>master</b> branch to benefit from changes "
 "between releases, however this is not for the faint-hearted and requires "
 "good command of <a href='https://www.raspberrypi.org/documentation/remote-"
-"access/ssh/' target='_blanck' rel='noopener noreferrer'>SSH</a> and <a "
-"href='https://git-scm.com/docs/' target='_blanck' rel='noopener "
+"access/ssh/' target='_blank' rel='noopener noreferrer'>SSH</a> and <a "
+"href='https://git-scm.com/docs/' target='_blank' rel='noopener "
 "noreferrer'>Git</a>."
 msgstr ""
 "Vous pouvez basculer sur la branche <b>master</b> de Pynab pour avoir les "
 "dernières nouveautés, mais ceci suppose que vous n'avez pas peur de <a "
 "href='https://www.raspberrypi.org/documentation/remote-access/ssh/' "
-"target='_blanck' rel='noopener noreferrer'>SSH</a> et de <a href='https://"
-"git-scm.com/docs/' target='_blanck' rel='noopener noreferrer'>Git</a>."
+"target='_blank' rel='noopener noreferrer'>SSH</a> et de <a href='https://git-"
+"scm.com/docs/' target='_blank' rel='noopener noreferrer'>Git</a>."
 
 #: templates/nabweb/upgrade/index.html:47
 msgid ""
@@ -914,3 +937,13 @@ msgstr "{} heures et 1 minute"
 #: templatetags/duration_filter.py:27
 msgid "{} hours and {} minutes"
 msgstr "{} heures et {} minutes"
+
+#~ msgid ""
+#~ "The <a target='_blank' href='https://www.tagtagtag.fr/index_eng.html' "
+#~ "rel='noopener noreferrer'>Eternal Sunshine of the Nabaztag</a>"
+#~ msgstr ""
+#~ "L'<a target='_blank' href='https://www.tagtagtag.fr/index.html' "
+#~ "rel='noopener noreferrer'>éternel retour du Nabaztag</a>"
+
+#~ msgid "%(variant)s OS"
+#~ msgstr "Système d'exploitation %(variant)s"
