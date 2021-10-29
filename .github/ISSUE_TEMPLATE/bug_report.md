@@ -18,6 +18,12 @@ assignees: ''
 
 - [ ] Maker Faire 2018
 - [ ] Ulule 05/2019
+- [ ] Ulule 09/2021
+
+**Version of RFID:**
+
+- [ ] Original
+- [ ] NCF board from Ulule 09/2021
 
 **The problem**
 Describe the issue you are experiencing here. Tell us what you were trying to do step by step, and what happened that you did not expect. Provide a clear and concise description of what the problem is and include as many details as possible.
