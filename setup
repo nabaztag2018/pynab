@@ -24,18 +24,16 @@ esac
 
 LC_ALL=C
 
-if [ -f "/etc/rpi-issue" ]
+if [ -d "/boot/dietpi" ]
 then
-    if [ -d "/boot/dietpi" ]
-    then
-        # DietPi distro
-        owner=dietpi
-        home_dir=/home/${owner}
-    else
-        # assume Raspberry Pi OS distro
-        owner=pi
-        home_dir=/home/${owner}
-    fi
+    # DietPi distro
+    owner=dietpi
+    home_dir=/home/${owner}
+elif [ -f "/etc/rpi-issue" ]
+then
+    # Raspberry Pi OS distro
+    owner=pi
+    home_dir=/home/${owner}
 else
     echo "$(basename ${0}): unsupported Linux distribution!"
     exit 3
