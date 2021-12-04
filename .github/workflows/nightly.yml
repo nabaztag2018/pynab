@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        base_image: ['raspios_lite:2021-05-07']
+        base_image: ['raspios_lite:2021-10-30', 'dietpi:rpi_armv6_bullseye']
     if: ${{ needs.check_date.outputs.SHOULD_RUN == 'true' }}
 
     steps:
@@ -42,7 +42,7 @@ jobs:
           repository: ${{ github.repository }}
 
       - name: Run test suite in chroot environment
-        uses: pguyot/arm-runner-action@v1
+        uses: pguyot/arm-runner-action@v2
         id: arm_runner_tests
         with:
           image_additional_mb: 4096
@@ -55,7 +55,7 @@ jobs:
             sudo sh -c "[ ! -f /etc/sudoers.d/010_pi-nopasswd ] && usermod -aG sudo pi && echo 'pi ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/010_pi-nopasswd || true"
             sudo chown -hR pi:pi /home/pi/pynab
             sudo apt-get update -y
-            sudo apt-get install --no-install-recommends -y postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3 libopenblas-dev liblapack-dev zram-tools
+            sudo apt-get install --no-install-recommends -y postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran5 libopenblas-dev liblapack-dev zram-tools
             sudo mkdir -p /run/systemd/timesync/ && sudo touch /run/systemd/timesync/synchronized
             sudo apt-get install --no-install-recommends -y alsa-utils xz-utils avahi-daemon
             sudo -u pi taskset -c 0 /bin/bash install.sh ci-chroot-test
@@ -67,7 +67,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        base_image: ['raspios_lite:2021-05-07']
+        base_image: ['raspios_lite:2021-10-30', 'dietpi:rpi_armv6_bullseye']
     if: ${{ needs.check_date.outputs.SHOULD_RUN == 'true' }}
 
     steps:
@@ -93,7 +93,7 @@ jobs:
           echo ::set-output name=LOCAL_BRANCH::${GITHUB_REF/refs\/heads\//}
 
       - name: Create a release image in chroot environment
-        uses: pguyot/arm-runner-action@v1
+        uses: pguyot/arm-runner-action@v2
         id: arm_runner_install
         with:
           image_additional_mb: 4096

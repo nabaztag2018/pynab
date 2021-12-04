@@ -174,14 +174,21 @@ if [ $makerfaire2018 -eq 0 ]; then
 fi
 
 cd ${root_dir}
-if [ ! -d "venv" ]; then
-  if ! [ -x "$(command -v python3.7)" ] ; then
-    echo "Please install Python 3.7 (you might need to upgrade your Linux distribution)"
-    exit 1
+if [ -x "$(command -v python3.9)" ] ; then
+  python=python3.9
+  if [ ! -d "venv" ]; then
+    echo "Creating Python 3.9 virtual environment"
+    ${python} -m venv venv
   fi
-
-  echo "Creating Python 3.7 virtual environment"
-  python3.7 -m venv venv
+elif [ -x "$(command -v python3.7)" ] ; then
+  python=python3.7
+  if [ ! -d "venv" ]; then
+    echo "Creating Python 3.7 virtual environment"
+    ${python} -m venv venv
+  fi
+else
+  echo "Please install Python 3.7 or 3.9 (you might need to upgrade your Linux distribution)"
+  exit 1
 fi
 
 echo "Installing PyPi requirements"
@@ -198,12 +205,12 @@ if [ $makerfaire2018 -eq 0 ]; then
   fi
 
   # maker faire card has no mic, no need to install snips
-  if [ ! -d "venv/lib/python3.7/site-packages/snips_nlu_fr" ]; then
+  if [ ! -d "venv/lib/${python}/site-packages/snips_nlu_fr" ]; then
     echo "Downloading Snips NLU models for French"
     venv/bin/python -m snips_nlu download fr
   fi
 
-  if [ ! -d "venv/lib/python3.7/site-packages/snips_nlu_en" ]; then
+  if [ ! -d "venv/lib/${python}/site-packages/snips_nlu_en" ]; then
     echo "Downloading Snips NLU models for English"
     venv/bin/python -m snips_nlu download en
   fi
