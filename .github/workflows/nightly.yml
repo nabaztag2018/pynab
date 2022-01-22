@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        base_image: ['raspios_lite:2021-05-07', 'dietpi:rpi_armv6_buster']
+        base_image: ['raspios_lite:2021-05-07']
     if: ${{ needs.check_date.outputs.SHOULD_RUN == 'true' }}
 
     steps:
@@ -67,7 +67,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        base_image: ['raspios_lite:2021-05-07', 'dietpi:rpi_armv6_buster']
+        base_image: ['raspios_lite:2021-05-07']
     if: ${{ needs.check_date.outputs.SHOULD_RUN == 'true' }}
 
     steps:
