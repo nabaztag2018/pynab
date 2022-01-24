@@ -1,18 +1,24 @@
-# Nabaztag en Python pour Raspberry Pi
-
-[![build (qemu)](https://github.com/nabaztag2018/pynab/actions/workflows/arm-runner.yml/badge.svg?branch=master)](https://github.com/nabaztag2018/pynab/actions/workflows/arm-runner.yml)
-[![tests](https://github.com/nabaztag2018/pynab/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/nabaztag2018/pynab/actions/workflows/tests.yml)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/nabaztag2018/pynab.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nabaztag2018/pynab/alerts/)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/nabaztag2018/pynab.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nabaztag2018/pynab/context:python)
-[![codecov](https://codecov.io/gh/nabaztag2018/pynab/branch/master/graph/badge.svg)](https://codecov.io/gh/nabaztag2018/pynab)
-[![Twitter](https://img.shields.io/twitter/follow/nabaztagtagtag?label=Follow&style=social)](https://twitter.com/nabaztagtagtag)
+<h1 align="center"><a href="https://github.com/nabaztag2018/pynab">Nabaztag en Python pour Raspberry Pi</a></h1>
+<p align="center">
+  <a href="https://dsc.gg/nabaztagtagtag"><img src="https://discordapp.com/api/guilds/872114025918513193/widget.png?style=shield" alt="Discord Server"></a>
+  <a href="https://lgtm.com/projects/g/nabaztag2018/pynab/alerts/"><img alt="Total alerts" src="https://img.shields.io/lgtm/alerts/g/nabaztag2018/pynab.svg?logo=lgtm&logoWidth=18&label=LGTM%20Alerts"/></a>
+  <a href="https://lgtm.com/projects/g/nabaztag2018/pynab/context:python"><img alt="Language grade: Python" src="https://img.shields.io/lgtm/grade/python/g/nabaztag2018/pynab.svg?logo=lgtm&logoWidth=18&label=LGTM%20Code%20Quality"/></a>
+  <a href="https://codecov.io/gh/nabaztag2018/pynab"><img src="https://codecov.io/gh/nabaztag2018/pynab/branch/master/graph/badge.svg" alt="codecov"></a>
+  <a href="https://twitter.com/nabaztagtagtag"><img src="https://img.shields.io/twitter/follow/nabaztagtagtag?label=Follow&style=social" alt="Follow us in Twitter"></a>
+</p>
+<p align="center">
+  <a href="https://github.com/nabaztag2018/pynab/actions/workflows/python-lint.yml"><img src="https://github.com/nabaztag2018/pynab/actions/workflows/python-lint.yml/badge.svg?branch=master" alt="✔️  Python lint"></a>
+  <a href="https://github.com/nabaztag2018/pynab/actions/workflows/arm-runner.yml"><img src="https://github.com/nabaztag2018/pynab/actions/workflows/arm-runner.yml/badge.svg?branch=master" alt="🏗️  Build"></a>
+  <a href="https://github.com/nabaztag2018/pynab/actions/workflows/tests.yml"><img src="https://github.com/nabaztag2018/pynab/actions/workflows/tests.yml/badge.svg?branch=master" alt="🧪 Tests"></a>
+  <a href="https://github.com/psf/black"><img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code Style: Black"></a>
+  <a href="http://makeapullrequest.com"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"></a>
+</p>
 
 ## Cartes
 
 Ce système est conçu pour deux cartes pour **Nabaztag** (v1) et **Nabaztag:Tag** (v2) :
-- Une carte réalisée pour [Maker Faire 2018](https://paris.makerfaire.com/maker/entry/1285/), qui ne fonctionne qu'avec les Nabaztag (sans micro ni RFID).
-- Une nouvelle version de la carte, proposée via la [campagne Ulule en mai 2019](https://fr.ulule.com/le-retour-du-nabaztag/), qui fonctionne avec les Nabaztag et les Nabaztag:Tag (les micros sont sur la carte, ce qui permet aux Nabaztag de bénéficier aussi de la reconnaissance vocale).
+- Une carte réalisée pour [Maker Faire 2018](https://paris.makerfaire.com/maker/entry/1285/), qui ne fonctionne qu'avec les Nabaztag (sans micro, ni RFID).
+- Une nouvelle version de la carte, proposée via une [campagne Ulule en mai 2019](https://fr.ulule.com/le-retour-du-nabaztag/) et une en [septembre 2021](https://fr.ulule.com/l-eternel-retour-du-nabaztag/), qui fonctionne avec les Nabaztag et les Nabaztag:Tag (les micros sont sur la carte, ce qui permet aux Nabaztag de bénéficier aussi de la reconnaissance vocale).
 
 Les schémas et fichiers de fabrication de ces deux cartes sont dans le repository [hardware](https://github.com/nabaztag2018/hardware), respectivement [`RPI_Nabaztag`](https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF) (2018) et [`tagtagtag_V2.0`](https://github.com/nabaztag2018/hardware/tree/master/tagtagtag_V2.0) (2019).
 
