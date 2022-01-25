@@ -42,7 +42,7 @@
         <div class="card-body">
           <p>{% blocktrans %}Through this interface, you can upgrade your Nabaztag software (provided it is connected to the internet). This may take a while depending on the size and the scope of the update. <strong>Do not restart your rabbit before the process is finished</strong>.{% endblocktrans %}</p>
           {% if pynab.upstream_branch == "origin/release" %}
-          <p class="text-secondary">{% trans "You can switch to the Pynab <b>master</b> branch to benefit from changes between releases, however this is not for the faint-hearted and requires good command of <a href='https://www.raspberrypi.org/documentation/remote-access/ssh/' target='_blanck' rel='noopener noreferrer'>SSH</a> and <a href='https://git-scm.com/docs/' target='_blanck' rel='noopener noreferrer'>Git</a>." %}</p>
+          <p class="text-secondary">{% trans "You can switch to the Pynab <b>master</b> branch to benefit from changes between releases, however this is not for the faint-hearted and requires good command of <a href='https://www.raspberrypi.org/documentation/remote-access/ssh/' target='_blank' rel='noopener noreferrer'>SSH</a> and <a href='https://git-scm.com/docs/' target='_blank' rel='noopener noreferrer'>Git</a>." %}</p>
           {% elif pynab.upstream_branch == "" %}
           <p class="text-warning">{% trans "Your Nabaztag is using a purely local Pynab branch. Upgrade is not applicable." %}</p>
           {% else %}
