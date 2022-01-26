@@ -254,9 +254,9 @@
     {% else %}
       <form action="/nabmastodond/connect">
         {% csrf_token %}
-        <p>{% trans "As we don't want Nabaztag to live in the cloud we're using <a href='https://en.wikipedia.org/wiki/Mastodon_(software)'>Mastodon</a> to connect rabbits (Mastodon is a sort of decentralized Twitter - and Open Source). Currently your Nabaztag is not connected to Mastodon." %}</p>
+        <p>{% trans "As we don't want Nabaztag to live in the cloud we're using <a href='https://en.wikipedia.org/wiki/Mastodon_(software)' target='_blank' rel='noopener noreferrer'>Mastodon</a> to connect rabbits (Mastodon is a sort of decentralized Twitter - and Open Source). Currently your Nabaztag is not connected to Mastodon." %}</p>
         <ol>
-          <li>{% blocktrans %}First, <strong>create an account for your Nabaztag</strong> on a given Mastodon instance, you can find a directory of Mastodon instances <a href="https://joinmastodon.org/" target="_blank">here</a>.{% endblocktrans %}</li>
+          <li>{% blocktrans %}First, <strong>create an account for your Nabaztag</strong> on a given Mastodon instance, you can find a directory of Mastodon instances <a href="https://joinmastodon.org/" target="_blank" rel="noopener noreferrer">here</a>.{% endblocktrans %}</li>
           <li>{% blocktrans %}Enter the instance your Nabaztag's account is on in the instance box below and connect this account with the <kbd class="btn-primary">Connect</kbd> button.{% endblocktrans %}</li>
         </ol>
         <div class="input-group input-group mb-3">
