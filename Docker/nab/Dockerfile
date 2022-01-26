@@ -40,7 +40,7 @@ RUN python3.7 -m venv ${VIRTUAL_ENV}
 ENV PATH=${VIRTUAL_ENV}/bin:${PATH}
 
 COPY requirements.txt /tmp/requirements.txt
-RUN grep -vE py-kaldi-asr < /tmp/requirements.txt > /tmp/requirements_docker.txt
+RUN grep -v -e py-kaldi-asr -e snips-nlu < /tmp/requirements.txt > /tmp/requirements_docker.txt
 RUN ${VIRTUAL_ENV}/bin/pip install -r /tmp/requirements_docker.txt
 
 ENV NABD_HOST=pynab
