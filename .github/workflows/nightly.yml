@@ -32,7 +32,32 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        base_image: ['raspios_lite:2021-10-30', 'dietpi:rpi_armv6_bullseye']
+        target: [zero_raspios, zero_dietpi, zero2_raspios, zero2_dietpi, zero2_64_raspios, zero2_64_dietpi]
+        include:
+        - target: zero_raspios
+          cpu: arm1176
+          cpu_info: cpuinfo/raspberrypi_zero_w
+          base_image: raspios_lite:latest
+        - target: zero_dietpi
+          cpu: arm1176
+          cpu_info: cpuinfo/raspberrypi_zero_w
+          base_image: dietpi:rpi_armv6_bullseye
+        - target: zero2_raspios
+          cpu: cortex-a7
+          cpu_info: cpuinfo/raspberrypi_zero2_w
+          base_image: raspios_lite:latest
+        - target: zero2_dietpi
+          cpu: cortex-a7
+          cpu_info: cpuinfo/raspberrypi_zero2_w
+          base_image: dietpi:rpi_armv7_bullseye
+        - target: zero2_64_raspios
+          cpu: cortex-a53
+          cpu_info: cpuinfo/raspberrypi_zero2_w_arm64
+          base_image: raspios_lite_arm64:latest
+        - target: zero2_64_dietpi
+          cpu: cortex-a53
+          cpu_info: cpuinfo/raspberrypi_zero2_w_arm64
+          base_image: dietpi:rpi_armv8_bullseye
     if: ${{ needs.check_date.outputs.SHOULD_RUN == 'true' }}
 
     steps:
@@ -46,8 +71,10 @@ jobs:
         id: arm_runner_tests
         with:
           image_additional_mb: 4096
+          bind_mount_repository: true
           base_image: ${{ matrix.base_image }}
-          cpu: 'arm1176'
+          cpu: ${{ matrix.cpu }}
+          cpu_info: ${{ matrix.cpu_info }}
           copy_repository_path: /home/pi/pynab
           optimize_image: no
           commands: |
@@ -67,7 +94,32 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        base_image: ['raspios_lite:2021-10-30', 'dietpi:rpi_armv6_bullseye']
+        target: [zero_raspios, zero_dietpi, zero2_raspios, zero2_dietpi, zero2_64_raspios, zero2_64_dietpi]
+        include:
+        - target: zero_raspios
+          cpu: arm1176
+          cpu_info: cpuinfo/raspberrypi_zero_w
+          base_image: raspios_lite:latest
+        - target: zero_dietpi
+          cpu: arm1176
+          cpu_info: cpuinfo/raspberrypi_zero_w
+          base_image: dietpi:rpi_armv6_bullseye
+        - target: zero2_raspios
+          cpu: cortex-a7
+          cpu_info: cpuinfo/raspberrypi_zero2_w
+          base_image: raspios_lite:latest
+        - target: zero2_dietpi
+          cpu: cortex-a7
+          cpu_info: cpuinfo/raspberrypi_zero2_w
+          base_image: dietpi:rpi_armv7_bullseye
+        - target: zero2_64_raspios
+          cpu: cortex-a53
+          cpu_info: cpuinfo/raspberrypi_zero2_w_arm64
+          base_image: raspios_lite_arm64:latest
+        - target: zero2_64_dietpi
+          cpu: cortex-a53
+          cpu_info: cpuinfo/raspberrypi_zero2_w_arm64
+          base_image: dietpi:rpi_armv8_bullseye
     if: ${{ needs.check_date.outputs.SHOULD_RUN == 'true' }}
 
     steps:
@@ -81,15 +133,8 @@ jobs:
         run: |
           nightly_pattern=nightly
           release_name=${nightly_pattern}-$(date +"%Y-%m-%d")
-          if [[ "${{ matrix.base_image }}" =~ "raspios" ]]; then
-            os_suffix="-raspios"
-          elif [[ "${{ matrix.base_image }}" =~ "dietpi" ]]; then
-            os_suffix="-dietpi"
-          else
-            os_suffix=""
-          fi
           echo ::set-output name=RELEASE_NAME::${release_name}
-          echo ::set-output name=IMAGE_NAME_SUFFIX::${release_name}${os_suffix}
+          echo ::set-output name=IMAGE_NAME_SUFFIX::${release_name}-${{ matrix.target }}
           echo ::set-output name=LOCAL_BRANCH::${GITHUB_REF/refs\/heads\//}
 
       - name: Create a release image in chroot environment
@@ -98,7 +143,8 @@ jobs:
         with:
           image_additional_mb: 4096
           base_image: ${{ matrix.base_image }}
-          cpu: 'arm1176'
+          cpu: ${{ matrix.cpu }}
+          cpu_info: ${{ matrix.cpu_info }}
           optimize_image: yes
           commands: |
             echo GITHUB_BRANCH=${{ steps.image_and_branch_name.outputs.LOCAL_BRANCH }}
