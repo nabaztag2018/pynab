@@ -6,7 +6,7 @@ import getopt
 import json
 import logging
 import os
-import platform
+import re
 import socket
 import subprocess
 import sys
@@ -18,7 +18,7 @@ import dateutil.parser
 from lockfile import AlreadyLocked, LockFailed
 from lockfile.pidlockfile import PIDLockFile
 
-from nabcommon import nablogging, network, settings
+from nabcommon import hardware, nablogging, network, settings
 from nabcommon.nabservice import NabService
 
 from .ears import Ears
@@ -1050,11 +1050,15 @@ class Nabd:
     def main(argv):
         nablogging.setup_logging("nabd")
         pidfilepath = "/run/nabd.pid"
-        if sys.platform == "linux" and platform.machine() == "armv6l":
+        hardware_platform = hardware.device_model()
+        matchObj = re.match(r"Raspberry Pi Zero", hardware_platform)
+        if matchObj:
+            # running on Pi Zero or Zero 2 hardware
             from .nabio_hw import NabIOHW
 
             nabiocls = NabIOHW
         else:
+            # other hardware: go virtual
             from .nabio_virtual import NabIOVirtual
 
             nabiocls = NabIOVirtual
@@ -1086,16 +1090,26 @@ class Nabd:
                 nabio = nabiocls()
                 Nabd.leds_boot(nabio, 1)
                 nabd = Nabd(nabio)
+                logging.info(f"running on {hardware_platform}")
                 nabd.run()
         except AlreadyLocked:
-            print(f"nabd already running? (pid={pidfile.read_pid()})")
+            error_msg = f"nabd already running? (pid={pidfile.read_pid()})"
+            print(error_msg)
+            logging.critical(error_msg)
             exit(1)
         except LockFailed:
-            print(
+            error_msg = (
                 f"Cannot write pid file to {pidfilepath}, please fix "
                 f"permissions"
             )
+            print(error_msg)
+            logging.critical(error_msg)
             exit(1)
+        except Exception:
+            error_msg = f"Unhandled error: {sys.exc_info()[0]}"
+            print(error_msg)
+            logging.critical(error_msg)
+            exit(3)
 
 
 if __name__ == "__main__":
