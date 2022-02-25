@@ -157,8 +157,11 @@ if [ $makerfaire2018 -eq 0 ]; then
 
   # Maker Faire card has no mic, no need to install Kaldi
   if [ ! -d "/opt/kaldi" ]; then
-    echo "Installing precompiled Kaldi into /opt"
-    wget -O - -q https://github.com/pguyot/kaldi/releases/download/v5.4.1/kaldi-c3260f2-linux_armv6l-vfp.tar.xz | sudo tar xJ -C /
+    arch=$(uname -m)
+    # (Buster) kaldi_archive="v5.4.1/kaldi-c3260f2-linux_${arch}-vfp.tar.xz"
+    kaldi_archive="e4940d045/kaldi-e4940d045-${arch}.tar.xz"
+    echo "Installing precompiled ${arch} Kaldi into /opt"
+    wget -O - -q https://github.com/pguyot/kaldi/releases/download/${kaldi_archive} | sudo tar xJ -C /
     sudo ldconfig
   fi
 

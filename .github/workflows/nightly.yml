@@ -141,7 +141,7 @@ jobs:
         uses: pguyot/arm-runner-action@v2
         id: arm_runner_install
         with:
-          image_additional_mb: 4096
+          image_additional_mb: 4608
           base_image: ${{ matrix.base_image }}
           cpu: ${{ matrix.cpu }}
           cpu_info: ${{ matrix.cpu_info }}
