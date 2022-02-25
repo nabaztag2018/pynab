@@ -976,7 +976,7 @@ class Nabd:
         except KeyboardInterrupt:
             pass
         except Exception:
-            print(traceback.format_exc())
+            logging.debug(traceback.format_exc())
         finally:
             self.loop.run_until_complete(self.stop_idle_worker())
             server = server_task.result()
@@ -1106,7 +1106,7 @@ class Nabd:
             logging.critical(error_msg)
             exit(1)
         except Exception:
-            error_msg = f"Unhandled error: {sys.exc_info()[0]}"
+            error_msg = f"Unhandled error: {traceback.format_exc()}"
             print(error_msg)
             logging.critical(error_msg)
             exit(3)
