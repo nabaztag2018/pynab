@@ -12,7 +12,7 @@
 
 Ce système est conçu pour deux cartes pour **Nabaztag** (v1) et **Nabaztag:Tag** (v2) :
 - Une carte réalisée pour [Maker Faire 2018](https://paris.makerfaire.com/maker/entry/1285/), qui ne fonctionne qu'avec les Nabaztag (sans micro ni RFID).
-- Une nouvelle version de la carte, proposée via la [campagne Ulule en mai 2019](https://fr.ulule.com/le-retour-du-nabaztag/), qui fonctionne avec les Nabaztag et les Nabaztag:Tag (les micros sont sur la carte, ce qui permet aux Nabaztag de bénéficier aussi de la reconnaissance vocale).
+- Une nouvelle version de la carte, proposée via les campagnes Ulule de [mai 2019](https://fr.ulule.com/le-retour-du-nabaztag/) et [octobre 2021](https://fr.ulule.com/l-eternel-retour-du-nabaztag/), qui fonctionne avec les Nabaztag et les Nabaztag:Tag (les micros sont sur la carte, ce qui permet aux Nabaztag de bénéficier aussi de la reconnaissance vocale).
 
 Les schémas et fichiers de fabrication de ces deux cartes sont dans le repository [hardware](https://github.com/nabaztag2018/hardware), respectivement [`RPI_Nabaztag`](https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF) (2018) et [`tagtagtag_V2.0`](https://github.com/nabaztag2018/hardware/tree/master/tagtagtag_V2.0) (2019).
 
@@ -20,7 +20,7 @@ Pour être prévenu de la prochaine campagne, vous pouvez vous inscrire à la [l
 
 ## Images
 
-Les [releases](https://github.com/nabaztag2018/pynab/releases) sont des images de Raspberry Pi OS (Raspbian) Lite avec Pynab pré-installé. Elles ont les mêmes réglages que [Raspberry Pi OS](https://www.raspberrypi.org/software/operating-systems/#raspberry-pi-os-32-bit).
+Les [releases](https://github.com/nabaztag2018/pynab/releases) sont des images de Raspberry Pi OS Lite avec Pynab pré-installé. Elles ont les mêmes réglages que [Raspberry Pi OS](https://www.raspberrypi.org/software/operating-systems/).
 
 Pynab peut aussi s'installer sur [DietPi](https://dietpi.com/).
 
@@ -30,8 +30,7 @@ Les releases actuelles (>0.7.x) ne fonctionnent que sur les cartes 2019 (cf [#44
 
 ### 0. S'assurer que le système est bien à jour
 
-Le script d'installation requiert désormais une version basée sur Debian 10 (Buster), pour bénéficier de Python 3.7.
-Debian 11 (Bullseye) est également supporté, avec Python 3.9.
+Le script d'installation requiert désormais une version basée sur Debian 11 (Bullseye), avec Python 3.9.
 
 Il est nécessaire que les 'kernel headers' installés via `apt-get` correspondent à la version installée du noyau.
 
