@@ -157,10 +157,14 @@ if [ $makerfaire2018 -eq 0 ]; then
 
   # Maker Faire card has no mic, no need to install Kaldi
   if [ ! -d "/opt/kaldi" ]; then
-    arch=$(uname -m)
-    # (Buster) kaldi_archive="v5.4.1/kaldi-c3260f2-linux_${arch}-vfp.tar.xz"
-    kaldi_archive="e4940d045/kaldi-e4940d045-${arch}.tar.xz"
-    echo "Installing precompiled ${arch} Kaldi into /opt"
+    kaldi_release="e4940d045"
+    kaldi_platform=$(. /etc/os-release && echo "$ID$VERSION_ID-`uname -m`")
+    if [ "${kaldi_platform}" = "debian11-armv7l" ]; then
+      # (nasty) DietPi patch: debian11 version not available for armv7l
+      kaldi_platform="raspbian11-armv7l"
+    fi
+    echo "Installing precompiled ${kaldi_platform} Kaldi into /opt"
+    kaldi_archive="${kaldi_release}/kaldi-${kaldi_release}-linux_${kaldi_platform}.tar.xz"
     wget -O - -q https://github.com/pguyot/kaldi/releases/download/${kaldi_archive} | sudo tar xJ -C /
     sudo ldconfig
   fi
