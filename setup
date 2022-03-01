@@ -66,13 +66,6 @@ echo "Editing /boot/cmdline.txt."
 sed -i "s|root=PARTUUID=........-02|root=/dev/mmcblk0p2|" /boot/cmdline.txt
 cat "/boot/cmdline.txt"
 
-# Resize partition on first boot.
-# https://www.raspberrypi.org/forums/viewtopic.php?p=1503766#p1503766
-# (not needed anymore on recent distros)
-#wget -O /etc/init.d/resize2fs_once https://raw.githubusercontent.com/RPi-Distro/pi-gen/master/stage2/01-sys-tweaks/files/resize2fs_once
-#chmod +x /etc/init.d/resize2fs_once
-#systemctl enable resize2fs_once
-
 # Replace /etc/fstab since the non existing PARTUUID has to be changed here as well.
 echo "Editing /etc/fstab."
 sed -i -e "s|PARTUUID=........-01|/dev/mmcblk0p1|" -e "s|PARTUUID=........-02|/dev/mmcblk0p2|" /etc/fstab
@@ -167,10 +160,21 @@ then
 fi
 echo "Ensuring user ${owner} has appropriate sudo privileges."
 usermod -aG sudo ${owner}
+
 if [ "${owner}" == "dietpi" ]
 then
     # patch for DietPi, to allow sudo -u: ALL=(ALL) needed:
     echo "${owner} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${owner}
+
+    # patch for DietPi, to take over existing local Pynab repository, if any:
+    pi_user="pi"
+    if [ ! -d ${home_dir}/pynab -a -d /home/${pi_user}/pynab ]
+    then
+	echo "Moving /home/${pi_user}/pynab to ${home_dir}/pynab."
+	mv /home/${pi_user}/pynab ${home_dir}/pynab
+	chown -hR ${owner}:${owner} ${home_dir}/pynab
+	userdel -r ${pi_user} 2>/dev/null || true
+    fi
 fi
 
 echo "Installing required packages."
@@ -203,9 +207,14 @@ make
 sudo make install
 make clean
 
-echo "Cloning Pynab ${pynab_branch} branch from ${pynab_repository}."
 cd ${home_dir}
-sudo -u ${owner} git clone --depth 1 -b ${pynab_branch} https://github.com/${pynab_repository}.git
+if [ -d "pynab" ]
+then
+    echo "Using existing local Pynab repository."
+else
+    echo "Cloning Pynab ${pynab_branch} branch from ${pynab_repository}."
+    sudo -u ${owner} git clone --depth 1 -b ${pynab_branch} https://github.com/${pynab_repository}.git
+fi
 
 echo "Installing NabBlockly."
 sudo apt-get install --no-install-recommends -y erlang-base erlang-dev erlang-inets erlang-tools erlang-xmerl
@@ -223,9 +232,6 @@ cd ${home_dir}/pynab
 sudo -u ${owner} /bin/bash install.sh ${install_env}
 
 echo "Cleaning up."
-# Cleanup any leftovers (from Kaldi install).
-sudo find / -xdev -name "._*" -exec rm {} \;
-sudo find / -xdev -user 501 -exec chown -h root:root {} \;
 # Cleanup caches.
 sudo rm -rf /root/.cache /root/.local /root/.wget-hsts
 sudo rm -rf ${home_dir}/.cache ${home_dir}/.local ${home_dir}/.wget-hsts
