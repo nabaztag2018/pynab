@@ -61,8 +61,11 @@ jobs:
             sudo apt-get install --no-install-recommends -y postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran5 libopenblas-dev liblapack-dev zram-tools
             sudo mkdir -p /run/systemd/timesync/ && sudo touch /run/systemd/timesync/synchronized
             sudo apt-get install --no-install-recommends -y alsa-utils xz-utils avahi-daemon
-            sudo -u pi taskset -c 0 /bin/bash install.sh ci-chroot-test
-
+            if [ `uname -m` = 'armv6l' -o `uname -m` = 'armv7l' ]; then
+                sudo -u pi taskset -c 0 /bin/bash install.sh ci-chroot-test
+            else
+                sudo -u pi /bin/bash install.sh ci-chroot-test
+            fi
   create_image:
     name: Build image
     runs-on: ubuntu-latest
@@ -151,7 +154,11 @@ jobs:
                 sudo useradd pi || true
                 sudo chown -hR pi:pi /home/pi/pynab
             fi
-            sudo GITHUB_BRANCH=${{ steps.image_and_branch_name.outputs.LOCAL_BRANCH }} GITHUB_REPOSITORY=${{ github.repository }} /bin/bash /tmp/setup ci-chroot
+            if [ `uname -m` = 'armv6l' -o `uname -m` = 'armv7l' ]; then
+                sudo GITHUB_BRANCH=${{ steps.image_and_branch_name.outputs.LOCAL_BRANCH }} GITHUB_REPOSITORY=${{ github.repository }} taskset -c 0 /bin/bash /tmp/setup ci-chroot
+            else
+                sudo GITHUB_BRANCH=${{ steps.image_and_branch_name.outputs.LOCAL_BRANCH }} GITHUB_REPOSITORY=${{ github.repository }} /bin/bash /tmp/setup ci-chroot
+            fi
             sudo rm /tmp/setup
             sudo apt-get autoremove --purge -y
             sudo apt-get clean
