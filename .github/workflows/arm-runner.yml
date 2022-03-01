@@ -48,7 +48,6 @@ jobs:
         id: arm_runner_tests
         with:
           image_additional_mb: 4096
-          bind_mount_repository: true
           base_image: ${{ matrix.base_image }}
           cpu: ${{ matrix.cpu }}
           cpu_info: ${{ matrix.cpu_info }}
