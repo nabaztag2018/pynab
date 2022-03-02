@@ -166,15 +166,17 @@ then
     # patch for DietPi, to allow sudo -u: ALL=(ALL) needed:
     echo "${owner} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${owner}
 
-    # patch for DietPi, to take over existing local Pynab repository, if any:
+    # patch for DietPi, to cleanup leftover pi "user" used when building image,
+    # after taking over existing local Pynab repository, if any:
     pi_user="pi"
     if [ ! -d ${home_dir}/pynab -a -d /home/${pi_user}/pynab ]
     then
 	echo "Moving /home/${pi_user}/pynab to ${home_dir}/pynab."
 	mv /home/${pi_user}/pynab ${home_dir}/pynab
 	chown -hR ${owner}:${owner} ${home_dir}/pynab
-	userdel -r ${pi_user} 2>/dev/null || true
     fi
+    userdel -r ${pi_user} 2>/dev/null || true
+    rmdir /home/${pi_user} 2>/dev/null || true
 fi
 
 echo "Installing required packages."
