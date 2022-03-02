@@ -171,7 +171,7 @@ jobs:
       - name: Upload the image artifact
         uses: actions/upload-artifact@v2
         with:
-          name: release_images
+          name: pynab-${{ steps.image_and_branch_name.outputs.IMAGE_NAME_SUFFIX }}.img.xz
           path: pynab-${{ steps.image_and_branch_name.outputs.IMAGE_NAME_SUFFIX }}.img.xz
           if-no-files-found: error
           retention-days: 1
@@ -189,14 +189,12 @@ jobs:
              echo ::set-output name=RELEASE_NAME::${GITHUB_REF/refs\/tags\//}
           elif [ ${GITHUB_REF/refs\/heads\//} = "releng" ]; then
              echo ::set-output name=RELEASE_NAME::releng
-           else
+          else
              echo ::set-output name=RELEASE_NAME::${GITHUB_REF/refs\/heads\//}
           fi
 
-      - name: Download the image artifact(s)
+      - name: Download the image artifacts
         uses: actions/download-artifact@v2
-        with:
-          name: release_images
 
       - name: Create release with releng image
         if: github.ref == 'refs/heads/releng'
@@ -207,7 +205,7 @@ jobs:
           prerelease: true
           draft: true
           title: "Prerelease"
-          files: pynab-${{ steps.release_name.outputs.RELEASE_NAME }}*.img.xz
+          files: pynab-${{ steps.release_name.outputs.RELEASE_NAME }}-*.img.xz/pynab-${{ steps.release_name.outputs.RELEASE_NAME }}-*.img.xz
 
       - name: Create release with release image
         if: startsWith(github.ref, 'refs/tags/')
@@ -218,4 +216,4 @@ jobs:
           prerelease: false
           draft: true
           title: ${{ steps.release_name.outputs.RELEASE_NAME }}
-          files: pynab-${{ steps.release_name.outputs.RELEASE_NAME }}*.img.xz
+          files: pynab-${{ steps.release_name.outputs.RELEASE_NAME }}-*.img.xz/pynab-${{ steps.release_name.outputs.RELEASE_NAME }}-*.img.xz
