@@ -16,7 +16,7 @@ asynctest==0.13.0
 coverage==5.0.3
 pre_commit==2.12.1
 pyalsaaudio==0.8.4; sys_platform == 'linux'
-rpi-ws281x==4.2.2; sys_platform == 'linux' and ('armv6l' in platform_machine or 'armv7l' in platform_machine or 'aarch64' in platform_machine)
+rpi-ws281x==4.3.2; sys_platform == 'linux' and ('armv6l' in platform_machine or 'armv7l' in platform_machine or 'aarch64' in platform_machine)
 RPi.GPIO==0.7.1a4; sys_platform == 'linux' and ('armv6l' in platform_machine or 'armv7l' in platform_machine or 'aarch64' in platform_machine)
 https://github.com/pguyot/py-kaldi-asr/releases/download/v0.5.3/py_kaldi_asr-0.5.3-cp37-cp37m-linux_armv6l.whl; sys_platform == 'linux' and 'armv6l' in platform_machine and python_version == '3.7'
 https://github.com/pguyot/py-kaldi-asr/releases/download/v0.5.3/py_kaldi_asr-0.5.3-cp39-cp39-linux_armv6l.whl; sys_platform == 'linux' and 'armv6l' in platform_machine and python_version == '3.9'
