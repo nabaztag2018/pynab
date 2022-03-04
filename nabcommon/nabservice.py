@@ -8,6 +8,7 @@ import os
 import signal
 import sys
 import time
+import traceback
 from abc import ABC, abstractmethod
 from enum import Enum
 
@@ -203,7 +204,7 @@ class NabService(ABC):
             logging.critical(error_msg)
             exit(1)
         except Exception:
-            error_msg = f"Unhandled error: {sys.exc_info()[0]}"
+            error_msg = f"Unhandled error: {traceback.format_exc()}"
             print(error_msg)
             logging.critical(error_msg)
             exit(3)

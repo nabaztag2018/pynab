@@ -15,10 +15,12 @@ case ${pynab_branch} in
         # vX.Y.Z tag-driven build: assume release branch
         pynab_tag=" (tag ${pynab_branch})"
         pynab_branch=release
+        driver_branch=release
         ;;
     *)
-        # sssume branch-driven build on given branch
+        # assume branch-driven build on given branch
         pynab_tag=""
+        driver_branch=master
         ;;
 esac
 
@@ -65,13 +67,6 @@ echo "Doing setup for ${pynab_repository} ${pynab_branch} branch${pynab_tag}."
 echo "Editing /boot/cmdline.txt."
 sed -i "s|root=PARTUUID=........-02|root=/dev/mmcblk0p2|" /boot/cmdline.txt
 cat "/boot/cmdline.txt"
-
-# Resize partition on first boot.
-# https://www.raspberrypi.org/forums/viewtopic.php?p=1503766#p1503766
-# (not needed anymore on recent distros)
-#wget -O /etc/init.d/resize2fs_once https://raw.githubusercontent.com/RPi-Distro/pi-gen/master/stage2/01-sys-tweaks/files/resize2fs_once
-#chmod +x /etc/init.d/resize2fs_once
-#systemctl enable resize2fs_once
 
 # Replace /etc/fstab since the non existing PARTUUID has to be changed here as well.
 echo "Editing /etc/fstab."
@@ -167,50 +162,72 @@ then
 fi
 echo "Ensuring user ${owner} has appropriate sudo privileges."
 usermod -aG sudo ${owner}
+
 if [ "${owner}" == "dietpi" ]
 then
     # patch for DietPi, to allow sudo -u: ALL=(ALL) needed:
     echo "${owner} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${owner}
+
+    # patch for DietPi, to cleanup leftover pi "user" used when building image,
+    # after taking over existing local Pynab repository, if any:
+    pi_user="pi"
+    if [ ! -d ${home_dir}/pynab -a -d /home/${pi_user}/pynab ]
+    then
+	echo "Moving /home/${pi_user}/pynab to ${home_dir}/pynab."
+	mv /home/${pi_user}/pynab ${home_dir}/pynab
+	chown -hR ${owner}:${owner} ${home_dir}/pynab
+    fi
+    userdel -r ${pi_user} 2>/dev/null || true
+    rmdir /home/${pi_user} 2>/dev/null || true
 fi
 
 echo "Installing required packages."
 sudo apt-get update -y
 sudo apt-get dist-upgrade -y
-sudo apt-get install --no-install-recommends -y postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3 libopenblas-dev liblapack-dev zram-tools
+sudo apt-get install --no-install-recommends -y postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran5 libopenblas-dev liblapack-dev zram-tools
 sudo apt-get install --no-install-recommends -y gcc make raspberrypi-kernel-headers
+
+build_and_install_driver() {
+    for dir in /lib/modules/*/build
+    do
+        kernel=$(basename $(dirname ${dir}))
+        make KERNELRELEASE=${kernel}
+        sudo make install KERNELRELEASE=${kernel}
+        make clean KERNELRELEASE=${kernel}
+    done
+}
 
 echo "Installing sound driver for Ulule 2019 cards."
 cd ${home_dir}
 sudo -u ${owner} git clone --depth 1 -b tagtagtag-sound https://github.com/pguyot/wm8960
 cd ${home_dir}/wm8960
-make
-sudo make install
-make clean
+build_and_install_driver
 
 echo "Installing ears driver."
 cd ${home_dir}
-sudo -u ${owner} git clone --depth 1 https://github.com/pguyot/tagtagtag-ears
+sudo -u ${owner} git clone --depth 1 -b ${driver_branch} https://github.com/pguyot/tagtagtag-ears
 cd ${home_dir}/tagtagtag-ears
-make
-sudo make install
-make clean
+build_and_install_driver
 
 echo "Installing RFID reader driver."
 cd ${home_dir}
-sudo -u ${owner} git clone --depth 1 https://github.com/pguyot/cr14
+sudo -u ${owner} git clone --depth 1 -b ${driver_branch} https://github.com/pguyot/cr14
 cd ${home_dir}/cr14
-make
-sudo make install
-make clean
+build_and_install_driver
 
-echo "Cloning Pynab ${pynab_branch} branch from ${pynab_repository}."
 cd ${home_dir}
-sudo -u ${owner} git clone --depth 1 -b ${pynab_branch} https://github.com/${pynab_repository}.git
+if [ -d "pynab" ]
+then
+    echo "Using existing local Pynab repository."
+else
+    echo "Cloning Pynab ${pynab_branch} branch from ${pynab_repository}."
+    sudo -u ${owner} git clone --depth 1 -b ${pynab_branch} https://github.com/${pynab_repository}.git
+fi
 
 echo "Installing NabBlockly."
 sudo apt-get install --no-install-recommends -y erlang-base erlang-dev erlang-inets erlang-tools erlang-xmerl
 cd ${home_dir}/pynab
-sudo -u ${owner} git clone --depth 1 https://github.com/pguyot/nabblockly
+sudo -u ${owner} git clone --depth 1 -b ${driver_branch} https://github.com/pguyot/nabblockly
 cd nabblockly
 # Until we can get OTP 24 from Raspian or Erlang Solutions, get an older rebar binary
 sudo -u ${owner} wget https://github.com/erlang/rebar3/releases/download/3.15.1/rebar3 && chmod +x rebar3
@@ -223,9 +240,6 @@ cd ${home_dir}/pynab
 sudo -u ${owner} /bin/bash install.sh ${install_env}
 
 echo "Cleaning up."
-# Cleanup any leftovers (from Kaldi install).
-sudo find / -xdev -name "._*" -exec rm {} \;
-sudo find / -xdev -user 501 -exec chown -h root:root {} \;
 # Cleanup caches.
 sudo rm -rf /root/.cache /root/.local /root/.wget-hsts
 sudo rm -rf ${home_dir}/.cache ${home_dir}/.local ${home_dir}/.wget-hsts

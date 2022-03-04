@@ -17,6 +17,7 @@ from django.utils import translation
 from django.utils.translation import to_language, to_locale
 from django.views.generic import View
 
+from nabcommon import hardware
 from nabcommon.nabservice import NabService
 from nabd.i18n import Config
 
@@ -326,13 +327,13 @@ class NabWebSytemInfoView(BaseView):
         return "nabweb/system-info/index.html"
 
     def get_os_info(self):
-        variant = ""
         version = "(Unknown)"
-        if os.path.isfile("/etc/rpi-issue"):
-            if os.path.isdir("/boot/dietpi"):
-                variant = "DietPi"
-            else:
-                variant = "Raspberry Pi"
+        if os.path.isdir("/boot/dietpi"):
+            variant = "DietPi"
+        elif os.path.isfile("/etc/rpi-issue"):
+            variant = "Raspberry Pi"
+        else:
+            variant = ""
         try:
             with open("/etc/os-release") as release_f:
                 line = release_f.readline()
@@ -375,11 +376,7 @@ class NabWebSytemInfoView(BaseView):
         }
 
     def get_pi_info(self):
-        try:
-            with open("/proc/device-tree/model") as model_f:
-                model = model_f.readline()
-        except (FileNotFoundError):
-            model = platform.platform()
+        model = hardware.device_model()
         return {"model": model}
 
     def get_context(self):

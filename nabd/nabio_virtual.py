@@ -50,7 +50,7 @@ class NabIOVirtual(NabIO):
         return False
 
     def has_rfid(self):
-        return True
+        return False
 
     def network_interface(self):
         return "eth0"
