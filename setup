@@ -15,10 +15,12 @@ case ${pynab_branch} in
         # vX.Y.Z tag-driven build: assume release branch
         pynab_tag=" (tag ${pynab_branch})"
         pynab_branch=release
+        driver_branch=release
         ;;
     *)
-        # sssume branch-driven build on given branch
+        # assume branch-driven build on given branch
         pynab_tag=""
+        driver_branch=master
         ;;
 esac
 
@@ -185,41 +187,33 @@ sudo apt-get dist-upgrade -y
 sudo apt-get install --no-install-recommends -y postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran5 libopenblas-dev liblapack-dev zram-tools
 sudo apt-get install --no-install-recommends -y gcc make raspberrypi-kernel-headers
 
+build_and_install_driver() {
+    for dir in /lib/modules/*/build
+    do
+        kernel=$(basename $(dirname ${dir}))
+        make KERNELRELEASE=${kernel}
+        sudo make install KERNELRELEASE=${kernel}
+        make clean KERNELRELEASE=${kernel}
+    done
+}
+
 echo "Installing sound driver for Ulule 2019 cards."
 cd ${home_dir}
 sudo -u ${owner} git clone --depth 1 -b tagtagtag-sound https://github.com/pguyot/wm8960
 cd ${home_dir}/wm8960
-for dir in /lib/modules/*/build
-do
-    kernel=$(basename $(dirname ${dir}))
-    make KERNELRELEASE=${kernel}
-    sudo make install KERNELRELEASE=${kernel}
-    make clean KERNELRELEASE=${kernel}
-done
+build_and_install_driver
 
 echo "Installing ears driver."
 cd ${home_dir}
-sudo -u ${owner} git clone --depth 1 -b release https://github.com/pguyot/tagtagtag-ears
+sudo -u ${owner} git clone --depth 1 -b ${driver_branch} https://github.com/pguyot/tagtagtag-ears
 cd ${home_dir}/tagtagtag-ears
-for dir in /lib/modules/*/build
-do
-    kernel=$(basename $(dirname ${dir}))
-    make KERNELRELEASE=${kernel}
-    sudo make install KERNELRELEASE=${kernel}
-    make clean KERNELRELEASE=${kernel}
-done
+build_and_install_driver
 
 echo "Installing RFID reader driver."
 cd ${home_dir}
-sudo -u ${owner} git clone --depth 1 -b release https://github.com/pguyot/cr14
+sudo -u ${owner} git clone --depth 1 -b ${driver_branch} https://github.com/pguyot/cr14
 cd ${home_dir}/cr14
-for dir in /lib/modules/*/build
-do
-    kernel=$(basename $(dirname ${dir}))
-    make KERNELRELEASE=${kernel}
-    sudo make install KERNELRELEASE=${kernel}
-    make clean KERNELRELEASE=${kernel}
-done
+build_and_install_driver
 
 cd ${home_dir}
 if [ -d "pynab" ]
@@ -233,7 +227,7 @@ fi
 echo "Installing NabBlockly."
 sudo apt-get install --no-install-recommends -y erlang-base erlang-dev erlang-inets erlang-tools erlang-xmerl
 cd ${home_dir}/pynab
-sudo -u ${owner} git clone --depth 1 -b master https://github.com/pguyot/nabblockly
+sudo -u ${owner} git clone --depth 1 -b ${driver_branch} https://github.com/pguyot/nabblockly
 cd nabblockly
 # Until we can get OTP 24 from Raspian or Erlang Solutions, get an older rebar binary
 sudo -u ${owner} wget https://github.com/erlang/rebar3/releases/download/3.15.1/rebar3 && chmod +x rebar3
