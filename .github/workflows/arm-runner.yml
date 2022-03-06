@@ -8,8 +8,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-#        target: [zero_raspbian, zero_raspios, zero_dietpi, zero2_raspios, zero2_dietpi, zero2_64_raspios, zero2_64_dietpi]
-        target: [zero_raspbian, zero_raspios, zero_dietpi, zero2_raspios, zero2_dietpi]
+##        target: [zero_raspbian, zero_raspios, zero_dietpi, zero2_raspios, zero2_dietpi, zero2_64_raspios, zero2_64_dietpi]
+#        target: [zero_raspbian, zero_raspios, zero_dietpi, zero2_raspios, zero2_dietpi]
+        target: [zero_raspbian, zero_raspios, zero_dietpi]
         include:
         - target: zero_raspbian
           cpu: arm1176
@@ -23,22 +24,22 @@ jobs:
           cpu: arm1176
           cpu_info: cpuinfo/raspberrypi_zero_w
           base_image: dietpi:rpi_armv6_bullseye
-        - target: zero2_raspios
-          cpu: cortex-a7
-          cpu_info: cpuinfo/raspberrypi_zero2_w
-          base_image: raspios_lite:latest
-        - target: zero2_dietpi
-          cpu: cortex-a7
-          cpu_info: cpuinfo/raspberrypi_zero2_w
-          base_image: dietpi:rpi_armv7_bullseye
-#        - target: zero2_64_raspios
-#          cpu: cortex-a53
-#          cpu_info: cpuinfo/raspberrypi_zero2_w_arm64
-#          base_image: raspios_lite_arm64:latest
-#        - target: zero2_64_dietpi
-#          cpu: cortex-a53
-#          cpu_info: cpuinfo/raspberrypi_zero2_w_arm64
-#          base_image: dietpi:rpi_armv8_bullseye
+#        - target: zero2_raspios
+#          cpu: cortex-a7
+#          cpu_info: cpuinfo/raspberrypi_zero2_w
+#          base_image: raspios_lite:latest
+#        - target: zero2_dietpi
+#          cpu: cortex-a7
+#          cpu_info: cpuinfo/raspberrypi_zero2_w
+#          base_image: dietpi:rpi_armv7_bullseye
+##        - target: zero2_64_raspios
+##          cpu: cortex-a53
+##          cpu_info: cpuinfo/raspberrypi_zero2_w_arm64
+##          base_image: raspios_lite_arm64:latest
+##        - target: zero2_64_dietpi
+##          cpu: cortex-a53
+##          cpu_info: cpuinfo/raspberrypi_zero2_w_arm64
+##          base_image: dietpi:rpi_armv8_bullseye
     steps:
       - name: Checkout pynab
         uses: actions/checkout@v2
@@ -73,8 +74,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-#        target: [zero_raspbian, zero_raspios, zero_dietpi, zero2_raspios, zero2_dietpi, zero2_64_raspios, zero2_64_dietpi]
-        target: [zero_raspbian, zero_raspios, zero_dietpi, zero2_raspios, zero2_dietpi]
+##        target: [zero_raspbian, zero_raspios, zero_dietpi, zero2_raspios, zero2_dietpi, zero2_64_raspios, zero2_64_dietpi]
+#        target: [zero_raspbian, zero_raspios, zero_dietpi, zero2_raspios, zero2_dietpi]
+        target: [zero_raspbian, zero_raspios, zero_dietpi]
         include:
         - target: zero_raspbian
           cpu: arm1176
@@ -88,22 +90,22 @@ jobs:
           cpu: arm1176
           cpu_info: cpuinfo/raspberrypi_zero_w
           base_image: dietpi:rpi_armv6_bullseye
-        - target: zero2_raspios
-          cpu: cortex-a7
-          cpu_info: cpuinfo/raspberrypi_zero2_w
-          base_image: raspios_lite:latest
-        - target: zero2_dietpi
-          cpu: cortex-a7
-          cpu_info: cpuinfo/raspberrypi_zero2_w
-          base_image: dietpi:rpi_armv7_bullseye
-#        - target: zero2_64_raspios
-#          cpu: cortex-a53
-#          cpu_info: cpuinfo/raspberrypi_zero2_w_arm64
-#          base_image: raspios_lite_arm64:latest
-#        - target: zero2_64_dietpi
-#          cpu: cortex-a53
-#          cpu_info: cpuinfo/raspberrypi_zero2_w_arm64
-#          base_image: dietpi:rpi_armv8_bullseye
+#        - target: zero2_raspios
+#          cpu: cortex-a7
+#          cpu_info: cpuinfo/raspberrypi_zero2_w
+#          base_image: raspios_lite:latest
+#        - target: zero2_dietpi
+#          cpu: cortex-a7
+#          cpu_info: cpuinfo/raspberrypi_zero2_w
+#          base_image: dietpi:rpi_armv7_bullseye
+##        - target: zero2_64_raspios
+##          cpu: cortex-a53
+##          cpu_info: cpuinfo/raspberrypi_zero2_w_arm64
+##          base_image: raspios_lite_arm64:latest
+##        - target: zero2_64_dietpi
+##          cpu: cortex-a53
+##          cpu_info: cpuinfo/raspberrypi_zero2_w_arm64
+##          base_image: dietpi:rpi_armv8_bullseye
     steps:
       - name: Checkout pynab
         uses: actions/checkout@v2
