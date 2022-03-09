@@ -254,10 +254,10 @@
     {% else %}
       <form action="/nabmastodond/connect">
         {% csrf_token %}
-        <p>{% trans "As we don't want Nabaztag to live in the cloud we're using <a href='https://en.wikipedia.org/wiki/Mastodon_(software)' target='_blank' rel='noopener noreferrer'>Mastodon</a> to connect rabbits (Mastodon is a sort of decentralized Twitter - and Open Source). Currently your Nabaztag is not connected to Mastodon." %}</p>
+        <p>{% blocktrans %}As we do not want Nabaztag to live in the cloud anymore, but do like ear communion, we use {% endblocktrans %}{% trans "<a href='https://en.wikipedia.org/wiki/Mastodon_(software)' target='blank' rel='noopener noreferrer'>Mastodon</a>" %}{% blocktrans %} to connect rabbits to each other. <b>Currently your Nabaztag is not connected to Mastodon</b>.{% endblocktrans %}</p>
         <ol>
-          <li>{% blocktrans %}First, <strong>create an account for your Nabaztag</strong> on a given Mastodon instance, you can find a directory of Mastodon instances <a href="https://joinmastodon.org/" target="_blank" rel="noopener noreferrer">here</a>.{% endblocktrans %}</li>
-          <li>{% blocktrans %}Enter the instance your Nabaztag's account is on in the instance box below and connect this account with the <kbd class="btn-primary">Connect</kbd> button.{% endblocktrans %}</li>
+          <li>{% blocktrans %}First, <strong>create an account for your Nabaztag</strong> on a given Mastodon instance. You can find a directory of instances <a href='https://joinmastodon.org/' target='_blank' rel='noopener noreferrer'>here</a>.{% endblocktrans %}</li>
+          <li>{% blocktrans %}Enter below the name of the instance hosting your Nabaztag's account, and connect this account with the <kbd class="btn-primary">Connect</kbd> button.{% endblocktrans %}</li>
         </ol>
         <div class="input-group input-group mb-3">
           <div class="input-group-prepend">
