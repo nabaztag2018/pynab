@@ -6,7 +6,7 @@ import sys
 
 from asgiref.sync import sync_to_async
 from dateutil import tz
-from meteofrance.client import MeteoFranceClient, Place
+from meteofrance_api.client import MeteoFranceClient, Place
 
 from nabcommon.nabservice import NabInfoService
 
