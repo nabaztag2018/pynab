@@ -6,7 +6,6 @@ import getopt
 import json
 import logging
 import os
-import re
 import socket
 import subprocess
 import sys
@@ -1051,8 +1050,7 @@ class Nabd:
         nablogging.setup_logging("nabd")
         pidfilepath = "/run/nabd.pid"
         hardware_platform = hardware.device_model()
-        matchObj = re.match(r"Raspberry Pi Zero", hardware_platform)
-        if matchObj:
+        if hardware.is_pi_zero(hardware_platform):
             # running on Pi Zero or Zero 2 hardware
             from .nabio_hw import NabIOHW
 

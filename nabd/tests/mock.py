@@ -4,7 +4,7 @@ import threading
 import time
 from unittest import TestCase
 
-from nabcommon import nabservice
+from nabcommon import hardware, nabservice
 from nabd.ears import Ears
 from nabd.leds import Led, Leds
 from nabd.nabio import NabIO
@@ -95,10 +95,13 @@ class NabIOMock(NabIO):
         return False
 
     def network_interface(self):
-        return "eth0"
+        if hardware.is_pi_zero(hardware.device_model()):
+            return "wlan0"
+        else:
+            return "eth0"
 
     async def gestalt(self):
-        return {"model": "Test mock"}
+        return {"model": "Mock_TAGTAG"}
 
     def test(self, test):
         return True
