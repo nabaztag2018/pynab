@@ -8,7 +8,7 @@
       <div class="card">
         <div class="card-header">
           {% if os.variant == "Raspberry Pi" %}
-          <h5 class="card-title"><a class="help-link" href='https://www.raspberrypi.org/software/operating-systems/#raspberry-pi-os-32-bit' target='_blank' rel='noopener noreferrer'>{% blocktrans with variant=os.variant %}{{ variant }} OS{% endblocktrans %}</a></h5>
+          <h5 class="card-title"><a class="help-link" href='https://www.raspberrypi.com/software/operating-systems/#raspberry-pi-os' target='_blank' rel='noopener noreferrer'>{% blocktrans with variant=os.variant %}{{ variant }} OS{% endblocktrans %}</a></h5>
           {% elif os.variant == "DietPi" %}
           <h5 class="card-title"><a class="help-link" href=https://dietpi.com target='_blank' rel='noopener noreferrer'>{% blocktrans with variant=os.variant %}{{ variant }} OS{% endblocktrans %}</a></h5>
           {% else %}
@@ -25,7 +25,7 @@
             <dd class="col-sm-8">{{ os.address }}</dd>
             {% if os.network %}
             {% if os.variant == "Raspberry Pi" %}
-            <dt class="col-sm-4"><a class="help-link" href='https://www.raspberrypi.org/documentation/configuration/wireless/' target='_blank' rel='noopener noreferrer'>{% trans "Wireless network" %}</a></dt>
+            <dt class="col-sm-4"><a class="help-link" href='https://www.raspberrypi.com/documentation/computers/configuration.html#setting-up-a-headless-raspberry-pi' target='_blank' rel='noopener noreferrer'>{% trans "Wireless network" %}</a></dt>
             {% else %}
             <dt class="col-sm-4">{% trans "Wireless network" %}</dt>
             {% endif %}
@@ -34,7 +34,7 @@
             <dt class="col-sm-4">{% trans "Uptime" %}</dt>
             <dd class="col-sm-8">{{ os.uptime|duration }}</dd>
             {% if os.variant == "Raspberry Pi" %}
-            <dt class="col-sm-4"><a class="help-link" href='https://www.raspberrypi.org/documentation/remote-access/ssh/' target='_blank' rel='noopener noreferrer'>{% trans "SSH (Secure shell)" %}</a></dt>
+            <dt class="col-sm-4"><a class="help-link" href='https://www.raspberrypi.com/documentation/computers/remote-access.html#ssh' target='_blank' rel='noopener noreferrer'>{% trans "SSH (Secure shell)" %}</a></dt>
             {% else %}
             <dt class="col-sm-4">{% trans "SSH (Secure shell)" %}</dt>
             {% endif %}
