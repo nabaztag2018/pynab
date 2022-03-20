@@ -25,7 +25,7 @@ case $step in
     done
     sudo systemctl stop nabd.socket || echo -n ""
     sudo systemctl stop nabd.service || echo -n ""
-  
+
     sudo -u ${owner} touch /tmp/pynab.upgrade
     sudo chown ${owner} /tmp/pynab.upgrade
     echo "Updating code - 1/?" > /tmp/pynab.upgrade
@@ -35,7 +35,7 @@ case $step in
     else
       git pull
     fi
-  
+
     bash upgrade.sh "install"
     ;;
   "install")
