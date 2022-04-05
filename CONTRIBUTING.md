@@ -77,6 +77,8 @@ Before committing your code, make sure the style is conforming by running pre-co
 ./venv/bin/pre-commit
 ```
 
+Note: if for any reason your code need re-adjustment but the pre-commit script did not change it, just copy the black command and remove the --check option to have the tool apply the changes required.
+
 Once you are happy with the result, rebase and push it to a dedicated branch on
 your own GitHub fork.
 ```
