@@ -99,6 +99,11 @@ then
 fi
 cat /boot/config.txt | grep "dtoverlay=hifiberry-dac"
 
+echo "Adjusting SSH Server configuration"
+# Making sure we avoid locale errors because of the source environment
+sed -i "s|^AcceptEnv .*|#&|" /etc/ssh/sshd_config
+cat /etc/ssh/sshd_config | grep -v "#"
+
 if [ "${install_env}" == "ci-chroot" ]
 then
     if [ -f "/boot/dietpi.txt" ]
