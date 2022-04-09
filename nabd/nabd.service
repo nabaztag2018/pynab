@@ -10,6 +10,7 @@ RestartSec=1
 User=root
 WorkingDirectory=/home/pi/pynab
 EnvironmentFile=/home/pi/pynab/nabd/nabd.conf
+ExecStartPre=sh -c 'until /usr/bin/pg_isready; do sleep 1; done'
 ExecStart=/home/pi/pynab/venv/bin/python -m nabd.nabd
 PIDFile=/run/nabd.pid
 
