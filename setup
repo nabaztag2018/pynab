@@ -4,7 +4,7 @@ shopt -s extglob
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 IFS=$'\n\t'
 
-# Source for this script:
+# Original source for this script:
 # https://github.com/kr15h/travis-raspbian-image
 # https://disconnected.systems/blog/custom-rpi-image-with-github-travis/
 
@@ -111,17 +111,17 @@ then
         sed -i "s/\(AUTO_SETUP_NET_WIFI_ENABLED\)=.*/\1=1/" /boot/dietpi.txt
         sed -i "s/\(AUTO_SETUP_NET_WIFI_COUNTRY_CODE\)=.*/\1=FR/" /boot/dietpi.txt
         sed -i "s/\(AUTO_SETUP_NET_HOSTNAME\)=.*/\1=Nabaztag/" /boot/dietpi.txt
-        # zram rather than /var/swap (DietPi default):
-        sed -i "s/\(AUTO_SETUP_SWAPFILE_LOCATION\)=.*/\1=zram/" /boot/dietpi.txt
         sed -i "s/\(AUTO_SETUP_HEADLESS\)=.*/\1=1/" /boot/dietpi.txt
         # -1=Nginx rather than -2=Lighttpd (DietPi default):
         sed -i "s/\(AUTO_SETUP_WEB_SERVER_INDEX\)=.*/\1=-1/" /boot/dietpi.txt
         # -4=Daemon + Drift rather than 2=boot + daily (DietPi default):
         sed -i "s/\(CONFIG_NTP_MODE\)=.*/\1=4/" /boot/dietpi.txt
         sed -i "s/\(CONFIG_SERIAL_CONSOLE_ENABLE\)=.*/\1=0/" /boot/dietpi.txt
-    else
-        # assume Rasberry Pi OS distro
+    elif [ -f "/etc/rpi-issue" ]
+    then
+        # Raspberry Pi OS distro
         hostname="raspberrypi"
+        # be kind to users: provide wpa_supplicant.conf template
         if [ ! -f "/boot/wpa_supplicant.conf" ]
         then
             cat > '/boot/wpa_supplicant.conf' <<- END
