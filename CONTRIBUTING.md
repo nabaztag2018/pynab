@@ -54,7 +54,7 @@ use editors with SFTP support.
 If you haven't done so yet, fork the repository on GitHub, then add this fork
 to your rabbit's repository.
 ```
-cd $HOME/pynab
+cd /opt/pynab
 git remote add fork https://github.com/YOUR_GITHUB_USERNAME/pynab.git
 ```
 

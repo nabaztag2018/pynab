@@ -21,7 +21,7 @@ services:
             context: nab/
             dockerfile: Dockerfile
         volumes:
-          - ../:/home/pi/pynab
+          - ../:/opt/pynab
           - var-run-postgresql:/var/run/postgresql
         depends_on:
           - db

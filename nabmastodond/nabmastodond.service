@@ -8,9 +8,9 @@ Type=simple
 Restart=always
 RestartSec=1
 User=root
-WorkingDirectory=/home/pi/pynab
-EnvironmentFile=/home/pi/pynab/nabmastodond/nabmastodond.conf
-ExecStart=/home/pi/pynab/venv/bin/python -m nabmastodond.nabmastodond
+WorkingDirectory=/opt/pynab
+EnvironmentFile=/opt/pynab/nabmastodond/nabmastodond.conf
+ExecStart=/opt/pynab/venv/bin/python -m nabmastodond.nabmastodond
 PIDFile=/run/nabmastodond.pid
 
 [Install]

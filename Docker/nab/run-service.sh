@@ -12,6 +12,6 @@ fi
 ln -sf /dev/stdout /var/log/${SERVICE}.log
 while :
 do
-    /home/pi/venv/bin/python3 -m ${SERVICE}.${SERVICE} &
+    /opt/venv/bin/python3 -m ${SERVICE}.${SERVICE} &
     wait $!
 done

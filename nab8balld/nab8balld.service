@@ -8,9 +8,9 @@ Type=simple
 Restart=always
 RestartSec=1
 User=root
-WorkingDirectory=/home/pi/pynab
-EnvironmentFile=/home/pi/pynab/nab8balld/nab8balld.conf
-ExecStart=/home/pi/pynab/venv/bin/python -m nab8balld.nab8balld
+WorkingDirectory=/opt/pynab
+EnvironmentFile=/opt/pynab/nab8balld/nab8balld.conf
+ExecStart=/opt/pynab/venv/bin/python -m nab8balld.nab8balld
 PIDFile=/run/nab8balld.pid
 
 [Install]

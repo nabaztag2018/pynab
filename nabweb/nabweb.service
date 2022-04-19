@@ -8,8 +8,8 @@ Type=simple
 Restart=always
 RestartSec=1
 User=root
-WorkingDirectory=/home/pi/pynab
-ExecStart=/home/pi/pynab/venv/bin/gunicorn --timeout 60 nabweb.wsgi
+WorkingDirectory=/opt/pynab
+ExecStart=/opt/pynab/venv/bin/gunicorn --timeout 60 nabweb.wsgi
 
 [Install]
 WantedBy=multi-user.target

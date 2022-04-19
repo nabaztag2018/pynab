@@ -5,7 +5,7 @@ Before=nginx.service
 [Service]
 Type=oneshot
 User=root
-WorkingDirectory=/home/pi/pynab
+WorkingDirectory=/opt/pynab
 ExecStart=mkdir -p /var/log/nginx
 
 [Install]

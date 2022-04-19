@@ -8,9 +8,9 @@ Type=simple
 Restart=always
 RestartSec=1
 User=root
-WorkingDirectory=/home/pi/pynab
-EnvironmentFile=/home/pi/pynab/nabiftttd/nabiftttd.conf
-ExecStart=/home/pi/pynab/venv/bin/python -m nabiftttd.nabiftttd
+WorkingDirectory=/opt/pynab
+EnvironmentFile=/opt/pynab/nabiftttd/nabiftttd.conf
+ExecStart=/opt/pynab/venv/bin/python -m nabiftttd.nabiftttd
 PIDFile=/run/nabiftttd.pid
 
 [Install]
