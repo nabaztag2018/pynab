@@ -122,11 +122,6 @@ then
     else
         # assume Rasberry Pi OS distro
         hostname="raspberrypi"
-        # be kind to users:
-        if [ ! -f "/boot/ssh" ]
-        then
-            touch /boot/ssh
-        fi
         if [ ! -f "/boot/wpa_supplicant.conf" ]
         then
             cat > '/boot/wpa_supplicant.conf' <<- END
