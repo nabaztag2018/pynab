@@ -76,9 +76,11 @@ if [ $upgrade -eq 1 -a $makerfaire2018 -eq 0 -a -d ${home_dir}/wm8960 ]; then
   echo "Updating sound driver - 2/14" > /tmp/pynab.upgrade
   cd ${home_dir}/wm8960
   sudo chown -R ${owner} .git
-  # Making sure we keep the up-to-date status message consistent no matter the rebase default behavior
-  pull=$(LANGUAGE=en git pull --no-rebase)
-  if [ "$pull" != "Already up to date." ]; then
+  # First we want to be sure we know everything from the remote branch status
+  git fetch
+  # Then we can check if the status considers our clone behind the remote (or not)
+  if git status --branch --porcelain | grep -q "\[behind"; then
+    git pull  # Making sure we update the clone to the latest before rebuilding
     make && sudo make install && make clean
     sudo touch /tmp/pynab.upgrade.reboot
   fi
@@ -89,9 +91,11 @@ if [ $upgrade -eq 1 ]; then
   if [ -d ${home_dir}/tagtagtag-ears ]; then
     cd ${home_dir}/tagtagtag-ears
     sudo chown -R ${owner} .git
-    # Making sure we keep the up-to-date status message consistent no matter the rebase default behavior
-    pull=$(LANGUAGE=en git pull --no-rebase)
-    if [ "$pull" != "Already up to date." ]; then
+    # First we want to be sure we know everything from the remote branch status
+    git fetch
+    # Then we can check if the status considers our clone behind the remote (or not)
+    if git status --branch --porcelain | grep -q "\[behind"; then
+      git pull  # Making sure we update the clone to the latest before rebuilding
       make && sudo make install && make clean
       sudo touch /tmp/pynab.upgrade.reboot
     fi
@@ -114,9 +118,11 @@ if [ $upgrade -eq 1 ]; then
   if [ -d ${home_dir}/cr14 ]; then
     cd ${home_dir}/cr14
     sudo chown -R ${owner} .git
-    # Making sure we keep the up-to-date status message consistent no matter the rebase default behavior
-    pull=$(LANGUAGE=en git pull --no-rebase)
-    if [ "$pull" != "Already up to date." ]; then
+    # First we want to be sure we know everything from the remote branch status
+    git fetch
+    # Then we can check if the status considers our clone behind the remote (or not)
+    if git status --branch --porcelain | grep -q "\[behind"; then
+      git pull  # Making sure we update the clone to the latest before rebuilding
       make && sudo make install && make clean
       sudo touch /tmp/pynab.upgrade.reboot
     fi
@@ -139,9 +145,11 @@ if [ $upgrade -eq 1 ]; then
   if [ -d ${root_dir}/nabblockly ]; then
     cd ${root_dir}/nabblockly
     sudo chown -R ${owner} .
-    # Making sure we keep the up-to-date status message consistent no matter the rebase default behavior
-    pull=$(LANGUAGE=en git pull --no-rebase)
-    if [ "$pull" != "Already up to date." ]; then
+    # First we want to be sure we know everything from the remote branch status
+    git fetch
+    # Then we can check if the status considers our clone behind the remote (or not)
+    if git status --branch --porcelain | grep -q "\[behind"; then
+      git pull  # Making sure we update the clone to the latest before rebuilding
       ./rebar3 release
     fi
   else
