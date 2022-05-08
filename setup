@@ -120,24 +120,22 @@ then
         sed -i "s/\(CONFIG_NTP_MODE\)=.*/\1=4/" /boot/dietpi.txt
         sed -i "s/\(CONFIG_SERIAL_CONSOLE_ENABLE\)=.*/\1=0/" /boot/dietpi.txt
     else
-        # assume Rasberry Pi OS distro
+        # Install comitup
+        wget https://davesteele.github.io/comitup/deb/davesteele-comitup-apt-source_1.1_all.deb
+        dpkg -i --force-all davesteele-comitup-apt-source_1.1_all.deb
+        rm davesteele-comitup-apt-source_1.1_all.deb
+        apt-get update -y
+        apt-get install --no-install-recommends -y comitup comitup-watch
+        rm /etc/network/interfaces
+        systemctl mask dnsmasq.service
+        systemctl mask systemd-resolved.service
+        systemctl mask dhcpd.service
+        systemctl mask dhcpcd.service
+        systemctl mask wpa-supplicant.service
+        echo "web_service: nginx.service" >> /etc/comitup.conf
+        echo "ap_name: nabaztag-<nnn>" >> /etc/comitup.conf
+        echo "service_name: nabaztag" >> /etc/comitup.conf
         hostname="raspberrypi"
-        if [ ! -f "/boot/wpa_supplicant.conf" ]
-        then
-            cat > '/boot/wpa_supplicant.conf' <<- END
-ctrl_interface=DIR=/run/wpa_supplicant GROUP=netdev
-update_config=1
-country=FR
-network={
-  ssid="Name of your wireless LAN"
-  psk="Password for your wireless LAN"
-}
-network={
-  key_mgmt=NONE
-  priority=-999
-}
-END
-        fi
     fi
 
     echo "Setting hostname."
