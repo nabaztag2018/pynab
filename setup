@@ -101,6 +101,22 @@ cat /boot/config.txt | grep "dtoverlay=hifiberry-dac"
 
 if [ "${install_env}" == "ci-chroot" ]
 then
+    # Install comitup package for headless WiFi setup
+    wget https://davesteele.github.io/comitup/deb/davesteele-comitup-apt-source_1.1_all.deb
+    dpkg -i --force-all davesteele-comitup-apt-source_1.1_all.deb
+    rm davesteele-comitup-apt-source_1.1_all.deb
+    apt-get update -y
+    apt-get install --no-install-recommends -y comitup comitup-watch
+    rm /etc/network/interfaces
+    systemctl mask dnsmasq.service
+    systemctl mask systemd-resolved.service
+    systemctl mask dhcpd.service
+    systemctl mask dhcpcd.service
+    systemctl mask wpa-supplicant.service
+    echo "web_service: nginx.service" >> /etc/comitup.conf
+    echo "ap_name: Nabaztag-<nnn>" >> /etc/comitup.conf
+    echo "service_name: Nabaztag" >> /etc/comitup.conf
+
     if [ -f "/boot/dietpi.txt" ]
     then
         # DietPi distro
@@ -111,30 +127,15 @@ then
         sed -i "s/\(AUTO_SETUP_NET_WIFI_ENABLED\)=.*/\1=1/" /boot/dietpi.txt
         sed -i "s/\(AUTO_SETUP_NET_WIFI_COUNTRY_CODE\)=.*/\1=FR/" /boot/dietpi.txt
         sed -i "s/\(AUTO_SETUP_NET_HOSTNAME\)=.*/\1=Nabaztag/" /boot/dietpi.txt
-        # zram rather than /var/swap (DietPi default):
-        sed -i "s/\(AUTO_SETUP_SWAPFILE_LOCATION\)=.*/\1=zram/" /boot/dietpi.txt
         sed -i "s/\(AUTO_SETUP_HEADLESS\)=.*/\1=1/" /boot/dietpi.txt
         # -1=Nginx rather than -2=Lighttpd (DietPi default):
         sed -i "s/\(AUTO_SETUP_WEB_SERVER_INDEX\)=.*/\1=-1/" /boot/dietpi.txt
         # -4=Daemon + Drift rather than 2=boot + daily (DietPi default):
         sed -i "s/\(CONFIG_NTP_MODE\)=.*/\1=4/" /boot/dietpi.txt
         sed -i "s/\(CONFIG_SERIAL_CONSOLE_ENABLE\)=.*/\1=0/" /boot/dietpi.txt
+        rm /boot/dietpi-wifi.txt
     else
-        # Install comitup
-        wget https://davesteele.github.io/comitup/deb/davesteele-comitup-apt-source_1.1_all.deb
-        dpkg -i --force-all davesteele-comitup-apt-source_1.1_all.deb
-        rm davesteele-comitup-apt-source_1.1_all.deb
-        apt-get update -y
-        apt-get install --no-install-recommends -y comitup comitup-watch
-        rm /etc/network/interfaces
-        systemctl mask dnsmasq.service
-        systemctl mask systemd-resolved.service
-        systemctl mask dhcpd.service
-        systemctl mask dhcpcd.service
-        systemctl mask wpa-supplicant.service
-        echo "web_service: nginx.service" >> /etc/comitup.conf
-        echo "ap_name: nabaztag-<nnn>" >> /etc/comitup.conf
-        echo "service_name: nabaztag" >> /etc/comitup.conf
+        # Raspberry Pi OS distro
         hostname="raspberrypi"
     fi
 
