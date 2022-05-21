@@ -217,6 +217,7 @@ class TestRfidReadView(TestNabdClientBase):
         self.rfid_event = {
             "type": "rfid_event",
             "event": "detected",
+            "tech": "st25tb",
             "uid": "d0:02:18:01:02:03:04:05",
             "support": "empty",
         }
@@ -242,6 +243,7 @@ class TestRfidReadView(TestNabdClientBase):
         self.rfid_event = {
             "type": "rfid_event",
             "event": "detected",
+            "tech": "st25tb",
             "uid": "d0:02:18:01:02:03:04:05",
             "app": "nabtaichid",
             "picture": 8,
@@ -290,6 +292,7 @@ class TestRfidWriteView(TestNabdClientBase):
         response = c.post(
             "/rfid/write",
             {
+                "tech": "st25tb",
                 "uid": "d0:02:18:01:02:03:04:05",
                 "app": "nabweatherd",
                 "picture": 8,
@@ -326,6 +329,7 @@ class TestRfidWriteView(TestNabdClientBase):
         response = c.post(
             "/rfid/write",
             {
+                "tech": "st25tb",
                 "uid": "d0:02:18:01:02:03:04:05",
                 "app": "nabweatherd",
                 "picture": 8,

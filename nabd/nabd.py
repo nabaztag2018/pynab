@@ -564,11 +564,14 @@ class Nabd:
 
     async def do_process_rfid_write_packet(self, packet, writer):
         """Process a rfid_write packet"""
-        if "uid" in packet and "picture" in packet and "app" in packet:
-            if "tech" in packet:
-                tech = packet.tech
-            else:
-                tech = TagTechnology.ST25TB
+        if (
+            "uid" in packet
+            and "picture" in packet
+            and "app" in packet
+            and "tech" in packet
+            and packet["tech"].upper() in TagTechnology.__members__
+        ):
+            tech = TagTechnology[packet["tech"].upper()]
             uid = bytes.fromhex(packet["uid"].replace(":", ""))
             picture = packet["picture"]
             app_str = packet["app"]
@@ -604,6 +607,18 @@ class Nabd:
                         "status": "timeout",
                         "message": "RFID write timed out "
                         "(RFID tag not found?)",
+                    },
+                    writer,
+                )
+            except Exception:
+                logging.debug("Unknown exception with RFID write")
+                logging.debug(traceback.format_exc())
+                print(traceback.format_exc())
+                self.write_response_packet(
+                    packet,
+                    {
+                        "status": "error",
+                        "message": "RFID write failed",
                     },
                     writer,
                 )
@@ -988,7 +1003,9 @@ class Nabd:
         except KeyboardInterrupt:
             pass
         except Exception:
-            logging.debug(traceback.format_exc())
+            error_msg = f"Unhandled error: {traceback.format_exc()}"
+            print(error_msg)
+            logging.critical(error_msg)
         finally:
             self.loop.run_until_complete(self.stop_idle_worker())
             server = server_task.result()

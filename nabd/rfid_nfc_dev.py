@@ -15,8 +15,105 @@ class RfidNFCDevState(Enum):  # pragma: no cover
     POLLING_AND_SELECT = "polling_and_select"
     POLLING_REPEAT = "polling_repeat"
     SELECTING = "selecting"
-    READING_BLOCKS = "reading"
-    WRITING_BLOCKS = "writing"
+    RUNNING_OPERATION = "running_operation"
+
+
+class RfidNFCOperationReadST25:  # pragma: no cover
+    """
+    Read several blocks from an ST25 tag
+    """
+
+    def __init__(self, dev, blocks, callback):
+        self.__dev = dev
+        self.__blocks = blocks
+        self.__data = b""
+        self.__callback = callback
+        self.__dev.write_message(
+            nfcdev.NFCTransceiveFrameRequestMessage(
+                bytes([nfcdev.ST25TB_COMMAND_READ_BLOCK, self.__blocks[0]]),
+            )
+        )
+
+    def process_frame(self, payload):
+        if payload.flags & nfcdev.NFC_TRANSCEIVE_FLAGS_ERROR:
+            self.__callback(False, None)
+        elif payload.rx_count != 6:
+            # Unexpected payload length.
+            self.__callback(False, None)
+        else:
+            # Append data and read next block.
+            self.__data += payload.data[0:4]
+            self.__blocks = self.__blocks[1:]
+            if len(self.__blocks) > 0:
+                self.__dev.write_message(
+                    nfcdev.NFCTransceiveFrameRequestMessage(
+                        bytes(
+                            [
+                                nfcdev.ST25TB_COMMAND_READ_BLOCK,
+                                self.__blocks[0],
+                            ]
+                        ),
+                    )
+                )
+            else:
+                self.__callback(True, self.__data)
+
+
+class RfidNFCAsyncOperationWriteST25:  # pragma: no cover
+    """
+    Write several blocks from an ST25 tag.
+    Because the tag does not reply to write commands, we will issue a read
+    of system block afterwards to make sure the tag is still there.
+    """
+
+    def __init__(self, dev, blocks, data, loop=None):
+        self.__dev = dev
+        self.__blocks = blocks
+        self.__data = data
+        self.__loop = loop or asyncio.get_running_loop()
+        self.future = self.__loop.create_future()
+        self._send_command()
+
+    def _send_command(self):
+        if len(self.__blocks) > 0:
+            block_data = self.__data[0:4]
+            tx_data = (
+                bytes([nfcdev.ST25TB_COMMAND_WRITE_BLOCK, self.__blocks[0]])
+                + block_data
+            )
+            self.__dev.write_message(
+                nfcdev.NFCTransceiveFrameRequestMessage(
+                    tx_data,
+                    nfcdev.NFC_TRANSCEIVE_FLAGS_TX_ONLY,
+                )
+            )
+        else:
+            # Read system block to make sure the tag is still here.
+            self.__dev.write_message(
+                nfcdev.NFCTransceiveFrameRequestMessage(
+                    bytes([nfcdev.ST25TB_COMMAND_READ_BLOCK, 255])
+                )
+            )
+
+    def process_frame(self, payload):
+        if payload.flags & nfcdev.NFC_TRANSCEIVE_FLAGS_ERROR:
+            self.future.set_result(False)
+        elif payload.rx_count == 6 and len(self.__blocks) == 0:
+            # All bytes were written, this is the callback from final read
+            self.future.set_result(True)
+        elif payload.rx_count != 6 and len(self.__blocks) == 0:
+            # Final read, but unexpected length
+            self.future.set_result(False)
+        elif payload.rx_count != 0:
+            # Unexpected payload length for a write
+            self.future.set_result(False)
+        else:
+            # Read callback.
+            self.__blocks = self.__blocks[1:]
+            self.__data = self.__data[4:]
+            # Write next block or start final write.
+            # We should only do this after 7ms
+            self.__loop.call_later(0.007, self._send_command)
 
 
 class RfidNFCDev(Rfid):  # pragma: no cover
@@ -31,16 +128,14 @@ class RfidNFCDev(Rfid):  # pragma: no cover
 
     def __init__(self):
         self.__state = RfidNFCDevState.DISABLED
-        self.__blocks = None
-        self.__read_data = None
+        self.__operation = None
         self.__current_tech = None
         self.__current_uid = None
         self.__current_picture = None
         self.__current_app = None
         self.__polling_timer = None
         self.__callback = None
-        self.__write_condition = asyncio.Condition()
-        self.__written_data = None
+        self.__select_condition = asyncio.Condition()
         if os.path.exists(RfidNFCDev.DEVICE_PATH):
             self.__dev = nfcdev.NFCDev(RfidNFCDev.DEVICE_PATH)
             self.__dev.open()
@@ -54,17 +149,18 @@ class RfidNFCDev(Rfid):  # pragma: no cover
         """
         header, payload = self.__dev.read_message()
         if header.message_type == nfcdev.NFC_SELECTED_TAG_MESSAGE_TYPE:
+            tag_uid = self._tag_info_to_uid(payload.tag_type, payload.tag_info)
             if self.__state == RfidNFCDevState.SELECTING:
                 if (
                     payload.tag_type == self.__current_tech
-                    and payload.uid == self.__current_uid
+                    and tag_uid == self.__current_uid
                 ):
-                    asyncio.create_task(self._notify_written_data(True))
+                    asyncio.create_task(self._notify_selected())
             elif payload.tag_type == nfcdev.NFC_TAG_TYPE_ST25TB:
-                self._process_st25tb_tag(payload.tag_info)
+                self._process_st25tb_tag(tag_uid)
             else:
                 self._process_unsupported_tag(
-                    payload.tag_type, payload.tag_info
+                    payload.tag_type, tag_uid, payload.tag_info
                 )
         elif (
             header.message_type
@@ -87,15 +183,9 @@ class RfidNFCDev(Rfid):  # pragma: no cover
         elif (
             header.message_type
             == nfcdev.NFC_TRANSCEIVE_FRAME_RESPONSE_MESSAGE_TYPE
-            and self.__state == RfidNFCDevState.READING_BLOCKS
+            and self.__state == RfidNFCDevState.RUNNING_OPERATION
         ):
-            self._process_read_frame_response(payload)
-        elif (
-            header.message_type
-            == nfcdev.NFC_TRANSCEIVE_FRAME_RESPONSE_MESSAGE_TYPE
-            and self.__state == RfidNFCDevState.WRITING_BLOCKS
-        ):
-            self._process_write_frame_response(payload)
+            self.__operation.process_frame(payload)
         else:
             logging.error(
                 "Unexpected packet from RFID reader, "
@@ -114,15 +204,17 @@ class RfidNFCDev(Rfid):  # pragma: no cover
         )
 
     def _start_selecting(self):
+        native_id = self._current_uid_to_native_id()
         self.__dev.write_message(
-            nfcdev.NFCSelectRequestMessage(
+            nfcdev.NFCSelectTagMessage(
                 int(self.__current_tech),
-                self.__current_uid,
+                native_id,
             )
         )
 
     def _transition_to_polling_select(self):
         self.__dev.write_message(nfcdev.NFCIdleModeRequestMessage())
+        self.__operation = None
         self.__state = RfidNFCDevState.POLLING_AND_SELECT
 
     def _transition_to_polling_repeat(self):
@@ -130,11 +222,13 @@ class RfidNFCDev(Rfid):  # pragma: no cover
         Invoked when a tag is present to be notified when it's gone.
         """
         self.__dev.write_message(nfcdev.NFCIdleModeRequestMessage())
+        self.__operation = None
         self.__state = RfidNFCDevState.POLLING_REPEAT
         self._start_timer()
 
     def _transition_to_disabled(self):
         self.__dev.write_message(nfcdev.NFCIdleModeRequestMessage())
+        self.__operation = None
         self.__state = RfidNFCDevState.DISABLED
 
     def _timer_cb(self):
@@ -166,18 +260,16 @@ class RfidNFCDev(Rfid):  # pragma: no cover
             self.__polling_timer = None
 
     # ST25TB support
-    def _process_st25tb_tag(self, tag_info):
+    def _process_st25tb_tag(self, tag_uid):
         if (
             self.__state != RfidNFCDevState.POLLING_AND_SELECT
             and self.__state != RfidNFCDevState.POLLING_REPEAT
         ):
             return
-        uid = bytearray(tag_info.uid)
-        uid.reverse()
         if self.__state == RfidNFCDevState.POLLING_REPEAT:
             self._cancel_timer()
             if (
-                uid == self.__current_uid
+                tag_uid == self.__current_uid
                 and TagTechnology.ST25TB == self.__current_tech
             ):
                 # Tag is still here. Simply reset timer
@@ -187,141 +279,59 @@ class RfidNFCDev(Rfid):  # pragma: no cover
             # removed
             if self.__current_uid:
                 self._invoke_callback(None, TagFlags.REMOVED, None)
-        self.__current_uid = uid
+        self.__current_uid = tag_uid
         self.__current_tech = TagTechnology.ST25TB
         self.__current_picture = None
         self.__current_app = None
-        if RfidNFCDev.is_compatible(uid):
+        if RfidNFCDev.st25tb_is_compatible(tag_uid):
             # Start reading, with system block last
-            self.__blocks = [7, 8, 9, 10, 11, 12, 13, 14, 15, 255]
-            self.__dev.write_message(
-                nfcdev.NFCTransceiveFrameRequestMessage(
-                    2,
-                    0,
-                    bytearray(
-                        [nfcdev.ST25TB_COMMAND_READ_BLOCK, self.__blocks[0]]
-                    ),
-                )
+            self.__state = RfidNFCDevState.RUNNING_OPERATION
+            blocks = [7, 8, 9, 10, 11, 12, 13, 14, 15, 255]
+            self.__operation = RfidNFCOperationReadST25(
+                self.__dev, blocks, self._st25tb_read_callback
             )
-            self.__state = RfidNFCDevState.READING_BLOCKS
-            self.__read_data = b""
             # We don't need a timer here, as we'll get an error message.
         else:
             # Transition to polling repeat
             self._invoke_callback(None, TagFlags.UNKNOWN_PICC, None)
             self._transition_to_polling_repeat()
 
-    def _process_read_frame_response(self, payload):
-        if payload.flags & nfcdev.NFC_TRANSCEIVE_FLAGS_ERROR:
-            self._transition_to_polling_select()
-            self._invoke_callback(None, TagFlags.UNKNOWN_PICC, None)
-            self._invoke_callback(None, TagFlags.REMOVED, None)
-            self.__current_uid = None
-        elif payload.rx_count != 6:
-            # Unexpected payload length.
-            # Let's unselect tag.
-            self._transition_to_polling_repeat()
-            self._invoke_callback(None, TagFlags.UNKNOWN_PICC, None)
-        else:
-            # Append data and read next block.
-            self.__read_data += payload.data[0:4]
-            self.__blocks = self.__blocks[1:]
-            if len(self.__blocks) > 0:
-                self.__dev.write_message(
-                    nfcdev.NFCTransceiveFrameRequestMessage(
-                        2,
-                        0,
-                        bytearray(
-                            [
-                                nfcdev.ST25TB_COMMAND_READ_BLOCK,
-                                self.__blocks[0],
-                            ]
-                        ),
-                    )
-                )
+    def _st25tb_read_callback(self, success, data):
+        if success:
+            # check read data.
+            first_block_le = data[0:4]
+            first_block = bytearray(first_block_le)
+            first_block.reverse()
+            flags = 0
+            app_data = None
+            if self._is_locked(data[36:40]):
+                flags |= TagFlags.READONLY
+            if first_block[0:2] == RfidNFCDev.NABAZTAG_SIGNATURE:
+                self.__current_picture = first_block[2]
+                self.__current_app = first_block[3]
+                app_data = data[4:36]
+                flags |= TagFlags.FORMATTED
             else:
-                self._process_read_data()
-
-    def _process_read_data(self):
-        # check read data.
-        data = self.__read_data
-        first_block_le = data[0:4]
-        first_block = bytearray(first_block_le)
-        first_block.reverse()
-        flags = 0
-        app_data = None
-        if self._is_locked(data[36:40]):
-            flags |= TagFlags.READONLY
-        if first_block[0:2] == RfidNFCDev.NABAZTAG_SIGNATURE:
-            self.__current_picture = first_block[2]
-            self.__current_app = first_block[3]
-            app_data = data[4:36]
-            flags |= TagFlags.FORMATTED
+                user_data = data[0:36]
+                foreign_data = False
+                for c in user_data:
+                    if c != 255:
+                        foreign_data = True
+                        break
+                if foreign_data:
+                    flags |= TagFlags.FOREIGN_DATA
+                else:
+                    flags |= TagFlags.CLEAR
+            self._invoke_callback(app_data, flags, None)
         else:
-            user_data = data[0:36]
-            foreign_data = False
-            for c in user_data:
-                if c != 255:
-                    foreign_data = True
-                    break
-            if foreign_data:
-                flags |= TagFlags.FOREIGN_DATA
-            else:
-                flags |= TagFlags.CLEAR
-        self._invoke_callback(app_data, flags, None)
+            # We got some I/O problem with the tag
+            # Maybe it was removed, but we'll wait for the timeout to kick in
+            self._invoke_callback(None, TagFlags.UNKNOWN_PICC, None)
         self._transition_to_polling_repeat()
 
-    def _process_write_frame_response(self, payload):
-        if payload.flags & nfcdev.NFC_TRANSCEIVE_FLAGS_ERROR:
-            self._transition_to_polling_select()
-            self._invoke_callback(None, TagFlags.REMOVED, None)
-            self.__current_uid = None
-        elif payload.rx_count == 0 and len(self.__blocks) == 0:
-            # All bytes were written.
-            self._transition_to_polling_repeat()
-            asyncio.create_task(self._notify_written_data(True))
-        elif payload.rx_count != 0:
-            # Unexpected payload length.
-            # Let's unselect tag.
-            self._transition_to_polling_repeat()
-            asyncio.create_task(self._notify_written_data(False))
-        else:
-            # Write next block
-            # We should only do this after 7ms
-            self.__blocks = self.__blocks[1:]
-            asyncio.get_running_loop().call_later(
-                0.007, self._submit_next_write
-            )
-
-    def _submit_next_write(self):
-        if len(self.__blocks) > 0:
-            data = self.__written_data[0:4]
-            self.__written_data = self.__written_data[4:]
-            self.__dev.write_message(
-                nfcdev.NFCTransceiveFrameRequestMessage(
-                    2,
-                    0,
-                    bytearray(
-                        [
-                            nfcdev.ST25TB_COMMAND_WRITE_BLOCK,
-                            self.__blocks[0],
-                            data,
-                        ]
-                    ),
-                )
-            )
-        else:
-            # Read system block to make sure the tag is still here.
-            self.__dev.write_message(
-                nfcdev.NFCTransceiveFrameRequestMessage(
-                    2, 0, bytearray([nfcdev.ST25TB_COMMAND_READ_BLOCK, 255])
-                )
-            )
-
-    async def _notify_written_data(self, result):
-        async with self.__write_condition:
-            self.__write_result = result
-            self.__write_condition.notify()
+    async def _notify_selected(self):
+        async with self.__select_condition:
+            self.__select_condition.notify()
 
     def _is_locked(self, system_block_le):
         """
@@ -332,7 +342,7 @@ class RfidNFCDev(Rfid):  # pragma: no cover
         return system_block_int & 0xFF800000 != 0xFF800000
 
     @staticmethod
-    def is_compatible(uid_be):  # pragma: cover
+    def st25tb_is_compatible(uid_be):  # pragma: cover
         """
         Determine if tag is compatible based on UID.
         We currently support:
@@ -363,12 +373,8 @@ class RfidNFCDev(Rfid):  # pragma: no cover
         return False
 
     # UNSUPPORTED TAGS
-    def _process_unsupported_tag(self, tag_type, tag_info):
-        if hasattr(tag_info, "uid"):
-            tag_uid = tag_info.uid
-        elif hasattr(tag_info, "pupi"):
-            tag_uid = tag_info.pupi
-        else:
+    def _process_unsupported_tag(self, tag_type, tag_uid, tag_info):
+        if not tag_uid:
             # We cannot report this tag as we don't know its uid
             self._transition_to_polling_repeat()
             return
@@ -402,6 +408,24 @@ class RfidNFCDev(Rfid):  # pragma: no cover
         # Transition to polling repeat
         self._invoke_callback(None, TagFlags.UNKNOWN_PICC, exported_tag_info)
         self._transition_to_polling_repeat()
+
+    def _tag_info_to_uid(self, tag_type, tag_info):
+        if tag_type == nfcdev.NFC_TAG_TYPE_ST25TB:
+            tag_uid = bytearray(tag_info.uid)
+            tag_uid.reverse()
+        elif hasattr(tag_info, "uid"):
+            tag_uid = tag_info.uid
+        elif hasattr(tag_info, "pupi"):
+            tag_uid = tag_info.pupi
+        return tag_uid
+
+    def _current_uid_to_native_id(self):
+        if self.__current_tech == TagTechnology.ST25TB:
+            native_id = bytearray(self.__current_uid)
+            native_id.reverse()
+        else:
+            native_id = self.__current_uid
+        return native_id
 
     def _invoke_callback(self, app_data, flags, tag_info):
         if self.__callback is not None:
@@ -446,14 +470,18 @@ class RfidNFCDev(Rfid):  # pragma: no cover
         app: int,
         data: bytes,
     ):
+        """
+        Write a tag.
+        This function is synchronous, so we use an async condition to wait
+        for completion.
+        """
         if self.__dev is None:
             return False
         self.__state = RfidNFCDevState.SELECTING
         self.__current_uid = uid
         self.__current_tech = tech
-        first_block = bytearray(RfidNFCDev.NABAZTAG_SIGNATURE) + bytes(
-            [picture, app]
-        )
+        first_block = RfidNFCDev.NABAZTAG_SIGNATURE + bytes([picture, app])
+        first_block = bytearray(first_block)
         first_block.reverse()
         write_data = first_block
         if data:
@@ -466,17 +494,20 @@ class RfidNFCDev(Rfid):  # pragma: no cover
         else:
             data = b"\xFF\xFF\xFF\xFF"
         write_data = write_data + data
-        self.__written_data = write_data
         blocks_count = len(data) // 4 + 1
-        self.__blocks = range(7, blocks_count + 7)
+        blocks = range(7, blocks_count + 7)
         try:
-            async with self.__write_condition:
+            async with self.__select_condition:
                 self._start_selecting()
-                await self.__write_condition.wait()
+                await self.__select_condition.wait()
 
-                self.__state = RfidNFCDevState.WRITING_BLOCKS
-                self._submit_next_write()
-                return self.__write_result
+                self.__state = RfidNFCDevState.RUNNING_OPERATION
+                self.__operation = RfidNFCAsyncOperationWriteST25(
+                    self.__dev, blocks, write_data
+                )
+                result = await self.__operation.future
+                self.__operation = None
+                return result
         finally:
             if (
                 self.__state != RfidNFCDevState.POLLING_REPEAT
