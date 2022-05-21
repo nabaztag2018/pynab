@@ -77,7 +77,7 @@ class TestNabdBase(unittest.TestCase):
         self.assertEqual(self.nabio.center_led, None)
         self.assertEqual(self.nabio.right_led, None)
         self.assertEqual(
-            self.nabio.bottom_led, "pulse((255, 0, 255))"
+            self.nabio.bottom_led, "pulse((255, 0, 0))"
         )  # Fuchsia
         self.assertEqual(self.nabio.nose_led, None)
 

@@ -95,7 +95,7 @@ class NabIOMock(NabIO):
         return False
 
     def network_interface(self):
-        return "eth0"
+        return "mockInterface"  # this interface should never exist
 
     async def gestalt(self):
         return {"model": "Test mock"}
