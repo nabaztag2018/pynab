@@ -16,11 +16,13 @@ case ${pynab_branch} in
         pynab_tag=" (tag ${pynab_branch})"
         pynab_branch=release
         driver_branch=release
+        st25_branch=release
         ;;
     *)
         # assume branch-driven build on given branch
         pynab_tag=""
         driver_branch=master
+        st25_branch=main
         ;;
 esac
 
@@ -55,7 +57,7 @@ then
         echo "WARNING: Removes any existing Pynab setup."
         exit 1
     fi
-    rm -rf ${home_dir}/pynab ${home_dir}/wm8960 ${home_dir}/tagtagtag-ears ${home_dir}/cr14
+    rm -rf ${home_dir}/pynab ${home_dir}/wm8960 ${home_dir}/tagtagtag-ears ${home_dir}/cr14 ${home_dir}/st25r391x
 else
     echo "Usage: $(basename ${0}) pi-zero|ci-chroot"
     exit 2
@@ -203,10 +205,16 @@ sudo -u ${owner} git clone --depth 1 -b ${driver_branch} https://github.com/pguy
 cd ${home_dir}/tagtagtag-ears
 build_and_install_driver
 
-echo "Installing RFID reader driver."
+echo "Installing RFID reader driver for TAGTAG."
 cd ${home_dir}
 sudo -u ${owner} git clone --depth 1 -b ${driver_branch} https://github.com/pguyot/cr14
 cd ${home_dir}/cr14
+build_and_install_driver
+
+echo "Installing RFID reader driver for 2022 NFC card."
+cd ${home_dir}
+sudo -u ${owner} git clone --depth 1 -b ${st25_branch} https://github.com/pguyot/st25r391x
+cd ${home_dir}/st25r391x
 build_and_install_driver
 
 cd ${home_dir}

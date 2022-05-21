@@ -54,6 +54,10 @@
               <div class="read-ok d-none">
                 <form onsubmit="event.preventDefault();" class="configure-form">
                   <div class="form-group row">
+                    <label for="staticTech" class="col-sm-2 col-form-label">Technology</label>
+                    <div class="col-sm-10">
+                      <input type="text" readonly class="form-control-plaintext" id="staticTech" name="tech" value="">
+                    </div>
                     <label for="staticUID" class="col-sm-2 col-form-label">UID</label>
                     <div class="col-sm-10">
                       <input type="text" readonly class="form-control-plaintext" id="staticUID" name="uid" value="">
@@ -258,6 +262,7 @@
         }
         function setupForm(rfidEvent) {
           $("#staticUID").val(rfidEvent.uid);
+          $("#staticTech").val(rfidEvent.tech);
           var status;
           var supported = false;
           var foreignDataAlert = false;

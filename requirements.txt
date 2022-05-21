@@ -45,6 +45,8 @@ https://github.com/pguyot/snips-nlu-utils/releases/download/v0.9.1/snips_nlu_uti
 https://github.com/pguyot/snips-nlu-utils/releases/download/v0.9.1/snips_nlu_utils-0.9.1-cp39-cp39-linux_aarch64.whl; sys_platform == 'linux' and 'aarch64' in platform_machine and python_version == '3.9'
 snips-nlu-utils==0.9.1;  sys_platform != 'linux' or ('armv6l' not in platform_machine and 'armv7l' not in platform_machine and 'aarch64' not in platform_machine) or (python_version != '3.7' and python_version != '3.9')
 
+-e git+https://github.com/pguyot/pynfcdev.git@v0.1.0#egg=pynfcdev
+
 # Indirect frozen dependencies
 mypy_extensions==0.4.3
 #typing_extensions==4.1.1

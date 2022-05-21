@@ -1,5 +1,5 @@
 import abc
-from enum import IntFlag
+from enum import IntEnum, IntFlag
 from typing import Callable
 
 import nabairqualityd
@@ -17,6 +17,18 @@ class TagFlags(IntFlag):
     FOREIGN_DATA = 8
     UNKNOWN_PICC = 16
     REMOVED = 128
+
+
+class TagTechnology(IntEnum):
+    ISO14443A = 1
+    ISO14443A_T2T = 2
+    ISO14443A_MIFARE_CLASSIC = 3
+    ISO14443A_NFCDEP = 4
+    ISO14443A_T4T = 6
+    ISO14443A_T4T_NFCDEP = 7
+    ISO14443A_T1T = 8
+    ISO14443B = 16
+    ST25TB = 17
 
 
 TAG_APPLICATION_NONE = 255
@@ -45,16 +57,19 @@ class Rfid(object, metaclass=abc.ABCMeta):
     def on_detect(
         self,
         loop,
-        callback: Callable[[bytes, int, int, bytes, TagFlags], None],
+        callback: Callable[
+            [TagTechnology, bytes, int, int, bytes, TagFlags, dict], None
+        ],
     ) -> None:
         """
         Define the callback for rfid events.
-        callback is cb(uid, picture, app, data, support) with uid being the
-        RFID's UID, picture, app and data being the encoded tag's picture, app
-        and data unless the tag is not encoded (in which case the callback gets
-        None).
+        callback is cb(tech, uid, picture, app, data, support, tag_info) with
+        uid being the RFID's UID, picture, app and data being the encoded tag's
+        picture, app and data unless the tag is not encoded (in which case the
+        callback gets None).
         flags describes support for this tag, inferred from the UID and
         reading few blocks.
+        tag_info contains additional info that applications may use.
         The callback is called on the provided event loop, with
         loop.call_soon_threadsafe.
         Calling this method enables the reader.
@@ -62,7 +77,14 @@ class Rfid(object, metaclass=abc.ABCMeta):
         raise NotImplementedError("Should have implemented")
 
     @abc.abstractmethod
-    async def write(self, uid: bytes, picture: int, app: int, data: bytes):
+    async def write(
+        self,
+        tech: TagTechnology,
+        uid: bytes,
+        picture: int,
+        app: int,
+        data: bytes,
+    ):
         """
         Write the tag with the given uid with the specified picture, app and
         bytes. picture and app should be within 0-255, data should be 32 bytes
