@@ -611,14 +611,13 @@ class Nabd:
                     writer,
                 )
             except Exception:
-                logging.debug("Unknown exception with RFID write")
-                logging.debug(traceback.format_exc())
-                print(traceback.format_exc())
+                logging.info("Unknown exception with RFID write")
+                logging.info(traceback.format_exc())
                 self.write_response_packet(
                     packet,
                     {
                         "status": "error",
-                        "message": "RFID write failed",
+                        "message": "Unknown exception while writing RFID tag",
                     },
                     writer,
                 )
