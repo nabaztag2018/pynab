@@ -1,8 +1,9 @@
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from .models import Config
+
 from . import rfid_data
+from .models import Config
 from .nabemaild import NabEmaild
 
 

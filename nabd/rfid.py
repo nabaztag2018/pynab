@@ -3,10 +3,10 @@ from enum import IntFlag
 from typing import Callable
 
 import nabbookd
+import nabemaild
 import nabsurprised
 import nabtaichid
 import nabweatherd
-import nabemaild
 
 
 class TagFlags(IntFlag):

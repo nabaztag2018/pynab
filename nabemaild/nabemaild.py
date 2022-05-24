@@ -1,8 +1,10 @@
 import logging
-import sys
 import smtplib
 import ssl
+import sys
+
 from nabcommon.nabservice import NabService
+
 from . import rfid_data
 
 
