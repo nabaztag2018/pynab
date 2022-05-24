@@ -26,16 +26,18 @@ class NabEmaild(NabService):
         sender_email = config.gmail_account
         password = config.gmail_passwd
 
-        message = ("SUBJECT\n\n"
-        "Bonjour, vous m'avez demandé de vous envoyer un email "
-        "lorsque ce tag est vu.\n\n"
-        "Voilà ! C'est fait.\n\n"
-        "Votre Nabaztag\n\n"
-        "Hello!\n\n"
-        "You asked me a while ago to send you an email when I see this tag.\n\n"
-        "Well, I've just seen it!\n\n"
-        "Your Nabaztag")
-        
+        message = (
+            "SUBJECT\n\n"
+            "Bonjour, vous m'avez demandé de vous envoyer un email "
+            "lorsque ce tag est vu.\n\n"
+            "Voilà ! C'est fait.\n\n"
+            "Votre Nabaztag\n\n"
+            "Hello!\n\n"
+            "You asked me a while ago to send you an email when I see this tag.\n\n"
+            "Well, I've just seen it!\n\n"
+            "Your Nabaztag"
+        )
+
         message = message.replace("SUBJECT", subject)
         message = message.encode("utf-8")
 
