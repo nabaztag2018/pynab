@@ -1,0 +1,23 @@
+{% load i18n %}
+{% load static %}
+
+
+      {% trans "When Nabaztag will see that NFC tag an email will be sent to the folloiwng email address and with the subject you wrote.." %}
+	  <p>
+	  
+   
+      <div class="form-group row">
+        <label for="nabemaild_email" class="col-6 col-form-label">{% trans "The email address we should send the email to" %}</label>
+        <div class="col-6">
+          <input id="nabemaild_email" name="nabemaild_email" type="text" class="form-control" value="{{ nabemaild_email }}">
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label for="gmailpassword" class="col-6 col-form-label">{% trans "The subject of the email we'll be sending" %}</label>
+        <div class="col-6">
+          <input id="nabemaild_subject" name="nabemaild_subject" type="text" class="form-control" value="{{ nabemaild_subject }}">
+		  <input id="nabemaild_uid" name="nabemaild_uid" type="hidden" class="form-control" value="{{ nabemaild_uid }}">
+        </div>
+      </div>
+

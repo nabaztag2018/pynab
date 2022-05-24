@@ -1,0 +1,79 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-23 16:06+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/nabemaild/nabemaild_help.html:5
+#: templates/nabemaild/settings.html:6
+msgid "Sending an email with an NFC tag"
+msgstr "Envoyer un email avec un tag NFC"
+
+#: templates/nabemaild/nabemaild_help.html:11
+#: templates/nabemaild/settings.html:12
+msgid "How to create and configure a Gmail account"
+msgstr "Comment créer et configurer un compte Gmail."
+
+#: templates/nabemaild/rfid-data.html:5
+msgid ""
+"When Nabaztag will see that NFC tag an email will be sent to the folloiwng "
+"email address and with the subject you wrote.."
+msgstr "Quand Nabaztag verre ce tag il enverra un email à l'adresse ci-dessous (avec le sujet que vous voulez)"
+
+#: templates/nabemaild/rfid-data.html:10
+msgid "The email address we should send the email to"
+msgstr "L'adresse email à laquelle le message va être envoyé"
+
+#: templates/nabemaild/rfid-data.html:17
+msgid "The subject of the email we'll be sending"
+msgstr "Le sujet du message"
+
+#: templates/nabemaild/settings.html:12
+msgid ""
+"To send an email when an NFC tag is detected, <a href='/rfid/'>you need to "
+"configure the tag</a> and show it to your Nabaztag. <p>If you have not done "
+"it already, you need to create a (free) Gmail account as"
+msgstr ""
+"Pour envoyer un email lorsqu'un tag NFC est détecté, <a href='/rfid/'>vous "
+"devez configurer le tag</a> puis le montrer à votre Nabaztag. <p>Si vous ne "
+"l'avez pas encore fait vous devez créer un compte Gmail comme "
+
+#: templates/nabemaild/settings.html:12
+msgid "explained here"
+msgstr "expliqué ici"
+
+#: templates/nabemaild/settings.html:12
+msgid "and enter the Gmail address and the password below."
+msgstr "et saisir votre address Gmail et son mot de passe ci-dessous "
+
+#: templates/nabemaild/settings.html:17
+msgid "Gmail address"
+msgstr "Adresse Gmail"
+
+#: templates/nabemaild/settings.html:24
+msgid "Gmail password"
+msgstr "Mot de passe Gmail"
+
+#: templates/nabemaild/settings.html:38
+msgid "Save"
+msgstr "Enregistrer"
+
+#: templates/nabemaild/settings.html:39
+msgid "Reset"
+msgstr "Annuler"
+
+#~ msgid "Unknown server error"
+#~ msgstr "Erreur inconnue du serveur"
