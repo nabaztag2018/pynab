@@ -27,7 +27,7 @@ async def read_data_ui(uid):
 
     try:
         uid_data_base = json.loads(config.json_data_base)
-    except Exception as err:
+    except Exception:
         uid_data_base = []
 
     if uid in uid_data_base:
@@ -46,7 +46,7 @@ async def write_data_ui(uid, email, subject):
 
     try:
         uid_data_base = json.loads(config.json_data_base)
-    except Exception as err:
+    except Exception:
         uid_data_base = {}
 
     data_ser = serialize(email, subject)
@@ -63,7 +63,7 @@ def read_data_ui_for_views(uid):
 
     try:
         uid_data_base = json.loads(config.json_data_base)
-    except Exception as err:
+    except Exception:
         uid_data_base = []
 
     if uid in uid_data_base:
@@ -82,7 +82,7 @@ def write_data_ui_for_views(uid, email, subject):
 
     try:
         uid_data_base = json.loads(config.json_data_base)
-    except Exception as err:
+    except Exception:
         uid_data_base = {}
 
     data_ser = serialize(email, subject)

@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView
 from .models import Config
 from . import rfid_data
+from .nabemaild import NabEmaild
 
 
 class SettingsView(TemplateView):
@@ -22,7 +23,7 @@ class SettingsView(TemplateView):
         if "gmail_passwd" in request.POST:
             config.gmail_passwd = request.POST["gmail_passwd"]
         config.save()
-        nabemaild.signal_daemon()
+        NabEmaild.signal_daemon()
         context = self.get_context_data(**kwargs)
         return render(request, SettingsView.template_name, context=context)
 

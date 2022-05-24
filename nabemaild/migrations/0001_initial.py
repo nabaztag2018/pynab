@@ -14,8 +14,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Config',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, 
-                serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True, primary_key=True,
+                    serialize=False, verbose_name='ID')),
                 ('gmail_account', models.TextField(default='', null=True)),
                 ('gmail_passwd', models.TextField(default='', null=True)),
                 ('json_data_base', models.TextField(default='', null=True)),
