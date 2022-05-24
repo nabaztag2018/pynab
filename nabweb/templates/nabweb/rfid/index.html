@@ -97,6 +97,11 @@
                         <option value="24">{% trans "Nanoztag kiwi" %}</option>
                         <option value="25">{% trans "Nanoztag azur" %}</option>
                         <option value="26">{% trans "Nanoztag black" %}</option>
+                        <option disabled>──────────</option>
+                        <option value="30">{% trans "NFC Tag Blue" %}</option>
+                        <option value="31">{% trans "NFC Tag Violet" %}</option>
+                        <option value="32">{% trans "NFC Tag Red" %}</option>
+                        <option value="33">{% trans "NFC Tag Orange" %}</option>
                       </select>
                     </div>
                     <div class="col-sm-4">
@@ -293,7 +298,7 @@
             $(".rfid-application-data").empty();
             if (rfidEvent.app) {
               $("#rfidApplication").val(rfidEvent.app);
-              getRFIDDataForm(rfidEvent.data);
+              getRFIDDataForm(rfidEvent.data, rfidEvent.uid);
             } else {
               $("#rfidApplication").val(255);
             }
@@ -415,12 +420,12 @@
         $(".confirmed-write-button").on("click", function() {
           write_tag();
         });
-        function getRFIDDataForm(data) {
+        function getRFIDDataForm(data, uid) {
           var val = $("#rfidApplication").val();
           var div = $(".rfid-application-data[data-application=" + val + "]");
           if (div.length > 0) {
             var url = div.data("url");
-            var dataArg = "data=" + encodeURIComponent(data);
+            var dataArg = "data=" + encodeURIComponent(data)+"&uid=" + encodeURIComponent(uid);
             $.get(url, dataArg, function(html) {
               div.html(html);
             });
