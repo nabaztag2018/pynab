@@ -1,150 +1,38 @@
-version: '3.8'
+version: '2.0'
 services:
     # PostgreSQL database
     db:
+        container_name: PostgreSQL
         image: postgres:11-alpine
+        security_opt:
+          # See: https://wiki.alpinelinux.org/wiki/Release_Notes_for_Alpine_3.13.0#time64_requirements
+          - seccomp:unconfined
+        volumes:
+          - var-lib-postgresql-data:/var/lib/postgresql/data
+          - var-run-postgresql:/var/run/postgresql
         environment:
-            POSTGRES_PASSWORD: pynab
-            POSTGRES_USER: pynab
-        volumes:
-            - var-lib-postgresql-data:/var/lib/postgresql/data
-            - var-run-postgresql:/var/run/postgresql
-    # Once off container to run the DB migrations
-    migrate:
+          - POSTGRES_USER=pynab
+          - POSTGRES_PASSWORD=pynab
+          - TZ=Europe/Paris
+    # Pynab services
+    pynab:
+        container_name: Pynab
         build:
             context: nab/
             dockerfile: Dockerfile
         volumes:
-            - ../:/home/pi/pynab
-            - var-run-postgresql:/var/run/postgresql
+          - ../:/home/pi/pynab
+          - var-run-postgresql:/var/run/postgresql
         depends_on:
-            - db
-        command: ["/bin/bash", "/usr/local/bin/run-migrate.sh"]
-    nabd:
-        build:
-            context: nab/
-            dockerfile: Dockerfile
-        volumes:
-            - ../:/home/pi/pynab
-            - var-run-postgresql:/var/run/postgresql
-        command: ["/bin/sh", "-c", "ln -sf /dev/stdout /var/log/nabd && /home/pi/venv/bin/python3 -m nabd.nabd"]
-        ports:
-            - 10543:10543
-            - 10544:10544
-    nabweb:
-        build:
-            context: nab/
-            dockerfile: Dockerfile
-        volumes:
-            - ../:/home/pi/pynab
-            - var-run-postgresql:/var/run/postgresql
-            - /var/run/docker.sock:/var/run/docker.sock
-        depends_on:
-            - db
-            - migrate
-            - nabd
+          - db
         environment:
-            - PID_DAEMONS=nab8balld nabairqualityd nabbookd nabclockd nabsurprised nabtaichid nabweatherd
-        command: ["/bin/bash", "/usr/local/bin/run-webserver.sh"]
+          - DAEMONS=nab8balld nabairqualityd nabbookd nabclockd nabmastodond nabsurprised nabtaichid nabweatherd
+          - TZ=Europe/Paris
+        command: ["/bin/bash", "/usr/local/bin/run-pynab.sh"]
         ports:
-            - 8000:8000
-    nab8balld:
-        build:
-            context: nab/
-            dockerfile: Dockerfile
-        volumes:
-            - ../:/home/pi/pynab
-            - var-run-postgresql:/var/run/postgresql
-        depends_on:
-            - db
-            - migrate
-            - nabd
-        command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nab8balld"]
-    nabairqualityd:
-        build:
-            context: nab/
-            dockerfile: Dockerfile
-        volumes:
-            - ../:/home/pi/pynab
-            - var-run-postgresql:/var/run/postgresql
-        depends_on:
-            - db
-            - migrate
-            - nabd
-        command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabairqualityd"]
-    nabbookd:
-        build:
-            context: nab/
-            dockerfile: Dockerfile
-        volumes:
-            - ../:/home/pi/pynab
-            - var-run-postgresql:/var/run/postgresql
-        depends_on:
-            - db
-            - migrate
-            - nabd
-        command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabbookd"]
-    nabclockd:
-        build:
-            context: nab/
-            dockerfile: Dockerfile
-        volumes:
-            - ../:/home/pi/pynab
-            - var-run-postgresql:/var/run/postgresql
-        depends_on:
-            - db
-            - migrate
-            - nabd
-        command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabclockd"]
-    nabsurprised:
-        build:
-            context: nab/
-            dockerfile: Dockerfile
-        volumes:
-            - ../:/home/pi/pynab
-            - var-run-postgresql:/var/run/postgresql
-        depends_on:
-            - db
-            - migrate
-            - nabd
-        command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabsurprised"]
-    nabtaichid:
-        build:
-            context: nab/
-            dockerfile: Dockerfile
-        volumes:
-            - ../:/home/pi/pynab
-            - var-run-postgresql:/var/run/postgresql
-        depends_on:
-            - db
-            - migrate
-            - nabd
-        command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabtaichid"]
-    nabweatherd:
-        build:
-            context: nab/
-            dockerfile: Dockerfile
-        volumes:
-            - ../:/home/pi/pynab
-            - var-run-postgresql:/var/run/postgresql
-        depends_on:
-            - db
-            - migrate
-            - nabd
-        command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabweatherd"]
-    nabmastodond:
-        build:
-            context: nab/
-            dockerfile: Dockerfile
-        volumes:
-            - ../:/home/pi/pynab
-            - var-run-postgresql:/var/run/postgresql
-        depends_on:
-            - db
-            - migrate
-            - nabd
-        command: ["/bin/bash", "/usr/local/bin/run-service.sh", "nabmastodond"]
-
+          - 10543:10543
+          - 10544:10544
+          - 8000:8000
 volumes:
     # Share the PostgreSQL socket between containers
     var-run-postgresql:

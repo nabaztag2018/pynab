@@ -17,6 +17,7 @@ from django.utils import translation
 from django.utils.translation import to_language, to_locale
 from django.views.generic import View
 
+from nabcommon import hardware
 from nabcommon.nabservice import NabService
 from nabd.i18n import Config
 
@@ -36,11 +37,11 @@ class NabdConnection:
             async with NabdConnection() as conn:
                 return await fun(conn.reader, conn.writer, *args)
         except ConnectionRefusedError:
-            return {"status": "error", "message": "Nabd is not running"}
+            return {"status": "error", "message": "Nabd is not running."}
         except asyncio.TimeoutError:
             return {
                 "status": "error",
-                "message": "Communication with Nabd timed out",
+                "message": "Communication with Nabd timed out.",
             }
 
 
@@ -235,7 +236,7 @@ class NabWebRfidReadView(View):
                 except asyncio.TimeoutError:
                     return {
                         "status": "timeout",
-                        "message": "No RFID tag was detected",
+                        "message": "No RFID tag was detected.",
                     }
 
     def post(self, request, *args, **kwargs):
@@ -293,7 +294,7 @@ class NabWebRfidWriteView(View):
             except asyncio.TimeoutError:
                 return {
                     "status": "timeout",
-                    "message": "No RFID tag was detected",
+                    "message": "No RFID tag was detected.",
                 }
 
     def post(self, request, *args, **kwargs):
@@ -303,7 +304,8 @@ class NabWebRfidWriteView(View):
             or "app" not in request.POST
         ):
             return JsonResponse(
-                {"status": "error", "message": "Missing arguments"}, status=400
+                {"status": "error", "message": "Missing arguments."},
+                status=400,
             )
         uid = request.POST["uid"]
         picture = request.POST["picture"]
@@ -325,7 +327,13 @@ class NabWebSytemInfoView(BaseView):
         return "nabweb/system-info/index.html"
 
     def get_os_info(self):
-        version = "(unknown)"
+        version = "(Unknown)"
+        if os.path.isdir("/boot/dietpi"):
+            variant = "DietPi"
+        elif os.path.isfile("/etc/rpi-issue"):
+            variant = "Raspberry Pi"
+        else:
+            variant = ""
         try:
             with open("/etc/os-release") as release_f:
                 line = release_f.readline()
@@ -352,10 +360,13 @@ class NabWebSytemInfoView(BaseView):
                 uptime = int(float(uptime_f.readline().split()[0]))
         except FileNotFoundError:
             uptime = 0
-        ssh_state = os.popen("systemctl is-active ssh").read().rstrip()
+        ssh_state = os.popen("systemctl is-active dropbear").read().rstrip()
+        if ssh_state == "inactive":
+            ssh_state = os.popen("systemctl is-active ssh").read().rstrip()
         if ssh_state == "active" and os.path.isfile("/run/sshwarn"):
             ssh_state = "sshwarn"
         return {
+            "variant": variant,
             "version": version,
             "hostname": hostname,
             "address": ip_address,
@@ -365,11 +376,7 @@ class NabWebSytemInfoView(BaseView):
         }
 
     def get_pi_info(self):
-        try:
-            with open("/proc/device-tree/model") as model_f:
-                model = model_f.readline()
-        except (FileNotFoundError):
-            model = "(unknown)"
+        model = hardware.device_model()
         return {"model": model}
 
     def get_context(self):
@@ -409,7 +416,7 @@ class NabWebHardwareTestView(View):
         except asyncio.TimeoutError:
             return {
                 "status": "error",
-                "message": "Communication with Nabd timed out (running test)",
+                "message": "Communication with Nabd timed out (running test).",
             }
 
     def post(self, request, *args, **kwargs):
@@ -473,34 +480,42 @@ class GitInfo:
         if root_dir is None:
             return {
                 "status": "error",
-                "message": "Cannot find Pynab installation from "
-                "OS systemd services",
+                "message": "Cannot locate Pynab installation from "
+                "OS systemd services.",
                 "info_date": datetime.datetime.now(),
                 "name": GitInfo.NAMES[repository],
             }
         repo_dir = root_dir + "/" + relpath
+        try:
+            repo_owner = str(os.stat(repo_dir).st_uid)
+        except FileNotFoundError:
+            return {
+                "status": "error",
+                "message": "Repository directory not found.",
+                "info_date": datetime.datetime.now(),
+                "name": GitInfo.NAMES[repository],
+            }
         head_sha1 = (
-            os.popen(f"cd {repo_dir} && git rev-parse HEAD").read().rstrip()
+            os.popen(f"git -C {repo_dir} rev-parse HEAD").read().rstrip()
         )
         if head_sha1 == "":
             return {
                 "status": "error",
-                "message": "Cannot get HEAD - not a git repository? "
-                "Check /var/log/syslog",
+                "message": "Cannot get HEAD - not a git repository?",
                 "info_date": datetime.datetime.now(),
                 "name": GitInfo.NAMES[repository],
             }
         info = {}
         info["head"] = head_sha1
         info["branch"] = (
-            os.popen(f"cd {repo_dir} && git rev-parse --abbrev-ref HEAD")
+            os.popen(f"git -C {repo_dir} rev-parse --abbrev-ref HEAD")
             .read()
             .rstrip()
         )
         upstream_branch = (
             os.popen(
-                f"cd {repo_dir} "
-                f"&& git rev-parse --abbrev-ref @{{upstream}} 2>/dev/null"
+                f"git -C {repo_dir} rev-parse --abbrev-ref @{{upstream}} "
+                f"2>/dev/null"
             )
             .read()
             .rstrip()
@@ -510,17 +525,15 @@ class GitInfo:
         remote = upstream_branch.split("/")[0]
         # note: url will be "" if on purely local branch
         info["url"] = (
-            os.popen(
-                f"cd {repo_dir} && git remote get-url {remote} 2>/dev/null"
-            )
+            os.popen(f"git -C {repo_dir} remote get-url {remote} 2>/dev/null")
             .read()
             .rstrip()
         )
         info["local_changes"] = (
             os.popen(
-                f"cd {repo_dir} && (git status -s) >/dev/null "
-                f"&& git diff-index --quiet HEAD -- "
-                f"|| echo 'local_changes' "
+                f"(git -C {repo_dir} status -s) >/dev/null && "
+                f"git -C {repo_dir} diff-index --quiet HEAD -- || "
+                f"echo 'local_changes' "
             )
             .read()
             .strip()
@@ -528,24 +541,24 @@ class GitInfo:
         )
         info["tag"] = (
             os.popen(
-                f"cd {repo_dir} && git describe --long 2>/dev/null "
-                f"|| git describe --long --tags 2>/dev/null"
+                f"git -C {repo_dir} describe --long 2>/dev/null || "
+                f"git -C {repo_dir} describe --long --tags 2>/dev/null"
             )
             .read()
             .strip()
         )
         commits_count = (
             os.popen(
-                f"cd {repo_dir} && sudo -u pi git fetch --no-tags >/dev/null "
-                f"&& git rev-list --count HEAD..{upstream_branch}"
+                f"sudo -u \\#{repo_owner} "
+                f"git -C {repo_dir} fetch --no-tags >/dev/null && "
+                f"git -C {repo_dir} rev-list --count HEAD..{upstream_branch}"
             )
             .read()
             .rstrip()
         )
         local_commits_count = (
             os.popen(
-                f"cd {repo_dir} "
-                f"&& git rev-list --count {upstream_branch}..HEAD"
+                f"git -C {repo_dir} rev-list --count {upstream_branch}..HEAD"
             )
             .read()
             .rstrip()
@@ -627,11 +640,14 @@ class NabWebUpgradeStatusView(View):
 
 
 class NabWebUpgradeNowView(View):
+    root_owner = "1000"
+
     def get(self, request, *args, **kwargs):
         step = (
             os.popen(
-                "sudo -u pi flock -n /tmp/pynab.upgrade echo 'Not upgrading' "
-                "|| cat /tmp/pynab.upgrade"
+                f"sudo -u \\#{self.root_owner} "
+                f"flock -n /tmp/pynab.upgrade echo 'Not upgrading' "
+                f"|| cat /tmp/pynab.upgrade"
             )
             .read()
             .rstrip()
@@ -646,13 +662,21 @@ class NabWebUpgradeNowView(View):
         if root_dir is None:
             return {
                 "status": "error",
-                "message": "Cannot find Pynab installation from "
-                "OS systemd services",
+                "message": "Cannot locate Pynab installation from "
+                "OS systemd services.",
+            }
+        try:
+            self.root_owner = str(os.stat(root_dir).st_uid)
+        except FileNotFoundError:
+            return {
+                "status": "error",
+                "message": "Pynab installation directory not found.",
             }
         locked = (
             os.popen(
-                "sudo -u pi flock -n /tmp/pynab.upgrade echo 'OK' "
-                "|| echo 'Locked'"
+                f"sudo -u \\#{self.root_owner} "
+                f"flock -n /tmp/pynab.upgrade echo 'OK' "
+                f"|| echo 'Locked'"
             )
             .read()
             .rstrip()
@@ -662,7 +686,7 @@ class NabWebUpgradeNowView(View):
                 "/usr/bin/nohup",
                 "sudo",
                 "-u",
-                "pi",
+                f"#{self.root_owner}",
                 "flock",
                 "/tmp/pynab.upgrade",
                 "bash",
@@ -680,7 +704,7 @@ class NabWebUpgradeNowView(View):
         return JsonResponse(
             {
                 "status": "error",
-                "message": "Could not acquire lock, a problem occurred",
+                "message": "Could not acquire lock, a problem occurred.",
             }
         )
 
@@ -714,7 +738,7 @@ class NabWebShutdownView(View):
         except asyncio.TimeoutError:
             return {
                 "status": "error",
-                "message": "Communication with Nabd timed out (shutdown)",
+                "message": "Communication with Nabd timed out (shutdown).",
             }
 
     def post(self, request, *args, **kwargs):

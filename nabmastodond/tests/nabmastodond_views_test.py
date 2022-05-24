@@ -100,7 +100,7 @@ class TestView(TestCase):
 
         response = c.post(
             "/nabmastodond/connect",
-            {"location": "http://10.10.10.42/", "instance": "mstdn.fr"},
+            {"location": "http://10.10.10.42/", "instance": "mamot.fr"},
         )
         response_json = response.json()
         self.assertTrue("status" in response_json)

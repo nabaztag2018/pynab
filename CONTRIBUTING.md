@@ -54,7 +54,7 @@ use editors with SFTP support.
 If you haven't done so yet, fork the repository on GitHub, then add this fork
 to your rabbit's repository.
 ```
-cd /home/pi/pynab
+cd $HOME/pynab
 git remote add fork https://github.com/YOUR_GITHUB_USERNAME/pynab.git
 ```
 
@@ -117,7 +117,7 @@ messages, drivers and dependencies.
 
 1. Note the number *XXX* of the PR to test from the [Pull requests page](https://github.com/nabaztag2018/pynab/pulls).
 
-2. Go to the pynab folder on your rabbit: `cd /home/pi/pynab`
+2. Go to the pynab folder on your rabbit: `cd $HOME/pynab`
 
 3. Checkout *PR #XXX* to a new local branch *prxxx* (see [Checking out GitHub pull requests locally](https://docs.github.com/en/github/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/checking-out-pull-requests-locally))
 

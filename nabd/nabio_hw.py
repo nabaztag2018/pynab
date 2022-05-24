@@ -27,6 +27,9 @@ class NabIOHW(NabIO):
     def has_rfid(self):
         return self.model == NabIOHW.MODEL_2019_TAGTAG
 
+    def network_interface(self):
+        return "wlan0"
+
     async def gestalt(self):
         MODEL_NAMES = {
             NabIO.MODEL_2018: "2018",

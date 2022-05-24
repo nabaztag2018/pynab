@@ -30,13 +30,15 @@ elif [ "${1:-}" == "test" ]; then
   test=1
 elif [ "${1:-}" == "--upgrade" ]; then
   upgrade=1
-  # auto-detect maker faire card here.
-  if [ `aplay -L | grep -c "hifiberry"` -gt 0 ]; then
+  # auto-detect Maker Faire card here.
+  if [ `sudo aplay -L | grep -c "hifiberry"` -gt 0 ]; then
     makerfaire2018=1
   fi
 fi
 
-if [ "`uname -s -m`" != 'Linux armv6l' ]; then
+model=$(grep "^Model" /proc/cpuinfo ; true)
+if [[ ! "$model" == *"Raspberry Pi Zero"* ]]; then
+  # not a Pi Zero or Zero 2
   echo "Installation only planned on Raspberry Pi Zero, will cowardly exit"
   exit 1
 fi
@@ -49,27 +51,30 @@ fi
 cd `dirname "$0"`
 root_dir=`pwd`
 owner=`stat -c '%U' ${root_dir}`
+home_dir=$(dirname ${root_dir})
 
-if [ $ci_chroot -eq 0 -a $makerfaire2018 -eq 0 -a `aplay -L | grep -c "tagtagtagsound"` -eq 0 ]; then
-  if [ `aplay -L | grep -c "hifiberry"` -gt 0 ]; then
+if [ $ci_chroot -eq 0 -a $makerfaire2018 -eq 0 -a `sudo aplay -L | grep -c "tagtagtagsound"` -eq 0 ]; then
+  if [ `sudo aplay -L | grep -c "hifiberry"` -gt 0 ]; then
     echo "Judging from the sound card, this looks likes a Paris Maker Faire 2018 card."
     echo "Please double-check and restart this script with --makerfaire2018"
   else
-    echo "Please install and configure sound card driver https://github.com/pguyot/wm8960/tree/tagtagtag-sound"
+    echo "Please install and configure sound card driver:"
+    echo " https://github.com/pguyot/wm8960/tree/tagtagtag-sound"
   fi
   exit 1
 fi
 
 if [ $makerfaire2018 -eq 1 ]; then
-  if [ `aplay -L | grep -c "hifiberry"` -eq 0 ]; then
-    echo "Please install and configure sound card driver https://support.hifiberry.com/hc/en-us/articles/205377651-Configuring-Linux-4-x-or-higher"
+  if [ `sudo aplay -L | grep -c "hifiberry"` -eq 0 ]; then
+    echo "Please install and configure sound card driver:"
+    echo " https://web.archive.org/web/20170914003528/support.hifiberry.com/hc/en-us/articles/205377651-Configuring-Linux-4-x-or-higher"
     exit 1
   fi
 fi
 
-if [ $upgrade -eq 1 -a $makerfaire2018 -eq 0 -a -d /home/pi/wm8960 ]; then
+if [ $upgrade -eq 1 -a $makerfaire2018 -eq 0 -a -d ${home_dir}/wm8960 ]; then
   echo "Updating sound driver - 2/14" > /tmp/pynab.upgrade
-  cd /home/pi/wm8960
+  cd ${home_dir}/wm8960
   sudo chown -R ${owner} .git
   pull=`git pull`
   if [ "$pull" != "Already up to date." ]; then
@@ -80,8 +85,8 @@ fi
 
 if [ $upgrade -eq 1 ]; then
   echo "Updating ears driver - 3/14" > /tmp/pynab.upgrade
-  if [ -d /home/pi/tagtagtag-ears ]; then
-    cd /home/pi/tagtagtag-ears
+  if [ -d ${home_dir}/tagtagtag-ears ]; then
+    cd ${home_dir}/tagtagtag-ears
     sudo chown -R ${owner} .git
     pull=`git pull`
     if [ "$pull" != "Already up to date." ]; then
@@ -89,7 +94,7 @@ if [ $upgrade -eq 1 ]; then
       sudo touch /tmp/pynab.upgrade.reboot
     fi
   else
-    cd /home/pi
+    cd ${home_dir}
     git clone https://github.com/pguyot/tagtagtag-ears
     cd tagtagtag-ears
     make && sudo make install && make clean
@@ -104,8 +109,8 @@ fi
 
 if [ $upgrade -eq 1 ]; then
   echo "Updating RFID driver - 4/14" > /tmp/pynab.upgrade
-  if [ -d /home/pi/cr14 ]; then
-    cd /home/pi/cr14
+  if [ -d ${home_dir}/cr14 ]; then
+    cd ${home_dir}/cr14
     sudo chown -R ${owner} .git
     pull=`git pull`
     if [ "$pull" != "Already up to date." ]; then
@@ -113,7 +118,7 @@ if [ $upgrade -eq 1 ]; then
       sudo touch /tmp/pynab.upgrade.reboot
     fi
   else
-    cd /home/pi
+    cd ${home_dir}
     git clone https://github.com/pguyot/cr14
     cd cr14
     make && sudo make install && make clean
@@ -127,57 +132,72 @@ else
 fi
 
 if [ $upgrade -eq 1 ]; then
-  echo "Updating nabblockly - 5/14" > /tmp/pynab.upgrade
-  if [ -d /home/pi/pynab/nabblockly ]; then
-    cd /home/pi/pynab/nabblockly
+  echo "Updating NabBlockly - 5/14" > /tmp/pynab.upgrade
+  if [ -d ${root_dir}/nabblockly ]; then
+    cd ${root_dir}/nabblockly
     sudo chown -R ${owner} .
     pull=`git pull`
     if [ "$pull" != "Already up to date." ]; then
       ./rebar3 release
     fi
   else
-    echo "You may want to install nabblockly from https://github.com/pguyot/nabblockly"
+    echo "You may want to install NabBlockly from https://github.com/pguyot/nabblockly"
   fi
 else
-  if [ $ci_chroot -eq 0 -a ! -d "/home/pi/pynab/nabblockly" ]; then
-    echo "You may want to install nabblockly from https://github.com/pguyot/nabblockly"
+  if [ $ci_chroot -eq 0 -a ! -d "${root_dir}/nabblockly" ]; then
+    echo "You may want to install NabBlockly from https://github.com/pguyot/nabblockly"
   fi
 fi
 
+cd ${home_dir}
 if [ $makerfaire2018 -eq 0 ]; then
   if [ $upgrade -eq 1 ]; then
     echo "Updating ASR models - 6/14" > /tmp/pynab.upgrade
   fi
 
-  # maker faire card has no mic, no need to install kaldi
+  # Maker Faire card has no mic, no need to install Kaldi
   if [ ! -d "/opt/kaldi" ]; then
-    echo "Installing precompiled kaldi into /opt"
-    wget -O - -q https://github.com/pguyot/kaldi/releases/download/v5.4.1/kaldi-c3260f2-linux_armv6l-vfp.tar.xz | sudo tar xJ -C /
+    kaldi_release="e4940d045"
+    kaldi_platform=$(. /etc/os-release && echo "$ID$VERSION_ID-`uname -m`")
+    if [ "${kaldi_platform}" = "debian11-armv7l" ]; then
+      # (nasty) DietPi patch: debian11 version not available for armv7l
+      kaldi_platform="raspbian11-armv7l"
+    fi
+    echo "Installing precompiled ${kaldi_platform} Kaldi into /opt"
+    kaldi_archive="${kaldi_release}/kaldi-${kaldi_release}-linux_${kaldi_platform}.tar.xz"
+    wget -O - -q https://github.com/pguyot/kaldi/releases/download/${kaldi_archive} | sudo tar xJ -C /
     sudo ldconfig
   fi
 
   sudo mkdir -p "/opt/kaldi/model"
 
   if [ ! -d "/opt/kaldi/model/kaldi-nabaztag-en-adapt-r20191222" ]; then
-    echo "Uncompressing kaldi model for English"
-    sudo tar xJf /home/pi/pynab/asr/kaldi-nabaztag-en-adapt-r20191222.tar.xz -C /opt/kaldi/model/
+    echo "Installing Kaldi model for English"
+    sudo tar xJf ${root_dir}/asr/kaldi-nabaztag-en-adapt-r20191222.tar.xz -C /opt/kaldi/model/
   fi
 
   if [ ! -d "/opt/kaldi/model/kaldi-nabaztag-fr-adapt-r20200203" ]; then
-    echo "Uncompressing kaldi model for French"
-    sudo tar xJf /home/pi/pynab/asr/kaldi-nabaztag-fr-adapt-r20200203.tar.xz -C /opt/kaldi/model/
+    echo "Installing Kaldi model for French"
+    sudo tar xJf ${root_dir}/asr/kaldi-nabaztag-fr-adapt-r20200203.tar.xz -C /opt/kaldi/model/
   fi
 fi
 
-cd $root_dir
-if [ ! -d "venv" ]; then
-  if ! [ -x "$(command -v python3.7)" ] ; then
-    echo "Please install Python 3.7 (you might need to upgrade your Raspbian distribution)"
-    exit 1
+cd ${root_dir}
+if [ -x "$(command -v python3.9)" ] ; then
+  python=python3.9
+  if [ ! -d "venv" ]; then
+    echo "Creating Python 3.9 virtual environment"
+    ${python} -m venv venv
   fi
-
-  echo "Creating Python 3.7 virtual environment"
-  python3.7 -m venv venv
+elif [ -x "$(command -v python3.7)" ] ; then
+  python=python3.7
+  if [ ! -d "venv" ]; then
+    echo "Creating Python 3.7 virtual environment"
+    ${python} -m venv venv
+  fi
+else
+  echo "Please install Python 3.7 or 3.9 (you might need to upgrade your Linux distribution)"
+  exit 1
 fi
 
 echo "Installing PyPi requirements"
@@ -194,22 +214,22 @@ if [ $makerfaire2018 -eq 0 ]; then
   fi
 
   # maker faire card has no mic, no need to install snips
-  if [ ! -d "venv/lib/python3.7/site-packages/snips_nlu_fr" ]; then
-    echo "Downloading snips_nlu models for French"
+  if [ ! -d "venv/lib/${python}/site-packages/snips_nlu_fr" ]; then
+    echo "Downloading Snips NLU models for French"
     venv/bin/python -m snips_nlu download fr
   fi
 
-  if [ ! -d "venv/lib/python3.7/site-packages/snips_nlu_en" ]; then
-    echo "Downloading snips_nlu models for English"
+  if [ ! -d "venv/lib/${python}/site-packages/snips_nlu_en" ]; then
+    echo "Downloading Snips NLU models for English"
     venv/bin/python -m snips_nlu download en
   fi
 
-  echo "Compiling snips datasets"
+  echo "Compiling Snips datasets"
   mkdir -p nabd/nlu
   venv/bin/python -m snips_nlu generate-dataset en */nlu/intent_en.yaml > nabd/nlu/nlu_dataset_en.json
   venv/bin/python -m snips_nlu generate-dataset fr */nlu/intent_fr.yaml > nabd/nlu/nlu_dataset_fr.json
 
-  echo "Persisting snips engines"
+  echo "Persisting Snips engines"
   if [ -d nabd/nlu/engine_en ]; then
     rm -rf nabd/nlu/engine_en
   fi
@@ -238,20 +258,21 @@ if [ $trust -ne 1 ]; then
   fi
 fi
 
+sudo sed -e "s|/home/pi/pynab|${root_dir}|g" < nabweb/nginx-site.conf > /tmp/nginx-site.conf
 if [ $upgrade -eq 0 ]; then
   if [ ! -e '/etc/nginx/sites-enabled/pynab' ]; then
-    echo "Installing nginx configuration file"
+    echo "Installing Nginx configuration file"
     if [ -h '/etc/nginx/sites-enabled/default' ]; then
       sudo rm /etc/nginx/sites-enabled/default
     fi
-    sudo cp nabweb/nginx-site.conf /etc/nginx/sites-enabled/pynab
+    sudo mv /tmp/nginx-site.conf /etc/nginx/sites-enabled/pynab
     if [ $ci_chroot -eq 0 ]; then
       sudo systemctl restart nginx
     fi
   else
-    diff -q '/etc/nginx/sites-enabled/pynab' nabweb/nginx-site.conf >/dev/null || {
-      echo "Updating nginx configuration file"
-      sudo cp nabweb/nginx-site.conf /etc/nginx/sites-enabled/pynab
+    diff -q '/etc/nginx/sites-enabled/pynab' /tmp/nginx-site.conf >/dev/null || {
+      echo "Updating Nginx configuration file"
+      sudo mv /tmp/nginx-site.conf /etc/nginx/sites-enabled/pynab
       if [ $ci_chroot -eq 0 ]; then
         sudo systemctl restart nginx
       fi
@@ -260,10 +281,11 @@ if [ $upgrade -eq 0 ]; then
 else
   echo "Restarting Nginx - 9/14" > /tmp/pynab.upgrade
   if [ -e '/etc/nginx/sites-enabled/pynab' ]; then
-    sudo cp nabweb/nginx-site.conf /etc/nginx/sites-enabled/pynab
+    sudo mv /tmp/nginx-site.conf /etc/nginx/sites-enabled/pynab
     sudo systemctl restart nginx
   fi
 fi
+sudo rm -f /tmp/nginx-site.conf
 
 psql -U pynab -c '' 2>/dev/null || {
   echo "Creating PostgreSQL database"
@@ -321,62 +343,57 @@ sudo chown root /lib/systemd/system-shutdown/nabboot.py
 sudo chmod +x /lib/systemd/system-shutdown/nabboot.py
 
 # setup Pynab logs rotation
+echo "Setting up Pynab logs rotation"
 cat > '/tmp/pynab' <<- END
-/var/log/nab*.log
- {
-         weekly
-         rotate 4
-         missingok
-         notifempty
-         copytruncate
-         delaycompress
-         compress
- }
+/var/log/nab*.log {
+  weekly
+  rotate 4
+  missingok
+  notifempty
+  copytruncate
+  delaycompress
+  compress
+}
 END
 sudo mv /tmp/pynab /etc/logrotate.d/pynab
 sudo chown root:root /etc/logrotate.d/pynab
 
 # advertise rabbit on local network
 if [ ! -f "/etc/avahi/services/pynab.service" ]; then
-
-	cat > '/tmp/pynab.service' <<- END
-	<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
-	<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
-	<!-- See avahi.service(5) for more information about this configuration file -->
-
-	<service-group>
-	  <name replace-wildcards="yes">Nabaztag rabbit (%h)</name>
-	  <service>
-	    <type>_http._tcp</type>
-	    <port>80</port>
-	    <txt-record>vendor=violet</txt-record>
-	    <txt-record>model=tag:tag:tag</txt-record>
-	  </service>
-	</service-group>
-	END
-	sudo mv /tmp/pynab.service /etc/avahi/services/pynab.service
-
+  echo "Setting up Avahi service for Pynab"
+  cat > '/tmp/pynab.service' <<- END
+<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<!-- See avahi.service(5) for more information about this configuration file -->
+<service-group>
+  <name replace-wildcards="yes">Nabaztag rabbit (%h)</name>
+  <service>
+    <type>_http._tcp</type>
+    <port>80</port>
+    <txt-record>vendor=violet</txt-record>
+    <txt-record>model=tag:tag:tag</txt-record>
+  </service>
+</service-group>
+END
+  sudo mv /tmp/pynab.service /etc/avahi/services/pynab.service
 fi
-
 if [ ! -f "/etc/avahi/services/nabblocky.service" ]; then
-
-	cat > '/tmp/nabblocky.service' <<- END
-	<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
-	<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
-	<!-- See avahi.service(5) for more information about this configuration file -->
-
-	<service-group>
-	  <name replace-wildcards="yes">NabBlockly (%h)</name>
-	  <service>
-	    <type>_http._tcp</type>
-	    <port>8080</port>
-	    <txt-record>vendor=Paul Guyot</txt-record>
-	    <txt-record>model=tag:tag:tag</txt-record>
-	  </service>
-	</service-group>
-	END
-	sudo mv /tmp/nabblocky.service /etc/avahi/services/nabblocky.service
-
+  echo "Setting up Avahi service for NabBlockly"
+  cat > '/tmp/nabblocky.service' <<- END
+<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<!-- See avahi.service(5) for more information about this configuration file -->
+<service-group>
+  <name replace-wildcards="yes">NabBlockly (%h)</name>
+  <service>
+    <type>_http._tcp</type>
+    <port>8080</port>
+    <txt-record>vendor=Paul Guyot</txt-record>
+    <txt-record>model=tag:tag:tag</txt-record>
+  </service>
+</service-group>
+END
+  sudo mv /tmp/nabblocky.service /etc/avahi/services/nabblocky.service
 fi
 
 if [ -e /tmp/pynab.upgrade.reboot ]; then
@@ -389,7 +406,7 @@ else
     if [ $upgrade -eq 1 ]; then
       echo "Restarting services - 13/14" > /tmp/pynab.upgrade
     fi
-    sudo systemctl restart logrotate.service
+    sudo systemctl restart logrotate.service || true
     sudo systemctl start nabd.socket
     sudo systemctl start nabd.service
 
@@ -402,7 +419,7 @@ else
     done
 
     if [ $upgrade -eq 1 ]; then
-      echo "Restarting website - 14/14" > /tmp/pynab.upgrade
+      echo "Restarting web site - 14/14" > /tmp/pynab.upgrade
       sudo systemctl restart nabweb.service
     else
       sudo systemctl start nabweb.service

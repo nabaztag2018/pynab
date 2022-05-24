@@ -12,7 +12,7 @@
 
 Ce système est conçu pour deux cartes pour **Nabaztag** (v1) et **Nabaztag:Tag** (v2) :
 - Une carte réalisée pour [Maker Faire 2018](https://paris.makerfaire.com/maker/entry/1285/), qui ne fonctionne qu'avec les Nabaztag (sans micro ni RFID).
-- Une nouvelle version de la carte, proposée via la [campagne Ulule en mai 2019](https://fr.ulule.com/le-retour-du-nabaztag/), qui fonctionne avec les Nabaztag et les Nabaztag:Tag (les micros sont sur la carte, ce qui permet aux Nabaztag de bénéficier aussi de la reconnaissance vocale).
+- Une nouvelle version de la carte, proposée via les campagnes Ulule de [mai 2019](https://fr.ulule.com/le-retour-du-nabaztag/) et [octobre 2021](https://fr.ulule.com/l-eternel-retour-du-nabaztag/), qui fonctionne avec les Nabaztag et les Nabaztag:Tag (les micros sont sur la carte, ce qui permet aux Nabaztag de bénéficier aussi de la reconnaissance vocale).
 
 Les schémas et fichiers de fabrication de ces deux cartes sont dans le repository [hardware](https://github.com/nabaztag2018/hardware), respectivement [`RPI_Nabaztag`](https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF) (2018) et [`tagtagtag_V2.0`](https://github.com/nabaztag2018/hardware/tree/master/tagtagtag_V2.0) (2019).
 
@@ -20,15 +20,17 @@ Pour être prévenu de la prochaine campagne, vous pouvez vous inscrire à la [l
 
 ## Images
 
-Les [releases](https://github.com/nabaztag2018/pynab/releases) sont des images de Raspberry Pi OS (Raspbian) Lite avec pynab pré-installé. Elles ont les mêmes réglages que [Raspberry Pi OS](https://www.raspberrypi.org/software/operating-systems/#raspberry-pi-os-32-bit).
+Les [releases](https://github.com/nabaztag2018/pynab/releases) sont des images de [Raspberry Pi OS](https://www.raspberrypi.org/software/operating-systems/) Lite ou [DietPi](https://dietpi.com/) avec Pynab pré-installé.
 
-Les releases actuelles (>0.7.x) ne fonctionnent que sur les cartes 2019 (cf [#44](https://github.com/nabaztag2018/pynab/issues/44)).
+Les releases actuelles (>0.7.x) ne fonctionnent pas sur les cartes 2018 (cf [#44](https://github.com/nabaztag2018/pynab/issues/44)).
 
-## Installation sur Raspberry Pi OS (pour développeurs!)
+## Installation sur Raspberry Pi OS ou DietPi (pour développeurs!)
 
 ### 0. S'assurer que le système est bien à jour
 
-Le script d'installation requiert désormais une version basée sur Debian 10 (Buster), pour bénéficier de Python 3.7.
+Le script d'installation requiert une version basée sur Debian 11 (Bullseye), avec Python 3.9.
+
+Debian 10 (Buster), avec Python 3.7 ([Raspberry Pi OS Legacy](https://www.raspberrypi.com/software/operating-systems/#raspberry-pi-os-legacy)), est aussi supporté.
 
 Il est nécessaire que les 'kernel headers' installés via `apt-get` correspondent à la version installée du noyau.
 
@@ -47,10 +49,19 @@ sudo apt-get upgrade
 
   - Lecteur RFID : [pilote CR14](https://github.com/pguyot/cr14) (Nabaztag:tag uniquement, non requis sur les Nabaztag, mais installé par les mises à jour)
 
+Les 'kernel headers' sont nécessaires pour la compilation des pilotes:
+```sh
+sudo apt-get install gcc make raspberrypi-kernel-headers
+```
+
 ### 2. Installer PostgreSQL et les paquets requis
 
 ```sh
-sudo apt-get install postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3 libopenblas-dev liblapack-dev zram-tools
+sudo apt-get install postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran5 libopenblas-dev liblapack-dev zram-tools
+```
+Sur DietPi les paquets suivants sont aussi nécessaires:
+```sh
+sudo apt-get install alsa-utils xz-utils avahi-daemon
 ```
 
 ### 3. Récupérer le code
@@ -88,16 +99,16 @@ bash upgrade.sh
 
 ## Architecture
 
-Cf le [protocole nabd](PROTOCOL.md)
+Voir le [protocole nabd](PROTOCOL.md)
 
-- `nabd` : daemon qui gère le lapin (i/o, chorégraphies)
-- `nab8balld` : daemon pour le service gourou
-- `nabairqualityd` : daemon pour le service de qualité de l'air
-- `nabclockd` : daemon pour le service horloge
-- `nabsurprised` : daemon pour le service surprises
-- `nabtaichid` : daemon pour le service taichi
-- `nabmastodond` : daemon pour le service mastodon
-- `nabweatherd` : daemon pour le service météo
+- `nabd` : démon qui gère le lapin (e/s, chorégraphies)
+- `nab8balld` : démon pour le service gourou
+- `nabairqualityd` : démon pour le service de qualité de l'air
+- `nabclockd` : démon pour le service horloge
+- `nabsurprised` : démon pour le service surprises
+- `nabtaichid` : démon pour le service taichi
+- `nabmastodond` : démon pour le service mastodon
+- `nabweatherd` : démon pour le service météo
 - `nabweb` : interface web pour la configuration
 
 ## Contribution

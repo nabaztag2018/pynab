@@ -1,13 +1,17 @@
 name: ✔️  Python lint
-
 on: [push, pull_request]
 
 jobs:
   lint:
+    name: Python lint
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v1
-      - uses: ricardochaves/python-lint@v1.4.0
+      - name: Checkout pynab
+        uses: actions/checkout@v1
+
+      - name: Run Python lint checks
+        uses: ricardochaves/python-lint@v1.4.0
         with:
           python-root-list: "nab*"
           use-pylint: false

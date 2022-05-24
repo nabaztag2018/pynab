@@ -6,7 +6,7 @@ import getopt
 import json
 import logging
 import os
-import platform
+import re
 import socket
 import subprocess
 import sys
@@ -18,7 +18,7 @@ import dateutil.parser
 from lockfile import AlreadyLocked, LockFailed
 from lockfile.pidlockfile import PIDLockFile
 
-from nabcommon import nablogging, settings
+from nabcommon import hardware, nablogging, network, settings
 from nabcommon.nabservice import NabService
 
 from .ears import Ears
@@ -29,6 +29,8 @@ from .rfid import (
     TAG_APPLICATIONS,
     TagFlags,
 )
+
+_PYTEST = os.path.basename(sys.argv[0]) != "nabd.py"
 
 
 class State(Enum):
@@ -110,7 +112,7 @@ class Nabd:
                 self.nlu = NLU(self._nlu_locale)
                 Nabd.leds_boot(self.nabio, 4)
             self.nabio.set_leds(None, None, None, None, None)
-        self.nabio.pulse(Led.BOTTOM, (255, 0, 255))
+        self.nabio.pulse(Led.BOTTOM, (255, 0, 255))  # Fuchsia
 
     async def _do_transition_to_idle(self):
         """
@@ -120,7 +122,15 @@ class Nabd:
         """
         left, right = self.ears["left"], self.ears["right"]
         await self.nabio.move_ears_with_leds((255, 0, 255), left, right)
-        self.nabio.pulse(Led.BOTTOM, (255, 0, 255))
+        self.nabio.pulse(Led.BOTTOM, (255, 0, 255))  # Fuchsia
+        if network.ip_address(self.nabio.network_interface()) is None:
+            # not even a local network connection: real bad
+            logging.error("no network connection")
+            self.nabio.pulse(Led.BOTTOM, (255, 0, 0))  # Red
+        elif not network.internet_connection():
+            # local network connection, but no Internet access: not so good
+            logging.warning("no Internet access")
+            self.nabio.pulse(Led.BOTTOM, (255, 165, 0))  # Orange
 
     async def sleep_setup(self):
         self.nabio.set_leds(None, None, None, None, None)
@@ -843,9 +853,8 @@ class Nabd:
             await self._do_system_command("/sbin/halt")
 
     async def _do_system_command(self, sytemCommandStr):
-        inTesting = os.path.basename(sys.argv[0]) in ("pytest", "py.test")
-        if not inTesting:
-            logging.info(f"Initiating system command: {sytemCommandStr}")
+        logging.info(f"Initiating system command: {sytemCommandStr}")
+        if not _PYTEST:
             os.system(sytemCommandStr)
 
     def ears_callback(self, ear):
@@ -967,7 +976,7 @@ class Nabd:
         except KeyboardInterrupt:
             pass
         except Exception:
-            print(traceback.format_exc())
+            logging.debug(traceback.format_exc())
         finally:
             self.loop.run_until_complete(self.stop_idle_worker())
             server = server_task.result()
@@ -1041,11 +1050,15 @@ class Nabd:
     def main(argv):
         nablogging.setup_logging("nabd")
         pidfilepath = "/run/nabd.pid"
-        if sys.platform == "linux" and "arm" in platform.machine():
+        hardware_platform = hardware.device_model()
+        matchObj = re.match(r"Raspberry Pi Zero", hardware_platform)
+        if matchObj:
+            # running on Pi Zero or Zero 2 hardware
             from .nabio_hw import NabIOHW
 
             nabiocls = NabIOHW
         else:
+            # other hardware: go virtual
             from .nabio_virtual import NabIOVirtual
 
             nabiocls = NabIOVirtual
@@ -1077,16 +1090,26 @@ class Nabd:
                 nabio = nabiocls()
                 Nabd.leds_boot(nabio, 1)
                 nabd = Nabd(nabio)
+                logging.info(f"running on {hardware_platform}")
                 nabd.run()
         except AlreadyLocked:
-            print(f"nabd already running? (pid={pidfile.read_pid()})")
+            error_msg = f"nabd already running? (pid={pidfile.read_pid()})"
+            print(error_msg)
+            logging.critical(error_msg)
             exit(1)
         except LockFailed:
-            print(
+            error_msg = (
                 f"Cannot write pid file to {pidfilepath}, please fix "
                 f"permissions"
             )
+            print(error_msg)
+            logging.critical(error_msg)
             exit(1)
+        except Exception:
+            error_msg = f"Unhandled error: {traceback.format_exc()}"
+            print(error_msg)
+            logging.critical(error_msg)
+            exit(3)
 
 
 if __name__ == "__main__":
