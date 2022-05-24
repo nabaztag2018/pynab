@@ -1,12 +1,6 @@
-import os
-import json
-
-from pathlib import Path
-
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView
-
 from .models import Config
 from . import rfid_data
 
@@ -39,17 +33,17 @@ class RFIDDataView(TemplateView):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         uid = request.GET.get("uid", None)
-        
+
         email, subject = rfid_data.read_data_ui_for_views(uid)
- 
-        context["nabemaild_email"]=email
-        context["nabemaild_subject"]=subject
-        context["nabemaild_uid"]=uid
+
+        context["nabemaild_email"] = email
+        context["nabemaild_subject"] = subject
+        context["nabemaild_uid"] = uid
 
         return render(request, RFIDDataView.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
-        
+
         if "nabemaild_email" in request.POST:
             email = request.POST["nabemaild_email"]
 
@@ -63,5 +57,3 @@ class RFIDDataView(TemplateView):
 
         data = "DATA_IN_LOCAL_DB"
         return JsonResponse({"data": data})
-    
-
