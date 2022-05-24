@@ -33,7 +33,8 @@ class NabEmaild(NabService):
             "Voilà ! C'est fait.\n\n"
             "Votre Nabaztag\n\n"
             "Hello!\n\n"
-            "You asked me a while ago to send you an email when I see this tag.\n\n"
+            "You asked me a while ago to send you an email "
+            "when I see this tag.\n\n"
             "Well, I've just seen it!\n\n"
             "Your Nabaztag"
         )
