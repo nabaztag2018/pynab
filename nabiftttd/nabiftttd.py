@@ -1,5 +1,6 @@
 import logging
 import sys
+
 import requests
 
 from nabcommon.nabservice import NabService
