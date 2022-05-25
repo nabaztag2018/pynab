@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     "nabweatherd",
     "nabairqualityd",
     "nabweb",
-    "nabemaild",
+    "nabiftttd",
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,72 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-25 11:55+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/nabemaild/nabemaild_help.html:5
+msgid "Sending an email with an NFC tag"
+msgstr "Envoyer un email avec un tag NFC"
+
+#: templates/nabemaild/nabemaild_help.html:11
+#: templates/nabemaild/settings.html:12
+msgid "How to create and configure a Gmail account"
+msgstr "Comment créer et configurer un compte Gmail."
+
+#: templates/nabemaild/rfid-data.html:5
+msgid "When Nabaztag will see that NFC tag an event will be triggered on IFTTT"
+msgstr "Quand Nabaztag verra ce tag il enverra un événement à IFTTT (vous devez préciser le nom de l'événement)"
+
+#: templates/nabemaild/rfid-data.html:8
+msgid "The name of the event"
+msgstr "le nom de l'événement"
+
+#: templates/nabemaild/settings.html:6
+msgid "Triggering an IFTTT event"
+msgstr "Lancer un événement IFTTT"
+
+#: templates/nabemaild/settings.html:12
+msgid ""
+"To trigger an IFTTT event when an NFC tag is detected, <a href='/rfid/'>you "
+"need to configure the tag</a> and show it to your Nabaztag. <p>If you have "
+"not done it already, you need to create a (free) IFTTT account as"
+msgstr ""
+"Pour déclencher un événement IFTTTlorsqu'un tag NFC est détecté, <a href='/rfid/'>vous "
+"devez configurer le tag</a> puis le montrer à votre Nabaztag. <p>Si vous ne "
+"l'avez pas encore fait vous devez créer un compte IFTTT comme "
+
+#: templates/nabemaild/settings.html:12
+msgid "explained here"
+msgstr "expliqué ici"
+
+#: templates/nabemaild/settings.html:12
+msgid "and enter the Maker Webhooks key below."
+msgstr "et saisir la clé du Maker Webhooks ci-dessous "
+
+#: templates/nabemaild/settings.html:17
+msgid "IFTTT Maker webhook key"
+msgstr "La clé du Maker webhooks"
+
+#: templates/nabemaild/settings.html:31
+msgid "Save"
+msgstr "Enregistrer"
+
+#: templates/nabemaild/settings.html:32
+msgid "Reset"
+msgstr "Annuler"
+
+msgid "Triggering an IFTTT event"
+msgstr "Déclencher un événement IFTTT"

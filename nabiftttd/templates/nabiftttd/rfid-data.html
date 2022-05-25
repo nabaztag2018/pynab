@@ -1,0 +1,14 @@
+{% load i18n %}
+{% load static %}
+
+
+      {% trans "When Nabaztag will see that NFC tag an event will be triggered on IFTTT" %}
+	  <p>
+      <div class="form-group row">
+        <label for="event_name" class="col-6 col-form-label">{% trans "The name of the event" %}</label>
+        <div class="col-6">
+          <input id="event_name" name="event_name" type="text" class="form-control" value="{{ event_name }}">
+		  <input id="ifttt_uid" name="ifttt_uid" type="hidden" class="form-control" value="{{ ifttt_uid }}">
+        </div>
+      </div>
+

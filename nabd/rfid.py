@@ -3,7 +3,7 @@ from enum import IntFlag
 from typing import Callable
 
 import nabbookd
-import nabemaild
+import nabiftttd
 import nabsurprised
 import nabtaichid
 import nabweatherd
@@ -30,7 +30,7 @@ TAG_APPLICATIONS = {
     nabsurprised.NABAZTAG_RFID_APPLICATION_ID: "nabsurprised",  # 7
     nabtaichid.NABAZTAG_RFID_APPLICATION_ID: "nabtaichid",  # 8
     nabweatherd.NABAZTAG_RFID_APPLICATION_ID: "nabweatherd",  # 9
-    nabemaild.NABAZTAG_RFID_APPLICATION_ID: "nabemaild",  # 10
+    nabiftttd.NABAZTAG_RFID_APPLICATION_ID: "nabiftttd",  # 10
 }
 
 DEFAULT_RFID_TIMEOUT = 20.0

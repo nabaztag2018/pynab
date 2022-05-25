@@ -4,21 +4,6 @@ Serialize & unserialize RFID application data
 import json
 
 
-def serialize(email, subject):
-    subject.replace("/", "-")
-    formatted = email + "/" + subject
-    return formatted
-
-
-def unserialize(data):
-    splitted = data.split("/")
-    if len(splitted) != 2:
-        return None
-    email, subject = splitted
-
-    return email, subject
-
-
 async def read_data_ui(uid):
 
     from . import models
@@ -31,15 +16,14 @@ async def read_data_ui(uid):
         uid_data_base = []
 
     if uid in uid_data_base:
-        record = uid_data_base[uid]
-        email, subject = unserialize(record)
+        event_name = uid_data_base[uid]
     else:
-        email, subject = ("", "")
+        event_name = "NO_EVENT_NAME"
 
-    return (email, subject)
+    return event_name
 
 
-async def write_data_ui(uid, email, subject):
+async def write_data_ui(uid, event_name):
     from . import models
 
     config = await models.Config.load_async()
@@ -49,8 +33,7 @@ async def write_data_ui(uid, email, subject):
     except Exception:
         uid_data_base = {}
 
-    data_ser = serialize(email, subject)
-    uid_data_base[uid] = data_ser
+    uid_data_base[uid] = event_name
     config.json_data_base = json.dumps(uid_data_base)
     await config.save_async()
 
@@ -67,15 +50,14 @@ def read_data_ui_for_views(uid):
         uid_data_base = []
 
     if uid in uid_data_base:
-        record = uid_data_base[uid]
-        email, subject = unserialize(record)
+        event_name = uid_data_base[uid]
     else:
-        email, subject = ("", "")
+        event_name = "NO_EVENT_NAME"
 
-    return (email, subject)
+    return event_name
 
 
-def write_data_ui_for_views(uid, email, subject):
+def write_data_ui_for_views(uid, event_name):
     from .models import Config
 
     config = Config.load()
@@ -85,7 +67,6 @@ def write_data_ui_for_views(uid, email, subject):
     except Exception:
         uid_data_base = {}
 
-    data_ser = serialize(email, subject)
-    uid_data_base[uid] = data_ser
+    uid_data_base[uid] = event_name
     config.json_data_base = json.dumps(uid_data_base)
     config.save()

@@ -1,29 +1,22 @@
 {% load i18n %}
-<div class="card" id="nabemaild-settings">
-  <form action="/nabemaild/settings">
+<div class="card" id="nabiftttd-settings">
+  <form action="/nabiftttd/settings">
     {% csrf_token %}
   <div class="card-header">
-    <h5 class="card-title">{% trans "Sending an email with an NFC tag" %}</h5>
+    <h5 class="card-title">{% trans "Triggering an IFTTT event" %}</h5>
   </div>
   <div class="card-body">
 	  
 	  
 	  
-      {% trans "To send an email when an NFC tag is detected, <a href='/rfid/'>you need to configure the tag</a> and show it to your Nabaztag. <p>If you have not done it already, you need to create a (free) Gmail account as" %} <a class="help-link" href='/help/nabemaild' target='_blank' title='{% trans "How to create and configure a Gmail account" %}'>{% trans "explained here" %}</a> {% trans "and enter the Gmail address and the password below." %}
+      {% trans "To trigger an IFTTT event when an NFC tag is detected, <a href='/rfid/'>you need to configure the tag</a> and show it to your Nabaztag. <p>If you have not done it already, you need to create a (free) IFTTT account as" %} <a class="help-link" href='/help/nabiftttd' target='_blank' title='{% trans "How to create and configure a Gmail account" %}'>{% trans "explained here" %}</a> {% trans "and enter the Maker Webhooks key below." %}
 	  <p>
 	  
    
       <div class="form-group row">
-        <label for="gmailaddress" class="col-6 col-form-label">{% trans "Gmail address" %}</label>
+        <label for="ifttt_key" class="col-6 col-form-label">{% trans "IFTTT Maker webhook key" %}</label>
         <div class="col-6">
-          <input id="gmail_account" name="gmail_account" type="text" class="form-control" value="{{ config.gmail_account }}">
-        </div>
-      </div>
-
-      <div class="form-group row">
-        <label for="gmailpassword" class="col-6 col-form-label">{% trans "Gmail password" %}</label>
-        <div class="col-6">
-          <input id="gmail_passwd" name="gmail_passwd" type="password" class="form-control" value="{{ config.gmail_passwd }}">
+          <input id="ifttt_key" name="ifttt_key" type="input" class="form-control" value="{{ config.ifttt_key }}">
         </div>
       </div>
 
@@ -48,7 +41,7 @@
 
   <script type="text/javascript">
   $(function() {
-    var form = $('#nabemaild-settings form');
+    var form = $('#nabiftttd-settings form');
     var saveBtn = form.find('button.save-button');
     var resetBtn = form.find('button.reset-button');
     var url = form.attr('action');
@@ -68,14 +61,14 @@
         method: "POST",
         data: formdata,
         success: function (data) {
-          $("#nabemaild-settings").replaceWith(data);
+          $("#nabiftttd-settings").replaceWith(data);
         }
       });
       return false;
     });
     resetBtn.on("click", function() {
       $.get(url, function(data) {
-        $("#nabemaild-settings").replaceWith(data);
+        $("#nabiftttd-settings").replaceWith(data);
       });
     });
   });
