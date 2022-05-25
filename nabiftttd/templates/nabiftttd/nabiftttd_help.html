@@ -1,0 +1,75 @@
+{% extends 'nabweb/_help.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block subtitle %}{% trans "Playing with NFC Tag and IFTTT" %}{% endblock %}
+{% block content %}
+     <div class="row justify-content-center">
+      <div class="col-xl-8 col-lg-10 col-md-10 mb-3">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">{% trans "How to create an IFTTT applet that works with your Nabaztag" %}</h5>
+          </div>
+
+          <div class="card-body">
+            
+			<h1>Step 1 : Create an IFTTT acount</h1>
+			
+			Just go there and follow the procedure. You can select a free account, it's working perfectly.
+			
+			<h1>Step 2 : Create an Applet with Webhooks</h1>
+			
+			The trigger event will be a webhook, this means that when Nabaztag sees a specific NFC tag it will call IFTTT to tell you this good news and based on this you'll be able to trigger diffent actions (there are dozens différent actions available on IFFFT).
+			
+			Go to : <a href="https://ifttt.com/create">https://ifttt.com/create</a><p>
+				
+			<h2>Create an applet</h2>
+            <img class="img-fluid" src="{% static "nabweb/images/1.png" %}"><p>
+			<h2>Choose a service, serach for Webhooks</h2>
+            <img class="img-fluid" src="{% static "nabweb/images/2.png" %}"><p>
+			<h2>Select "Receive a Web request with a JSON payload"</h2>
+            <img class="img-fluid" src="{% static "nabweb/images/3.png" %}"><p>
+			<h2>Type an event name. This event name will be use when you program your NFC tag (here it's "ExampleOfAnEventName")</h2>
+            <img class="img-fluid" src="{% static "nabweb/images/4.png" %}"><p>
+			<h2>You need now to configure an action</h2>
+            <img class="img-fluid" src="{% static "nabweb/images/5.png" %}"><p>
+            <img class="img-fluid" src="{% static "nabweb/images/6.png" %}"><p>
+			<h2>As an example, let's choose email</h2>
+            <img class="img-fluid" src="{% static "nabweb/images/7.png" %}"><p>
+            <img class="img-fluid" src="{% static "nabweb/images/8.png" %}"><p>
+            <img class="img-fluid" src="{% static "nabweb/images/9.png" %}"><p>
+			<h2>Create action then Continue</h2>
+            <img class="img-fluid" src="{% static "nabweb/images/10.png" %}"><p>
+            <img class="img-fluid" src="{% static "nabweb/images/11.png" %}"><p>
+			<h2>And finish and you've just created an applet'</h2>
+            <img class="img-fluid" src="{% static "nabweb/images/12.png" %}"><p>
+            <img class="img-fluid" src="{% static "nabweb/images/13.png" %}"><p>
+				
+				
+			<h1>Step 3 : Configure the service here on Nabaztag</h1>
+				
+			Go to : <a href="http://nabaztag.local/services/">http://nabaztag.local/services/</a><p>
+			And fill out the following screen with the key of the Webhooks service. 
+            <img class="img-fluid" src="{% static "nabweb/images/14.png" %}"><p>
+			
+			
+			You'll only have to do this once and the key is here : <a href="https://ifttt.com/maker_webhooks">https://ifttt.com/maker_webhooks</a> and click on Documentation.<p>
+				
+	          <img class="img-fluid" src="{% static "nabweb/images/15.png" %}"><p>
+			
+			<h1>Step 4 : Configure your NFC tag</h1>
+			
+			Go to <a href="http://nabaztag.local/rfid/">http://nabaztag.local/rfid/</a>to program your tag<p>
+			You need to enter the same event name as the one you used in IFTTT.<p>
+				
+          <img class="img-fluid" src="{% static "nabweb/images/16.png" %}"><p>
+			  
+			<h1>And you're done !</h1>
+				
+			
+    </div>
+
+        </div>
+     </div>
+    </div>
+{% endblock %}

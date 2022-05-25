@@ -90,6 +90,13 @@ urlpatterns = [
         ),
         name="nabairqualityd.help.animations",
     ),
+    path(
+        "help/nabiftttd",
+        TemplateView.as_view(
+            template_name="nabiftttd/nabiftttd_help.html"
+        ),
+        name="nabiftttd.help",
+    ),
 ]
 
 # Static files are served by nginx in the complete
