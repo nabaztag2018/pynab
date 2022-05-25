@@ -92,9 +92,7 @@ urlpatterns = [
     ),
     path(
         "help/nabiftttd",
-        TemplateView.as_view(
-            template_name="nabiftttd/nabiftttd_help.html"
-        ),
+        TemplateView.as_view(template_name="nabiftttd/nabiftttd_help.html"),
         name="nabiftttd.help",
     ),
 ]
