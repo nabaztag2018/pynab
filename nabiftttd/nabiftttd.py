@@ -1,6 +1,4 @@
 import logging
-import smtplib
-import ssl
 import sys
 import requests
 
