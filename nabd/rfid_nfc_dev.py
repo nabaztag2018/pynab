@@ -4,6 +4,7 @@ import logging
 import os
 
 import nfcdev
+import ndef
 
 from .rfid import Rfid, TagFlags, TagTechnology
 
@@ -132,6 +133,46 @@ class RfidNFCDevST25TBSupport:
         return system_block_int & 0xFF800000 != 0xFF800000
 
 
+class RfidNFCDevT2TSupport:
+    NABAZTAG_TYPE = b"tagtagtag.fr:z"
+    @staticmethod
+    def exported_tag_info(tag_info, ndef_messages):
+        # TODO: export NDEF messages for applications
+        return None
+
+    @staticmethod
+    def decode_messages(ndef_messages, locked):
+        """
+        Decode data for T2T
+        """
+        flags = 0
+        tag_data = None
+        if ndef_messages == [] or ndef_messages == [None]:
+            flags |= TagFlags.CLEAR
+        else:
+            # Do we have a tagtagtag.fr ext type?
+            foreign_data = False
+            for message in ndef_messages:
+                for record in message.records:
+                    if record.tnf == ndef.TNF_EXTERNAL and record.type == RfidNFCDevT2TSupport.NABAZTAG_TYPE:
+                        tag_data = TagData.decode(record.payload)
+                        flags |= TagFlags.FORMATTED
+                        foreign_data = False
+                        break
+                    else:
+                        foreign_data = True
+            if foreign_data:
+                flags |= TagFlags.FOREIGN_DATA
+        if locked:
+            flags |= TagFlags.READONLY
+        return tag_data, flags
+
+    @staticmethod
+    def encode_message(data):
+        nabaztag_record = (ndef.TNF_EXTERNAL, RfidNFCDevT2TSupport.NABAZTAG_TYPE, b'', data)
+        nabaztag_message = ndef.new_message(nabaztag_record)
+        return nabaztag_message
+
 class RfidNFCDevDetectTagRemoval(nfcdev.NFCDevStateDetectRemoval):
     def __init__(self, rfid_dev, fsm, tag_type, tag_info):
         super().__init__(fsm, tag_type, tag_info, 0)
@@ -160,6 +201,8 @@ class RfidNFCDevDiscoverTags(nfcdev.NFCDevStateDiscover):
     def process_selected_tag(self, tag_type, tag_info):
         if tag_type == nfcdev.NFCTagType.ST25TB:
             return self._process_st25tb_tag(tag_type, tag_info)
+        elif tag_type == nfcdev.NFCTagType.ISO14443A_T2T:
+            return self._process_t2t_tag(tag_type, tag_info)
         else:
             return self._process_unsupported_tag(tag_type, tag_info)
 
@@ -185,8 +228,15 @@ class RfidNFCDevDiscoverTags(nfcdev.NFCDevStateDiscover):
             self.__rfid_dev, self.fsm, tag_type, tag_info
         )
 
+    # T2T support
+    def _process_t2t_tag(self, tag_type, tag_info):
+        return RfidNFCReadT2T(
+            self.__rfid_dev, self.fsm, tag_type, tag_info
+        )
+
     def _process_unsupported_tag(self, tag_type, tag_info):
         # Transition to polling repeat
+        logging.info(f"Unsupported tag {tag_type}")
         exported_tag_info = RfidNFCDevSupport.exported_tag_info(
             self.__tag_info
         )
@@ -201,6 +251,70 @@ class RfidNFCDevDiscoverTags(nfcdev.NFCDevStateDiscover):
         return RfidNFCDevDetectTagRemoval(
             self.__rfid_dev, self.fsm, tag_type, tag_info
         )
+
+
+class RfidNFCReadT2T(nfcdev.NFCDevStateT2TReadNDEF):
+    def __init__(self, rfid_dev, fsm, tag_type, tag_info):
+        super().__init__(fsm)
+        self.__rfid_dev = rfid_dev
+        self.__tag_type = tag_type
+        self.__tag_info = tag_info
+
+    def failure(self, ex: BaseException):
+        # We got some I/O problem with the tag
+        # Maybe it was removed, but we'll wait for the timeout to kick in
+        exported_tag_info = RfidNFCDevT2TSupport.exported_tag_info(
+            self.__tag_info,
+            None
+        )
+        logging.info(f"Failed to read NDEF from tag (not a formatted T2T?)")
+        self.__rfid_dev._invoke_callback(
+            self.__tag_type,
+            self.__tag_info.tag_id(),
+            None,
+            TagFlags.UNKNOWN_PICC,
+            exported_tag_info,
+        )
+        self.fsm.write_message(nfcdev.NFCIdleModeRequestMessage())
+        return RfidNFCDevDetectTagRemoval(
+            self.__rfid_dev, self.fsm, self.__tag_type, self.__tag_info
+        )
+
+    def success(self, messages, locked):
+        self.fsm.write_message(nfcdev.NFCIdleModeRequestMessage())
+        tag_data, flags = RfidNFCDevT2TSupport.decode_messages(messages, locked)
+        exported_tag_info = RfidNFCDevT2TSupport.exported_tag_info(
+            self.__tag_info,
+            messages
+        )
+        self.__rfid_dev._invoke_callback(
+            self.__tag_type,
+            self.__tag_info.tag_id(),
+            tag_data,
+            flags,
+            exported_tag_info,
+        )
+        return RfidNFCDevDetectTagRemoval(
+            self.__rfid_dev, self.fsm, self.__tag_type, self.__tag_info
+        )
+
+
+class RfidNFCDevWriteT2T(nfcdev.NFCDevStateT2TWriteNDEF):
+    def __init__(self, fsm, data, future):
+        ndef_message = RfidNFCDevT2TSupport.encode_message(data)
+        super().__init__(fsm, [ndef_message])
+        self.__future = future
+
+    def failure(self, ex: BaseException):
+        self.__future.set_result(False)
+        self.fsm.write_message(nfcdev.NFCIdleModeRequestMessage())
+        return RfidNFCDevDiscoverTags(self, self.fsm)
+
+    def success(self):
+        self.__future.set_result(True)
+        self.fsm.write_message(nfcdev.NFCIdleModeRequestMessage())
+        return RfidNFCDevDiscoverTags(self, self.fsm)
+
 
 
 class RfidNFCReadST25TB(nfcdev.NFCDevStateST25TBReadBlocks):
@@ -274,6 +388,8 @@ class RfidNFCDevSelectTagForWriting(nfcdev.NFCDevStateSelect):
     def process_selected_tag(self, tag_type, tag_info):
         if tag_type == nfcdev.NFCTagType.ST25TB:
             return RfidNFCDevWriteST25TB(self.fsm, self.__data, self.__future)
+        if tag_type == nfcdev.NFCTagType.ISO14443A_T2T:
+            return RfidNFCDevWriteT2T(self.fsm, self.__data, self.__future)
         logging.error(f"Unexpected tag type when writing ({tag_type})")
         self.__future.set_result(False)
 
