@@ -9,7 +9,7 @@ Restart=always
 RestartSec=1
 User=root
 WorkingDirectory=/home/pi/pynab
-EnvironmentFile=/home/pi/pynab/nabiftttd/nabemaild.conf
+EnvironmentFile=/home/pi/pynab/nabiftttd/nabiftttd.conf
 ExecStart=/home/pi/pynab/venv/bin/python -m nabiftttd.nabiftttd
 PIDFile=/run/nabiftttd.pid
 

@@ -45,11 +45,13 @@ class RFIDDataView(TemplateView):
 
         data = "DATA_IN_LOCAL_DB"
 
-        if "event_name" in request.POST:
-            event_name = request.POST["event_name"]
-
         if "ifttt_uid" in request.POST:
             uid = request.POST["ifttt_uid"]
+        if "event_name" in request.POST:
+            event_name = request.POST["event_name"]
+            event_name = event_name.replace(" ", "_")
+        else:
+            event_name = uid
 
         rfid_data.write_data_ui_for_views(uid, event_name)
 

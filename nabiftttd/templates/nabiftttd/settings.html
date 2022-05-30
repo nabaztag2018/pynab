@@ -3,23 +3,23 @@
   <form action="/nabiftttd/settings">
     {% csrf_token %}
   <div class="card-header">
-    <h5 class="card-title">{% trans "Triggering an IFTTT event" %}</h5>
+    <h5 class="card-title">{% trans "If This Then That" %}</h5>
   </div>
   <div class="card-body">
 	  
 	  
 	  
-      {% trans "To trigger an IFTTT event when an NFC tag is detected, <a href='/rfid/'>you need to configure the tag</a> and show it to your Nabaztag. <p>If you have not done it already, you need to create a (free) IFTTT account as" %} <a class="help-link" href='/help/nabiftttd' target='_blank' title='{% trans "How to create and configure a Gmail account" %}'>{% trans "explained here" %}</a> {% trans "and enter the Maker Webhooks key below." %}
-	  <p>
-	  
+      {% trans "If This Then That (IFTTT) is an <a href='https://ifttt.com' target='new'>online service</a> that gives you the possibility to trigger actions when Nabaztag sees an NFC tag." %}
+		   {% trans "If you have not done it already, you need to create an IFTTT account and enter the <b>Webhooks key</b> below." %}
+	  <p><p>
+	 {% trans "Once this is done, <a href='/rfid/'>configure the tag</a> and show it to your Nabaztag." %} 
    
       <div class="form-group row">
-        <label for="ifttt_key" class="col-6 col-form-label">{% trans "IFTTT Maker webhook key" %}</label>
+        <label for="ifttt_key" class="col-6 col-form-label">{% trans "IFTTT Webhooks key" %}</label>
         <div class="col-6">
           <input id="ifttt_key" name="ifttt_key" type="input" class="form-control" value="{{ config.ifttt_key }}">
         </div>
       </div>
-
 
 		
   </div>
