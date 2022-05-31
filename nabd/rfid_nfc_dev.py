@@ -157,16 +157,20 @@ class RfidNFCDevT2TSupport:
     def exported_tag_info(tag_info, ndef_messages):
         taginfo_dict = RfidNFCDevSupport.exported_tag_info(tag_info)
         ndef = []
-        for ndef_message in ndef_messages:
-            for record in ndef_message.records:
-                ndef.append(
-                    dict(
+        if ndef_messages:
+            for ndef_message in ndef_messages:
+                if not ndef_message.records:
+                    continue
+                for record in ndef_message.records:
+                    exported_record = dict(
                         tnf=record.tnf,
                         type=record.type.hex(),
-                        id=record.id.hex(),
-                        payload=record.payload.hex(),
                     )
-                )
+                    if record.id:
+                        exported_record["id"] = record.id.hex()
+                    if record.payload:
+                        exported_record["payload"] = record.payload.hex()
+                    ndef.append(exported_record)
         if len(ndef) > 0:
             taginfo_dict["ndef"] = ndef
         return taginfo_dict
