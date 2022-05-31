@@ -1,7 +1,7 @@
 {% extends 'nabweb/_base.html' %}
 {% load i18n %}
 {% load duration_filter %}
-{% block subtitle %}{% trans "RFID" %}{% endblock %}
+{% block subtitle %}{% trans "NFC" %}{% endblock %}
 {% block content %}
   <div class="modal" tabindex="-1" role="dialog" id="foreignDataWarningModal">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -23,7 +23,7 @@
     <div class="col-xl-8 col-lg-10 col-md-10 mb-3">
       <div class="card">
         <div class="card-header">
-          <h5 class="card-title">{% trans "RFID" %}</h5>
+          <h5 class="card-title">{% trans "NFC" %}</h5>
         </div>
         <div class="card-body">
           {% if rfid_support.status == "error" %}
@@ -33,17 +33,16 @@
           {% else %}
             {% if rfid_support.available %}
               <span class="help-init">
-                <p>{% trans "To be used by applications, RFID tags (including Violet's ztamp:s) must be configured. Once configured, an RFID tag will work with any Nabaztag:tag with a tagtagtag card." %}</p>
-                <p>{% trans "To configure an RFID tag, start with pressing the button below and then when your Nabaztag's nose turns red, put a tag under it." %}</p>
+                <p>{% trans "To be used by applications, NFC tags (including Violet's ztamp:s) must be configured." %}</p>
+                <p>{% trans "To configure an NFC tag, start with pressing the button below and then when your Nabaztag's nose turns red, put a tag under it." %}</p>
               </span>
               <span class="help-read d-none">
-                <p>{% blocktrans %}Edit the configuration, then press <kbd class="btn-danger">Write tag</kbd> button below and put the tag under your Nabaztag's red nose.{% endblocktrans %}</p>
-                <p>{% blocktrans %}To configure another RFID tag, press the <kbd class="btn-primary">Configure another tag</kbd> button.{% endblocktrans %}</p>
+                <p>{% blocktrans %}Edit the configuration, then press <kbd class="btn-danger">Write tag</kbd> button below and put the tag under your Nabaztag's red nose until you see a confirmation message.{% endblocktrans %}</p>
               </span>
               <div class="alert alert-danger read-error d-none" role="alert"></div>
               <div class="alert alert-danger read-timeout d-none" role="alert">
                 <p>{% trans "No tag was detected." %}</p>
-                <p>{% trans "Nabaztag:tag RFID reader only supports ISO/IEC 14443 type B tags. Also make sure the reader is not too close from the Raspberry Pi (add some cardboard as mentioned in <a target='_blank' href='https://www.instructables.com/id/Installation-De-La-Carte-TagTagTag-Pour-Nabaztagta/' rel='noopener noreferrer'>tutorial</a>)." %}</p>
+                <p>{% trans "Nabaztag:tag original RFID reader only supports ISO/IEC 14443 type B tags and the new NFC board supports also Type 2 tag. If you use the original RFID board, make sure the reader is not too close from the Raspberry Pi (add some cardboard as mentioned in <a target='_blank' href='https://www.instructables.com/id/Installation-De-La-Carte-TagTagTag-Pour-Nabaztagta/' rel='noopener noreferrer'>tutorial</a>)." %}</p>
               </div>
               <div class="alert alert-danger write-error d-none" role="alert"></div>
               <div class="alert alert-danger write-timeout d-none" role="alert">
@@ -68,7 +67,13 @@
                     <label for="rfidPicture" class="col-sm-2 col-form-label">{% trans "Picture" %}</label>
                     <div class="col-sm-6">
                       <select class="form-control form-control-sm" id="rfidPicture" name="picture">
+                        <option value="30">{% trans "NFC Tag Blue" %}</option>
+                        <option value="31">{% trans "NFC Tag Violet" %}</option>
+                        <option value="32">{% trans "NFC Tag Red" %}</option>
+                        <option value="33">{% trans "NFC Tag Orange" %}</option>
+                        <option disabled>──────────</option>
                         <option value="255">{% trans "Unknown" %}</option>
+                        <option disabled>──────────</option>
                         <option value="1">{% trans "Violet Rabbit" %}</option>
                         <option value="2">{% trans "Blue note" %}</option>
                         <option value="3">{% trans "Red heart" %}</option>
@@ -97,11 +102,6 @@
                         <option value="24">{% trans "Nanoztag kiwi" %}</option>
                         <option value="25">{% trans "Nanoztag azur" %}</option>
                         <option value="26">{% trans "Nanoztag black" %}</option>
-                        <option disabled>──────────</option>
-                        <option value="30">{% trans "NFC Tag Blue" %}</option>
-                        <option value="31">{% trans "NFC Tag Violet" %}</option>
-                        <option value="32">{% trans "NFC Tag Red" %}</option>
-                        <option value="33">{% trans "NFC Tag Orange" %}</option>
                       </select>
                     </div>
                     <div class="col-sm-4">
@@ -109,7 +109,7 @@
                     </div>
                   </div>
                   <div class="form-group row supported-rfid-form d-none">
-                    <label for="rfidApplication" class="col-sm-2 col-form-label">{% trans "Application" %}</label>
+                    <label for="rfidApplication" class="col-sm-2 col-form-label"><b>{% trans "Application" %}</b></label>
                     <div class="col-sm-6">
                       <select class="form-control form-control-sm" id="rfidApplication" name="app">
                         <option value="255"}>{% trans "None" %}</option>
@@ -129,7 +129,7 @@
               </div>
             {% else %}
               <div class="alert alert-danger" role="alert">
-                {% trans "RFID is not available (no reader detected)" %}
+                {% trans "NFC or RFID support is not available (no reader detected)" %}
               </div>
             {% endif %}
           {% endif %}
