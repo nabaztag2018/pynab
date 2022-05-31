@@ -2,6 +2,7 @@ import asyncio
 import functools
 import logging
 import os
+from typing import Optional
 
 import ndef  # type: ignore
 import nfcdev
@@ -61,7 +62,33 @@ class RfidNFCDevSupport:
 
 class RfidNFCDevST25TBSupport:
     @staticmethod
-    def is_compatible(uid_le):  # pragma: cover
+    def get_model(uid_le: bytes) -> Optional[str]:
+        """
+        Determine model based on UID.
+        We currently support:
+        - STMicroelectronics SRI512 (Violet ztamps)
+        - STMicroelectronics SRT512 (Lemet' contactless transport tickets)
+        - STMicroelectronics SRIX4K, SRI4K, SRI2K
+        """
+        if uid_le[-1] != 0xD0:
+            return None
+        if uid_le[-2] != 0x02:
+            # STMicroelectronics
+            return None
+        if uid_le[-3] & 0xFC == 0b00011000:
+            return "SRI512"
+        if uid_le[-3] & 0xFC == 0b00110000:
+            return "SRT512"
+        if uid_le[-3] & 0xFC == 0b00011100:
+            return "SRI4K"
+        if uid_le[-3] & 0xFC == 0b00001100:
+            return "SRIX4K"
+        if uid_le[-3] & 0xFC == 0b00111100:
+            return "SRIX2K"
+        return None
+
+    @staticmethod
+    def is_compatible(uid_le: bytes) -> bool:
         """
         Determine if tag is compatible based on UID.
         We currently support:
@@ -69,30 +96,20 @@ class RfidNFCDevST25TBSupport:
         - STMicroelectronics SRT512 (Lemet' contactless transport tickets)
         - STMicroelectronics SRIX4K, SRI4K, SRI2K
         """
-        if uid_le[-1] != 0xD0:
-            return False
-        if uid_le[-2] != 0x02:
-            # STMicroelectronics
-            return False
-        if uid_le[-3] & 0xFC == 0b00011000:
-            # SRI512
-            return True
-        if uid_le[-3] & 0xFC == 0b00110000:
-            # SRT512
-            return True
-        if uid_le[-3] & 0xFC == 0b00011100:
-            # SRI4K
-            return True
-        if uid_le[-3] & 0xFC == 0b00001100:
-            # SRIX4K
-            return True
-        if uid_le[-3] & 0xFC == 0b00111100:
-            # SRIX2K
-            return True
-        return False
+        return RfidNFCDevST25TBSupport.get_model(uid_le) in (
+            "SRI512",
+            "SRT512",
+            "SRI4K",
+            "SRIX4K",
+            "SRIX2K",
+        )
 
     @staticmethod
     def exported_tag_info(tag_info):
+        # ST25TB tags have no tag info beyond the UID.
+        model = RfidNFCDevST25TBSupport.get_model(tag_info.uid)
+        if model is not None:
+            return dict(model=model)
         return None
 
     @staticmethod
@@ -138,8 +155,21 @@ class RfidNFCDevT2TSupport:
 
     @staticmethod
     def exported_tag_info(tag_info, ndef_messages):
-        # TODO: export NDEF messages for applications
-        return None
+        taginfo_dict = RfidNFCDevSupport.exported_tag_info(tag_info)
+        ndef = []
+        for ndef_message in ndef_messages:
+            for record in ndef_message.records:
+                ndef.append(
+                    dict(
+                        tnf=record.tnf,
+                        type=record.type.hex(),
+                        id=record.id.hex(),
+                        payload=record.payload.hex(),
+                    )
+                )
+        if len(ndef) > 0:
+            taginfo_dict["ndef"] = ndef
+        return taginfo_dict
 
     @staticmethod
     def decode_messages(ndef_messages, locked):
@@ -243,9 +273,7 @@ class RfidNFCDevDiscoverTags(nfcdev.NFCDevStateDiscover):
     def _process_unsupported_tag(self, tag_type, tag_info):
         # Transition to polling repeat
         logging.info(f"Unsupported tag {tag_type}")
-        exported_tag_info = RfidNFCDevSupport.exported_tag_info(
-            self.__tag_info
-        )
+        exported_tag_info = RfidNFCDevSupport.exported_tag_info(tag_info)
         self.__rfid_dev._invoke_callback(
             tag_type,
             tag_info.tag_id(),
