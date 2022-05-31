@@ -252,7 +252,7 @@ class RfidDev(Rfid):  # pragma: no cover
     async def write(
         self,
         tech: TagTechnology,
-        uid: str,
+        uid: bytes,
         picture: int,
         app: int,
         data: bytes,

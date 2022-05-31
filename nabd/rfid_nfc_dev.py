@@ -3,8 +3,8 @@ import functools
 import logging
 import os
 
+import ndef  # type: ignore
 import nfcdev
-import ndef
 
 from .rfid import Rfid, TagFlags, TagTechnology
 
@@ -135,6 +135,7 @@ class RfidNFCDevST25TBSupport:
 
 class RfidNFCDevT2TSupport:
     NABAZTAG_TYPE = b"tagtagtag.fr:z"
+
     @staticmethod
     def exported_tag_info(tag_info, ndef_messages):
         # TODO: export NDEF messages for applications
@@ -154,7 +155,10 @@ class RfidNFCDevT2TSupport:
             foreign_data = False
             for message in ndef_messages:
                 for record in message.records:
-                    if record.tnf == ndef.TNF_EXTERNAL and record.type == RfidNFCDevT2TSupport.NABAZTAG_TYPE:
+                    if (
+                        record.tnf == ndef.TNF_EXTERNAL
+                        and record.type == RfidNFCDevT2TSupport.NABAZTAG_TYPE
+                    ):
                         tag_data = TagData.decode(record.payload)
                         flags |= TagFlags.FORMATTED
                         foreign_data = False
@@ -169,9 +173,15 @@ class RfidNFCDevT2TSupport:
 
     @staticmethod
     def encode_message(data):
-        nabaztag_record = (ndef.TNF_EXTERNAL, RfidNFCDevT2TSupport.NABAZTAG_TYPE, b'', data)
+        nabaztag_record = (
+            ndef.TNF_EXTERNAL,
+            RfidNFCDevT2TSupport.NABAZTAG_TYPE,
+            b"",
+            data,
+        )
         nabaztag_message = ndef.new_message(nabaztag_record)
         return nabaztag_message
+
 
 class RfidNFCDevDetectTagRemoval(nfcdev.NFCDevStateDetectRemoval):
     def __init__(self, rfid_dev, fsm, tag_type, tag_info):
@@ -213,9 +223,7 @@ class RfidNFCDevDiscoverTags(nfcdev.NFCDevStateDiscover):
                 self.__rfid_dev, self.fsm, tag_type, tag_info
             )
         # Transition to polling repeat
-        exported_tag_info = RfidNFCDevST25TBSupport.exported_tag_info(
-            self.__tag_info
-        )
+        exported_tag_info = RfidNFCDevST25TBSupport.exported_tag_info(tag_info)
         self.__rfid_dev._invoke_callback(
             tag_type,
             tag_info.tag_id(),
@@ -230,9 +238,7 @@ class RfidNFCDevDiscoverTags(nfcdev.NFCDevStateDiscover):
 
     # T2T support
     def _process_t2t_tag(self, tag_type, tag_info):
-        return RfidNFCReadT2T(
-            self.__rfid_dev, self.fsm, tag_type, tag_info
-        )
+        return RfidNFCReadT2T(self.__rfid_dev, self.fsm, tag_type, tag_info)
 
     def _process_unsupported_tag(self, tag_type, tag_info):
         # Transition to polling repeat
@@ -264,10 +270,9 @@ class RfidNFCReadT2T(nfcdev.NFCDevStateT2TReadNDEF):
         # We got some I/O problem with the tag
         # Maybe it was removed, but we'll wait for the timeout to kick in
         exported_tag_info = RfidNFCDevT2TSupport.exported_tag_info(
-            self.__tag_info,
-            None
+            self.__tag_info, None
         )
-        logging.info(f"Failed to read NDEF from tag (not a formatted T2T?)")
+        logging.info("Failed to read NDEF from tag (not a formatted T2T?)")
         self.__rfid_dev._invoke_callback(
             self.__tag_type,
             self.__tag_info.tag_id(),
@@ -282,10 +287,11 @@ class RfidNFCReadT2T(nfcdev.NFCDevStateT2TReadNDEF):
 
     def success(self, messages, locked):
         self.fsm.write_message(nfcdev.NFCIdleModeRequestMessage())
-        tag_data, flags = RfidNFCDevT2TSupport.decode_messages(messages, locked)
+        tag_data, flags = RfidNFCDevT2TSupport.decode_messages(
+            messages, locked
+        )
         exported_tag_info = RfidNFCDevT2TSupport.exported_tag_info(
-            self.__tag_info,
-            messages
+            self.__tag_info, messages
         )
         self.__rfid_dev._invoke_callback(
             self.__tag_type,
@@ -314,7 +320,6 @@ class RfidNFCDevWriteT2T(nfcdev.NFCDevStateT2TWriteNDEF):
         self.__future.set_result(True)
         self.fsm.write_message(nfcdev.NFCIdleModeRequestMessage())
         return RfidNFCDevDiscoverTags(self, self.fsm)
-
 
 
 class RfidNFCReadST25TB(nfcdev.NFCDevStateST25TBReadBlocks):
@@ -477,7 +482,7 @@ class RfidNFCDev(Rfid):  # pragma: no cover
     async def write(
         self,
         tech: TagTechnology,
-        uid: str,
+        uid: bytes,
         picture: int,
         app: int,
         data: bytes,
