@@ -42,3 +42,16 @@ class SettingsView(TemplateView):
         config.save()
         NabAirqualityd.signal_daemon()
         return JsonResponse({"status": "ok"})
+
+
+class RFIDDataView(TemplateView):
+    template_name = "nabairqualityd/rfid-data.html"
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return render(request, RFIDDataView.template_name, context=context)
+
+    def post(self, request, *args, **kwargs):
+
+        data = "NO_DATA"
+        return JsonResponse({"data": data})

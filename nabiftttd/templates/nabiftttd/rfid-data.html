@@ -1,0 +1,14 @@
+{% load i18n %}
+{% load static %}
+
+
+      {% trans "When Nabaztag sees that NFC tag, an event will be triggered on If This Then That (make sure, you already configured the service <a href='/services'>here</a>)." %}
+	  <p>
+      
+<div class="form-group row">
+        <label for="event_name" class="col-6 col-form-label">{% trans "Give this tag a name (and use this name as the event name on your IFTTT applet)" %}</label>
+        <div class="col-6">
+          <input id="event_name" name="event_name" type="text" class="form-control" value="{{ event_name }}" placeholder="{% trans "Example : MyKeys (no space)" %}">
+		  <input id="ifttt_uid" name="ifttt_uid" type="hidden" class="form-control" value="{{ ifttt_uid }}">
+        </div>
+      </div>

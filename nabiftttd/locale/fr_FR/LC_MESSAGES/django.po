@@ -1,0 +1,78 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-30 16:30+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/nabiftttd/rfid-data.html:5
+msgid ""
+"When Nabaztag sees that NFC tag, an event will be triggered on If This Then "
+"That (make sure, you already configured the service <a href='/"
+"services'>here</a>)."
+msgstr "Quand Nabaztag verra ce tag NFC il déclenchera un événement sur le service If This Then That"
+" (N'oubliez pas de configurer le service <a href='/services'>ici</a>)."
+
+#: templates/nabiftttd/rfid-data.html:9
+msgid ""
+"Give this tag a name (and use this name as the event name on your IFTTT "
+"applet)"
+msgstr "Donnez donc un nom à ce tag (nom que vous utiliserez sur IFTTT)"
+
+#: templates/nabiftttd/rfid-data.html:11
+msgid "Example : MyKeys (no space)"
+msgstr "Par exemple : MesCles (pas d'espace, pas d'accent)"
+
+#: templates/nabiftttd/settings.html:6
+msgid "If This Then That"
+msgstr "If This Then That (Si Ceci Alors Cela)"
+
+#: templates/nabiftttd/settings.html:12
+msgid ""
+"If This Then That (IFTTT) is an <a href='https://ifttt.com' "
+"target='new'>online service</a> that gives you the possibility to trigger "
+"actions when Nabaztag sees an NFC tag."
+msgstr ""
+"If This Then That (IFTTT) est un <a href='https://ifttt.com' "
+"target='new'>service en ligne</a> qui vous donne la possibilité de lancer "
+"des actions lorsque votre Nabaztag détecte un tag NFC."
+
+#: templates/nabiftttd/settings.html:13
+msgid ""
+"If you have not done it already, you need to create an IFTTT account and "
+"enter the <b>Webhooks key</b> below."
+msgstr ""
+"Si vous ne l'avez pas déjà fait, voud devez créer un compte IFTTT et saisir "
+"la clé du service <b>IFTTT Webhooks</b>."
+
+#: templates/nabiftttd/settings.html:15
+msgid ""
+"Once this is done, <a href='/rfid/'>configure the tag</a> and show it to "
+"your Nabaztag."
+msgstr ""
+"Une fois que cela est fait, il faut <a href='/rfid/'>configurer le tag</a> "
+"et le montrer à votre Nabaztag pour lancer l'action."
+
+#: templates/nabiftttd/settings.html:18
+msgid "IFTTT Webhooks key"
+msgstr "La clé du service IFTTT Webhooks"
+
+#: templates/nabiftttd/settings.html:31
+msgid "Save"
+msgstr "Enregistrer"
+
+#: templates/nabiftttd/settings.html:32
+msgid "Reset"
+msgstr "Annuler"

@@ -1,0 +1,75 @@
+{% load i18n %}
+<div class="card" id="nabiftttd-settings">
+  <form action="/nabiftttd/settings">
+    {% csrf_token %}
+  <div class="card-header">
+    <h5 class="card-title">{% trans "If This Then That" %}</h5>
+  </div>
+  <div class="card-body">
+	  
+	  
+	  
+      {% trans "If This Then That (IFTTT) is an <a href='https://ifttt.com' target='new'>online service</a> that gives you the possibility to trigger actions when Nabaztag sees an NFC tag." %}
+		   {% trans "If you have not done it already, you need to create an IFTTT account and enter the <b>Webhooks key</b> below." %}
+	  <p><p>
+	 {% trans "Once this is done, <a href='/rfid/'>configure the tag</a> and show it to your Nabaztag." %} 
+   
+      <div class="form-group row">
+        <label for="ifttt_key" class="col-6 col-form-label">{% trans "IFTTT Webhooks key" %}</label>
+        <div class="col-6">
+          <input id="ifttt_key" name="ifttt_key" type="input" class="form-control" value="{{ config.ifttt_key }}">
+        </div>
+      </div>
+
+		
+  </div>
+  
+  
+  <div class="card-footer">
+    <div class="row mb-2">
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary disabled ml-2 float-right save-button">{% trans "Save" %}</button>
+        <button type="reset" class="btn btn-outline-primary disabled ml-2 float-right reset-button">{% trans "Reset" %}</button>
+      </div>
+    </div>
+  
+  </form>
+  
+</div>
+
+
+
+  <script type="text/javascript">
+  $(function() {
+    var form = $('#nabiftttd-settings form');
+    var saveBtn = form.find('button.save-button');
+    var resetBtn = form.find('button.reset-button');
+    var url = form.attr('action');
+    form.find('button.btn-toggle').on('click', function() {
+      saveBtn.removeClass('disabled');
+      resetBtn.removeClass('disabled');
+    });
+    form.find('input').on('change', function() {
+      saveBtn.removeClass('disabled');
+      resetBtn.removeClass('disabled');
+    });
+    form.on('submit', function() {
+      form.find("input[name='enabled']").val(form.find('button.btn-toggle').hasClass('active'));
+      var formdata = form.serialize();
+      $.ajax({
+        url: url,
+        method: "POST",
+        data: formdata,
+        success: function (data) {
+          $("#nabiftttd-settings").replaceWith(data);
+        }
+      });
+      return false;
+    });
+    resetBtn.on("click", function() {
+      $.get(url, function(data) {
+        $("#nabiftttd-settings").replaceWith(data);
+      });
+    });
+  });
+  </script>

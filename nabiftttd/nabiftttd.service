@@ -1,0 +1,17 @@
+[Unit]
+Description=Nabaztag IFTTT Service
+After=nabd.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+WorkingDirectory=/home/pi/pynab
+EnvironmentFile=/home/pi/pynab/nabiftttd/nabiftttd.conf
+ExecStart=/home/pi/pynab/venv/bin/python -m nabiftttd.nabiftttd
+PIDFile=/run/nabiftttd.pid
+
+[Install]
+WantedBy=multi-user.target

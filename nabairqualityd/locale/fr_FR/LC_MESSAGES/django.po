@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-30 14:25+0200\n"
+"POT-Creation-Date: 2022-05-30 18:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,6 +38,13 @@ msgstr "Modérée"
 #: templates/nabairqualityd/animations_help.html:19
 msgid "Good"
 msgstr "Bonne"
+
+#: templates/nabairqualityd/rfid-data.html:5
+msgid ""
+"When Nabaztag sees that NFC tag it will give you information about air "
+"quality. It's as simple as that."
+msgstr "Quand Nabaztag verra ce tag il ne pourra pas s'empêcher de vous donner"
+" des informations sur la qualité de l'air."
 
 #: templates/nabairqualityd/settings.html:9
 msgid "The "

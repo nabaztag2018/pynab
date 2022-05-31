@@ -161,6 +161,10 @@ class NabAirqualityd(NabInfoCachedService):
         if (
             packet["type"] == "asr_event"
             and packet["nlu"]["intent"] == "nabairqualityd/forecast"
+        ) or (
+            packet["type"] == "rfid_event"
+            and packet["app"] == "nabairqualityd"
+            and packet["event"] == "detected"
         ):
             next_date, next_args, config_t = await self.get_config()
             now = datetime.datetime.now(datetime.timezone.utc)

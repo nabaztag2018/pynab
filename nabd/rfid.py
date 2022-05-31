@@ -2,7 +2,9 @@ import abc
 from enum import IntFlag
 from typing import Callable
 
+import nabairqualityd
 import nabbookd
+import nabiftttd
 import nabsurprised
 import nabtaichid
 import nabweatherd
@@ -29,6 +31,8 @@ TAG_APPLICATIONS = {
     nabsurprised.NABAZTAG_RFID_APPLICATION_ID: "nabsurprised",  # 7
     nabtaichid.NABAZTAG_RFID_APPLICATION_ID: "nabtaichid",  # 8
     nabweatherd.NABAZTAG_RFID_APPLICATION_ID: "nabweatherd",  # 9
+    nabiftttd.NABAZTAG_RFID_APPLICATION_ID: "nabiftttd",  # 10
+    nabairqualityd.NABAZTAG_RFID_APPLICATION_ID: "nabairqualityd",  # 11
 }
 
 DEFAULT_RFID_TIMEOUT = 20.0

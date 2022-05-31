@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-25 19:35+0100\n"
+"POT-Creation-Date: 2022-05-31 10:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,35 +17,35 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: settings.py:141
+#: settings.py:142
 msgid "French"
 msgstr "Français"
 
-#: settings.py:142
+#: settings.py:143
 msgid "German"
 msgstr "Allemand"
 
-#: settings.py:143
+#: settings.py:144
 msgid "U.S. English"
 msgstr "Anglais des États-Unis"
 
-#: settings.py:144
+#: settings.py:145
 msgid "British English"
 msgstr "Anglais britannique"
 
-#: settings.py:145
+#: settings.py:146
 msgid "Italian"
 msgstr "Italien"
 
-#: settings.py:146
+#: settings.py:147
 msgid "Spanish"
 msgstr "Espagnol"
 
-#: settings.py:147
+#: settings.py:148
 msgid "Japanese"
 msgstr "Japonais"
 
-#: settings.py:148
+#: settings.py:149
 msgid "Brazilian Portuguese"
 msgstr "Portugais brésilien"
 
@@ -72,9 +72,8 @@ msgstr "Services"
 
 #: templates/nabweb/_base.html:34 templates/nabweb/rfid/index.html:4
 #: templates/nabweb/rfid/index.html:26
-#: templates/nabweb/system-info/index.html:118
-msgid "RFID"
-msgstr "RFID"
+msgid "NFC"
+msgstr "NFC"
 
 #: templates/nabweb/_base.html:35
 msgid "System Information"
@@ -261,23 +260,11 @@ msgstr ""
 
 #: templates/nabweb/help.html:21
 msgid ""
-"The open heart operation to transplant the card into your rabbit. At this "
+"The open heart operation to transplant the cards into your rabbit. At this "
 "stage you probably do not need this anymore..."
 msgstr ""
-"L'opération à cœur ouvert pour transplanter la carte dans votre lapin. A ce "
+"L'opération à cœur ouvert pour transplanter le ou les cartes dans votre lapin. A ce "
 "stade, vous n'en avez probablement plus besoin ..."
-
-#: templates/nabweb/help.html:22
-msgid ""
-"The <a target='_blank' href='https://www.tagtagtag.fr/index_eng.html' "
-"rel='noopener noreferrer'>Eternal Sunshine of the Nabaztag</a>"
-msgstr ""
-"L'<a target='_blank' href='https://www.tagtagtag.fr/index.html' "
-"rel='noopener noreferrer'>éternel retour du Nabaztag</a>"
-
-#: templates/nabweb/help.html:22
-msgid "The TagtagTag project..."
-msgstr "Le projet TagTagTag ..."
 
 #: templates/nabweb/index.html:8
 msgid "You are currently connected to your rabbit."
@@ -304,14 +291,14 @@ msgstr ""
 #: templates/nabweb/index.html:11
 msgid ""
 "Eventually, explore the top navigation bar to configure <a href='/"
-"services/'>Nabaztag services</a> or <a href='/rfid/'>RFID tags</a>, <a "
-"href='/upgrade/'>upgrade software</a>, <a target='_blank' href='/help/'>get "
-"help</a> or even visit the <a target='_blank' href='https://github.com/"
+"services/'>Nabaztag services</a> or <a href='/rfid/'>NFC tags</a>, <a href='/"
+"upgrade/'>upgrade software</a>, <a target='_blank' href='/help/'>get help</"
+"a> or even visit the <a target='_blank' href='https://github.com/"
 "nabaztag2018/pynab' rel='noopener noreferrer'>GitHub repository</a> to start "
 "hacking, adding features or simply report bugs."
 msgstr ""
 "Utilisez la barre de navigation pour configurer les <a href='/"
-"services/'>services du Nabaztag</a> ou des <a href='/rfid/'>tags RFID</a>, "
+"services/'>services du Nabaztag</a> ou des <a href='/rfid/'>tags NFC</a>, "
 "<a href='/upgrade/'>mettre à jour</a> le logiciel, ou <a target='_blank' "
 "href='/help/'>obtenir de l'aide</a>. Vous pouvez aussi visiter le <a "
 "target='_blank' href='https://github.com/nabaztag2018/pynab' rel='noopener "
@@ -382,58 +369,50 @@ msgstr "Non"
 
 #: templates/nabweb/rfid/index.html:36
 msgid ""
-"To be used by applications, RFID tags (including Violet's ztamp:s) must be "
-"configured. Once configured, an RFID tag will work with any Nabaztag:tag "
-"with a tagtagtag card."
+"To be used by applications, NFC tags (including Violet's ztamp:s) must be "
+"configured."
 msgstr ""
-"Pour être utilisés par les applications, les tags RFID (y compris les ztamp:"
-"s de Violet) doivent être configurés. Une fois configuré, un tag "
-"fonctionnera avec n'importe quel Nabaztag:tag équipé de la carte tagtagtag."
+"Pour être utilisés par les applications, les tags NFC (y compris les ztamp:"
+"s de Violet) doivent être configurés."
 
 #: templates/nabweb/rfid/index.html:37
 msgid ""
-"To configure an RFID tag, start with pressing the button below and then when "
+"To configure an NFC tag, start with pressing the button below and then when "
 "your Nabaztag's nose turns red, put a tag under it."
 msgstr ""
-"Pour configurer un tag RFID, commencez par appuyer sur le bouton ci-dessous "
+"Pour configurer un tag NFC, commencez par appuyer sur le bouton ci-dessous "
 "puis quand le nez se met en rouge, mettez-y le tag."
 
 #: templates/nabweb/rfid/index.html:40
 msgid ""
 "Edit the configuration, then press <kbd class=\"btn-danger\">Write tag</kbd> "
-"button below and put the tag under your Nabaztag's red nose."
+"button below and put the tag under your Nabaztag's red nose until you see a "
+"confirmation message."
 msgstr ""
 "Éditer la configuration, puis appuyez sur le bouton <kbd class=\"btn-danger"
 "\">Écrire le tag</kbd> ci-dessous et remettez le tag sous le nez devenu "
-"rouge."
+"rouge jusqu'à ce qu'un message de confirmation s'affiche."
 
-#: templates/nabweb/rfid/index.html:41
-msgid ""
-"To configure another RFID tag, press the <kbd class=\"btn-primary"
-"\">Configure another tag</kbd> button."
-msgstr ""
-"Pour configurer un autre tag RFID, appuyez sur le bouton <kbd class=\"btn-"
-"primary\">Configurer un autre tag</kbd>."
-
-#: templates/nabweb/rfid/index.html:45
+#: templates/nabweb/rfid/index.html:44
 msgid "No tag was detected."
 msgstr "Aucun tag n'a été détecté"
 
-#: templates/nabweb/rfid/index.html:46
+#: templates/nabweb/rfid/index.html:45
 msgid ""
-"Nabaztag:tag RFID reader only supports ISO/IEC 14443 type B tags. Also make "
-"sure the reader is not too close from the Raspberry Pi (add some cardboard "
-"as mentioned in <a target='_blank' href='https://www.instructables.com/id/"
-"Installation-De-La-Carte-TagTagTag-Pour-Nabaztagta/' rel='noopener "
+"Nabaztag:tag original RFID reader only supports ISO/IEC 14443 type B tags "
+"and the new NFC board supports also Type 2 tag. If you use the original RFID "
+"board, make sure the reader is not too close from the Raspberry Pi (add some "
+"cardboard as mentioned in <a target='_blank' href='https://www.instructables."
+"com/id/Installation-De-La-Carte-TagTagTag-Pour-Nabaztagta/' rel='noopener "
 "noreferrer'>tutorial</a>)."
 msgstr ""
-"Le lecteur RFID du Nabaztag:tag ne fonctionne qu'avez les tags ISO/IEC 14443 "
-"type B. Assurez-vous également que le lecteur n'est pas trop prêt du "
+"Le lecteur original RFID du Nabaztag:tag ne fonctionne qu'avez les tags ISO/IEC 14443 "
+"type B et la nouvelle carte NFC supporte aussi les tag Type 2. Si vous utilisez la carte RFID d'origine,assurez-vous également que le lecteur n'est pas trop prêt du "
 "RaspberryPi (ajoutez du carton comme mentionné dans <a target='_blank' "
 "href='https://www.instructables.com/id/Installation-De-La-Carte-TagTagTag-"
 "Pour-Nabaztagta/' rel='noopener noreferrer'>le tutoriel</a>)."
 
-#: templates/nabweb/rfid/index.html:50
+#: templates/nabweb/rfid/index.html:49
 msgid ""
 "This tag was not detected. To write it, click the 'Write tag' button and put "
 "it again under your Nabaztag's nose when it turns red. If you want to write "
@@ -444,167 +423,183 @@ msgstr ""
 "souhaitez configurer un autre tag, appuyez d'abord sur le bouton "
 "'Configurer'."
 
-#: templates/nabweb/rfid/index.html:53
+#: templates/nabweb/rfid/index.html:52
 msgid "Tag was successfully configured."
 msgstr "Le tag a été configuré avec succès."
 
-#: templates/nabweb/rfid/index.html:62
+#: templates/nabweb/rfid/index.html:61
 msgid "Status"
 msgstr "Statut"
 
-#: templates/nabweb/rfid/index.html:68
+#: templates/nabweb/rfid/index.html:67
 msgid "Picture"
 msgstr "Visuel"
 
+#: templates/nabweb/rfid/index.html:70
+msgid "NFC Tag Blue"
+msgstr "Tag NFC bleu"
+
 #: templates/nabweb/rfid/index.html:71
+msgid "NFC Tag Violet"
+msgstr "Tag NFC violet"
+
+#: templates/nabweb/rfid/index.html:72
+msgid "NFC Tag Red"
+msgstr "Tag NFC rouge"
+
+#: templates/nabweb/rfid/index.html:73
+msgid "NFC Tag Orange"
+msgstr "Tag NFC orange"
+
+#: templates/nabweb/rfid/index.html:75
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: templates/nabweb/rfid/index.html:72
+#: templates/nabweb/rfid/index.html:77
 msgid "Violet Rabbit"
 msgstr "Lapin violet"
 
-#: templates/nabweb/rfid/index.html:73
+#: templates/nabweb/rfid/index.html:78
 msgid "Blue note"
 msgstr "Note bleue"
 
-#: templates/nabweb/rfid/index.html:74
+#: templates/nabweb/rfid/index.html:79
 msgid "Red heart"
 msgstr "Cœur rouge"
 
-#: templates/nabweb/rfid/index.html:75
+#: templates/nabweb/rfid/index.html:80
 msgid "Orange apple"
 msgstr "Pomme orange"
 
-#: templates/nabweb/rfid/index.html:76
+#: templates/nabweb/rfid/index.html:81
 msgid "Orange teacup"
 msgstr "Tasse orange"
 
-#: templates/nabweb/rfid/index.html:77
+#: templates/nabweb/rfid/index.html:82
 msgid "Violet rocket"
 msgstr "Fusée violette"
 
-#: templates/nabweb/rfid/index.html:78
+#: templates/nabweb/rfid/index.html:83
 msgid "Green cabbage"
 msgstr "Chou vert"
 
-#: templates/nabweb/rfid/index.html:79
+#: templates/nabweb/rfid/index.html:84
 msgid "Blue dog"
 msgstr "Chien bleu"
 
-#: templates/nabweb/rfid/index.html:80
+#: templates/nabweb/rfid/index.html:85
 msgid "Red flower"
 msgstr "Fleur rouge"
 
-#: templates/nabweb/rfid/index.html:81
+#: templates/nabweb/rfid/index.html:86
 msgid "Green snail"
 msgstr "Escargot vert"
 
-#: templates/nabweb/rfid/index.html:82
+#: templates/nabweb/rfid/index.html:87
 msgid "Yellow smile"
 msgstr "Sourire jaune"
 
-#: templates/nabweb/rfid/index.html:83
+#: templates/nabweb/rfid/index.html:88
 msgid "Yellow gift"
 msgstr "Cadeau jaune"
 
-#: templates/nabweb/rfid/index.html:84
+#: templates/nabweb/rfid/index.html:89
 msgid "Green bike"
 msgstr "Vélo vert"
 
-#: templates/nabweb/rfid/index.html:85
+#: templates/nabweb/rfid/index.html:90
 msgid "Violet key"
 msgstr "Clef violette"
 
-#: templates/nabweb/rfid/index.html:86
+#: templates/nabweb/rfid/index.html:91
 msgid "Blue can"
 msgstr "Boîte bleue"
 
-#: templates/nabweb/rfid/index.html:88
+#: templates/nabweb/rfid/index.html:93
 msgid "Dark moderate green"
 msgstr "Vert moyennement foncé"
 
-#: templates/nabweb/rfid/index.html:89
+#: templates/nabweb/rfid/index.html:94
 msgid "Grayish blue"
 msgstr "Gris qui tend vers le bleu"
 
-#: templates/nabweb/rfid/index.html:90
+#: templates/nabweb/rfid/index.html:95
 msgid "Vivid orange"
 msgstr "Orange vif"
 
-#: templates/nabweb/rfid/index.html:91
+#: templates/nabweb/rfid/index.html:96
 msgid "Bright yellow"
 msgstr "Jaune brillant"
 
-#: templates/nabweb/rfid/index.html:92
+#: templates/nabweb/rfid/index.html:97
 msgid "Dark cyan"
 msgstr "Cyan foncé"
 
-#: templates/nabweb/rfid/index.html:93
+#: templates/nabweb/rfid/index.html:98
 msgid "Vivid pink"
 msgstr "Rose vif"
 
-#: templates/nabweb/rfid/index.html:94
+#: templates/nabweb/rfid/index.html:99
 msgid "Pure yellow"
 msgstr "Jaune pur"
 
-#: templates/nabweb/rfid/index.html:95
+#: templates/nabweb/rfid/index.html:100
 msgid "Darker vivid orange"
 msgstr "Orange vif un peu plus foncé"
 
-#: templates/nabweb/rfid/index.html:97
+#: templates/nabweb/rfid/index.html:102
 msgid "Nanoztag kiwi"
 msgstr "Nanoztag kiwi"
 
-#: templates/nabweb/rfid/index.html:98
+#: templates/nabweb/rfid/index.html:103
 msgid "Nanoztag azur"
 msgstr "Nanoztag azur"
 
-#: templates/nabweb/rfid/index.html:99
+#: templates/nabweb/rfid/index.html:104
 msgid "Nanoztag black"
 msgstr "Nanoztag black"
 
-#: templates/nabweb/rfid/index.html:107
+#: templates/nabweb/rfid/index.html:112
 msgid "Application"
 msgstr "Application"
 
-#: templates/nabweb/rfid/index.html:110
+#: templates/nabweb/rfid/index.html:115
 msgid "None"
 msgstr "Aucune"
 
-#: templates/nabweb/rfid/index.html:127
-msgid "RFID is not available (no reader detected)"
-msgstr "Le RFID n'est pas disponible (aucun lecteur détecté)"
+#: templates/nabweb/rfid/index.html:132
+msgid "NFC or RFID support is not available (no reader detected)"
+msgstr "Le RFID ou NFC ne sont pas disponibles (aucun lecteur détecté)"
 
-#: templates/nabweb/rfid/index.html:134 templates/nabweb/rfid/index.html:137
+#: templates/nabweb/rfid/index.html:139 templates/nabweb/rfid/index.html:142
 msgid "Configure tag"
 msgstr "Configurer un tag"
 
-#: templates/nabweb/rfid/index.html:134
+#: templates/nabweb/rfid/index.html:139
 msgid "Configure another tag"
 msgstr "Configurer un autre tag"
 
-#: templates/nabweb/rfid/index.html:135
+#: templates/nabweb/rfid/index.html:140
 msgid "Write tag"
 msgstr "Écrire le tag"
 
-#: templates/nabweb/rfid/index.html:261
+#: templates/nabweb/rfid/index.html:266
 msgid "Supported (but read-only)"
-msgstr "Géré (mais en lecture seule)"
+msgstr "OK (mais en lecture seule)"
 
-#: templates/nabweb/rfid/index.html:263 templates/nabweb/rfid/index.html:267
+#: templates/nabweb/rfid/index.html:268 templates/nabweb/rfid/index.html:272
 msgid "Supported"
-msgstr "Géré"
+msgstr "OK"
 
-#: templates/nabweb/rfid/index.html:270
+#: templates/nabweb/rfid/index.html:275
 msgid "Supported (but with unknown data)"
 msgstr "Géré (mais avec des données inconnues)"
 
-#: templates/nabweb/rfid/index.html:274
+#: templates/nabweb/rfid/index.html:279
 msgid "Locked (cannot be used)"
 msgstr "Verrouillé (ne peut pas être utilisé)"
 
-#: templates/nabweb/rfid/index.html:276
+#: templates/nabweb/rfid/index.html:281
 msgid ""
 "Unsupported PICC (file a GitHub issue with UID to see if support can be "
 "added)"
@@ -612,12 +607,12 @@ msgstr ""
 "PICC non géré (créez un ticket sur GitHub avec le UID pour voir si cela peut "
 "se corriger)"
 
-#: templates/nabweb/rfid/index.html:332 templates/nabweb/rfid/index.html:399
+#: templates/nabweb/rfid/index.html:337 templates/nabweb/rfid/index.html:404
 msgid "Unknown response: "
 msgstr "Réponse inconnue: "
 
-#: templates/nabweb/rfid/index.html:337 templates/nabweb/rfid/index.html:372
-#: templates/nabweb/rfid/index.html:404
+#: templates/nabweb/rfid/index.html:342 templates/nabweb/rfid/index.html:377
+#: templates/nabweb/rfid/index.html:409
 msgid "An unknown server error occurred"
 msgstr "Une erreur serveur inconnue est survenue"
 
@@ -740,6 +735,10 @@ msgstr "Oreille gauche"
 #: templates/nabweb/system-info/index.html:116
 msgid "Right ear"
 msgstr "Oreille droite"
+
+#: templates/nabweb/system-info/index.html:118
+msgid "RFID or NFC"
+msgstr "RFID ou NFC"
 
 #: templates/nabweb/system-info/index.html:123
 msgid "Hardware test"
@@ -914,3 +913,4 @@ msgstr "{} heures et 1 minute"
 #: templatetags/duration_filter.py:27
 msgid "{} hours and {} minutes"
 msgstr "{} heures et {} minutes"
+
