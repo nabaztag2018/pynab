@@ -605,19 +605,19 @@ class Nabd:
                     packet,
                     {
                         "status": "timeout",
-                        "message": "RFID write timed out "
-                        "(RFID tag not found?)",
+                        "message": "NFC write timed out "
+                        "(NFC tag not found?)",
                     },
                     writer,
                 )
             except Exception:
-                logging.info("Unknown exception with RFID write")
-                logging.info(traceback.format_exc())
+                logging.error("Unknown exception with NFC write")
+                logging.error(traceback.format_exc())
                 self.write_response_packet(
                     packet,
                     {
                         "status": "error",
-                        "message": "Unknown exception while writing RFID tag",
+                        "message": "Unknown exception while writing NFC tag",
                     },
                     writer,
                 )
