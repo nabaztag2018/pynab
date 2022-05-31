@@ -14,7 +14,7 @@ from utils import close_old_async_connections
 
 import nabtaichid
 from nabd import nabd
-from nabd.rfid import TagFlags
+from nabd.rfid import TagFlags, TagTechnology
 
 # import unittest.mock
 
@@ -615,11 +615,13 @@ class TestRfid(TestNabdBase):
             self.assertEqual(mode_packet_j["request_id"], "mode_id")
             rfid = self.nabd.nabio.rfid
             rfid.send_detect_event(
+                TagTechnology.ST25TB,
                 b"\xd0\x02\x18\x01\x02\x03\x04\x05",
                 None,
                 None,
                 None,
                 TagFlags.CLEAR,
+                None,
             )
             packet = s1.readline()  # response packet
             packet_j = json.loads(packet.decode("utf8"))
@@ -645,11 +647,13 @@ class TestRfid(TestNabdBase):
             self.assertEqual(packet_j["request_id"], "mode_id")
             rfid = self.nabd.nabio.rfid
             rfid.send_detect_event(
+                TagTechnology.ST25TB,
                 b"\xd0\x02\x18\x01\x02\x03\x04\x05",
                 42,
                 nabtaichid.NABAZTAG_RFID_APPLICATION_ID,
                 b"",
                 TagFlags.FORMATTED,
+                None,
             )
             packet = s1.readline()  # response packet
             packet_j = json.loads(packet.decode("utf8"))
@@ -667,6 +671,7 @@ class TestRfid(TestNabdBase):
             packet = s1.readline()  # state packet
             packet = (
                 '{"type":"rfid_write",'
+                '"tech":"st25tb",'
                 '"uid":"d0:02:18:01:02:03:04:05",'
                 '"picture":42,'
                 '"app":"nabtaichid",'
@@ -683,7 +688,7 @@ class TestRfid(TestNabdBase):
             self.assertEqual(rfid.called_list[0], "on_detect()")
             self.assertEqual(
                 rfid.called_list[1],
-                f"write(b'\\xd0\\x02\\x18\\x01\\x02\\x03\\x04\\x05',"
+                f"write(17,b'\\xd0\\x02\\x18\\x01\\x02\\x03\\x04\\x05',"
                 f"42,{nabtaichid.NABAZTAG_RFID_APPLICATION_ID},b'')",
             )
         finally:

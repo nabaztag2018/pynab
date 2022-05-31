@@ -200,10 +200,10 @@ class RfidMock(Rfid):
         self.called_list.append("on_detect()")
         self.cb = (loop, callback)
 
-    async def write(self, uid, picture, app, data):
-        self.called_list.append(f"write({uid},{picture},{app},{data})")
+    async def write(self, tech, uid, picture, app, data):
+        self.called_list.append(f"write({tech},{uid},{picture},{app},{data})")
         if hasattr(self, "write_handler"):
-            return self.write_handler(uid, picture, app, data)
+            return self.write_handler(tech, uid, picture, app, data)
         return True
 
     def enable_polling(self):
@@ -212,9 +212,13 @@ class RfidMock(Rfid):
     def disable_polling(self):
         self.called_list.append("enable_polling")
 
-    def send_detect_event(self, uid, picture, app, data, flags):
+    def send_detect_event(
+        self, tech, uid, picture, app, data, flags, tag_info
+    ):
         (loop, callback) = self.cb
-        partial = functools.partial(callback, uid, picture, app, data, flags)
+        partial = functools.partial(
+            callback, tech, uid, picture, app, data, flags, tag_info
+        )
         loop.call_soon_threadsafe(partial)
 
 

@@ -124,10 +124,25 @@ if [ $upgrade -eq 1 ]; then
     make && sudo make install && make clean
     sudo touch /tmp/pynab.upgrade.reboot
   fi
+  if [ -d ${home_dir}/st25r391x ]; then
+    cd ${home_dir}/st25r391x
+    sudo chown -R ${owner} .git
+    pull=`git pull`
+    if [ "$pull" != "Already up to date." ]; then
+      make && sudo make install && make clean
+      sudo touch /tmp/pynab.upgrade.reboot
+    fi
+  else
+    cd ${home_dir}
+    git clone https://github.com/pguyot/st25r391x
+    cd st25r391x
+    make && sudo make install && make clean
+    sudo touch /tmp/pynab.upgrade.reboot
+  fi
 else
-  if [ $ci_chroot -eq 0 -a ! -e "/dev/rfid0" ]; then
-    echo "Please install cr14 RFID driver https://github.com/pguyot/cr14"
-    exit 1
+  if [ $ci_chroot -eq 0 -a ! -e "/dev/rfid0" -a ! -e "/dev/nfc0" ]; then
+    echo "If you have a TAGTAG with the original RFID card, you may want to install cr14 RFID driver https://github.com/pguyot/cr14"
+    echo "If you have a 2022 NFC card, you need to install st25r391x RFID driver https://github.com/pguyot/st25r391x"
   fi
 fi
 

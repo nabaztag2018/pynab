@@ -27,6 +27,7 @@ from .rfid import (
     TAG_APPLICATION_NONE,
     TAG_APPLICATIONS,
     TagFlags,
+    TagTechnology,
 )
 
 _PYTEST = os.path.basename(sys.argv[0]) != "nabd.py"
@@ -563,7 +564,14 @@ class Nabd:
 
     async def do_process_rfid_write_packet(self, packet, writer):
         """Process a rfid_write packet"""
-        if "uid" in packet and "picture" in packet and "app" in packet:
+        if (
+            "uid" in packet
+            and "picture" in packet
+            and "app" in packet
+            and "tech" in packet
+            and packet["tech"].upper() in TagTechnology.__members__
+        ):
+            tech = TagTechnology[packet["tech"].upper()]
             uid = bytes.fromhex(packet["uid"].replace(":", ""))
             picture = packet["picture"]
             app_str = packet["app"]
@@ -579,7 +587,7 @@ class Nabd:
             self.nabio.rfid_awaiting_feedback()
             try:
                 success = await asyncio.wait_for(
-                    self.nabio.rfid.write(uid, picture, app, data),
+                    self.nabio.rfid.write(tech, uid, picture, app, data),
                     timeout=timeout,
                 )
                 if success:
@@ -597,8 +605,19 @@ class Nabd:
                     packet,
                     {
                         "status": "timeout",
-                        "message": "RFID write timed out "
-                        "(RFID tag not found?)",
+                        "message": "NFC write timed out "
+                        "(NFC tag not found?)",
+                    },
+                    writer,
+                )
+            except Exception:
+                logging.error("Unknown exception with NFC write")
+                logging.error(traceback.format_exc())
+                self.write_response_packet(
+                    packet,
+                    {
+                        "status": "error",
+                        "message": "Unknown exception while writing NFC tag",
                     },
                     writer,
                 )
@@ -891,10 +910,16 @@ class Nabd:
                     {"type": "ears_event", "left": left, "right": right},
                 )
 
-    def rfid_callback(self, uid, picture, app, app_data, flags):
+    def rfid_callback(
+        self, tech, uid, picture, app, app_data, flags, tag_info
+    ):
         # bytes.hex(sep) is python 3.8+
         uid_str = ":".join("{:02x}".format(c) for c in uid)
-        packet = {"type": "rfid_event", "uid": uid_str}
+        packet = {
+            "type": "rfid_event",
+            "tech": tech.name.lower(),
+            "uid": uid_str,
+        }
         if flags & TagFlags.REMOVED:
             packet["event"] = "removed"
         else:
@@ -915,6 +940,8 @@ class Nabd:
         event_type = "rfid/*"
         if picture is not None:
             packet["picture"] = picture
+        if tag_info is not None:
+            packet["tag_info"] = tag_info
         if app is not None and app != TAG_APPLICATION_NONE:
             app_str = self._get_rfid_app(app)
             packet["app"] = app_str
@@ -975,7 +1002,9 @@ class Nabd:
         except KeyboardInterrupt:
             pass
         except Exception:
-            logging.debug(traceback.format_exc())
+            error_msg = f"Unhandled error: {traceback.format_exc()}"
+            print(error_msg)
+            logging.critical(error_msg)
         finally:
             self.loop.run_until_complete(self.stop_idle_worker())
             server = server_task.result()

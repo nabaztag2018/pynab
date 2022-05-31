@@ -47,7 +47,9 @@ sudo apt-get upgrade
 
  - Oreilles : [pilote tagtagtag-ears](https://github.com/pguyot/tagtagtag-ears)
 
-  - Lecteur RFID : [pilote CR14](https://github.com/pguyot/cr14) (Nabaztag:tag uniquement, non requis sur les Nabaztag, mais installé par les mises à jour)
+ - Lecteur RFID :
+   - [pilote CR14](https://github.com/pguyot/cr14) (Nabaztag:tag uniquement, non requis sur les Nabaztag, mais installé par les mises à jour)
+   - [pilote st25r391x](https://github.com/pguyot/st25r391x) (carte NFC 2022 pour Nabaztag & Nabaztag:tag)
 
 Les 'kernel headers' sont nécessaires pour la compilation des pilotes:
 ```sh

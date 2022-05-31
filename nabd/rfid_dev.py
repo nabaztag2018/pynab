@@ -5,7 +5,7 @@ import os
 from enum import Enum
 from threading import Timer
 
-from .rfid import Rfid, TagFlags
+from .rfid import Rfid, TagFlags, TagTechnology
 
 
 class RfidDevState(Enum):  # pragma: no cover
@@ -76,7 +76,7 @@ class RfidDev(Rfid):  # pragma: no cover
         """
         Timer invoked when no read happened after a given timeout.
         """
-        # Previouse tag has been removed.
+        # Previous tag has been removed.
         if self.__current_uid:
             self._invoke_callback(None, TagFlags.REMOVED)
         self.__current_uid = None
@@ -218,11 +218,13 @@ class RfidDev(Rfid):  # pragma: no cover
             (loop, callback) = self.__callback
             partial = functools.partial(
                 callback,
+                TagTechnology.ST25TB,
                 self.__current_uid,
                 self.__current_picture,
                 self.__current_app,
                 app_data,
                 flags,
+                None,
             )
             loop.call_soon_threadsafe(partial)
 
@@ -247,8 +249,17 @@ class RfidDev(Rfid):  # pragma: no cover
             self.__state = RfidDevState.POLLING_ONCE
             os.write(self.__fd, b"p")
 
-    async def write(self, uid: str, picture: int, app: int, data: bytes):
+    async def write(
+        self,
+        tech: TagTechnology,
+        uid: bytes,
+        picture: int,
+        app: int,
+        data: bytes,
+    ):
         if self.__fd is None:
+            return False
+        if tech != TagTechnology.ST25TB:
             return False
         self.__state = RfidDevState.WRITING_BLOCKS
         first_block = bytearray(RfidDev.NABAZTAG_SIGNATURE) + bytes(

@@ -249,16 +249,17 @@ class NabWebRfidReadView(View):
 class NabWebRfidWriteView(View):
     WRITE_TIMEOUT = 30.0
 
-    async def write_tag(self, uid, picture, app, data, timeout):
+    async def write_tag(self, tech, uid, picture, app, data, timeout):
         return await NabdConnection.transaction(
-            self._do_write_tag, uid, picture, app, data, timeout
+            self._do_write_tag, tech, uid, picture, app, data, timeout
         )
 
     async def _do_write_tag(
-        self, reader, writer, uid, picture, app, data, timeout
+        self, reader, writer, tech, uid, picture, app, data, timeout
     ):
         packet = {
             "type": "rfid_write",
+            "tech": tech,
             "uid": uid,
             "picture": int(picture),
             "app": app,
@@ -282,6 +283,7 @@ class NabWebRfidWriteView(View):
                     response = {
                         "status": packet["status"],
                         "rfid": {
+                            "tech": tech,
                             "uid": uid,
                             "picture": picture,
                             "app": app,
@@ -299,7 +301,8 @@ class NabWebRfidWriteView(View):
 
     def post(self, request, *args, **kwargs):
         if (
-            "uid" not in request.POST
+            "tech" not in request.POST
+            or "uid" not in request.POST
             or "picture" not in request.POST
             or "app" not in request.POST
         ):
@@ -307,6 +310,7 @@ class NabWebRfidWriteView(View):
                 {"status": "error", "message": "Missing arguments."},
                 status=400,
             )
+        tech = request.POST["tech"]
         uid = request.POST["uid"]
         picture = request.POST["picture"]
         app = request.POST["app"]
@@ -316,7 +320,7 @@ class NabWebRfidWriteView(View):
             data = ""
         write_result = asyncio.run(
             self.write_tag(
-                uid, picture, app, data, NabWebRfidReadView.READ_TIMEOUT
+                tech, uid, picture, app, data, NabWebRfidReadView.READ_TIMEOUT
             )
         )
         return JsonResponse(write_result)
