@@ -4,7 +4,7 @@ import json
 from django.http import JsonResponse, QueryDict
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from meteofrance.client import MeteoFranceClient, Place
+from meteofrance_api.client import MeteoFranceClient, Place
 
 from . import rfid_data
 from .models import Config, ScheduledMessage

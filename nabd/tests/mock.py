@@ -98,7 +98,7 @@ class NabIOMock(NabIO):
         return "mockInterface"  # this interface should never exist
 
     async def gestalt(self):
-        return {"model": "Test mock"}
+        return {"model": "Mock_TAGTAG"}
 
     def test(self, test):
         return True
