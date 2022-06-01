@@ -159,7 +159,7 @@ class RfidNFCDevT2TSupport:
         ndef = []
         if ndef_messages:
             for ndef_message in ndef_messages:
-                if not ndef_message.records:
+                if not ndef_message or not ndef_message.records:
                     continue
                 for record in ndef_message.records:
                     exported_record = dict(
