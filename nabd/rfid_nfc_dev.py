@@ -439,9 +439,23 @@ class RfidNFCDevSelectTagForWriting(nfcdev.NFCDevStateSelect):
 
     def process_selected_tag(self, tag_type, tag_info):
         if tag_type == nfcdev.NFCTagType.ST25TB:
-            return RfidNFCDevWriteST25TB(self.__rfid_dev, self.fsm, tag_type, tag_info, self.__data, self.__future)
+            return RfidNFCDevWriteST25TB(
+                self.__rfid_dev,
+                self.fsm,
+                tag_type,
+                tag_info,
+                self.__data,
+                self.__future,
+            )
         if tag_type == nfcdev.NFCTagType.ISO14443A_T2T:
-            return RfidNFCDevWriteT2T(self.__rfid_dev, self.fsm, tag_type, tag_info, self.__data, self.__future)
+            return RfidNFCDevWriteT2T(
+                self.__rfid_dev,
+                self.fsm,
+                tag_type,
+                tag_info,
+                self.__data,
+                self.__future,
+            )
         logging.error(f"Unexpected tag type when writing ({tag_type})")
         self.__future.set_result(False)
 
