@@ -338,20 +338,27 @@ class RfidNFCReadT2T(nfcdev.NFCDevStateT2TReadNDEF):
 
 
 class RfidNFCDevWriteT2T(nfcdev.NFCDevStateT2TWriteNDEF):
-    def __init__(self, fsm, data, future):
+    def __init__(self, rfid_dev, fsm, tag_type, tag_info, data, future):
         ndef_message = RfidNFCDevT2TSupport.encode_message(data)
         super().__init__(fsm, [ndef_message])
+        self.__rfid_dev = rfid_dev
+        self.__tag_type = tag_type
+        self.__tag_info = tag_info
         self.__future = future
 
     def failure(self, ex: BaseException):
         self.__future.set_result(False)
         self.fsm.write_message(nfcdev.NFCIdleModeRequestMessage())
-        return RfidNFCDevDiscoverTags(self, self.fsm)
+        return RfidNFCDevDetectTagRemoval(
+            self.__rfid_dev, self.fsm, self.__tag_type, self.__tag_info
+        )
 
     def success(self):
         self.__future.set_result(True)
         self.fsm.write_message(nfcdev.NFCIdleModeRequestMessage())
-        return RfidNFCDevDiscoverTags(self, self.fsm)
+        return RfidNFCDevDetectTagRemoval(
+            self.__rfid_dev, self.fsm, self.__tag_type, self.__tag_info
+        )
 
 
 class RfidNFCReadST25TB(nfcdev.NFCDevStateST25TBReadBlocks):
@@ -398,35 +405,57 @@ class RfidNFCReadST25TB(nfcdev.NFCDevStateST25TBReadBlocks):
 
 
 class RfidNFCDevWriteST25TB(nfcdev.NFCDevStateST25TBWriteBlocks):
-    def __init__(self, fsm, data, future):
+    def __init__(self, rfid_dev, fsm, tag_type, tag_info, data, future):
         blocks_count = len(data) // 4
         # User blocks start at 7
         blocks = range(7, blocks_count + 7)
         super().__init__(fsm, blocks, data)
+        self.__rfid_dev = rfid_dev
+        self.__tag_type = tag_type
+        self.__tag_info = tag_info
         self.__future = future
 
     def failure(self):
         self.__future.set_result(False)
         self.fsm.write_message(nfcdev.NFCIdleModeRequestMessage())
-        return RfidNFCDevDiscoverTags(self, self.fsm)
+        return RfidNFCDevDetectTagRemoval(
+            self.__rfid_dev, self.fsm, self.__tag_type, self.__tag_info
+        )
 
     def success(self):
         self.__future.set_result(True)
         self.fsm.write_message(nfcdev.NFCIdleModeRequestMessage())
-        return RfidNFCDevDiscoverTags(self, self.fsm)
+        return RfidNFCDevDetectTagRemoval(
+            self.__rfid_dev, self.fsm, self.__tag_type, self.__tag_info
+        )
 
 
 class RfidNFCDevSelectTagForWriting(nfcdev.NFCDevStateSelect):
-    def __init__(self, fsm, tag_type, tag_id, data, future):
+    def __init__(self, rfid_dev, fsm, tag_type, tag_id, data, future):
         super().__init__(fsm, tag_type, tag_id)
+        self.__rfid_dev = rfid_dev
         self.__data = data
         self.__future = future
 
     def process_selected_tag(self, tag_type, tag_info):
         if tag_type == nfcdev.NFCTagType.ST25TB:
-            return RfidNFCDevWriteST25TB(self.fsm, self.__data, self.__future)
+            return RfidNFCDevWriteST25TB(
+                self.__rfid_dev,
+                self.fsm,
+                tag_type,
+                tag_info,
+                self.__data,
+                self.__future,
+            )
         if tag_type == nfcdev.NFCTagType.ISO14443A_T2T:
-            return RfidNFCDevWriteT2T(self.fsm, self.__data, self.__future)
+            return RfidNFCDevWriteT2T(
+                self.__rfid_dev,
+                self.fsm,
+                tag_type,
+                tag_info,
+                self.__data,
+                self.__future,
+            )
         logging.error(f"Unexpected tag type when writing ({tag_type})")
         self.__future.set_result(False)
 
@@ -534,7 +563,7 @@ class RfidNFCDev(Rfid):  # pragma: no cover
         try:
             self.__fsm.set_state(
                 RfidNFCDevSelectTagForWriting(
-                    self.__fsm, tag_type, tag_id, write_data, future
+                    self, self.__fsm, tag_type, tag_id, write_data, future
                 )
             )
             return await future
