@@ -118,6 +118,8 @@ then
     echo "web_service: nginx.service" >> /etc/comitup.conf
     echo "ap_name: Nabaztag-<nnn>" >> /etc/comitup.conf
     echo "service_name: Nabaztag" >> /etc/comitup.conf
+	echo "external_callback: /home/pi/pynab/comitup-callback.sh" >> /etc/comitup.conf
+	chmod +x /home/pi/pynab/comitup-callback.sh
 
     if [ -f "/boot/dietpi.txt" ]
     then
