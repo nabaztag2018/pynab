@@ -11,9 +11,15 @@ from nabweatherd import models, rfid_data
 from nabweatherd.nabweatherd import NabWeatherd
 
 
+def get_nabweatherd_instance(**kwargs):
+    object = NabWeatherd()
+    object.get_system_tz = lambda: "Europe/Paris"
+    return object
+
+
 class TestNabWeatherd(unittest.TestCase):
     def test_aliases(self):
-        service = NabWeatherd()
+        service = get_nabweatherd_instance()
         weather_class = service.normalize_weather_class("Pluie forte")
         self.assertEqual(weather_class, "Pluie forte")
         weather_class = service.normalize_weather_class("None")
@@ -22,21 +28,26 @@ class TestNabWeatherd(unittest.TestCase):
 
 @pytest.mark.django_db(transaction=True)
 class TestNabWeatherdDB(unittest.TestCase):
-    RENNES_LOCATION_JSON = (
-        '{"insee":"35238","name":"Rennes",'
-        '"lat":48.11417,"lon":-1.68083,"country":"FR",'
-        '"admin":"Bretagne","admin2":"35","postCode":"35000"}'
+    RENNES_LOCATION = dict(
+        insee="35238",
+        name="Rennes",
+        lat=48.11417,
+        lon=-1.68083,
+        country="FR",
+        admin="Bretagne",
+        admin2="35",
+        postCode="35000",
     )
 
     def tearDown(self):
         close_old_async_connections()
 
     def test_fetch_info_data(self):
-        service = NabWeatherd()
+        service = get_nabweatherd_instance()
 
         data = async_to_sync(service.fetch_info_data)(
             (
-                TestNabWeatherdDB.RENNES_LOCATION_JSON,
+                TestNabWeatherdDB.RENNES_LOCATION,
                 NabWeatherd.UNIT_CELSIUS,
                 "weather_and_rain",
                 3,
@@ -53,11 +64,11 @@ class TestNabWeatherdDB(unittest.TestCase):
         self.assertTrue("weather_animation_type" in data)
 
     def test_perform_both(self):
-        service = NabWeatherd()
+        service = get_nabweatherd_instance()
         writer = MockWriter()
         service.writer = writer
         config_t = (
-            TestNabWeatherdDB.RENNES_LOCATION_JSON,
+            TestNabWeatherdDB.RENNES_LOCATION,
             NabWeatherd.UNIT_CELSIUS,
             "weather_and_rain",
             3,
@@ -83,11 +94,11 @@ class TestNabWeatherdDB(unittest.TestCase):
         self.assertTrue("body" in packet_json)
 
     def test_perform_rain(self):
-        service = NabWeatherd()
+        service = get_nabweatherd_instance()
         writer = MockWriter()
         service.writer = writer
         config_t = (
-            TestNabWeatherdDB.RENNES_LOCATION_JSON,
+            TestNabWeatherdDB.RENNES_LOCATION,
             NabWeatherd.UNIT_CELSIUS,
             "rain_only",
             3,
@@ -113,11 +124,11 @@ class TestNabWeatherdDB(unittest.TestCase):
         self.assertTrue("body" in packet_json)
 
     def test_perform(self):
-        service = NabWeatherd()
+        service = get_nabweatherd_instance()
         writer = MockWriter()
         service.writer = writer
         config_t = (
-            TestNabWeatherdDB.RENNES_LOCATION_JSON,
+            TestNabWeatherdDB.RENNES_LOCATION,
             NabWeatherd.UNIT_CELSIUS,
             "weather_only",
             3,
@@ -144,11 +155,11 @@ class TestNabWeatherdDB(unittest.TestCase):
 
     def test_asr(self):
         config = models.Config.load()
-        config.location = TestNabWeatherdDB.RENNES_LOCATION_JSON
+        config.location = TestNabWeatherdDB.RENNES_LOCATION
         config.unit = NabWeatherd.UNIT_CELSIUS
         config.weather_animation_type = "weather_only"
         config.save()
-        service = NabWeatherd()
+        service = get_nabweatherd_instance()
         writer = MockWriter()
         service.writer = writer
         packet = {
