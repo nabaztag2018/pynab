@@ -118,10 +118,10 @@ def configure_rfid_driver():
     if os.path.exists("/dev/nfc0") or os.path.exists("/dev/rfid0"):
         # One of the driver was successful at loading and probing the device
         return
-    if probe_cr14():
-        update_config_and_reboot("cr14", "st25r391x")
-    elif probe_st25r391x():
+    if probe_st25r391x():
         update_config_and_reboot("st25r391x", "cr14")
+    elif probe_cr14():
+        update_config_and_reboot("cr14", "st25r391x")
 
 
 if __name__ == "__main__":
