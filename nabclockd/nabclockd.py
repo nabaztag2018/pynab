@@ -52,11 +52,12 @@ class NabClockd(nabservice.NabService):
         synchronized_date = subprocess.run(
             ["stat", "-c", "%y", "/run/systemd/timesync/synchronized"],
             stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
         ).stdout
         if synchronized_date > self.__boot_date:
             self.__synchronized_since_boot = True
             if not first_run:
-                logging.debug("Clock has been synchronized")
+                logging.info("Clock has been synchronized")
             return True
         if first_run:
             logging.warning(
