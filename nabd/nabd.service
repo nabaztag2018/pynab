@@ -8,10 +8,10 @@ Type=simple
 Restart=always
 RestartSec=1
 User=root
-WorkingDirectory=/home/pi/pynab
-EnvironmentFile=/home/pi/pynab/nabd/nabd.conf
+WorkingDirectory=/opt/pynab
+EnvironmentFile=/opt/pynab/nabd/nabd.conf
 ExecStartPre=sh -c 'until /usr/bin/pg_isready; do sleep 1; done'
-ExecStart=/home/pi/pynab/venv/bin/python -m nabd.nabd
+ExecStart=/opt/pynab/venv/bin/python -m nabd.nabd
 PIDFile=/run/nabd.pid
 
 [Install]

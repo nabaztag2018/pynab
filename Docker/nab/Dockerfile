@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
 COPY *.sh /usr/local/bin/
 
 # Fake nabd systemd service file used to retrieve the working directory
-RUN echo "WorkingDirectory=/home/pi/pynab" > /lib/systemd/system/nabd.service
+RUN echo "WorkingDirectory=/opt/pynab" > /lib/systemd/system/nabd.service
 
 # Fake systemd-time-wait-sync.service needed by nabclockd
 RUN mkdir -p /run/systemd/timesync/ && touch /run/systemd/timesync/synchronized
@@ -27,15 +27,17 @@ RUN ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime
 RUN /bin/echo -e "[global]\nextra-index-url=https://www.piwheels.org/simple\n" > /etc/pip.conf
 
 RUN groupadd -g 1000 pi
-RUN useradd -u 1000 -m pi -g pi -s /bin/bash
-RUN echo "pi ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/010_pi-nopasswd
+RUN useradd -u 1000 -g pi -m -s /bin/bash tagtagtag
+RUN echo "tagtagtag ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/010_tagtagtag-nopasswd
 
-USER pi
+RUN mkdir -p /opt/pynab /opt/venv
+RUN chown tagtagtag:pi /opt/pynab /opt/venv
 
-RUN mkdir -p /home/pi/pynab
-WORKDIR /home/pi/pynab
+USER tagtagtag
 
-ENV VIRTUAL_ENV=/home/pi/venv
+WORKDIR /opt/pynab
+
+ENV VIRTUAL_ENV=/opt/venv
 RUN python3.7 -m venv ${VIRTUAL_ENV}
 ENV PATH=${VIRTUAL_ENV}/bin:${PATH}
 

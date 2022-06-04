@@ -8,9 +8,9 @@ Type=simple
 Restart=always
 RestartSec=1
 User=root
-WorkingDirectory=/home/pi/pynab
-EnvironmentFile=/home/pi/pynab/nabairqualityd/nabairqualityd.conf
-ExecStart=/home/pi/pynab/venv/bin/python -m nabairqualityd.nabairqualityd
+WorkingDirectory=/opt/pynab
+EnvironmentFile=/opt/pynab/nabairqualityd/nabairqualityd.conf
+ExecStart=/opt/pynab/venv/bin/python -m nabairqualityd.nabairqualityd
 PIDFile=/run/nabairqualityd.pid
 
 [Install]

@@ -8,9 +8,9 @@ Type=simple
 Restart=always
 RestartSec=1
 User=root
-WorkingDirectory=/home/pi/pynab
-EnvironmentFile=/home/pi/pynab/nabbookd/nabbookd.conf
-ExecStart=/home/pi/pynab/venv/bin/python -m nabbookd.nabbookd
+WorkingDirectory=/opt/pynab
+EnvironmentFile=/opt/pynab/nabbookd/nabbookd.conf
+ExecStart=/opt/pynab/venv/bin/python -m nabbookd.nabbookd
 PIDFile=/run/nabbookd.pid
 
 [Install]

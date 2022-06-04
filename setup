@@ -4,7 +4,7 @@ shopt -s extglob
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 IFS=$'\n\t'
 
-# Source for this script:
+# Original source for this script:
 # https://github.com/kr15h/travis-raspbian-image
 # https://disconnected.systems/blog/custom-rpi-image-with-github-travis/
 
@@ -31,17 +31,20 @@ LC_ALL=C
 if [ -d "/boot/dietpi" ]
 then
     # DietPi distro
-    owner=dietpi
-    home_dir=/home/${owner}
+    distro="dietpi"
 elif [ -f "/etc/rpi-issue" ]
 then
     # Raspberry Pi OS distro
-    owner=pi
-    home_dir=/home/${owner}
+    distro="raspios"
 else
     echo "$(basename ${0}): unsupported Linux distribution!"
     exit 3
 fi
+
+owner=$(getent passwd 1000 | cut -d: -f1)
+group=$(getent passwd 1000 | cut -d: -f4)
+home_dir=$(getent passwd 1000 | cut -d: -f6)
+inst_dir="/opt"
 
 if [ "${1:-}" == "ci-chroot" ]
 then
@@ -58,6 +61,7 @@ then
         exit 1
     fi
     rm -rf ${home_dir}/pynab ${home_dir}/wm8960 ${home_dir}/tagtagtag-ears ${home_dir}/cr14 ${home_dir}/st25r391x
+    rm -rf ${inst_dir}/pynab ${inst_dir}/wm8960 ${inst_dir}/tagtagtag-ears ${inst_dir}/cr14 ${inst_dir}/st25r391x
 else
     echo "Usage: $(basename ${0}) pi-zero|ci-chroot"
     exit 2
@@ -118,12 +122,14 @@ then
     echo "web_service: nginx.service" >> /etc/comitup.conf
     echo "ap_name: Nabaztag-<nnn>" >> /etc/comitup.conf
     echo "service_name: Nabaztag" >> /etc/comitup.conf
-	echo "external_callback: /home/pi/pynab/comitup-callback.sh" >> /etc/comitup.conf
+    echo "external_callback: /opt/pynab/comitup-callback.sh" >> /etc/comitup.conf
 
-    if [ -f "/boot/dietpi.txt" ]
+    if [ "${distro}" == "raspios"  ]
     then
-        # DietPi distro
-        hostname="DietPi"
+        # assume user will do any needed SD card configuration.
+        :
+    elif [ "${distro}" == "dietpi" ]
+    then
         echo "Setting DietPi 'first boot' parameters."
         sed -i "s/\(AUTO_SETUP_KEYBOARD_LAYOUT\)=.*/\1=fr/" /boot/dietpi.txt
         sed -i "s/\(AUTO_SETUP_TIMEZONE\)=.*/\1=Europe\/Paris/" /boot/dietpi.txt
@@ -136,13 +142,10 @@ then
         # -4=Daemon + Drift rather than 2=boot + daily (DietPi default):
         sed -i "s/\(CONFIG_NTP_MODE\)=.*/\1=4/" /boot/dietpi.txt
         sed -i "s/\(CONFIG_SERIAL_CONSOLE_ENABLE\)=.*/\1=0/" /boot/dietpi.txt
-        rm /boot/dietpi-wifi.txt
-    else
-        # Raspberry Pi OS distro
-        hostname="raspberrypi"
     fi
 
     echo "Setting hostname."
+    hostname=$(cat /etc/hostname | tr -d " \t\n\r")
     sed -i "s/${hostname}/Nabaztag/" /etc/hostname
     sed -i "s/${hostname}/Nabaztag/" /etc/hosts
 
@@ -151,31 +154,14 @@ then
     ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime
 fi
 
-if ! grep -q "^${owner}:" /etc/passwd
-then
-    echo "Creating user ${owner} with home directory ${home_dir}."
-    useradd -d ${home_dir} -m ${owner}
-    echo "${owner} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/010_${owner}-nopasswd
-fi
 echo "Ensuring user ${owner} has appropriate sudo privileges."
 usermod -aG sudo ${owner}
-
-if [ "${owner}" == "dietpi" ]
+if [ "${distro}" == "raspios"  ]
 then
-    # patch for DietPi, to allow sudo -u: ALL=(ALL) needed:
+    echo "${owner} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/010_${owner}-nopasswd
+elif [ "${distro}" == "dietpi" ]
+then
     echo "${owner} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${owner}
-
-    # patch for DietPi, to cleanup leftover pi "user" used when building image,
-    # after taking over existing local Pynab repository, if any:
-    pi_user="pi"
-    if [ ! -d ${home_dir}/pynab -a -d /home/${pi_user}/pynab ]
-    then
-	echo "Moving /home/${pi_user}/pynab to ${home_dir}/pynab."
-	mv /home/${pi_user}/pynab ${home_dir}/pynab
-	chown -hR ${owner}:${owner} ${home_dir}/pynab
-    fi
-    userdel -r ${pi_user} 2>/dev/null || true
-    rmdir /home/${pi_user} 2>/dev/null || true
 fi
 
 echo "Installing required packages."
@@ -195,43 +181,48 @@ build_and_install_driver() {
 }
 
 echo "Installing sound driver for Ulule 2019 cards."
-cd ${home_dir}
-sudo -u ${owner} git clone --depth 1 -b tagtagtag-sound https://github.com/pguyot/wm8960
-cd ${home_dir}/wm8960
+sudo mkdir -p ${inst_dir}/wm8960
+sudo chown ${owner}:${group} ${inst_dir}/wm8960
+sudo -u ${owner} git clone --depth 1 -b tagtagtag-sound https://github.com/pguyot/wm8960 ${inst_dir}/wm8960
+cd ${inst_dir}/wm8960
 build_and_install_driver
 
 echo "Installing ears driver."
-cd ${home_dir}
-sudo -u ${owner} git clone --depth 1 -b ${driver_branch} https://github.com/pguyot/tagtagtag-ears
-cd ${home_dir}/tagtagtag-ears
+sudo mkdir -p ${inst_dir}/tagtagtag-ears
+sudo chown ${owner}:${group} ${inst_dir}/tagtagtag-ears
+sudo -u ${owner} git clone --depth 1 -b ${driver_branch} https://github.com/pguyot/tagtagtag-ears ${inst_dir}/tagtagtag-ears
+cd ${inst_dir}/tagtagtag-ears
 build_and_install_driver
 
 echo "Installing RFID reader driver for TAGTAG."
-cd ${home_dir}
-sudo -u ${owner} git clone --depth 1 -b ${driver_branch} https://github.com/pguyot/cr14
-cd ${home_dir}/cr14
+sudo mkdir -p ${inst_dir}/cr14
+sudo chown ${owner}:${group} ${inst_dir}/cr14
+sudo -u ${owner} git clone --depth 1 -b ${driver_branch} https://github.com/pguyot/cr14 ${inst_dir}/cr14
+cd ${inst_dir}/cr14
 build_and_install_driver
 
 echo "Installing RFID reader driver for 2022 NFC card."
-cd ${home_dir}
-sudo -u ${owner} git clone --depth 1 -b ${st25_branch} https://github.com/pguyot/st25r391x
-cd ${home_dir}/st25r391x
+sudo mkdir -p ${inst_dir}/st25r391x
+sudo chown ${owner}:${group} ${inst_dir}/st25r391x
+sudo -u ${owner} git clone --depth 1 -b ${st25_branch} https://github.com/pguyot/st25r391x ${inst_dir}/st25r391x
+cd ${inst_dir}/st25r391x
 build_and_install_driver
 
-cd ${home_dir}
-if [ -d "pynab" ]
+if [ -d "${inst_dir}/pynab" ]
 then
     echo "Using existing local Pynab repository."
 else
     echo "Cloning Pynab ${pynab_branch} branch from ${pynab_repository}."
-    sudo -u ${owner} git clone --depth 1 -b ${pynab_branch} https://github.com/${pynab_repository}.git
+    sudo mkdir -p ${inst_dir}/pynab
+    sudo chown ${owner}:${group} ${inst_dir}/pynab
+    sudo -u ${owner} git clone --depth 1 -b ${pynab_branch} https://github.com/${pynab_repository}.git ${inst_dir}/pynab
 fi
 
 echo "Installing NabBlockly."
 sudo apt-get install --no-install-recommends -y erlang-base erlang-dev erlang-inets erlang-tools erlang-xmerl
-cd ${home_dir}/pynab
+cd ${inst_dir}/pynab
 sudo -u ${owner} git clone --depth 1 -b ${driver_branch} https://github.com/pguyot/nabblockly
-cd nabblockly
+cd ${inst_dir}/pynab/nabblockly
 # Until we can get OTP 24 from Raspian or Erlang Solutions, get an older rebar binary
 sudo -u ${owner} wget https://github.com/erlang/rebar3/releases/download/3.15.1/rebar3 && chmod +x rebar3
 sudo apt-get install --no-install-recommends -y g++
@@ -239,7 +230,7 @@ sudo -u ${owner} ./rebar3 release
 
 echo "Running Pynab install script."
 sudo apt-get install --no-install-recommends -y alsa-utils xz-utils avahi-daemon
-cd ${home_dir}/pynab
+cd ${inst_dir}/pynab
 sudo -u ${owner} /bin/bash install.sh ${install_env}
 
 echo "Cleaning up."

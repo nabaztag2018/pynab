@@ -1,4 +1,4 @@
-#!/home/pi/pynab/venv/bin/python
+#!/opt/pynab/venv/bin/python
 
 # Script executed at boot and at shutdown.
 # At boot, set leds to orange.

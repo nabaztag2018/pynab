@@ -58,7 +58,7 @@ without having to modify Pynab which assumes socket-based DB communication.
 ### Host volume
 
 The pynab project directory is shared via a host volume, mounted in
-`/home/pi/pynab` inside the containers to replicate the Raspberry Pi location.
+`/opt/pynab` inside the containers to replicate the Raspberry Pi location.
 
 ### Synchronization between containers
 
