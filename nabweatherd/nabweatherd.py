@@ -1,5 +1,4 @@
 import datetime
-import json
 import logging
 import random
 import sys
@@ -397,10 +396,7 @@ class NabWeatherd(NabInfoService):
         if location is None:
             return None
 
-        location_string_json = json.loads(location)
-        logging.debug(f"location: {location_string_json}")
-
-        place = Place(location_string_json)
+        place = Place(location)
 
         client = await sync_to_async(MeteoFranceClient)()
         try:
