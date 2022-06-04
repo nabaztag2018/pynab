@@ -437,6 +437,7 @@ class GitInfo:
         "sound_driver": "../wm8960",
         "ears_driver": "../tagtagtag-ears/",
         "rfid_driver": "../cr14/",
+        "nfc_driver": "../st25r391x/",
         "nabblockly": "nabblockly",
     }
     NAMES = {
@@ -444,6 +445,7 @@ class GitInfo:
         "sound_driver": "Tagtagtag sound card driver",
         "ears_driver": "Ears driver",
         "rfid_driver": "RFID reader driver",
+        "nfc_driver": "NFC card driver",
         "nabblockly": "NabBlockly",
     }
 
