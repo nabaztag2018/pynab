@@ -64,6 +64,9 @@
 'Service: Weather':
   - nabweatherd/**
 
+'Service: Nabiftttd':
+  - nabiftttd/**
+
 'web':
   - nabweb/**
 
