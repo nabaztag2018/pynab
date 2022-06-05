@@ -1,5 +1,4 @@
 import datetime
-import json
 import logging
 import sys
 
@@ -68,7 +67,7 @@ class NabAirqualityd(NabInfoCachedService):
         from . import models
 
         weather_config = await weather_models.Config.load_async()
-        location = json.loads(weather_config.location)
+        location = weather_config.location
         latitude = str(location["lat"])
         longitude = str(location["lon"])
 
@@ -93,7 +92,8 @@ class NabAirqualityd(NabInfoCachedService):
         await config.save_async()
 
     async def fetch_info_data(self, config_t):
-
+        if config_t is None:
+            return None
         index_airquality, visual_airquality, latitude, longitude = config_t
         client = aqicn.aqicnClient(index_airquality, latitude, longitude)
         try:

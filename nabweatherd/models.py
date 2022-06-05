@@ -4,17 +4,21 @@ from django.db import models
 from nabcommon import singleton_model
 
 
-class Config(singleton_model.SingletonModel):
-
-    location = models.TextField(
-        null=True,
-        default=(
-            '{"insee":"75056","name":"Paris 14",'
-            '"lat":48.8331,"lon":2.3264,"country":"FR",'
-            '"admin":"Île-de-France","admin2":"75",'
-            '"postCode":"75014"}'
-        ),
+def default_location():
+    return dict(
+        insee="75056",
+        name="Paris 14",
+        lat=48.8331,
+        lon=2.3264,
+        country="FR",
+        admin="Île-de-France",
+        admin2="75",
+        postCode="75014",
     )
+
+
+class Config(singleton_model.SingletonModel):
+    location = models.JSONField(null=True, default=default_location)
 
     location_user_friendly = models.TextField(
         null=True, default="Paris 14 - Île-de-France (75) - FR"

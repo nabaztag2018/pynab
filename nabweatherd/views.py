@@ -64,7 +64,7 @@ class SettingsView(TemplateView):
 
                 location_json = json.loads(location)
                 location_place = Place(location_json)
-                config.location = location
+                config.location = location_json
                 config.location_user_friendly = location_place.__str__()
 
         if "unit" in request.POST:

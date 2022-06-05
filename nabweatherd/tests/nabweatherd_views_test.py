@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from django.http import JsonResponse
 from django.test import Client, TestCase
@@ -13,11 +14,15 @@ class TestView(TestCase):
         '"admin":"New York","admin2":"","postCode":""}'
     )
 
-    PARIS_LOCATION_JSON = (
-        '{"insee":"75056","name":"Paris 14",'
-        '"lat":48.8331,"lon":2.3264,"country":"FR",'
-        '"admin":"Île-de-France","admin2":"75",'
-        '"postCode":"75014"}'
+    PARIS_LOCATION = dict(
+        insee="75056",
+        name="Paris 14",
+        lat=48.8331,
+        lon=2.3264,
+        country="FR",
+        admin="Île-de-France",
+        admin2="75",
+        postCode="75014",
     )
 
     PARIS_LOCATION_USERFRIENDLY = "Paris 14 - Île-de-France (75) - FR"
@@ -35,7 +40,7 @@ class TestView(TestCase):
         self.assertTrue("config" in response.context)
         config = Config.load()
         self.assertEqual(response.context["config"], config)
-        self.assertEqual(config.location, TestView.PARIS_LOCATION_JSON)
+        self.assertEqual(config.location, TestView.PARIS_LOCATION)
         self.assertEqual(
             config.location_user_friendly, TestView.PARIS_LOCATION_USERFRIENDLY
         )
@@ -68,7 +73,9 @@ class TestView(TestCase):
         self.assertTrue("config" in response.context)
         config = Config.load()
         self.assertEqual(response.context["config"], config)
-        self.assertEqual(config.location, TestView.NYC_LOCATION_JSON)
+        self.assertEqual(
+            config.location, json.loads(TestView.NYC_LOCATION_JSON)
+        )
         self.assertEqual(
             config.location_user_friendly, "New York City - New York - US"
         )
