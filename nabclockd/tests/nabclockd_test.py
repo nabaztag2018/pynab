@@ -14,10 +14,6 @@ from nabd.tests.mock import NabdMockTestCase
 from nabd.tests.utils import close_old_async_connections
 
 
-@pytest.mark.skipif(
-    not os.path.isfile("/etc/timezone"),
-    reason="Test requires /etc/timezone to exist",
-)
 @pytest.mark.django_db(transaction=True)
 class TestNabclockd(NabdMockTestCase):
     def tearDown(self):
@@ -26,8 +22,17 @@ class TestNabclockd(NabdMockTestCase):
         close_old_connections()
 
     def get_system_tz(self):
-        with open("/etc/timezone") as w:
-            return w.read().strip()
+        return "Europe/Paris"
+
+    def synchronized_since_boot(self):
+        return True
+
+    def create_service(self):
+        service = nabclockd.NabClockd.__new__(nabclockd.NabClockd)
+        service.get_system_tz = self.get_system_tz
+        service.synchronized_since_boot = self.synchronized_since_boot
+        service.__init__()
+        return service
 
     async def connect_handler(self, reader, writer):
         writer.write(b'{"type":"state","state":"idle"}\r\n')
@@ -39,7 +44,7 @@ class TestNabclockd(NabdMockTestCase):
         this_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(this_loop)
         this_loop.call_later(1, lambda: this_loop.stop())
-        service = nabclockd.NabClockd()
+        service = self.create_service()
         service.run()
         self.assertEqual(self.connect_handler_called, 1)
 
@@ -130,7 +135,7 @@ class TestNabclockd(NabdMockTestCase):
             config.sleep_hour += 24
         config.sleep_min = 0
         config.save()
-        service = nabclockd.NabClockd()
+        service = self.create_service()
         this_loop.call_later(1, lambda: self._update_wakeup_hours(service))
         service.run()
         self.assertEqual(self.wakeup_handler_called, 1)
@@ -169,7 +174,7 @@ class TestNabclockd(NabdMockTestCase):
         setattr(config, "sleep_hour_" + dayOfTheWeek, sleep_hour)
         setattr(config, "sleep_min_" + dayOfTheWeek, sleep_min)
         config.save()
-        service = nabclockd.NabClockd()
+        service = self.create_service()
         this_loop.call_later(1, lambda: self._update_wakeup_hours(service))
         service.run()
         self.assertEqual(self.wakeup_handler_called, 1)
@@ -202,7 +207,7 @@ class TestNabclockd(NabdMockTestCase):
             config.sleep_hour += 24
         config.sleep_min = 0
         config.save()
-        service = nabclockd.NabClockd()
+        service = self.create_service()
         this_loop.call_later(1, lambda: this_loop.stop())
         service.run()
         self.assertEqual(self.wakeup_handler_called, 1)
@@ -239,7 +244,7 @@ class TestNabclockd(NabdMockTestCase):
         setattr(config, "sleep_hour_" + dayOfTheWeek, sleep_hour)
         setattr(config, "sleep_min_" + dayOfTheWeek, sleep_min)
         config.save()
-        service = nabclockd.NabClockd()
+        service = self.create_service()
         this_loop.call_later(1, lambda: this_loop.stop())
         service.run()
         self.assertEqual(self.wakeup_handler_called, 1)
@@ -270,7 +275,7 @@ class TestNabclockd(NabdMockTestCase):
             config.sleep_hour += 24
         config.sleep_min = 0
         config.save()
-        service = nabclockd.NabClockd()
+        service = self.create_service()
         this_loop.call_later(1, lambda: self._update_wakeup_hours(service))
         service.run()
         self.assertEqual(self.wakeup_handler_called, 1)
@@ -310,7 +315,7 @@ class TestNabclockd(NabdMockTestCase):
         setattr(config, "sleep_hour_" + dayOfTheWeek, sleep_hour)
         setattr(config, "sleep_min_" + dayOfTheWeek, sleep_min)
         config.save()
-        service = nabclockd.NabClockd()
+        service = self.create_service()
         this_loop.call_later(1, lambda: self._update_wakeup_hours(service))
         service.run()
         self.assertEqual(self.wakeup_handler_called, 1)
@@ -324,7 +329,7 @@ class TestNabclockd(NabdMockTestCase):
         self.assertEqual(self.wakeup_handler_packets[2]["type"], "wakeup")
 
     def test_clock_response(self):
-        service = nabclockd.NabClockd()
+        service = self.create_service()
         config = models.Config.load()
         config.wakeup_hour = 7
         config.wakeup_min = 0
@@ -540,3 +545,33 @@ class TestNabclockd(NabdMockTestCase):
             ),
             ["chime"],
         )
+
+
+@pytest.mark.skipif(
+    not os.path.isfile("/etc/timezone")
+    or not os.path.isfile("/run/systemd/timesync/synchronized"),
+    reason="Test requires /etc/timezone & /run/systemd/timesync/synchronized to exist",
+)
+@pytest.mark.django_db(transaction=True)
+class TestNabclockdLinux(NabdMockTestCase):
+    def tearDown(self):
+        NabdMockTestCase.tearDown(self)
+        close_old_async_connections()
+        close_old_connections()
+
+    def create_service(self):
+        return nabclockd.NabClockd()
+
+    async def connect_handler(self, reader, writer):
+        writer.write(b'{"type":"state","state":"idle"}\r\n')
+        self.connect_handler_called += 1
+
+    def test_connect(self):
+        self.mock_connection_handler = self.connect_handler
+        self.connect_handler_called = 0
+        this_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(this_loop)
+        this_loop.call_later(1, lambda: this_loop.stop())
+        service = self.create_service()
+        service.run()
+        self.assertEqual(self.connect_handler_called, 1)
