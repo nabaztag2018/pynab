@@ -239,6 +239,7 @@ class Config(singleton_model.SingletonModel):
     chime_hour = models.BooleanField(default=True)
     play_wakeup_sleep_sounds = models.BooleanField(default=True)
     settings_per_day = models.BooleanField(default=False)
+    sleep_wakeup_override = models.BooleanField(default=None, null=True)
 
     class Meta:
         app_label = "nabclockd"

@@ -1,0 +1,10 @@
+{% load i18n %}
+<div class="form-group row">
+  <label for="clockType" class="col-sm-2 col-form-label">{% trans "Action" %}</label>
+  <div class="col-sm-6">
+    <select class="form-control form-control-sm" id="clockType" name="type">
+      <option value="sleep" {% if type == "sleep" %} selected{% endif %}>{% trans "Sleep" %}</option>
+      <option value="wakeup" {% if type == "wakeup" %} selected{% endif %}>{% trans "Wake up" %}</option>
+    </select>
+  </div>
+</div>

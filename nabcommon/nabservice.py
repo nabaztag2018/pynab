@@ -52,10 +52,15 @@ class NabService(ABC):
             service_dir = os.path.dirname(inspect.getfile(self.__class__))
             asr_support = os.path.isdir(os.path.join(service_dir, "nlu"))
             rfid_support = False
+            events = []
             if hasattr(package, "NABAZTAG_RFID_APPLICATION_ID"):
                 rfid_support = True
-            if asr_support or rfid_support:
-                events = []
+            if hasattr(package, "NABAZTAG_EVENTS_SUBSCRIPTION"):
+                events = [
+                    json.dumps(event)
+                    for event in package.NABAZTAG_EVENTS_SUBSCRIPTION
+                ]
+            if events != [] or asr_support or rfid_support:
                 service_name = self.__class__.__name__.lower()
                 if asr_support:
                     events.append(f'"asr/{service_name}"')

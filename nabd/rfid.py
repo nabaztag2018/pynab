@@ -4,6 +4,7 @@ from typing import Callable
 
 import nabairqualityd
 import nabbookd
+import nabclockd
 import nabiftttd
 import nabsurprised
 import nabtaichid
@@ -38,7 +39,7 @@ TAG_APPLICATIONS = {
     2: "nabairqualityd",
     3: "nabblockly",
     nabbookd.NABAZTAG_RFID_APPLICATION_ID: "nabbookd",  # 4
-    5: "nabclockd",
+    nabclockd.NABAZTAG_RFID_APPLICATION_ID: "nabclockd",  # 5
     6: "nabmastodond",
     nabsurprised.NABAZTAG_RFID_APPLICATION_ID: "nabsurprised",  # 7
     nabtaichid.NABAZTAG_RFID_APPLICATION_ID: "nabtaichid",  # 8
