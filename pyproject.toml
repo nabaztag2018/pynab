@@ -1,2 +1,8 @@
 [tool.black]
 line-length = 79
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "nabweb.settings"

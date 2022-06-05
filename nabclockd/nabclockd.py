@@ -3,6 +3,7 @@ import datetime
 import logging
 import subprocess
 import sys
+from typing import List
 
 from dateutil import tz
 
@@ -65,7 +66,7 @@ class NabClockd(nabservice.NabService):
             )
         return False
 
-    async def chime(self, hour):
+    async def chime(self, hour: int) -> None:
         now = datetime.datetime.now()
         expiration = now + datetime.timedelta(minutes=3)
         # TODO: randomly play a message from all/
@@ -78,7 +79,7 @@ class NabClockd(nabservice.NabService):
         self.writer.write(packet.encode("utf8"))
         await self.writer.drain()
 
-    def clock_response(self, now):
+    def clock_response(self, now: datetime.datetime) -> List[str]:
         response = []
         if self.synchronized_since_boot():
             should_sleep = None
@@ -233,11 +234,11 @@ class NabClockd(nabservice.NabService):
             if self.running:
                 asyncio.get_event_loop().stop()
 
-    def get_system_tz(self):
+    def get_system_tz(self) -> str:
         with open("/etc/timezone") as w:
             return w.read().strip()
 
-    async def process_nabd_packet(self, packet):
+    async def process_nabd_packet(self, packet: dict) -> None:
         if (
             "type" in packet
             and packet["type"] == "state"
@@ -262,7 +263,9 @@ class NabClockd(nabservice.NabService):
                 self.asleep = packet["state"] == "asleep"
                 self.loop_cv.notify()
 
-    def start_service_loop(self, loop):
+    def start_service_loop(
+        self, loop: asyncio.AbstractEventLoop
+    ) -> asyncio.Task:
         return loop.create_task(self.clock_loop())
 
     async def stop_service_loop(self):

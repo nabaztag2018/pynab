@@ -11,9 +11,10 @@ import time
 import traceback
 from abc import ABC, abstractmethod
 from enum import Enum
+from typing import Any, List, Optional, Tuple
 
-from lockfile import AlreadyLocked, LockFailed
-from lockfile.pidlockfile import PIDLockFile
+from lockfile import AlreadyLocked, LockFailed  # type: ignore
+from lockfile.pidlockfile import PIDLockFile  # type: ignore
 
 from nabcommon import nablogging, settings
 
@@ -41,7 +42,7 @@ class NabService(ABC):
         Reload configuration (on USR1 signal).
         """
 
-    async def process_nabd_packet(self, packet):
+    async def process_nabd_packet(self, packet: dict) -> None:
         pass
 
     async def client_loop(self):
@@ -94,7 +95,7 @@ class NabService(ABC):
         self._do_connect(NabService.MAX_RETRY)
         self.loop.create_task(self.client_loop())
 
-    def _do_connect(self, retry_count):
+    def _do_connect(self, retry_count: int) -> None:
         connection = asyncio.open_connection(
             host=NabService.HOST, port=NabService.PORT_NUMBER
         )
@@ -132,7 +133,9 @@ class NabService(ABC):
                 self.loop.run_until_complete(t)
             self.loop.close()
 
-    def start_service_loop(self, loop):
+    def start_service_loop(
+        self, loop: asyncio.AbstractEventLoop
+    ) -> Optional[asyncio.Task]:
         """
         Start a service loop, if any.
         Typically:
@@ -140,7 +143,7 @@ class NabService(ABC):
         """
         return None
 
-    async def stop_service_loop(self):
+    async def stop_service_loop(self) -> None:
         """
         Signal service loop to stop.
         Typically:
@@ -151,7 +154,7 @@ class NabService(ABC):
         return None
 
     @classmethod
-    def signal_daemon(cls):
+    def signal_daemon(cls) -> None:
         service_name = cls.__name__.lower()
         pidfilepath = f"/run/{service_name}.pid"
         try:
@@ -163,7 +166,7 @@ class NabService(ABC):
             pass
 
     @classmethod
-    def main(cls, argv):
+    def main(cls, argv: List[str]) -> None:
         service_name = cls.__name__.lower()
         nablogging.setup_logging(service_name)
         pidfilepath = f"/run/{service_name}.pid"
@@ -235,7 +238,7 @@ class NabRecurrentService(NabService, ABC):
         self.loop_cv = asyncio.Condition()
 
     @abstractmethod
-    async def get_config(self):
+    async def get_config(self) -> Tuple[datetime.datetime, Any, Any]:
         """
         Perform a database operation to retrieve stored data and return a tuple
         with three values used by the service:
@@ -254,7 +257,9 @@ class NabRecurrentService(NabService, ABC):
         """
 
     @abstractmethod
-    async def update_next(self, next_date, next_args):
+    async def update_next(
+        self, next_date: datetime.datetime, next_args: Any
+    ) -> None:
         """
         Write new next date and args to database.
 
@@ -267,7 +272,13 @@ class NabRecurrentService(NabService, ABC):
         """
 
     @abstractmethod
-    def compute_next(self, saved_date, saved_args, config, reason):
+    def compute_next(
+        self,
+        saved_date: datetime.datetime,
+        saved_args: Any,
+        config: Any,
+        reason: Reason,
+    ) -> Optional[Tuple[datetime.datetime, Any]]:
         """
         Compute next performance based on reason and config.
         Return None if no further performance should be scheduled.
