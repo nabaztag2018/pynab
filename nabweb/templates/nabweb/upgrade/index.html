@@ -25,12 +25,11 @@
         <h5 class="modal-title">{% trans "Local changes" %}</h5>
       </div>
       <div class="modal-body">
-        {% trans "Local changes have been detected in at least one repository. Automatic upgrade may fail. Are you sure
-        you want to proceed?" %}
+        {% trans "Local changes have been detected in at least one repository. Automatic upgrade may fail. Are you sure you want to proceed?" %}
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger confirmed-upgrade-button" data-dismiss="modal">{% trans "Yes"
-          %}</button>
+        <button type="button" class="btn btn-danger confirmed-upgrade-button"
+          data-dismiss="modal">{% trans "Yes" %}</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "No" %}</button>
       </div>
     </div>
@@ -47,17 +46,18 @@
           the internet). This may take a while depending on the size and the scope of the update. <strong>Do not restart
             your rabbit before the process is finished</strong>.{% endblocktrans %}</p>
         {% if pynab.upstream_branch == "origin/release" %}
-        <p class="text-secondary">{% trans "You can switch to the Pynab <b>master</b> branch to benefit from changes
-          between releases, however this is not for the faint-hearted and requires good command of <a
+        <p class="text-secondary">{% blocktrans %}You can switch to the Pynab <b>master</b> branch to benefit from
+          changes between releases, however this is not for the faint-hearted and requires good command of <a
             href='https://www.raspberrypi.org/documentation/remote-access/ssh/' target='_blank'
             rel='noopener noreferrer'>SSH</a> and <a href='https://git-scm.com/docs/' target='_blank'
-            rel='noopener noreferrer'>Git</a>." %}</p>
+            rel='noopener noreferrer'>Git</a>.{% endblocktrans %}</p>
         {% elif pynab.upstream_branch == "" %}
-        <p class="text-warning">{% trans "Your Nabaztag is using a purely local Pynab branch. Upgrade is not
-          applicable." %}</p>
+        <p class="text-warning">{% blocktrans %}Your Nabaztag is using a purely local Pynab branch. Upgrade is not
+          applicable.{% endblocktrans %}</p>
         {% else %}
-        <p class="text-warning">{% trans "Your Nabaztag is apparently not tracking the Pynab <b>release</b> branch.
-          Please note that web-based upgrade mechanism may fail and require that you connect over SSH." %}</p>
+        <p class="text-warning">{% blocktrans %}Your Nabaztag is apparently not tracking the Pynab <b>release</b>
+          branch. Please note that web-based upgrade mechanism may fail and require that you connect over
+          SSH.{% endblocktrans %}</p>
         {% endif %}
         <h5>{% trans "Current versions" %}</h5>
         {% include "nabweb/upgrade/_repository.html" with repo=pynab %}
@@ -87,8 +87,8 @@
         <div data-repository="nabblockly" class="async-repository-info"></div>
         {% endif %}
         </dl>
-        <strong>{% trans "Last check:" %}</strong> {% blocktrans with last_check_since=last_check|timesince %}{{
-        last_check_since }} ago{% endblocktrans %}
+        <strong>{% trans "Last check:" %}</strong>
+        {% blocktrans with last_check_since=last_check|timesince %}{{ last_check_since }} ago{% endblocktrans %}
       </div>
       <div class="card-footer">
         <div class="row mb-2">
@@ -97,9 +97,9 @@
                 class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status"
                   aria-hidden="true"></span></span></button>
             <button type="submit"
-              class="btn btn-primary{% if partial or not updatable %} disabled{% endif %} ml-2 float-right upgrade-button">{%
-              trans "Upgrade now" %}<span class="spinner d-none"> <span class="spinner-border spinner-border-sm"
-                  role="status" aria-hidden="true"></span></span></button>
+              class="btn btn-primary{% if partial or not updatable %} disabled{% endif %} ml-2 float-right upgrade-button">{% trans "Upgrade now" %}<span
+                class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status"
+                  aria-hidden="true"></span></span></button>
           </div>
         </div>
       </div>
@@ -110,27 +110,37 @@
       var checkNowBtn = $(".check-now-button");
       var upgradeBtn = $(".upgrade-button");
       var confirmedUpgradeBtn = $(".confirmed-upgrade-button");
-      var upgradeStep = 0;
-      {% if partial %}
+      var upgradeStep = 0; {
+        %
+        if partial %
+      }
       $(".check-now-button .spinner").removeClass("d-none");
       checkNowBtn.addClass("disabled");
       $(".async-repository-info").each(function (i, element) {
         $.ajax({
-          url: "{% url 'nabweb.upgrade.info' repository='REPOSITORY' %}".replace("REPOSITORY", $(element).data("repository")),
+          url: "{% url 'nabweb.upgrade.info' repository='REPOSITORY' %}".replace("REPOSITORY", $(element)
+            .data("repository")),
           method: "GET",
           success: function (data) {
             $(element).replaceWith(data);
             if ($(".async-repository-info").length == 0) {
               $(".check-now-button .spinner").addClass("d-none");
-              checkNowBtn.removeClass("disabled");
-              {% if updatable %}
-              $(".upgrade-button").removeClass("disabled");
-              {% endif %}
+              checkNowBtn.removeClass("disabled"); {
+                %
+                if updatable %
+              }
+              $(".upgrade-button").removeClass("disabled"); {
+                %
+                endif %
+              }
             }
           }
         });
-      });
-      {% endif %}
+      }); {
+        %
+        endif %
+      }
+
       function checkNow() {
         $.ajax({
           url: "{% url 'nabweb.upgrade.checknow' %}",
@@ -140,10 +150,14 @@
           contentType: 'application/json',
           method: "POST",
           success: function (data) {
-            setTimeout(function () { window.location.reload(true); }, 1);
+            setTimeout(function () {
+              window.location.reload(true);
+            }, 1);
           },
           error: function (data) {
-            setTimeout(function () { window.location.reload(true); }, 1);
+            setTimeout(function () {
+              window.location.reload(true);
+            }, 1);
           }
         });
       }
@@ -152,8 +166,11 @@
         $(".check-now-button .spinner").removeClass("d-none");
         upgradeBtn.addClass("disabled");
         checkNow();
-      });
-      {% if updatable %}
+      }); {
+        %
+        if updatable %
+      }
+
       function reportProgress(text) {
         var matches = /(.+) - ([0-9]+)\/([0-9]+|\?)/.exec(text);
         if (matches) {
@@ -172,6 +189,7 @@
           $("#upgradeModal .progress-bar").css("width", "100%");
         }
       }
+
       function upgradeNowUpdateStatus() {
         $.ajax({
           url: "{% url 'nabweb.upgrade.now' %}",
@@ -182,28 +200,39 @@
               if (upgradeStep == 1) {
                 reportProgress("Waiting for web server to restart");
                 upgradeStep = 2;
-                setTimeout(function () { upgradeNowUpdateStatus(); }, 15000);
+                setTimeout(function () {
+                  upgradeNowUpdateStatus();
+                }, 15000);
               } else {
                 reportProgress("Upgrade complete, reloading page");
-                setTimeout(function () { window.location.reload(true); }, 1000);
+                setTimeout(function () {
+                  window.location.reload(true);
+                }, 1000);
               }
             } else {
               if (data.status == 'ok') {
                 upgradeStep = 1;
                 reportProgress(data.message);
-                setTimeout(function () { upgradeNowUpdateStatus(); }, 1000);
+                setTimeout(function () {
+                  upgradeNowUpdateStatus();
+                }, 1000);
               } else {
                 reportProgress("Unknown response from server");
-                setTimeout(function () { upgradeNowUpdateStatus(); }, 5000);
+                setTimeout(function () {
+                  upgradeNowUpdateStatus();
+                }, 5000);
               }
             }
           },
           error: function (data) {
             reportProgress("Web server is restarting");
-            setTimeout(function () { upgradeNowUpdateStatus(); }, 5000);
+            setTimeout(function () {
+              upgradeNowUpdateStatus();
+            }, 5000);
           }
         });
       }
+
       function doUpgrade() {
         upgradeBtn.addClass("disabled");
         upgradeBtn.find(".spinner").removeClass("d-none");
@@ -217,20 +246,28 @@
           method: "POST",
           success: function (data) {
             if (data.status == 'ok') {
-              setTimeout(function () { upgradeNowUpdateStatus(); }, 1000);
+              setTimeout(function () {
+                upgradeNowUpdateStatus();
+              }, 1000);
             } else {
               if (data.status == 'error') {
                 $("#upgradeStatus").text(data.message);
-                setTimeout(function () { upgradeNowUpdateStatus(); }, 1000);
+                setTimeout(function () {
+                  upgradeNowUpdateStatus();
+                }, 1000);
               } else {
                 $("#upgradeStatus").text("Unknown response from server");
-                setTimeout(function () { upgradeNowUpdateStatus(); }, 5000);
+                setTimeout(function () {
+                  upgradeNowUpdateStatus();
+                }, 5000);
               }
             }
           },
           error: function (data) {
             $("#upgradeStatus").text("Internal server error");
-            setTimeout(function () { upgradeNowUpdateStatus(); }, 5000);
+            setTimeout(function () {
+              upgradeNowUpdateStatus();
+            }, 5000);
           }
         });
       }
@@ -243,9 +280,12 @@
       });
       confirmedUpgradeBtn.on("click", function () {
         doUpgrade();
-      });
-      {% endif %}
+      }); {
+        %
+        endif %
+      }
     });
+
   </script>
 </div>
 {% endblock %}
