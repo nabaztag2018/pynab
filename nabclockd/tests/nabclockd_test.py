@@ -150,14 +150,15 @@ class TestNabclockd(NabdMockTestCase):
         this_loop.call_later(1, lambda: self._update_wakeup_hours(service))
         service.run()
         self.assertEqual(self.packets_handler_called, 1)
-        self.assertEqual(len(self.received_packets), 3)
-        # NLU packet
+        if len(self.received_packets) != 3:
+            print(self.received_packets)
         self.assertTrue("type" in self.received_packets[0])
         self.assertEqual(self.received_packets[0]["type"], "mode")
         self.assertTrue("type" in self.received_packets[1])
         self.assertEqual(self.received_packets[1]["type"], "message")
         self.assertTrue("type" in self.received_packets[2])
         self.assertEqual(self.received_packets[2]["type"], "wakeup")
+        self.assertEqual(len(self.received_packets), 3)
 
     def test_wakeup_perday(self):
         self.mock_connection_handler = self.wakeup_handler
@@ -189,14 +190,15 @@ class TestNabclockd(NabdMockTestCase):
         this_loop.call_later(1, lambda: self._update_wakeup_hours(service))
         service.run()
         self.assertEqual(self.packets_handler_called, 1)
-        self.assertEqual(len(self.received_packets), 3)
-        # NLU packet
+        if len(self.received_packets) != 3:
+            print(self.received_packets)
         self.assertTrue("type" in self.received_packets[0])
         self.assertEqual(self.received_packets[0]["type"], "mode")
         self.assertTrue("type" in self.received_packets[1])
         self.assertEqual(self.received_packets[1]["type"], "message")
         self.assertTrue("type" in self.received_packets[2])
         self.assertEqual(self.received_packets[2]["type"], "wakeup")
+        self.assertEqual(len(self.received_packets), 3)
 
     def test_sleep(self):
         self.mock_connection_handler = self.sleep_handler
@@ -222,12 +224,13 @@ class TestNabclockd(NabdMockTestCase):
         this_loop.call_later(1, lambda: this_loop.stop())
         service.run()
         self.assertEqual(self.packets_handler_called, 1)
-        self.assertEqual(len(self.received_packets), 2)
-        # NLU packet
+        if len(self.received_packets) != 2:
+            print(self.received_packets)
         self.assertTrue("type" in self.received_packets[0])
         self.assertEqual(self.received_packets[0]["type"], "mode")
         self.assertTrue("type" in self.received_packets[1])
         self.assertEqual(self.received_packets[1]["type"], "sleep")
+        self.assertEqual(len(self.received_packets), 2)
 
     def test_sleep_perday(self):
         self.mock_connection_handler = self.sleep_handler
@@ -259,12 +262,13 @@ class TestNabclockd(NabdMockTestCase):
         this_loop.call_later(1, lambda: this_loop.stop())
         service.run()
         self.assertEqual(self.packets_handler_called, 1)
-        self.assertEqual(len(self.received_packets), 2)
-        # NLU packet
+        if len(self.received_packets) != 2:
+            print(self.received_packets)
         self.assertTrue("type" in self.received_packets[0])
         self.assertEqual(self.received_packets[0]["type"], "mode")
         self.assertTrue("type" in self.received_packets[1])
         self.assertEqual(self.received_packets[1]["type"], "sleep")
+        self.assertEqual(len(self.received_packets), 2)
 
     def test_sleep_wakeup(self):
         self.mock_connection_handler = self.sleep_handler
@@ -290,14 +294,15 @@ class TestNabclockd(NabdMockTestCase):
         this_loop.call_later(1, lambda: self._update_wakeup_hours(service))
         service.run()
         self.assertEqual(self.packets_handler_called, 1)
-        self.assertEqual(len(self.received_packets), 3)
-        # NLU packet
+        if len(self.received_packets) != 3:
+            print(self.received_packets)
         self.assertTrue("type" in self.received_packets[0])
         self.assertEqual(self.received_packets[0]["type"], "mode")
         self.assertTrue("type" in self.received_packets[1])
         self.assertEqual(self.received_packets[1]["type"], "sleep")
         self.assertTrue("type" in self.received_packets[2])
         self.assertEqual(self.received_packets[2]["type"], "wakeup")
+        self.assertEqual(len(self.received_packets), 3)
 
     def test_sleep_wakeup_perday(self):
         self.mock_connection_handler = self.sleep_handler
@@ -330,14 +335,15 @@ class TestNabclockd(NabdMockTestCase):
         this_loop.call_later(1, lambda: self._update_wakeup_hours(service))
         service.run()
         self.assertEqual(self.packets_handler_called, 1)
-        self.assertEqual(len(self.received_packets), 3)
-        # NLU packet
+        if len(self.received_packets) != 3:
+            print(self.received_packets)
         self.assertTrue("type" in self.received_packets[0])
         self.assertEqual(self.received_packets[0]["type"], "mode")
         self.assertTrue("type" in self.received_packets[1])
         self.assertEqual(self.received_packets[1]["type"], "sleep")
         self.assertTrue("type" in self.received_packets[2])
         self.assertEqual(self.received_packets[2]["type"], "wakeup")
+        self.assertEqual(len(self.received_packets), 3)
 
     def test_clock_response(self):
         service = self.create_service()
@@ -619,7 +625,8 @@ class TestNabclockd(NabdMockTestCase):
         this_loop.call_later(1, lambda: this_loop.stop())
         service.run()
         self.assertEqual(self.packets_handler_called, 1)
-        # Setup packet
+        if len(self.received_packets) != 2:
+            print(self.received_packets)
         self.assertTrue("type" in self.received_packets[0])
         self.assertEqual(self.received_packets[0]["type"], "mode")
         self.assertEqual(self.received_packets[0]["mode"], "idle")
@@ -659,7 +666,8 @@ class TestNabclockd(NabdMockTestCase):
         this_loop.call_later(1, lambda: this_loop.stop())
         service.run()
         self.assertEqual(self.packets_handler_called, 1)
-        # Setup packet
+        if len(self.received_packets) != 2:
+            print(self.received_packets)
         self.assertTrue("type" in self.received_packets[0])
         self.assertEqual(self.received_packets[0]["type"], "mode")
         self.assertEqual(self.received_packets[0]["mode"], "idle")
@@ -709,7 +717,8 @@ class TestNabclockd(NabdMockTestCase):
         this_loop.call_later(1, lambda: this_loop.stop())
         service.run()
         self.assertEqual(self.packets_handler_called, 1)
-        # Setup packet
+        if len(self.received_packets) != 4:
+            print(self.received_packets)
         self.assertTrue("type" in self.received_packets[0])
         self.assertEqual(self.received_packets[0]["type"], "mode")
         self.assertEqual(self.received_packets[0]["mode"], "idle")
@@ -757,7 +766,8 @@ class TestNabclockd(NabdMockTestCase):
         this_loop.call_later(1, lambda: this_loop.stop())
         service.run()
         self.assertEqual(self.packets_handler_called, 1)
-        # Setup packet
+        if len(self.received_packets) != 4:
+            print(self.received_packets)
         self.assertTrue("type" in self.received_packets[0])
         self.assertEqual(self.received_packets[0]["type"], "mode")
         self.assertEqual(self.received_packets[0]["mode"], "idle")
@@ -804,7 +814,8 @@ class TestNabclockd(NabdMockTestCase):
         this_loop.call_later(1, lambda: this_loop.stop())
         service.run()
         self.assertEqual(self.packets_handler_called, 1)
-        # Setup packet
+        if len(self.received_packets) != 2:
+            print(self.received_packets)
         self.assertTrue("type" in self.received_packets[0])
         self.assertEqual(self.received_packets[0]["type"], "mode")
         self.assertEqual(self.received_packets[0]["mode"], "idle")
