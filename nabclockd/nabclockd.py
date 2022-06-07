@@ -3,10 +3,13 @@ import datetime
 import logging
 import subprocess
 import sys
+from typing import List
 
 from dateutil import tz
 
 from nabcommon import nabservice
+
+from . import rfid_data
 
 
 class NabClockd(nabservice.NabService):
@@ -65,7 +68,7 @@ class NabClockd(nabservice.NabService):
             )
         return False
 
-    async def chime(self, hour):
+    async def chime(self, hour: int) -> None:
         now = datetime.datetime.now()
         expiration = now + datetime.timedelta(minutes=3)
         # TODO: randomly play a message from all/
@@ -78,7 +81,7 @@ class NabClockd(nabservice.NabService):
         self.writer.write(packet.encode("utf8"))
         await self.writer.drain()
 
-    def clock_response(self, now):
+    def clock_response(self, now: datetime.datetime) -> List[str]:
         response = []
         if self.synchronized_since_boot():
             should_sleep = None
@@ -125,6 +128,11 @@ class NabClockd(nabservice.NabService):
                         sleep_hour,
                         sleep_min,
                     )
+            if self.config.sleep_wakeup_override is not None:
+                if should_sleep == self.config.sleep_wakeup_override:
+                    response.append("clear_override")
+                else:
+                    should_sleep = self.config.sleep_wakeup_override
             if (
                 should_sleep is not None
                 and self.asleep is not None
@@ -164,9 +172,15 @@ class NabClockd(nabservice.NabService):
                             self.current_tz = current_tz
                         response = self.clock_response(now)
                         for r in response:
-                            if r == "sleep":
+                            if r == "clear_override":
+                                self.config.sleep_wakeup_override = None
+                                await self.config.save_async()
+                            elif r == "sleep":
                                 # Check if we need to play the sleep sound
-                                if self.config.play_wakeup_sleep_sounds:
+                                if (
+                                    self.config.play_wakeup_sleep_sounds
+                                    and self.last_time_idle_state
+                                ):
                                     idle_elapsed_seconds = (
                                         datetime.datetime.now()
                                         - self.last_time_idle_state
@@ -233,11 +247,11 @@ class NabClockd(nabservice.NabService):
             if self.running:
                 asyncio.get_event_loop().stop()
 
-    def get_system_tz(self):
+    def get_system_tz(self) -> str:
         with open("/etc/timezone") as w:
             return w.read().strip()
 
-    async def process_nabd_packet(self, packet):
+    async def process_nabd_packet(self, packet: dict) -> None:
         if (
             "type" in packet
             and packet["type"] == "state"
@@ -261,8 +275,38 @@ class NabClockd(nabservice.NabService):
 
                 self.asleep = packet["state"] == "asleep"
                 self.loop_cv.notify()
+        elif (
+            packet["type"] == "rfid_event"
+            and packet["app"] == "nabclockd"
+            and packet["event"] == "detected"
+        ):
+            if "data" in packet:
+                type = rfid_data.unserialize(packet["data"].encode("utf8"))
+            else:
+                type = "sleep"
+            async with self.loop_cv:
+                self.config.sleep_wakeup_override = type == "sleep"
+                await self.config.save_async()
+                self.loop_cv.notify()
+        elif (
+            packet["type"] == "asr_event"
+            and "nlu" in packet
+            and "intent" in packet["nlu"]
+            and packet["nlu"]["intent"] == "nabclockd/sleep"
+        ):
+            async with self.loop_cv:
+                self.config.sleep_wakeup_override = True
+                await self.config.save_async()
+                self.loop_cv.notify()
+        elif packet["type"] == "button_event" and packet["event"] == "click":
+            async with self.loop_cv:
+                self.config.sleep_wakeup_override = False
+                await self.config.save_async()
+                self.loop_cv.notify()
 
-    def start_service_loop(self, loop):
+    def start_service_loop(
+        self, loop: asyncio.AbstractEventLoop
+    ) -> asyncio.Task:
         return loop.create_task(self.clock_loop())
 
     async def stop_service_loop(self):
