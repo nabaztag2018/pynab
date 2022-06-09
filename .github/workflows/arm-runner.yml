@@ -52,11 +52,11 @@ jobs:
             sudo apt-get install --no-install-recommends -y postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran5 libopenblas-dev liblapack-dev zram-tools
             sudo mkdir -p /run/systemd/timesync/ && sudo touch /run/systemd/timesync/synchronized
             sudo apt-get install --no-install-recommends -y alsa-utils xz-utils avahi-daemon
-            if [ `uname -m` = 'armv6l' -o `uname -m` = 'armv7l' ]; then
-                sudo -u pi taskset -c 0 /bin/bash /opt/pynab/install.sh ci-chroot-test
-            else
-                sudo -u pi /bin/bash /opt/pynab/install.sh ci-chroot-test
-            fi
+            # Tests only run on a single CPU, postgresql aborts otherwise.
+            # It might be because armv6l binaries are not thread safe, but
+            # Pi Zero 2 do execute 32 bits code concurrently.
+            # And it also fails with aarch64 binaries of postgresql.
+            sudo -u pi taskset -c 0 /bin/bash /opt/pynab/install.sh ci-chroot-test
 
   create_image:
     name: Build image
