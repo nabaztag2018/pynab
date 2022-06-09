@@ -194,6 +194,14 @@ if [ $makerfaire2018 -eq 0 ]; then
   fi
   if [ ! -d "${kaldi_dir}" ]; then
     kaldi_platform=$(. /etc/os-release && echo "$ID$VERSION_ID-`uname -m`")
+    # When running Raspbian/Raspios in 32 bits mode, maintain Pi Zero
+    # compatibility
+    if [ "${kaldi_platform}" = "raspbian10-armv7l" ]; then
+      kaldi_platform="raspbian10-armv6l"
+    fi
+    if [ "${kaldi_platform}" = "raspbian11-armv7l" ]; then
+      kaldi_platform="raspbian11-armv6l"
+    fi
     if [ "${kaldi_platform}" = "debian11-armv7l" ]; then
       # (nasty) DietPi patch: debian11 version not available for armv7l
       kaldi_platform="raspbian11-armv7l"
