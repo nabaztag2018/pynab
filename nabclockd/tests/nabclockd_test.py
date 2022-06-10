@@ -145,6 +145,7 @@ class TestNabclockd(NabdMockTestCase):
         if config.sleep_hour < 0:
             config.sleep_hour += 24
         config.sleep_min = 0
+        config.chime_hour = False
         config.save()
         service = self.create_service()
         this_loop.call_later(1, lambda: self._update_wakeup_hours(service))
@@ -219,6 +220,7 @@ class TestNabclockd(NabdMockTestCase):
         if config.sleep_hour < 0:
             config.sleep_hour += 24
         config.sleep_min = 0
+        config.chime_hour = False
         config.save()
         service = self.create_service()
         this_loop.call_later(1, lambda: this_loop.stop())
@@ -289,6 +291,7 @@ class TestNabclockd(NabdMockTestCase):
         if config.sleep_hour < 0:
             config.sleep_hour += 24
         config.sleep_min = 0
+        config.chime_hour = False
         config.save()
         service = self.create_service()
         this_loop.call_later(1, lambda: self._update_wakeup_hours(service))
@@ -620,6 +623,7 @@ class TestNabclockd(NabdMockTestCase):
         if config.sleep_hour >= 24:
             config.sleep_hour -= 24
         config.sleep_min = 0
+        config.chime_hour = False
         config.save()
         service = self.create_service()
         this_loop.call_later(1, lambda: this_loop.stop())
@@ -661,6 +665,7 @@ class TestNabclockd(NabdMockTestCase):
         if config.sleep_hour >= 24:
             config.sleep_hour -= 24
         config.sleep_min = 0
+        config.chime_hour = False
         config.save()
         service = self.create_service()
         this_loop.call_later(1, lambda: this_loop.stop())
@@ -712,6 +717,7 @@ class TestNabclockd(NabdMockTestCase):
         if config.sleep_hour < 0:
             config.sleep_hour += 24
         config.sleep_min = 0
+        config.chime_hour = False
         config.save()
         service = self.create_service()
         this_loop.call_later(1, lambda: this_loop.stop())
@@ -761,6 +767,7 @@ class TestNabclockd(NabdMockTestCase):
         if config.sleep_hour < 0:
             config.sleep_hour += 24
         config.sleep_min = 0
+        config.chime_hour = False
         config.save()
         service = self.create_service()
         this_loop.call_later(1, lambda: this_loop.stop())
