@@ -1,8 +1,11 @@
+from typing import Optional
+
 from .button_gpio import ButtonGPIO
 from .ears import Ears
 from .ears_dev import EarsDev
 from .leds_neopixel import LedsNeoPixel
 from .nabio import NabIO
+from .rfid import Rfid
 from .rfid_dev import RfidDev
 from .rfid_nfc_dev import RfidNFCDev
 from .sound_alsa import SoundAlsa
@@ -19,9 +22,11 @@ class NabIOHW(NabIO):
         self.leds = LedsNeoPixel()
         self.ears = EarsDev()
         if RfidNFCDev.is_available():
-            self.rfid = RfidNFCDev()
-        else:
+            self.rfid: Optional[Rfid] = RfidNFCDev()
+        elif RfidDev.is_available():
             self.rfid = RfidDev()
+        else:
+            self.rfid = None
         self.sound = SoundAlsa(self.model)
         self.button = ButtonGPIO(self.model)
 
@@ -29,7 +34,7 @@ class NabIOHW(NabIO):
         return self.model != NabIOHW.MODEL_2018
 
     def has_rfid(self):
-        return self.model == NabIOHW.MODEL_2019_TAGTAG
+        return self.rfid is not None
 
     def network_interface(self):
         return "wlan0"
