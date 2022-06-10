@@ -45,6 +45,8 @@ jobs:
           copy_repository_path: /opt/pynab
           optimize_image: no
           commands: |
+            # Disable IPv6 in case it is configured but does not work
+            ping6 -c 1 www.ietf.org || sudo sysctl -w net.ipv6.conf.eth0.disable_ipv6=1
             sudo useradd pi || true
             sudo sh -c "[ ! -f /etc/sudoers.d/010_pi-nopasswd ] && usermod -aG sudo pi && echo 'pi ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/010_pi-nopasswd || true"
             sudo chown -hR pi:pi /opt/pynab
@@ -121,6 +123,8 @@ jobs:
           optimize_image: yes
           copy_repository_path: /opt/pynab
           commands: |
+            # Disable IPv6 in case it is configured but does not work
+            ping6 -c 1 www.ietf.org || sudo sysctl -w net.ipv6.conf.eth0.disable_ipv6=1
             sudo apt-get update -y --allow-releaseinfo-change
             echo GITHUB_BRANCH=${{ steps.image_and_branch_name.outputs.LOCAL_BRANCH }}
             echo GITHUB_REPOSITORY=${{ github.repository }}
