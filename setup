@@ -208,6 +208,9 @@ sudo -u ${owner} git clone --depth 1 -b ${st25_branch} https://github.com/pguyot
 cd ${inst_dir}/st25r391x
 build_and_install_driver
 
+# Disable this driver as it conflicts with cr14 (nabboot will do the switch)
+sed /boot/config.txt -i -e "s/^dtoverlay=st25r391x/#dtoverlay=st25r391x/"
+
 if [ -d "${inst_dir}/pynab" ]
 then
     echo "Using existing local Pynab repository."
