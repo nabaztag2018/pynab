@@ -209,6 +209,11 @@ if [ $makerfaire2018 -eq 0 ]; then
     kaldi_archive="${kaldi_release}/kaldi-${kaldi_release}-linux_${kaldi_platform}.tar.xz"
     wget -O - -q https://github.com/pguyot/kaldi/releases/download/${kaldi_archive} | sudo tar xJ -C /
     sudo ldconfig
+
+    # Fix upgrade of py-kaldi-asr
+    [ -e ${root_dir}venv/lib/python3.7/site-packages/kaldiasr/nnet3.cpython-37m-arm-linux-gnueabihf.so ] \
+        && grep -c ZN3fst8internal14DenseSymbolMapD1Ev ${root_dir}venv/lib/python3.7/site-packages/kaldiasr/nnet3.cpython-37m-arm-linux-gnueabihf.so \
+        && venv/bin/pip uninstall -y py-kaldi-asr
   fi
 
   sudo mkdir -p "${kaldi_dir}/model"
