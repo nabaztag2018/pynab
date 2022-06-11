@@ -1,4 +1,4 @@
-from rpi_ws281x import Adafruit_NeoPixel, Color
+from rpi_ws281x import Adafruit_NeoPixel, Color  # type: ignore
 
 from .leds import LedsSoft
 
