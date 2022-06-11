@@ -127,7 +127,8 @@ then
     if [ "${distro}" == "raspios"  ]
     then
         # assume user will do any needed SD card configuration.
-        :
+        echo "Disabling SSH (can be enabled by putting an ssh file in /boot/)"
+        sudo update-rc.d ssh disable
     elif [ "${distro}" == "dietpi" ]
     then
         echo "Setting DietPi 'first boot' parameters."
