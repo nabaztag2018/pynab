@@ -81,6 +81,17 @@ class TestPlaySound(unittest.TestCase):
         wait_task = self.loop.create_task(self.sound.wait_until_done())
         self.loop.run_until_complete(wait_task)
 
+    def test_stream_mp3(self):
+        start_task = self.loop.create_task(
+            self.sound.start_playing(
+                "https://github.com/nabaztag2018/pynab/raw/master/nabd/"
+                "sounds/choreographies/3notesE5A5C6.mp3"
+            )
+        )
+        self.loop.run_until_complete(start_task)
+        wait_task = self.loop.create_task(self.sound.wait_until_done())
+        self.loop.run_until_complete(wait_task)
+
 
 @pytest.mark.skipif(
     sys.platform != "linux", reason="Alsa is only available on Linux"
