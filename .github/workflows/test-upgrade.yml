@@ -2,10 +2,6 @@ name: 🛠  Test upgrade
 on:
   push:
     branches:
-      - 'releng'
-      - 'releng/*'
-      - 'release'
-      - 'master'
 
 jobs:
   test_upgrade:
@@ -20,10 +16,12 @@ jobs:
           cpu: arm1176
           cpu_info: cpuinfo/raspberrypi_zero_w
           base_image: https://github.com/nabaztag2018/pynab/releases/download/v0.9.1/pynab-v0.9.1.img.xz
+          install_dir: /home/pi/pynab
         - target: pynab_091_zero2
           cpu: cortex-a7
           cpu_info: cpuinfo/raspberrypi_zero2_w
           base_image: https://github.com/nabaztag2018/pynab/releases/download/v0.9.1/pynab-v0.9.1.img.xz
+          install_dir: /home/pi/pynab
     steps:
       - uses: actions/checkout@v2
       - name: Run test script in chroot environment
@@ -38,7 +36,7 @@ jobs:
           optimize_image: no
           import_github_env: yes
           commands: |
-            cd /home/pi/pynab
+            cd ${{ matrix.install_dir }}
             sudo -u pi git remote set-branches --add origin ${GITHUB_REF##*/}
             sudo -u pi git fetch -v
             sudo -u pi git branch release -u origin/${GITHUB_REF##*/}
@@ -49,5 +47,7 @@ jobs:
             aplay -L
             cluster_version=`echo /etc/postgresql/*/main/pg_hba.conf  | sed -E 's|/etc/postgresql/(.+)/(.+)/pg_hba.conf|\1|g'`
             cluster_name=`echo /etc/postgresql/*/main/pg_hba.conf  | sed -E 's|/etc/postgresql/(.+)/(.+)/pg_hba.conf|\2|g'`
-            sudo -u postgres /usr/lib/postgresql/${cluster_version}/bin/pg_ctl start -D /etc/postgresql/${cluster_version}/${cluster_name}/
-            sudo -u pi /bin/bash /home/pi/pynab/upgrade.sh
+            sudo -u postgres taskset -c 0 /usr/lib/postgresql/${cluster_version}/bin/pg_ctl start -D /etc/postgresql/${cluster_version}/${cluster_name}/
+            sudo -u pi /bin/bash upgrade.sh
+            sudo mkdir -p /run/systemd/timesync/ && sudo touch /run/systemd/timesync/synchronized
+            CI=1 venv/bin/pytest
