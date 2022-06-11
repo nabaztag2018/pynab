@@ -211,9 +211,12 @@ if [ $makerfaire2018 -eq 0 ]; then
     sudo ldconfig
 
     # Fix upgrade of py-kaldi-asr
-    [ -e ${root_dir}venv/lib/python3.7/site-packages/kaldiasr/nnet3.cpython-37m-arm-linux-gnueabihf.so ] \
-        && grep -c ZN3fst8internal14DenseSymbolMapD1Ev ${root_dir}venv/lib/python3.7/site-packages/kaldiasr/nnet3.cpython-37m-arm-linux-gnueabihf.so \
-        && venv/bin/pip uninstall -y py-kaldi-asr
+    pushd ${root_dir}
+    if [[ -f venv/lib/python3.7/site-packages/kaldiasr/nnet3.cpython-37m-arm-linux-gnueabihf.so && "$(grep -c ZN3fst8internal14DenseSymbolMapD1Ev venv/lib/python3.7/site-packages/kaldiasr/nnet3.cpython-37m-arm-linux-gnueabihf.so)" -ne 0 ]]; then
+        echo "Removing incompatible py-kaldi-asr package"
+        venv/bin/pip uninstall -y py-kaldi-asr
+    fi
+    popd
   fi
 
   sudo mkdir -p "${kaldi_dir}/model"
