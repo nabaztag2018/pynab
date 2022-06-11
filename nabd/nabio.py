@@ -144,7 +144,8 @@ class NabIO(object, metaclass=abc.ABCMeta):
         Make sure the callback is called on the provided event loop, with
         loop.call_soon_threadsafe
         """
-        self.rfid.on_detect(loop, callback)
+        if self.rfid is not None:
+            self.rfid.on_detect(loop, callback)
 
     async def play_info(self, condvar, tempo, colors):
         """
