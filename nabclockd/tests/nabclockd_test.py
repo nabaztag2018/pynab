@@ -186,6 +186,7 @@ class TestNabclockd(NabdMockTestCase):
         setattr(config, "wakeup_min_" + dayOfTheWeek, wakeup_min)
         setattr(config, "sleep_hour_" + dayOfTheWeek, sleep_hour)
         setattr(config, "sleep_min_" + dayOfTheWeek, sleep_min)
+        config.chime_hour = False
         config.save()
         service = self.create_service()
         this_loop.call_later(1, lambda: self._update_wakeup_hours(service))
