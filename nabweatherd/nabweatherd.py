@@ -345,8 +345,9 @@ class NabWeatherd(NabInfoService):
         if not config.next_performance_weather_vocal_flag:
             # every hour approx
             if config.weather_frequency == 1:
+                minutes = random.randint(40, 70)  # nosec B311
                 config.next_performance_weather_vocal_date = (
-                    now + datetime.timedelta(minutes=random.randint(40, 70))
+                    now + datetime.timedelta(minutes=minutes)
                 )
                 logging.debug(
                     "update_next / next_performance_weather_vocal"
@@ -355,8 +356,9 @@ class NabWeatherd(NabInfoService):
                 config.next_performance_weather_vocal_flag = True
 
             elif config.weather_frequency == 2:
+                minutes = random.randint(100, 190)  # nosec B311
                 config.next_performance_weather_vocal_date = (
-                    now + datetime.timedelta(minutes=random.randint(100, 190))
+                    now + datetime.timedelta(minutes=minutes)
                 )
                 logging.debug(
                     "update_next / next_performance_weather_vocal"

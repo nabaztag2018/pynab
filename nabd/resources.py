@@ -77,5 +77,5 @@ class Resources(object):
                 if path.is_dir():
                     filelist = filelist + list(path.glob(pattern))
         if filelist != []:
-            return random.choice(sorted(filelist))
+            return random.choice(sorted(filelist))  # nosec B311
         return None
