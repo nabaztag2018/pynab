@@ -44,7 +44,7 @@ jobs:
         run: |
           sudo apt update -y
           sudo apt-get install -y libasound2-dev libmpg123-dev libatlas-base-dev curl
-          wget -q -O - "https://github.com/pguyot/kaldi/releases/download/v5.4.1/kaldi-c3260f2-linux_x86_64-vfp.tar.xz" | sudo tar xJ -C /
+          wget -q -O - "https://github.com/pguyot/kaldi/releases/download/e4940d045/kaldi-e4940d045-linux_ubuntu20.04-x86_64.tar.xz" | sudo tar xJ -C /
           sudo ldconfig
           python -m pip install --upgrade pip
           pip install cython numpy setuptools_rust wheel
