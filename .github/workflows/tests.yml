@@ -44,6 +44,8 @@ jobs:
         run: |
           sudo apt update -y
           sudo apt-get install -y libasound2-dev libmpg123-dev libatlas-base-dev curl
+          wget -q -O install_mkl.sh https://raw.githubusercontent.com/pguyot/kaldi/e4940d045d39deb86016bc176893303b5240ff59/tools/extras/install_mkl.sh
+          sudo bash install_mkl.sh
           wget -q -O - "https://github.com/pguyot/kaldi/releases/download/e4940d045/kaldi-e4940d045-linux_ubuntu20.04-x86_64.tar.xz" | sudo tar xJ -C /
           sudo ldconfig
           python -m pip install --upgrade pip
@@ -51,6 +53,12 @@ jobs:
 
       - name: Install requirements
         run: pip install -r requirements.txt
+
+      - name: Install kaldi models
+        run: |
+          sudo mkdir -p /opt/kaldi/model/
+          sudo tar xJf asr/kaldi-nabaztag-en-adapt-r20191222.tar.xz -C /opt/kaldi/model/
+          sudo tar xJf asr/kaldi-nabaztag-fr-adapt-r20200203.tar.xz -C /opt/kaldi/model/
 
       - name: Setup PostgreSQL database
         run: |
