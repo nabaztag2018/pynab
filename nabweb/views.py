@@ -185,6 +185,26 @@ class NabWebRfidView(BaseView):
         return context
 
 
+async def check_is_idle_state(reader):
+    line = await asyncio.wait_for(reader.readline(), 1.0)
+    packet = json.loads(line.decode("utf8"))
+    if (
+        "type" not in packet
+        or packet["type"] != "state"
+        or "state" not in packet
+    ):
+        return False, {
+            "status": "error",
+            "message": "Expected state packet",
+        }
+    if packet["state"] != "idle":
+        return False, {
+            "status": "error",
+            "message": f"Nabaztag is busy ({packet['state']})",
+        }
+    return True, None
+
+
 class NabWebRfidReadView(View):
     READ_TIMEOUT = 30.0
 
@@ -192,6 +212,9 @@ class NabWebRfidReadView(View):
         return await NabdConnection.transaction(self._do_read_tag, timeout)
 
     async def _do_read_tag(self, reader, writer, timeout):
+        is_idle, error_msg = await check_is_idle_state(reader)
+        if not is_idle:
+            return error_msg
         # Enter interactive mode to get every rfid event (instead of apps)
         packet = (
             '{"type":"mode","mode":"interactive","events":["rfid/*"],'
@@ -257,6 +280,9 @@ class NabWebRfidWriteView(View):
     async def _do_write_tag(
         self, reader, writer, tech, uid, picture, app, data, timeout
     ):
+        is_idle, error_msg = await check_is_idle_state(reader)
+        if not is_idle:
+            return error_msg
         packet = {
             "type": "rfid_write",
             "tech": tech,
