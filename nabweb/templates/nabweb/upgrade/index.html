@@ -1,145 +1,155 @@
 {% extends 'nabweb/_base.html' %}
 {% load i18n %}
-{% block subtitle %}{% trans "Upgrade" %}{% endblock %}
+{% block subtitle %}
+    {% trans "Upgrade" %}
+{% endblock %}
 {% block content %}
-<div class="modal" tabindex="-1" role="dialog" id="upgradeModal">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">{% trans "Upgrade in progress" %}</h5>
-      </div>
-      <div class="modal-body">
-        <div class="progress">
-          <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0"
-            aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+    <div class="modal" tabindex="-1" role="dialog" id="upgradeModal">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{% trans "Upgrade in progress" %}</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                             role="progressbar"
+                             aria-valuenow="0"
+                             aria-valuemin="0"
+                             aria-valuemax="100"
+                             style="width: 100%">
+                        </div>
+                    </div>
+                    <p id="upgradeStatus" class="mt-2">{% trans "Upgrade is currently in progress..." %}</p>
+                </div>
+            </div>
         </div>
-        <p id="upgradeStatus" class="mt-2">{% trans "Upgrade is currently in progress..." %}</p>
-      </div>
     </div>
-  </div>
-</div>
-<div class="modal" tabindex="-1" role="dialog" id="upgradeLocalChangesWarningModal">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">{% trans "Local changes" %}</h5>
-      </div>
-      <div class="modal-body">
-        {% trans "Local changes have been detected in at least one repository. Automatic upgrade may fail. Are you sure you want to proceed?" %}
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger confirmed-upgrade-button"
-          data-dismiss="modal">{% trans "Yes" %}</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "No" %}</button>
-      </div>
+    <div class="modal"
+         tabindex="-1"
+         role="dialog"
+         id="upgradeLocalChangesWarningModal">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{% trans "Local changes" %}</h5>
+                </div>
+                <div class="modal-body">
+                    {% trans "Local changes have been detected in at least one repository. Automatic upgrade may fail. Are you sure you want to proceed?" %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-danger confirmed-upgrade-button"
+                            data-dismiss="modal">{% trans "Yes" %}</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "No" %}</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-<div class="row justify-content-center">
-  <div class="col-xl-8 col-lg-10 col-md-10 mb-3">
-    <div class="card">
-      <div class="card-header">
-        <h5 class="card-title">{% trans "Upgrade" %}</h5>
-      </div>
-      <div class="card-body">
-        <p>{% blocktrans %}Through this interface, you can upgrade your Nabaztag software (provided it is connected to
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10 col-md-10 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">{% trans "Upgrade" %}</h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        {% blocktrans %}Through this interface, you can upgrade your Nabaztag software (provided it is connected to
           the internet). This may take a while depending on the size and the scope of the update. <strong>Do not restart
-            your rabbit before the process is finished</strong>.{% endblocktrans %}</p>
-        {% if pynab.upstream_branch == "origin/release" %}
-        <p class="text-secondary">{% blocktrans %}You can switch to the Pynab <b>master</b> branch to benefit from
-          changes between releases, however this is not for the faint-hearted and requires good command of <a
-            href='https://www.raspberrypi.org/documentation/remote-access/ssh/' target='_blank'
-            rel='noopener noreferrer'>SSH</a> and <a href='https://git-scm.com/docs/' target='_blank'
-            rel='noopener noreferrer'>Git</a>.{% endblocktrans %}</p>
-        {% elif pynab.upstream_branch == "" %}
-        <p class="text-warning">{% blocktrans %}Your Nabaztag is using a purely local Pynab branch. Upgrade is not
-          applicable.{% endblocktrans %}</p>
-        {% else %}
-        <p class="text-warning">{% blocktrans %}Your Nabaztag is apparently not tracking the Pynab <b>release</b>
+            your rabbit before the process is finished</strong>.{% endblocktrans %}
+                    </p>
+                    {% if pynab.upstream_branch == "origin/release" %}
+                        <p class="text-secondary">
+                            {% blocktrans %}You can switch to the Pynab <b>master</b> branch to benefit from
+          changes between releases, however this is not for the faint-hearted and requires good command of <a href='https://www.raspberrypi.org/documentation/remote-access/ssh/' target='_blank' rel='noopener noreferrer'>SSH</a> and <a href='https://git-scm.com/docs/' target='_blank' rel='noopener noreferrer'>Git</a>.{% endblocktrans %}
+                        </p>
+                    {% elif pynab.upstream_branch == "" %}
+                        <p class="text-warning">
+                            {% blocktrans %}Your Nabaztag is using a purely local Pynab branch. Upgrade is not
+          applicable.{% endblocktrans %}
+                        </p>
+                    {% else %}
+                        <p class="text-warning">
+                            {% blocktrans %}Your Nabaztag is apparently not tracking the Pynab <b>release</b>
           branch. Please note that web-based upgrade mechanism may fail and require that you connect over
-          SSH.{% endblocktrans %}</p>
-        {% endif %}
-        <h5>{% trans "Current versions" %}</h5>
-        {% include "nabweb/upgrade/_repository.html" with repo=pynab %}
-        {% if sound_driver %}
-        {% include "nabweb/upgrade/_repository.html" with repo=sound_driver %}
-        {% else %}
-        <div data-repository="sound_driver" class="async-repository-info"></div>
-        {% endif %}
-        {% if ears_driver %}
-        {% include "nabweb/upgrade/_repository.html" with repo=ears_driver %}
-        {% else %}
-        <div data-repository="ears_driver" class="async-repository-info"></div>
-        {% endif %}
-        {% if rfid_driver %}
-        {% include "nabweb/upgrade/_repository.html" with repo=rfid_driver %}
-        {% else %}
-        <div data-repository="rfid_driver" class="async-repository-info"></div>
-        {% endif %}
-        {% if nfc_driver %}
-        {% include "nabweb/upgrade/_repository.html" with repo=nfc_driver %}
-        {% else %}
-        <div data-repository="nfc_driver" class="async-repository-info"></div>
-        {% endif %}
-        {% if nabblockly %}
-        {% include "nabweb/upgrade/_repository.html" with repo=nabblockly %}
-        {% else %}
-        <div data-repository="nabblockly" class="async-repository-info"></div>
-        {% endif %}
-        </dl>
-        <strong>{% trans "Last check:" %}</strong>
-        {% blocktrans with last_check_since=last_check|timesince %}{{ last_check_since }} ago{% endblocktrans %}
-      </div>
-      <div class="card-footer">
-        <div class="row mb-2">
-          <div class="col-12">
-            <button type="submit" class="btn btn-primary ml-2 check-now-button">{% trans "Check now" %}<span
-                class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status"
-                  aria-hidden="true"></span></span></button>
-            <button type="submit"
-              class="btn btn-primary{% if partial or not updatable %} disabled{% endif %} ml-2 float-right upgrade-button">{% trans "Upgrade now" %}<span
-                class="spinner d-none"> <span class="spinner-border spinner-border-sm" role="status"
-                  aria-hidden="true"></span></span></button>
-          </div>
+          SSH.{% endblocktrans %}
+                        </p>
+                    {% endif %}
+                    <h5>{% trans "Current versions" %}</h5>
+                    {% include "nabweb/upgrade/_repository.html" with repo=pynab %}
+                    {% if sound_driver %}
+                        {% include "nabweb/upgrade/_repository.html" with repo=sound_driver %}
+                    {% else %}
+                        <div data-repository="sound_driver" class="async-repository-info"></div>
+                    {% endif %}
+                    {% if ears_driver %}
+                        {% include "nabweb/upgrade/_repository.html" with repo=ears_driver %}
+                    {% else %}
+                        <div data-repository="ears_driver" class="async-repository-info"></div>
+                    {% endif %}
+                    {% if rfid_driver %}
+                        {% include "nabweb/upgrade/_repository.html" with repo=rfid_driver %}
+                    {% else %}
+                        <div data-repository="rfid_driver" class="async-repository-info"></div>
+                    {% endif %}
+                    {% if nfc_driver %}
+                        {% include "nabweb/upgrade/_repository.html" with repo=nfc_driver %}
+                    {% else %}
+                        <div data-repository="nfc_driver" class="async-repository-info"></div>
+                    {% endif %}
+                    {% if nabblockly %}
+                        {% include "nabweb/upgrade/_repository.html" with repo=nabblockly %}
+                    {% else %}
+                        <div data-repository="nabblockly" class="async-repository-info"></div>
+                    {% endif %}
+                </dl>
+                <strong>{% trans "Last check:" %}</strong>
+                {% blocktrans with last_check_since=last_check|timesince %}{{ last_check_since }} ago{% endblocktrans %}
+            </div>
+            <div class="card-footer">
+                <div class="row mb-2">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary ml-2 check-now-button">
+                            {% trans "Check now" %}<span class="spinner d-none"> <span class="spinner-border spinner-border-sm"
+       role="status"
+       aria-hidden="true"></span></span>
+                        </button>
+                        <button type="submit"
+                                class="btn btn-primary{% if partial or not updatable %} disabled{% endif %} ml-2 float-right upgrade-button">
+                            {% trans "Upgrade now" %}<span class="spinner d-none"> <span class="spinner-border spinner-border-sm"
+       role="status"
+       aria-hidden="true"></span></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
-  <script type="text/javascript">
+    <script type="text/javascript">
     $(function () {
       var checkNowBtn = $(".check-now-button");
       var upgradeBtn = $(".upgrade-button");
       var confirmedUpgradeBtn = $(".confirmed-upgrade-button");
-      var upgradeStep = 0; {
-        %
-        if partial %
-      }
-      $(".check-now-button .spinner").removeClass("d-none");
-      checkNowBtn.addClass("disabled");
-      $(".async-repository-info").each(function (i, element) {
-        $.ajax({
-          url: "{% url 'nabweb.upgrade.info' repository='REPOSITORY' %}".replace("REPOSITORY", $(element)
-            .data("repository")),
-          method: "GET",
-          success: function (data) {
-            $(element).replaceWith(data);
-            if ($(".async-repository-info").length == 0) {
-              $(".check-now-button .spinner").addClass("d-none");
-              checkNowBtn.removeClass("disabled"); {
-                %
-                if updatable %
-              }
-              $(".upgrade-button").removeClass("disabled"); {
-                %
-                endif %
+      var upgradeStep = 0;
+      {% if partial %}
+        $(".check-now-button .spinner").removeClass("d-none");
+        checkNowBtn.addClass("disabled");
+        $(".async-repository-info").each(function (i, element) {
+          $.ajax({
+            url: "{% url 'nabweb.upgrade.info' repository='REPOSITORY' %}".replace("REPOSITORY", $(element)
+              .data("repository")),
+            method: "GET",
+            success: function (data) {
+              $(element).replaceWith(data);
+              if ($(".async-repository-info").length == 0) {
+                $(".check-now-button .spinner").addClass("d-none");
+                checkNowBtn.removeClass("disabled");
+                {% if updatable %}$(".upgrade-button").removeClass("disabled");{% endif %}
               }
             }
-          }
+          });
         });
-      }); {
-        %
-        endif %
-      }
+      {% endif %}
 
       function checkNow() {
         $.ajax({
@@ -166,10 +176,7 @@
         $(".check-now-button .spinner").removeClass("d-none");
         upgradeBtn.addClass("disabled");
         checkNow();
-      }); {
-        %
-        if updatable %
-      }
+      }); {% if updatable %}
 
       function reportProgress(text) {
         var matches = /(.+) - ([0-9]+)\/([0-9]+|\?)/.exec(text);
@@ -280,12 +287,10 @@
       });
       confirmedUpgradeBtn.on("click", function () {
         doUpgrade();
-      }); {
-        %
-        endif %
-      }
+      });
+      {% endif %}
     });
 
-  </script>
+    </script>
 </div>
 {% endblock %}
