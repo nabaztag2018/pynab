@@ -52,7 +52,7 @@ def read_data_ui_for_views(uid):
     if uid in uid_data_base:
         event_name = uid_data_base[uid]
     else:
-        event_name = "NO_TAG_NAME"
+        event_name = ""
 
     return event_name
 
