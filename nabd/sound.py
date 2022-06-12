@@ -7,7 +7,10 @@ class Sound(object, metaclass=abc.ABCMeta):
     """Interface for sound"""
 
     async def preload(self, audio_resource):
-        # For now only consider local paths
+        if audio_resource.startswith("https://") or audio_resource.startswith(
+            "http://"
+        ):
+            return audio_resource
         file = await Resources.find("sounds", audio_resource)
         if file is not None:
             return file.as_posix()

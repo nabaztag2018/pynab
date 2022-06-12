@@ -4,6 +4,7 @@ import io
 import traceback
 import wave
 from concurrent.futures import ThreadPoolExecutor
+from urllib.request import urlopen
 
 import alsaaudio
 from mpg123 import Mpg123
@@ -102,73 +103,129 @@ class SoundAlsa(Sound):  # pragma: no cover
     def _play(self, filename):
         try:
             device = alsaaudio.PCM(device=self.playback_device)
-            if filename.endswith(".wav"):
-                with wave.open(filename, "rb") as f:
-                    channels = f.getnchannels()
-                    width = f.getsampwidth()
-                    rate = f.getframerate()
-                    self._setup_device(device, channels, rate, width)
-                    periodsize = rate // 10  # 1/10th of second
-                    device.setperiodsize(periodsize)
-                    target_chunk_size = periodsize * channels * width
-
-                    chunk = io.BytesIO()
-                    # tracking chunk length is technically useless here but we
-                    # do it for consistency
-                    chunk_length = 0
-                    data = f.readframes(periodsize)
-                    while data and self.currently_playing:
-                        chunk_length += chunk.write(data)
-
-                        if chunk_length < target_chunk_size:
-                            # This (probably) is last iteration.
-                            # ALSA device expects chunks of fixed period size
-                            # Pad the sound with silence to complete chunk
-                            chunk_length += chunk.write(
-                                bytearray(target_chunk_size - chunk_length)
-                            )
-
-                        device.write(chunk.getvalue())
-                        chunk.seek(0)
-                        chunk_length = 0
-                        data = f.readframes(periodsize)
-
+            if (
+                filename.startswith("http://")
+                or filename.startswith("https://")
+            ) and filename.endswith(".mp3"):
+                self._stream_mp3(device, filename)
+            elif filename.endswith(".wav"):
+                self._play_wav_file(device, filename)
             elif filename.endswith(".mp3"):
-                mp3 = Mpg123(filename)
-                rate, channels, encoding = mp3.get_format()
-                width = mp3.get_width_by_encoding(encoding)
-                self._setup_device(device, channels, rate, width)
-                periodsize = rate // 10  # 1/10th of second
-                device.setperiodsize(periodsize)
-                target_chunk_size = periodsize * width * channels
-                chunk = io.BytesIO()
-                chunk_length = 0
-                for frames in mp3.iter_frames():
-                    if (chunk_length + len(frames)) <= target_chunk_size:
-                        # Chunk is still smaller than what ALSA device expects
-                        # (0.1 sec)
-                        chunk_length += chunk.write(frames)
-                    else:
-                        frames_view = memoryview(frames)
-                        remaining = target_chunk_size - chunk_length
-                        chunk_length += chunk.write(frames_view[:remaining])
-                        device.write(chunk.getvalue())
-                        chunk.seek(0)
-                        chunk_length = 0
-                        chunk_length += chunk.write(frames_view[remaining:])
-
-                    if not self.currently_playing:
-                        break
-
-                # ALSA device expects chunks of fixed period size
-                # Pad the sound with silence to complete last chunk
-                if chunk_length > 0:
-                    remaining = target_chunk_size - chunk_length
-                    chunk.write(bytearray(remaining))
-                    device.write(chunk.getvalue())
+                self._play_mp3_file(device, filename)
         finally:
             self.currently_playing = False
             device.close()
+
+    def _play_wav_file(self, device, filename):
+        with wave.open(filename, "rb") as f:
+            channels = f.getnchannels()
+            width = f.getsampwidth()
+            rate = f.getframerate()
+            self._setup_device(device, channels, rate, width)
+            periodsize = rate // 10  # 1/10th of second
+            device.setperiodsize(periodsize)
+            target_chunk_size = periodsize * channels * width
+
+            chunk = io.BytesIO()
+            # tracking chunk length is technically useless here but we
+            # do it for consistency
+            chunk_length = 0
+            data = f.readframes(periodsize)
+            while data and self.currently_playing:
+                chunk_length += chunk.write(data)
+
+                if chunk_length < target_chunk_size:
+                    # This (probably) is last iteration.
+                    # ALSA device expects chunks of fixed period size
+                    # Pad the sound with silence to complete chunk
+                    chunk_length += chunk.write(
+                        bytearray(target_chunk_size - chunk_length)
+                    )
+
+                device.write(chunk.getvalue())
+                chunk.seek(0)
+                chunk_length = 0
+                data = f.readframes(periodsize)
+
+    def _play_mp3_file(self, device, filename):
+        mp3 = Mpg123(filename)
+        rate, channels, encoding = mp3.get_format()
+        width = mp3.get_width_by_encoding(encoding)
+        self._setup_device(device, channels, rate, width)
+        periodsize = rate // 10  # 1/10th of second
+        device.setperiodsize(periodsize)
+        target_chunk_size = periodsize * width * channels
+        chunk = io.BytesIO()
+        chunk_length = 0
+        for frames in mp3.iter_frames():
+            if (chunk_length + len(frames)) <= target_chunk_size:
+                # Chunk is still smaller than what ALSA device expects
+                # (0.1 sec)
+                chunk_length += chunk.write(frames)
+            else:
+                frames_view = memoryview(frames)
+                remaining = target_chunk_size - chunk_length
+                chunk_length += chunk.write(frames_view[:remaining])
+                device.write(chunk.getvalue())
+                chunk.seek(0)
+                chunk_length = 0
+                chunk_length += chunk.write(frames_view[remaining:])
+
+            if not self.currently_playing:
+                break
+
+        # ALSA device expects chunks of fixed period size
+        # Pad the sound with silence to complete last chunk
+        if chunk_length > 0:
+            remaining = target_chunk_size - chunk_length
+            chunk.write(bytearray(remaining))
+            device.write(chunk.getvalue())
+
+    def _stream_mp3(self, device, url):
+        mp3 = Mpg123()
+        # url begins with http:// or https:// (see above)
+        response = urlopen(url)  # nosec B310
+
+        mp3chunk = response.read(4096)
+        if not mp3chunk:
+            return
+        mp3.feed(mp3chunk)
+        rate, channels, encoding = mp3.get_format()
+        width = mp3.get_width_by_encoding(encoding)
+        self._setup_device(device, channels, rate, width)
+        periodsize = rate // 10  # 1/10th of second
+        device.setperiodsize(periodsize)
+        target_chunk_size = periodsize * width * channels
+        alsachunk = io.BytesIO()
+        chunk_length = 0
+        while self.currently_playing:
+            for frames in mp3.iter_frames():
+                if (chunk_length + len(frames)) <= target_chunk_size:
+                    # Chunk is still smaller than what ALSA device expects
+                    # (0.1 sec)
+                    chunk_length += alsachunk.write(frames)
+                else:
+                    frames_view = memoryview(frames)
+                    remaining = target_chunk_size - chunk_length
+                    chunk_length += alsachunk.write(frames_view[:remaining])
+                    device.write(alsachunk.getvalue())
+                    alsachunk.seek(0)
+                    chunk_length = 0
+                    chunk_length += alsachunk.write(frames_view[remaining:])
+
+                if not self.currently_playing:
+                    break
+            mp3chunk = response.read(4096)
+            if not mp3chunk:
+                break
+            mp3.feed(mp3chunk)
+
+        # ALSA device expects chunks of fixed period size
+        # Pad the sound with silence to complete last chunk
+        if chunk_length > 0:
+            remaining = target_chunk_size - chunk_length
+            alsachunk.write(bytearray(remaining))
+            device.write(alsachunk.getvalue())
 
     def _setup_device(self, device, channels, rate, width):
         # Set attributes
