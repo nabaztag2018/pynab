@@ -262,7 +262,7 @@ msgid ""
 "The open heart operation to transplant the cards into your rabbit. At this "
 "stage you probably do not need this anymore..."
 msgstr ""
-"L'opération à cœur ouvert pour transplanter le ou les cartes dans votre "
+"L'opération à cœur ouvert pour transplanter les cartes dans votre "
 "lapin. A ce stade, vous n'en avez probablement plus besoin ..."
 
 #: templates/nabweb/index.html:8
