@@ -3,7 +3,7 @@ import sys
 import time
 from threading import Lock, Timer
 
-import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO  # type: ignore
 
 from .button import Button
 from .nabio import NabIO

@@ -6,8 +6,8 @@ import wave
 from concurrent.futures import ThreadPoolExecutor
 from urllib.request import urlopen
 
-import alsaaudio
-from mpg123 import Mpg123
+import alsaaudio  # type: ignore
+from mpg123 import Mpg123  # type: ignore
 
 from .cancel import wait_with_cancel_event
 from .sound import Sound
