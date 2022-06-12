@@ -72,22 +72,22 @@ class NabSurprised(NabRandomService):
         if frequency == NabSurprised.VERY_OFTEN:
             return random.uniform(
                 0, NabSurprised.FREQUENCY_SECONDS[NabSurprised.VERY_OFTEN]
-            )
+            )  # nosec B311
         elif frequency == NabSurprised.OFTEN:
             return random.uniform(
                 NabSurprised.FREQUENCY_SECONDS[NabSurprised.VERY_OFTEN],
                 NabSurprised.FREQUENCY_SECONDS[NabSurprised.OFTEN],
-            )
+            )  # nosec B311
         elif frequency == NabSurprised.SOMETIMES:
             return random.uniform(
                 NabSurprised.FREQUENCY_SECONDS[NabSurprised.OFTEN],
                 NabSurprised.FREQUENCY_SECONDS[NabSurprised.SOMETIMES],
-            )
+            )  # nosec B311
         else:
             return random.uniform(
                 NabSurprised.FREQUENCY_SECONDS[NabSurprised.SOMETIMES],
                 NabSurprised.FREQUENCY_SECONDS[NabSurprised.RARELY],
-            )
+            )  # nosec B311
 
     async def process_nabd_packet(self, packet):
         if packet["type"] == "asr_event":

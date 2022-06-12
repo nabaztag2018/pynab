@@ -30,7 +30,9 @@ class ChoreographyInterpreter:
         # 0 has a probability of 9/256
         # 1-28 have a probabilty of 8/256
         # 29 has a probability of 7/256.
-        self.taichi_random = int(random.randint(0, 255) * 30 >> 8)
+        self.taichi_random = int(
+            random.randint(0, 255) * 30 >> 8  # nosec B311
+        )
         self.taichi_directions = [0, 0]
         self.current_palette = [(0, 0, 0) for x in range(8)]
 
@@ -277,7 +279,7 @@ class ChoreographyInterpreter:
 
     async def randmidi(self, index, chor):
         await self.sound.start_playing(
-            random.choice(ChoreographyInterpreter.MIDI_LIST)
+            random.choice(ChoreographyInterpreter.MIDI_LIST)  # nosec B311
         )
         return index
 
@@ -358,18 +360,18 @@ class ChoreographyInterpreter:
         while True:
             if chorst_oreille_chance is None:
                 chorst_oreille_chance = 0
-                left, right = random.choice([(0, 10), (10, 0)])
+                left, right = random.choice([(0, 10), (10, 0)])  # nosec B311
                 await self.ears.go(Ears.LEFT_EAR, left, Ears.FORWARD_DIRECTION)
                 await self.ears.go(
                     Ears.RIGHT_EAR, right, Ears.FORWARD_DIRECTION
                 )
             else:
-                if random.randint(0, chorst_oreille_chance) == 0:
-                    pos = random.choice([0, 5, 10, 14])
+                if random.randint(0, chorst_oreille_chance) == 0:  # nosec B311
+                    pos = random.choice([0, 5, 10, 14])  # nosec B311
                     await self.ears.go(
                         Ears.LEFT_EAR, pos, Ears.FORWARD_DIRECTION
                     )
-                    pos = random.choice([0, 5, 10, 14])
+                    pos = random.choice([0, 5, 10, 14])  # nosec B311
                     await self.ears.go(
                         Ears.RIGHT_EAR, pos, Ears.FORWARD_DIRECTION
                     )
@@ -379,16 +381,16 @@ class ChoreographyInterpreter:
                 ChoreographyInterpreter.STREAMING_CHOREGRAPHIES,
             )
             chor = file.read_bytes()
-            chorst_tempo = 160 + random.randint(0, 90)
-            chorst_loops = 3 + random.randint(0, 17)
+            chorst_tempo = 160 + random.randint(0, 90)  # nosec B311
+            chorst_loops = 3 + random.randint(0, 17)  # nosec B311
             if self.current_palette_is_random:
                 self.current_palette = random.choice(
                     ChoreographyInterpreter.PALETTES
-                )
+                )  # nosec B311
             self.chorst_palettecolors = [
-                random.randint(0, 7),
-                random.randint(0, 7),
-                random.randint(0, 7),
+                random.randint(0, 7),  # nosec B311
+                random.randint(0, 7),  # nosec B311
+                random.randint(0, 7),  # nosec B311
             ]
             for ix in range(chorst_loops):
                 await self.play_binary(chor, "streaming", chorst_tempo)
