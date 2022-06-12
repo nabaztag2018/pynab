@@ -13,7 +13,7 @@ from rpi_ws281x import Adafruit_NeoPixel, Color
 from smbus2 import SMBus
 
 
-def set_leds(shutdown):
+def set_leds(color):
     LED_COUNT = 5
     LED_PIN = 13  # GPIO pin connected to the pixels (18 uses PWM!).
     LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
@@ -34,11 +34,6 @@ def set_leds(shutdown):
     )
     # Intialize the library (must be called once before other functions).
     strip.begin()
-
-    if shutdown:
-        color = Color(0, 0, 0)
-    else:
-        color = Color(255, 0, 255)
 
     for led in range(6):
         strip.setPixelColor(led, color)
@@ -110,6 +105,7 @@ def update_config_and_reboot(enabled, disabled):
             f.writelines(content)
             f.flush()
     if needs_enable or modified:
+        set_leds(Color(0, 0, 255))
         os.system("reboot")
 
 
@@ -126,7 +122,11 @@ def configure_rfid_driver():
 
 if __name__ == "__main__":
     shutdown = len(sys.argv) > 1 and sys.argv[1] != "start"
+    if shutdown:
+        led_color = Color(0, 0, 0)
+    else:
+        led_color = Color(255, 0, 255)
+    set_system_led(shutdown)
+    set_leds(led_color)
     if not shutdown:
         configure_rfid_driver()
-    set_system_led(shutdown)
-    set_leds(shutdown)

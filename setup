@@ -208,6 +208,7 @@ sudo -u ${owner} git clone --depth 1 -b ${st25_branch} https://github.com/pguyot
 cd ${inst_dir}/st25r391x
 build_and_install_driver
 
+echo "Disabling 2022 NFC card driver and making sure i2c-dev is enabled"
 # Disable this driver as it conflicts with cr14 (nabboot will do the switch)
 sed /boot/config.txt -i -e "s/^dtoverlay=st25r391x/#dtoverlay=st25r391x/"
 # Enable i2c-dev

@@ -152,6 +152,10 @@ if [ $upgrade -eq 1 ]; then
     git clone https://github.com/pguyot/st25r391x ${inst_dir}/st25r391x
     cd ${inst_dir}/st25r391x
     build_and_install_driver st25r391x
+    # Disable this driver as it conflicts with cr14 (nabboot will do the switch)
+    sudo sed /boot/config.txt -i -e "s/^dtoverlay=st25r391x/#dtoverlay=st25r391x/"
+    # Enable i2c-dev
+    grep -q -E "^i2c-dev" /etc/modules || printf "i2c-dev\n" | sudo tee -a /etc/modules
     sudo touch /tmp/pynab.upgrade.reboot
   fi
 else
