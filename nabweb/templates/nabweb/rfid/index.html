@@ -430,7 +430,7 @@
           var div = $(".rfid-application-data[data-application=" + val + "]");
           if (div.length > 0) {
             var url = div.data("url");
-            var dataArg = "data=" + encodeURIComponent(data)+"&uid=" + encodeURIComponent(uid);
+            var dataArg = "data=" + encodeURIComponent(data)+"&uid=" + encodeURIComponent(document.getElementById("staticUID").value);
             $.get(url, dataArg, function(html) {
               div.html(html);
             });
