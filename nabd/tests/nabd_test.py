@@ -581,6 +581,66 @@ class TestNabd(TestNabdBase):
         finally:
             s1.close()
 
+    def test_interactive_close_socket(self):
+        s1 = self.service_socket()
+        s2 = self.service_socket()
+        try:
+            packet = s1.readline()  # state packet
+            packet = s2.readline()  # state packet
+            s1.write(b'{"type":"mode","mode":"interactive"}\r\n')
+            packet = s1.readline()  # response packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["status"], "ok")
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "interactive")
+            packet = s2.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "interactive")
+            s1.close()
+            packet = s2.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "idle")
+        finally:
+            s1.close()
+            s2.close()
+
+    def test_interactive_idle(self):
+        s1 = self.service_socket()
+        s2 = self.service_socket()
+        try:
+            packet = s1.readline()  # state packet
+            packet = s2.readline()  # state packet
+            s1.write(b'{"type":"mode","mode":"interactive"}\r\n')
+            packet = s1.readline()  # response packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "response")
+            self.assertEqual(packet_j["status"], "ok")
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "interactive")
+            packet = s2.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "interactive")
+            s1.write(b'{"type":"mode","mode":"idle"}\r\n')
+            packet = s1.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "idle")
+            packet = s2.readline()  # new state packet
+            packet_j = json.loads(packet.decode("utf8"))
+            self.assertEqual(packet_j["type"], "state")
+            self.assertEqual(packet_j["state"], "idle")
+        finally:
+            s1.close()
+            s2.close()
+
 
 @pytest.mark.django_db(transaction=True)
 class TestRfid(TestNabdBase):
