@@ -4,7 +4,9 @@ on:
     branches:
       - master
     tags:
+      - '*'
   pull_request:
+  workflow_dispatch:
 jobs:
   test_suite:
     name: Run test suite
