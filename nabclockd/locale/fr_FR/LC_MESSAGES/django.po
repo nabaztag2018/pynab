@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-12 18:27+0200\n"
+"POT-Creation-Date: 2022-06-13 08:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,9 +18,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: templates/nabclockd/rfid-data.html:2
+#, fuzzy
 msgid ""
-"If you select Sleep and wants your Nabaztag to wake up, just push its button."
-msgstr "Si vous avez sélectionné Dormir et que vous voulez réveiller votre Nabaztag il suffit d'appuyer sur le bouton du haut."
+"If you selected Sleep and want your Nabaztag to wake up, just push its head "
+"button."
+msgstr ""
+"Si vous avez sélectionné Dormir et que vous voulez réveiller votre Nabaztag "
+"il suffit d'appuyer sur le bouton du haut."
 
 #: templates/nabclockd/rfid-data.html:4
 msgid "Action"
@@ -98,6 +102,4 @@ msgstr "Enregistrer"
 msgid "Reset"
 msgstr "Annuler"
 
-# NFC APP Name
-#~ msgid "Sleeping and waking up"
-#~ msgstr "Dormir et se réveiller"
+
