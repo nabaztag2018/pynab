@@ -18,8 +18,8 @@ services:
     pynab:
         container_name: Pynab
         build:
-            context: nab/
-            dockerfile: Dockerfile
+            context: ..
+            dockerfile: Docker/nab/Dockerfile
         volumes:
           - ../:/opt/pynab
           - var-run-postgresql:/var/run/postgresql
