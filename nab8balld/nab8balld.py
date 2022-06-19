@@ -2,6 +2,7 @@ import asyncio
 import sys
 
 from nabcommon.nabservice import NabService
+from nabcommon.typing import NabdPacket
 
 
 class Nab8Balld(NabService):
@@ -48,7 +49,7 @@ class Nab8Balld(NabService):
         self.writer.write(packet.encode("utf8"))
         await self.writer.drain()
 
-    async def process_nabd_packet(self, packet):
+    async def process_nabd_packet(self, packet: NabdPacket):
         if "type" in packet:
             processors = {
                 "button_event": self.process_button_event_packet,

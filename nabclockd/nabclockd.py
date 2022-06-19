@@ -8,6 +8,7 @@ from typing import List
 from dateutil import tz
 
 from nabcommon import nabservice
+from nabcommon.typing import NabdPacket
 
 from . import rfid_data
 
@@ -251,7 +252,7 @@ class NabClockd(nabservice.NabService):
         with open("/etc/timezone") as w:
             return w.read().strip()
 
-    async def process_nabd_packet(self, packet: dict) -> None:
+    async def process_nabd_packet(self, packet: NabdPacket) -> None:
         if (
             "type" in packet
             and packet["type"] == "state"

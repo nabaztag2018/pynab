@@ -3,6 +3,7 @@ import random
 import sys
 
 from nabcommon.nabservice import NabRandomService
+from nabcommon.typing import NabdPacket
 
 
 class NabTaichid(NabRandomService):
@@ -33,7 +34,7 @@ class NabTaichid(NabRandomService):
     def compute_random_delta(self, frequency):
         return (256 - frequency) * 60 * (random.uniform(0, 255) + 64) / 128
 
-    async def process_nabd_packet(self, packet):
+    async def process_nabd_packet(self, packet: NabdPacket):
         if (
             packet["type"] == "asr_event"
             and packet["nlu"]["intent"] == "nabtaichid/taichi"

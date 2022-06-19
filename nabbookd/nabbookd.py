@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 from nabcommon.nabservice import NabService
+from nabcommon.typing import NabdPacket
 
 from . import rfid_data
 
@@ -80,7 +81,7 @@ class NabBookd(NabService):
         self.writer.write(packet.encode())
         await self.writer.drain()
 
-    async def process_nabd_packet(self, packet):
+    async def process_nabd_packet(self, packet: NabdPacket):
         await self.__state_handler(packet)
 
     async def process_nabd_packet_idle(self, packet):
@@ -114,112 +115,103 @@ class NabBookd(NabService):
         else:
             logging.debug(f"[idle] Unknown packet {packet}")
 
-    async def process_nabd_packet_busy(self, packet):
-        type = packet["type"]
-        if type == "state" and packet["state"] == "idle":
+    async def process_nabd_packet_busy(self, packet: NabdPacket):
+        if packet["type"] == "state" and packet["state"] == "idle":
             self.__state_handler = self.process_nabd_packet_idle
         elif type == "state":
             pass
         else:
             logging.debug(f"[busy] Unknown packet {packet}")
 
-    async def process_nabd_packet_start_interactive(self, packet):
-        type = packet["type"]
-        if type == "state":
+    async def process_nabd_packet_start_interactive(self, packet: NabdPacket):
+        if packet["type"] == "state":
             pass
         elif (
-            type == "response"
-            and packet["status"] == "ok"
-            and "request_id" in packet
-            and packet["request_id"] == "mode"
+            packet["type"] == "response"
+            and packet.get("status") == "ok"
+            and packet.get("request_id") == "mode"
         ):
             self.__state_handler = self.process_nabd_packet_intro
-            packet = (
+            command_packet = (
                 '{"type":"command","sequence":['
                 '{"audio":"nabbookd/intro.mp3",'
                 '"choreography":"nabbookd/intro.chor"}],'
                 '"request_id":"intro"}\r\n'
             )
-            self.writer.write(packet.encode())
+            self.writer.write(command_packet.encode())
             await self.writer.drain()
-        elif type == "button_event" and packet["event"] == "click":
+        elif packet["type"] == "button_event" and packet["event"] == "click":
             self.__state_handler = self.process_nabd_packet_idle
             await self.exit_interactive(True)
-        elif type == "button_event":
+        elif packet["type"] == "button_event":
             pass
         else:
             logging.debug(f"[start_interactive] Unknown packet {packet}")
 
-    async def process_nabd_packet_intro(self, packet):
-        type = packet["type"]
-        if type == "state":
+    async def process_nabd_packet_intro(self, packet: NabdPacket):
+        if packet["type"] == "state":
             pass
         elif (
-            type == "response"
-            and packet["status"] == "ok"
-            and "request_id" in packet
-            and packet["request_id"] == "intro"
+            packet["type"] == "response"
+            and packet.get("status") == "ok"
+            and packet.get("request_id") == "intro"
         ):
             # Chapter was selected when reading the tag
             self.__state_handler = self.process_nabd_packet_reading
             await self.next_chapter()
-        elif type == "button_event" and packet["event"] == "click":
+        elif packet["type"] == "button_event" and packet["event"] == "click":
             self.__state_handler = self.process_nabd_packet_idle
             await self.cancel_command("intro")
             await self.exit_interactive(True)
-        elif type == "button_event":
+        elif packet["type"] == "button_event":
             pass
         else:
             logging.debug(f"[intro] Unknown packet {packet}")
 
-    async def process_nabd_packet_reading(self, packet):
-        type = packet["type"]
+    async def process_nabd_packet_reading(self, packet: NabdPacket):
         if (
-            type == "response"
-            and packet["status"] == "ok"
-            and "request_id" in packet
-            and packet["request_id"] == "reading"
+            packet["type"] == "response"
+            and packet.get("status") == "ok"
+            and packet.get("request_id") == "reading"
         ):
             await self.next_chapter()
-        elif type == "button_event" and packet["event"] == "click":
+        elif packet["type"] == "button_event" and packet["event"] == "click":
             await self.cancel_command("reading")
             self.__state_handler = self.process_nabd_packet_outro
-            packet = (
+            command_packet = (
                 '{"type":"command","sequence":['
                 '{"audio":"nabd/abort.wav"},'
                 '{"audio":"nabbookd/interrupt.mp3",'
                 '"choreography":"nabbookd/interrupt.chor"}],'
                 '"request_id":"outro"}\r\n'
             )
-            self.writer.write(packet.encode())
+            self.writer.write(command_packet.encode())
             await self.writer.drain()
-        elif type == "button_event":
+        elif packet["type"] == "button_event":
             pass
-        elif type == "ear_event" and packet["ear"] == "left":
+        elif packet["type"] == "ear_event" and packet["ear"] == "left":
             self.__state_handler = self.process_nabd_packet_backward
             await self.cancel_command("reading")
-        elif type == "ear_event" and packet["ear"] == "right":
+        elif packet["type"] == "ear_event" and packet["ear"] == "right":
             self.__state_handler = self.process_nabd_packet_forward
             await self.cancel_command("reading")
         else:
             logging.debug(f"[reading] Unknown packet {packet}")
 
-    async def process_nabd_packet_backward(self, packet):
-        type = packet["type"]
+    async def process_nabd_packet_backward(self, packet: NabdPacket):
         if (
-            type == "response"
-            and "request_id" in packet
-            and packet["request_id"] == "reading"
+            packet["type"] == "response"
+            and packet.get("request_id") == "reading"
         ):
-            packet = (
+            command_packet = (
                 '{"type":"command","sequence":['
                 '{"audio":"nabbookd/previous.mp3"}],'
                 '"request_id":"feedback"}\r\n'
             )
-            self.writer.write(packet.encode())
+            self.writer.write(command_packet.encode())
             await self.writer.drain()
         elif (
-            type == "response"
+            packet["type"] == "response"
             and "request_id" in packet
             and packet["request_id"] == "feedback"
         ):
@@ -228,54 +220,50 @@ class NabBookd(NabService):
                 self.__current_chapter = 0
             self.__state_handler = self.process_nabd_packet_reading
             await self.next_chapter()
-        elif type == "ear_event":
+        elif packet["type"] == "ear_event":
             pass
         else:
             logging.debug(f"[backward] Unknown packet {packet}")
 
-    async def process_nabd_packet_forward(self, packet):
-        type = packet["type"]
+    async def process_nabd_packet_forward(self, packet: NabdPacket):
         if (
-            type == "response"
-            and "request_id" in packet
-            and packet["request_id"] == "reading"
+            packet["type"] == "response"
+            and packet.get("request_id") == "reading"
         ):
-            packet = (
+            command_packet = (
                 '{"type":"command","sequence":['
                 '{"audio":"nabbookd/next.mp3"}],'
                 '"request_id":"feedback"}\r\n'
             )
-            self.writer.write(packet.encode())
+            self.writer.write(command_packet.encode())
             await self.writer.drain()
         elif (
-            type == "response"
+            packet["type"] == "response"
             and "request_id" in packet
             and packet["request_id"] == "feedback"
         ):
             self.__state_handler = self.process_nabd_packet_reading
             await self.next_chapter()
-        elif type == "ear_event":
+        elif packet["type"] == "ear_event":
             pass
         else:
             logging.debug(f"[forward] Unknown packet {packet}")
 
-    async def process_nabd_packet_outro(self, packet):
-        type = packet["type"]
-        if type == "response" and packet["status"] == "canceled":
+    async def process_nabd_packet_outro(self, packet: NabdPacket):
+        if packet["type"] == "response" and packet.get("status") == "canceled":
             pass
         elif (
-            type == "response"
-            and packet["status"] == "ok"
-            and "request_id" in packet
-            and packet["request_id"] == "outro"
+            packet["type"] == "response"
+            and packet.get("status") == "ok"
+            and packet.get("request_id") == "outro"
         ):
             self.__state_handler = self.process_nabd_packet_idle
             await self.exit_interactive(False)
-        elif type == "button_event" and packet["event"] == "click":
+        elif packet["type"] == "button_event" and packet["event"] == "click":
             self.__state_handler = self.process_nabd_packet_idle
             await self.cancel_command("outro")
             await self.exit_interactive(True)
-        elif type == "button_event":
+        elif packet["type"] == "button_event":
             pass
         else:
             logging.debug(f"[outro] Unknown packet {packet}")

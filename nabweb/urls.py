@@ -14,9 +14,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from typing import List, Union
+
 from django.apps import apps
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.urls import include, path
+from django.urls import URLPattern, URLResolver, include, path
 from django.views.generic import TemplateView
 
 from .views import (
@@ -35,7 +37,7 @@ from .views import (
     NabWebView,
 )
 
-urlpatterns = [
+urlpatterns: List[Union[URLResolver, URLPattern]] = [
     path("", NabWebView.as_view()),
     path("services/", NabWebServicesView.as_view()),
     path("rfid/", NabWebRfidView.as_view()),

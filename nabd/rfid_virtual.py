@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional
 
 from .rfid import Rfid, TagFlags, TagTechnology
 
@@ -20,9 +20,10 @@ class RfidVirtual(Rfid):
         uid: bytes,
         picture: int,
         app: int,
-        data: bytes,
+        data: Optional[bytes],
     ):
-        print(f"rfid.write({tech}, {uid}, {picture}, {app}, {data})")
+        data_str = data.hex() if data else ""
+        print(f"rfid.write({tech}, {uid.hex()}, {picture}, {app}, {data_str})")
 
     def enable_polling(self):
         print("rfid.enable_polling()")

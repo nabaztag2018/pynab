@@ -8,6 +8,7 @@ from dateutil import tz
 from meteofrance_api.client import MeteoFranceClient, Place
 
 from nabcommon.nabservice import NabInfoService
+from nabcommon.typing import NabdPacket
 
 from . import rfid_data
 
@@ -570,7 +571,7 @@ class NabWeatherd(NabInfoService):
 
         await self.perform_additional(expiration, type, info_data, config)
 
-    async def process_nabd_packet(self, packet):
+    async def process_nabd_packet(self, packet: NabdPacket):
 
         if (
             packet["type"] == "asr_event"

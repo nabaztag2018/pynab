@@ -9,7 +9,7 @@ import platform
 import re
 import sys
 
-from rpi_ws281x import Adafruit_NeoPixel, Color
+from rpi_ws281x import Adafruit_NeoPixel, Color  # type: ignore
 from smbus2 import SMBus
 
 

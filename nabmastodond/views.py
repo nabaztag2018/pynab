@@ -6,7 +6,11 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, View
-from mastodon import Mastodon, MastodonError, MastodonUnauthorizedError
+from mastodon import (  # type: ignore
+    Mastodon,
+    MastodonError,
+    MastodonUnauthorizedError,
+)
 
 from .models import Config
 from .nabmastodond import NabMastodond

@@ -76,6 +76,7 @@ python_magic==0.4.25
 decorator==5.1.1
 blurhash==1.1.4
 python_dateutil==2.8.2
+types-python-dateutil==2.8.17
 pep8==1.7.1
 pytest_cache==1.0
 attrs==21.4.0
@@ -103,6 +104,7 @@ sklearn_crfsuite==0.3.6
 zipp==3.7.0
 certifi==2021.10.8
 urllib3==1.26.8
+types_urllib3==1.26.15
 charset_normalizer==2.0.12
 idna==3.3
 execnet==1.9.0
@@ -116,5 +118,6 @@ python_crfsuite==0.9.7
 tabulate==0.8.9
 tqdm==4.63.0
 requests==2.27.1
+types_requests==2.27.30
 iniconfig==1.1.1
 tomli==2.0.1

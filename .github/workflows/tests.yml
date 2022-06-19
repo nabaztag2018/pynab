@@ -26,14 +26,19 @@ jobs:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
 
+    strategy:
+      fail-fast: false
+      matrix:
+        python: [3.7, 3.9]
+
     steps:
       - name: Checkout pynab
         uses: actions/checkout@v2
 
-      - name: Set up Python 3.7
+      - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: ${{ matrix.python }}
 
       - name: Set up Rust
         uses: hecrj/setup-rust-action@v1
@@ -76,6 +81,10 @@ jobs:
 
       - name: Fake NTP synchronization
         run: sudo mkdir -p /run/systemd/timesync/ && sudo touch /run/systemd/timesync/synchronized
+
+      - name: Check types with mypy
+        run: |
+          mypy nab*
 
       - name: Run test suite with coverage
         run: |

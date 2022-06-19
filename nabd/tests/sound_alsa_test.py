@@ -4,9 +4,10 @@ import sys
 import time
 import unittest
 
-import asynctest
+import asynctest  # type: ignore
 import pytest
-from utils import close_old_async_connections
+
+from .utils import close_old_async_connections
 
 
 @pytest.mark.skipif(

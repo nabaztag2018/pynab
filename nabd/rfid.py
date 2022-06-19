@@ -1,6 +1,6 @@
 import abc
 from enum import IntEnum, IntFlag
-from typing import Callable
+from typing import Callable, Optional
 
 import nabairqualityd
 import nabbookd
@@ -84,7 +84,7 @@ class Rfid(object, metaclass=abc.ABCMeta):
         uid: bytes,
         picture: int,
         app: int,
-        data: bytes,
+        data: Optional[bytes],
     ):
         """
         Write the tag with the given uid with the specified picture, app and
