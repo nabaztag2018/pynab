@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y \
     libmpg123-dev libasound2-dev \
     wireless-tools sudo
 
-COPY *.sh /usr/local/bin/
+COPY Docker/nab/*.sh /usr/local/bin/
 
 # Fake nabd systemd service file used to retrieve the working directory
 RUN echo "WorkingDirectory=/opt/pynab" > /lib/systemd/system/nabd.service
