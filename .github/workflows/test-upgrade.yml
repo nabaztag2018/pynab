@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [pynab_091_zero, pynab_091_zero2]
+        target: [pynab_091_zero, pynab_091_zero2, pynab_100_zero, pynab_100_zero2]
         include:
         - target: pynab_091_zero
           cpu: arm1176
@@ -22,6 +22,16 @@ jobs:
           cpu_info: cpuinfo/raspberrypi_zero2_w
           base_image: https://github.com/nabaztag2018/pynab/releases/download/v0.9.1/pynab-v0.9.1.img.xz
           install_dir: /home/pi/pynab
+        - target: pynab_100_zero
+          cpu: arm1176
+          cpu_info: cpuinfo/raspberrypi_zero_w
+          base_image: https://github.com/nabaztag2018/pynab/releases/download/v1.0.0/pynab-v1.0.0-zero_raspbian.img.xz
+          install_dir: /opt/pynab
+        - target: pynab_100_zero2
+          cpu: cortex-a7
+          cpu_info: cpuinfo/raspberrypi_zero2_w
+          base_image: https://github.com/nabaztag2018/pynab/releases/download/v1.0.0/pynab-v1.0.0-zero_raspbian.img.xz
+          install_dir: /opt/pynab
     steps:
       - uses: actions/checkout@v2
       - name: Run test script in chroot environment
@@ -37,14 +47,14 @@ jobs:
           import_github_env: yes
           commands: |
             cd ${{ matrix.install_dir }}
-            sudo -u pi git remote set-branches --add origin ${GITHUB_REF##*/}
+            if [ x"${GITHUB_REPOSITORY}" != x"nabaztag2018/pynab" ]; then
+                sudo -u pi git remote set-url origin https://github.com/${GITHUB_REPOSITORY}
+            fi
+            sudo -u pi git remote set-branches --add origin ${GITHUB_REF_NAME}
             sudo -u pi git fetch -v
-            sudo -u pi git branch release -u origin/${GITHUB_REF##*/}
-            which aplay
-            echo $PATH
-            (echo "#!/bin/sh" && echo "echo tagtagtagsound") > /bin/aplay
-            chmod +x /bin/aplay
-            aplay -L
+            sudo -u pi git branch release -u origin/${GITHUB_REF_NAME}
+            (echo "#!/bin/sh" && echo "echo tagtagtagsound") > /usr/bin/aplay
+            chmod +x /usr/bin/aplay
             cluster_version=`echo /etc/postgresql/*/main/pg_hba.conf  | sed -E 's|/etc/postgresql/(.+)/(.+)/pg_hba.conf|\1|g'`
             cluster_name=`echo /etc/postgresql/*/main/pg_hba.conf  | sed -E 's|/etc/postgresql/(.+)/(.+)/pg_hba.conf|\2|g'`
             sudo -u postgres taskset -c 0 /usr/lib/postgresql/${cluster_version}/bin/pg_ctl start -D /etc/postgresql/${cluster_version}/${cluster_name}/
