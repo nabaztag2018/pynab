@@ -54,7 +54,7 @@ jobs:
           wget -q -O - "https://github.com/pguyot/kaldi/releases/download/e4940d045/kaldi-e4940d045-linux_ubuntu20.04-x86_64.tar.xz" | sudo tar xJ -C /
           sudo ldconfig
           python -m pip install --upgrade pip
-          pip install cython numpy setuptools_rust wheel
+          pip install Cython==0.29.30 numpy==1.21.4 setuptools_rust wheel
 
       - name: Install requirements
         run: pip install -r requirements.txt
