@@ -4,6 +4,7 @@ import logging
 import os
 from enum import Enum
 from threading import Timer
+from typing import Optional
 
 from .rfid import Rfid, TagFlags, TagTechnology
 
@@ -255,7 +256,7 @@ class RfidDev(Rfid):  # pragma: no cover
         uid: bytes,
         picture: int,
         app: int,
-        data: bytes,
+        data: Optional[bytes],
     ):
         if self.__fd is None:
             return False

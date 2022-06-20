@@ -3,7 +3,10 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
-from kaldiasr.nnet3 import KaldiNNet3OnlineDecoder, KaldiNNet3OnlineModel
+from kaldiasr.nnet3 import (  # type: ignore
+    KaldiNNet3OnlineDecoder,
+    KaldiNNet3OnlineModel,
+)
 
 
 class ASR:

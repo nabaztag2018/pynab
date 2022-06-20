@@ -2,7 +2,7 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from snips_nlu import SnipsNLUEngine
+from snips_nlu import SnipsNLUEngine  # type: ignore
 
 from nabweb import settings
 

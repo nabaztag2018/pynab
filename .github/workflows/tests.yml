@@ -26,19 +26,24 @@ jobs:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
 
+    strategy:
+      fail-fast: false
+      matrix:
+        python: [3.7, 3.9]
+
     steps:
       - name: Checkout pynab
         uses: actions/checkout@v2
 
-      - name: Set up Python 3.7
+      - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: ${{ matrix.python }}
 
       - name: Set up Rust
         uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: 1.44.1
+          rust-version: 1.61.0
 
       - name: Install dependencies
         run: |
@@ -49,7 +54,7 @@ jobs:
           wget -q -O - "https://github.com/pguyot/kaldi/releases/download/e4940d045/kaldi-e4940d045-linux_ubuntu20.04-x86_64.tar.xz" | sudo tar xJ -C /
           sudo ldconfig
           python -m pip install --upgrade pip
-          pip install cython numpy setuptools_rust wheel
+          pip install Cython==0.29.30 numpy==1.21.4 setuptools_rust wheel
 
       - name: Install requirements
         run: pip install -r requirements.txt
@@ -76,6 +81,10 @@ jobs:
 
       - name: Fake NTP synchronization
         run: sudo mkdir -p /run/systemd/timesync/ && sudo touch /run/systemd/timesync/synchronized
+
+      - name: Check types with mypy
+        run: |
+          mypy nab*
 
       - name: Run test suite with coverage
         run: |

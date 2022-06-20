@@ -9,14 +9,13 @@ import unittest
 
 import pytest
 from django.db import close_old_connections
-from mock import NabIOMock
-from utils import close_old_async_connections
 
 import nabtaichid
 from nabd import nabd
 from nabd.rfid import TagFlags, TagTechnology
 
-# import unittest.mock
+from .mock import NabIOMock
+from .utils import close_old_async_connections
 
 
 class SocketIO(io.RawIOBase):

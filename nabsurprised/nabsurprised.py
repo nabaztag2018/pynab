@@ -3,6 +3,7 @@ import random
 import sys
 
 from nabcommon.nabservice import NabRandomService
+from nabcommon.typing import NabdPacket
 
 from . import rfid_data
 
@@ -89,7 +90,7 @@ class NabSurprised(NabRandomService):
                 NabSurprised.FREQUENCY_SECONDS[NabSurprised.RARELY],
             )  # nosec B311
 
-    async def process_nabd_packet(self, packet):
+    async def process_nabd_packet(self, packet: NabdPacket):
         if packet["type"] == "asr_event":
             intent = packet["nlu"]["intent"]
             if intent in NabSurprised.NLU_INTENTS:

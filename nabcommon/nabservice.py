@@ -11,12 +11,14 @@ import time
 import traceback
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple, cast
 
 from lockfile import AlreadyLocked, LockFailed  # type: ignore
 from lockfile.pidlockfile import PIDLockFile  # type: ignore
 
 from nabcommon import nablogging, settings
+
+from .typing import NabdPacket
 
 
 class NabService(ABC):
@@ -42,7 +44,7 @@ class NabService(ABC):
         Reload configuration (on USR1 signal).
         """
 
-    async def process_nabd_packet(self, packet: dict) -> None:
+    async def process_nabd_packet(self, packet: NabdPacket) -> None:
         pass
 
     async def client_loop(self):
@@ -79,7 +81,9 @@ class NabService(ABC):
                     try:
                         packet = json.loads(line.decode("utf8"))
                         logging.debug(f"process nabd packet: {packet}")
-                        await self.process_nabd_packet(packet)
+                        await self.process_nabd_packet(
+                            cast(NabdPacket, packet)
+                        )
                     except json.decoder.JSONDecodeError as e:
                         logging.error(
                             f"Invalid JSON packet from nabd: {line}\n{e}"

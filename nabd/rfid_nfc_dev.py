@@ -11,7 +11,7 @@ from .rfid import Rfid, TagFlags, TagTechnology
 
 
 class TagData:
-    def __init__(self, picture, app, app_data):
+    def __init__(self, picture, app, app_data: Optional[bytes]):
         self.app = app
         self.picture = picture
         self.app_data = app_data
@@ -546,7 +546,7 @@ class RfidNFCDev(Rfid):  # pragma: no cover
         uid: bytes,
         picture: int,
         app: int,
-        data: bytes,
+        data: Optional[bytes],
     ):
         """
         Write a tag.

@@ -8,7 +8,7 @@ import unittest
 import pytest
 from asgiref.sync import async_to_sync
 from dateutil.tz import tzutc
-from mastodon import Mastodon, MastodonNotFoundError
+from mastodon import Mastodon, MastodonNotFoundError  # type: ignore
 
 from nabd.tests.mock import NabdMockTestCase
 from nabd.tests.utils import close_old_async_connections

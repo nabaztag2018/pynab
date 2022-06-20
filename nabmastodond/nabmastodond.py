@@ -3,17 +3,18 @@ import re
 import sys
 from operator import attrgetter
 
-from mastodon import (
+from mastodon import (  # type: ignore
     Mastodon,
     MastodonError,
     MastodonUnauthorizedError,
     StreamListener,
 )
 
-from nabcommon import nabservice
+from nabcommon.nabservice import NabService
+from nabcommon.typing import NabdPacket
 
 
-class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
+class NabMastodond(NabService, asyncio.Protocol, StreamListener):
     DAEMON_PIDFILE = "/run/nabmastodond.pid"
 
     RETRY_DELAY = 15 * 60  # Retry to reconnect every 15 minutes.
@@ -408,7 +409,7 @@ class NabMastodond(nabservice.NabService, asyncio.Protocol, StreamListener):
                     self.mastodon_client, conversations
                 )
 
-    async def process_nabd_packet(self, packet):
+    async def process_nabd_packet(self, packet: NabdPacket):
         if packet["type"] == "ears_event":
             config = await self.__config()
             if config.spouse_pairing_state == "married":
