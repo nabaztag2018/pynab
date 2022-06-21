@@ -111,6 +111,7 @@ Voir le [protocole nabd](PROTOCOL.md)
 - `nabtaichid` : démon pour le service taichi
 - `nabmastodond` : démon pour le service mastodon
 - `nabweatherd` : démon pour le service météo
+- `nabiftttd` : démon pour le service IFTTT
 - `nabweb` : interface web pour la configuration
 
 ## Contribution
