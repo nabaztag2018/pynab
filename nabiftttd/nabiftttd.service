@@ -1,5 +1,5 @@
 [Unit]
-Description=Nabaztag IFTTT Service
+Description=Nabaztag IFTTT daemon
 After=nabd.service
 StartLimitIntervalSec=0
 
