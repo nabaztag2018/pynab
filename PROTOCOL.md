@@ -12,9 +12,10 @@
 - [Paquets `wakeup`](#paquets-wakeup)
 - [Paquets `sleep`](#paquets-sleep)
 - [Paquets `mode`](#paquets-mode)
-- [Paquets `asr_event`](#paquets-asrevent)
-- [Paquets `ears_event`](#paquets-earsevent)
-- [Paquets `button_event`](#paquets-buttonevent)
+- [Paquets `asr_event`](#paquets-asr_event)
+- [Paquets `ears_event`](#paquets-ears_event)
+- [Paquets `button_event`](#paquets-button_event)
+- [Paquets `rfid_event`](#paquets-rfid_event)
 - [Paquets `response`](#paquets-response)
 - [Paquets `rfid_write`](#paquets-rfid_write)
 - [Paquets `gestalt`, `test`, `config-update` et `shutdown`](#paquets-gestalt-test-config-update-et-shutdown)
@@ -215,11 +216,12 @@ Le slot `"mode"` peut être:
 - `"interactive"`
 
 Le slot `"events"`, optionnel, est une liste avec:
-- `"asr"`
+- `"asr/*"`
 - `"button"`
 - `"ears"`
+- `"rfid/*"`
 
-Pour le mode `"idle"`, si `"events"` n'est pas précisé, cela est équivalent à la liste vide: le service ne reçoit aucun événement. Si `"asr"`, `"button"` ou `"ears" ` sont précisés, le service reçoit les événements correspondants lorsque le lapin est éveillé et n'est pas en mode `"interactive"` avec un autre service. Par défaut, le mode est `"idle"`, sans événements.
+Pour le mode `"idle"`, si `"events"` n'est pas précisé, cela est équivalent à la liste vide: le service ne reçoit aucun événement. Si `"asr/*"`, `"button"`,`"ears"` ou `"rfid/*"` sont précisés, le service reçoit les événements correspondants lorsque le lapin est éveillé et n'est pas en mode `"interactive"` avec un autre service. Par défaut, le mode est `"idle"`, sans événements.
 
 Dans le mode `"interactive"`, le service prend la main sur le lapin et reçoit les événéments précisés. Le lapin cesse d'afficher les infos. Un seul service peut être en mode interactif. Si non précisé, le service reçoit tous les événements. Les autres services ne reçoivent pas les événements, le lapin ne joue pas les commmandes et ne s'endort pas. Le mode interactif s'achève lorsque le service envoie un paquet `"mode"` avec le mode `"idle"` (ou lorsque la connexion est rompue).
 
@@ -261,6 +263,29 @@ Le slot `"event"` peut être:
 - `"click"`
 - `"double_click"`
 - `"click_and_hold"`
+
+## Paquets `rfid_event`
+
+Émetteur: nabd
+
+Signifie aux services qu'un tag NFC a été détecté ou retiré. Est envoyé aux services qui demandent ce type d'événements (mode `"idle"`/`"interactive"`).
+
+- `{"type":"rfid_event", "tech":tech, "uid":uid, "event":event}`
+
+Le slot `"event"` peut être:
+- `"detected"`
+- `"removed"`
+
+Si `"detected"`, le paquet contient des slots supplémentaires `"support"` et `"tag_info"` décrivant le tag.
+
+Le slot `"support"` peut être:
+- `"formatted"`
+- `"foreign-data"`
+- `"locked"`
+- `"empty"`
+- `"unknown"`
+
+Si `"formatted"`, le paquet contient des slots supplémentaires `"picture"`, `"app"` et `"data"` décrivant le contenu du tag.
 
 ## Paquets `response`
 
