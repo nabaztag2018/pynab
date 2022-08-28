@@ -1060,6 +1060,8 @@ class Nabd:
         """
         assert self.asr is not None
         await self.transition_to(State.RECORDING)
+        if self.nabio.rfid is not None:
+            self.nabio.rfid.disable_polling()
         await self.nabio.start_acquisition(self.asr.decode_chunk)
 
     async def stop_asr(self):
@@ -1072,6 +1074,8 @@ class Nabd:
         logging.debug(f"ASR string: {decoded_str}")
         response = await self.nlu.interpret(decoded_str)
         logging.debug(f"NLU response: {str(response)}")
+        if self.nabio.rfid is not None:
+            self.nabio.rfid.enable_polling()
         await self.transition_to(State.IDLE)
         if response is None:
             # Did not understand
