@@ -1,6 +1,7 @@
 import asyncio
 import functools
 import io
+import logging
 import traceback
 import wave
 from concurrent.futures import ThreadPoolExecutor
@@ -30,6 +31,7 @@ class SoundAlsa(Sound):  # pragma: no cover
             playback_device,
         ) = SoundAlsa.sound_configuration()
         self.playback_device = playback_device
+        self._recorded_raw = None
 
         if self.sound_card == SoundAlsa.MODEL_2018_CARD_NAME:
             self.playback_mixer = None
@@ -244,9 +246,15 @@ class SoundAlsa(Sound):  # pragma: no cover
         self.future = None
 
     async def start_recording(self, stream_cb):
+        logging.debug("SoundAlsa: start recording")
         await self.stop_playing()
         self.currently_recording = True
-        self.recorded_raw = open("sound_alsa_recording.raw", "wb")
+        if logging.getLogger(__name__).isEnabledFor(logging.DEBUG):
+            logging.debug(
+                "SoundAlsa: creating sound_alsa_recording.raw to "
+                "save recorded frames"
+            )
+            self._recorded_raw = open("sound_alsa_recording.raw", "wb")
         self.future = asyncio.get_event_loop().run_in_executor(
             self.executor, lambda cb=stream_cb: self._record(cb)
         )
@@ -264,13 +272,17 @@ class SoundAlsa(Sound):  # pragma: no cover
             inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
             inp.setperiodsize(1600)  # 100ms
             finalize = False
+            count = 0
             while not finalize:
                 l, data = inp.read()
                 if not self.currently_recording:
                     finalize = True
                 if l or finalize:
-                    # self.recorded_raw.write(data)
+                    count += 1
+                    if self._recorded_raw is not None:
+                        self._recorded_raw.write(data)
                     cb(data, finalize)
+            logging.info(f"SoundAlsa: Recorded {count} frames")
         except Exception:
             print(traceback.format_exc())
         finally:
@@ -279,10 +291,13 @@ class SoundAlsa(Sound):  # pragma: no cover
                 inp.close()
 
     async def stop_recording(self):
+        logging.debug("SoundAlsa: stop recording")
         if self.currently_recording:
             self.currently_recording = False
         await self.wait_until_done()
-        self.recorded_raw.close()
+        if self._recorded_raw is not None:
+            self._recorded_raw.close()
+            self._recorded_raw = None
 
     @staticmethod
     def __test_device(device, record):

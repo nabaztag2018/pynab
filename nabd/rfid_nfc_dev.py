@@ -533,10 +533,10 @@ class RfidNFCDev(Rfid):  # pragma: no cover
         if self.__fsm is not None:
             if self.__fsm.get_device_state() != nfcdev.NFCDeviceState.IDLE:
                 self.__fsm.write_message(nfcdev.NFCIdleModeRequestMessage())
-                self.__fsm.set_state(nfcdev.NFCDevStateDisabled())
+                self.__fsm.set_state(nfcdev.NFCDevStateDisabled(self.__fsm))
 
     def enable_polling(self):
-        if self.__dev is not None:
+        if self.__fsm is not None:
             if self.__fsm.get_device_state() == nfcdev.NFCDeviceState.IDLE:
                 self.__fsm.set_state(RfidNFCDevDiscoverTags(self, self.__fsm))
 
