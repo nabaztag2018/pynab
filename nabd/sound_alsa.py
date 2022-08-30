@@ -282,7 +282,7 @@ class SoundAlsa(Sound):  # pragma: no cover
                     if self._recorded_raw is not None:
                         self._recorded_raw.write(data)
                     cb(data, finalize)
-            logging.info(f"SoundAlsa: Recorded {count} frames")
+            logging.debug(f"SoundAlsa: Recorded {count} frames")
         except Exception:
             print(traceback.format_exc())
         finally:
