@@ -6,10 +6,10 @@ import nabairqualityd
 import nabbookd
 import nabclockd
 import nabiftttd
+import nabradio
 import nabsurprised
 import nabtaichid
 import nabweatherd
-import nabradio
 
 
 class TagFlags(IntFlag):
