@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('nabradio', '0001_initial'),
+        ("nabradio", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='config',
-            name='json_data_base',
-            field=models.TextField(default='', null=True),
+            model_name="config",
+            name="json_data_base",
+            field=models.TextField(default="", null=True),
         ),
     ]
