@@ -1,0 +1,17 @@
+[Unit]
+Description=Nabaztag Radio daemon
+After=nabd.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+WorkingDirectory=/opt/pynab
+EnvironmentFile=/opt/pynab/nabradio/nabradio.conf
+ExecStart=/opt/pynab/venv/bin/python -m nabradio.nabradio
+PIDFile=/run/nabradio.pid
+
+[Install]
+WantedBy=multi-user.target

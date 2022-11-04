@@ -9,6 +9,7 @@ import nabiftttd
 import nabsurprised
 import nabtaichid
 import nabweatherd
+import nabradio
 
 
 class TagFlags(IntFlag):
@@ -46,6 +47,7 @@ TAG_APPLICATIONS = {
     nabweatherd.NABAZTAG_RFID_APPLICATION_ID: "nabweatherd",  # 9
     nabiftttd.NABAZTAG_RFID_APPLICATION_ID: "nabiftttd",  # 10
     nabairqualityd.NABAZTAG_RFID_APPLICATION_ID: "nabairqualityd",  # 11
+    nabradio.NABAZTAG_RFID_APPLICATION_ID: "nabradio",  # 12
 }
 
 DEFAULT_RFID_TIMEOUT = 20.0
