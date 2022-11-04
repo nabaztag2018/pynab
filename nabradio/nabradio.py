@@ -1,8 +1,11 @@
+import datetime
 import logging
 import sys
+
 from nabcommon.nabservice import NabService
+
 from . import rfid_data
-import datetime
+
 
 class NabRadio(NabService):
     def __init__(self):
