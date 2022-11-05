@@ -1,0 +1,14 @@
+{% load i18n %}
+{% load static %}
+
+
+      {% trans "When Nabaztag sees that NFC tag, it will call the URL you specify to trigger whatever you need." %}
+	  <p>
+      
+<div class="form-group row">
+        <label for="webhook_url" class="col-6 col-form-label">{% trans "URL to be called:" %}</label>
+        <div class="col-6">
+          <input id="webhook_url" name="webhook_url" type="text" class="form-control" value="{{ webhook_url }}" placeholder="">
+		  <input id="webhook_uid" name="webhook_uid" type="hidden" class="form-control" value="{{ webhook_uid }}">
+        </div>
+      </div>

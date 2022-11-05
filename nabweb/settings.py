@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "nabweb",
     "nabiftttd",
     "nabradio",
+    "nabwebhook",
 ]
 
 MIDDLEWARE = [

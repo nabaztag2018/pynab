@@ -17,7 +17,6 @@ class NabRadio(NabService):
 
     async def _launch_radio(self, streaming_url, uid):
         logging.info("Launching radio " + streaming_url)
-        print("Launching radio " + streaming_url)
         now = datetime.datetime.now(datetime.timezone.utc)
         expiration = now + datetime.timedelta(minutes=1)
         packet = (
@@ -30,7 +29,6 @@ class NabRadio(NabService):
         await self.writer.drain()
 
     async def process_nabd_packet(self, packet):
-        print("reçu paquet")
         if (
             packet["type"] == "rfid_event"
             and packet["app"] == "nabradio"
