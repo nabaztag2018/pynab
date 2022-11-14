@@ -113,7 +113,7 @@ platformdirs==2.5.1
 distlib==0.3.4
 filelock==3.6.0
 docopt==0.6.2
-joblib==1.1.0
+joblib==1.2.0
 python_crfsuite==0.9.7
 tabulate==0.8.9
 tqdm==4.63.0
