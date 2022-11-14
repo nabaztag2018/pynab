@@ -22,6 +22,7 @@ class RFIDDataView(TemplateView):
     def post(self, request, *args, **kwargs):
 
         data = "DATA_IN_LOCAL_DB"
+        uid = ""
 
         if "radio_uid" in request.POST:
             uid = request.POST["radio_uid"]
