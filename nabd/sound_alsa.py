@@ -16,7 +16,6 @@ from .sound import Sound
 
 class SoundAlsa(Sound):  # pragma: no cover
     MODEL_2018_CARD_NAME = "sndrpihifiberry"
-
     MODEL_2019_CARD_NAME = "tagtagtagsound"
 
     SOUND_CARDS_SUPPORTED = frozenset(
@@ -24,35 +23,42 @@ class SoundAlsa(Sound):  # pragma: no cover
     )
 
     def __init__(self, hw_model):
-
-        (
-            card_index,
-            self.sound_card,
-            playback_device,
-        ) = SoundAlsa.sound_configuration()
-        self.playback_device = playback_device
+        self.sound_card = ""
+        self.playback_device = "null"
+        self.playback_mixer = None
+        self.record_device = "null"
+        self.record_mixer = None
         self._recorded_raw = None
 
-        if self.sound_card == SoundAlsa.MODEL_2018_CARD_NAME:
-            self.playback_mixer = None
-            self.record_device = "null"
-            self.record_mixer = None
-        else:
-            # do we have anyone else? either way it is not supported
-            assert self.sound_card == SoundAlsa.MODEL_2019_CARD_NAME
+        try:
+            (
+                card_index,
+                self.sound_card,
+                playback_device,
+            ) = SoundAlsa.sound_configuration()
+            self.playback_device = playback_device
 
-            self.playback_mixer = alsaaudio.Mixer(
-                control="Playback", cardindex=card_index
-            )
-            self.record_device = self.playback_device
-            self.record_mixer = alsaaudio.Mixer(
-                control="Capture", cardindex=card_index
-            )
-
-            if not SoundAlsa.__test_device(self.record_device, True):
-                raise RuntimeError(
-                    "Unable to configure sound card for recording"
+            if self.sound_card == SoundAlsa.MODEL_2019_CARD_NAME:
+                self.playback_mixer = alsaaudio.Mixer(
+                    control="Playback", cardindex=card_index
                 )
+                self.record_device = self.playback_device
+                self.record_mixer = alsaaudio.Mixer(
+                    control="Capture", cardindex=card_index
+                )
+
+                if not SoundAlsa.__test_device(self.record_device, True):
+                    raise RuntimeError(
+                        "Unable to configure sound card for recording"
+                    )
+            else:
+                # do we have anyone else? either way it is not supported
+                assert self.sound_card == SoundAlsa.MODEL_2018_CARD_NAME
+
+        except Exception as e:
+            logging.error(e)
+            if self.sound_card == "":
+                logging.warning("no sound card?")
 
         self.executor = ThreadPoolExecutor(max_workers=1)
 
