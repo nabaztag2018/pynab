@@ -318,6 +318,8 @@ class NabMastodond(NabService, asyncio.Protocol, StreamListener):
                 '"body":[{"audio":["nabmastodond/setup.mp3"]}]}'
                 "\r\n"
             )
+        else:
+            return
         self.writer.write(packet.encode("utf8"))
         await self.writer.drain()
 
