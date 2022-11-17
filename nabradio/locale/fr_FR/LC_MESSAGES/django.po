@@ -3,12 +3,12 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-
 #: templates/nabradio/rfid-data.html:5
 msgid ""
 "When Nabaztag sees that NFC tag, the streaming of the radio specified below "
-"will start."
-msgstr "Quand Nabaztag va voir ce tag il va allumer la radio. Il sera trop content."
+"will play (it can takes a few seconds before it starts)"
+msgstr ""
+"Quand Nabaztag va voir ce tag il va allumer la radio (cela peut prendre quelques secondes). Il sera trop content."
 
 #: templates/nabradio/rfid-data.html:9
 msgid "URL of the MP3 stream:"
@@ -17,4 +17,3 @@ msgstr "URL du flux MP3 de la radio :"
 #: templates/nabradio/rfid-data.html:11
 msgid "Example for FIP:    http://icecast.radiofrance.fr/fip-midfi.mp3"
 msgstr "Exemple pour FIP : http://icecast.radiofrance.fr/fip-midfi.mp3"
-
