@@ -64,8 +64,14 @@
 'Service: Weather':
   - nabweatherd/**
 
-'Service: Nabiftttd':
+'Service: IFTTT':
   - nabiftttd/**
+
+'Service: Radio':
+  - nabradio/**
+
+'Service: Web hook':
+  - nabwebhook/**
 
 'web':
   - nabweb/**
