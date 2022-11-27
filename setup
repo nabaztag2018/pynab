@@ -108,9 +108,9 @@ cat /boot/config.txt | grep "dtoverlay=hifiberry-dac"
 if [ "${install_env}" == "ci-chroot" ]
 then
     # Install comitup package for headless WiFi setup
-    wget https://davesteele.github.io/comitup/deb/davesteele-comitup-apt-source_1.1_all.deb
-    dpkg -i --force-all davesteele-comitup-apt-source_1.1_all.deb
-    rm davesteele-comitup-apt-source_1.1_all.deb
+    wget https://davesteele.github.io/comitup/deb/davesteele-comitup-apt-source_1.2_all.deb
+    dpkg -i --force-all davesteele-comitup-apt-source_1.2_all.deb
+    rm davesteele-comitup-apt-source_1.2_all.deb
     apt-get update -y
     apt-get install --no-install-recommends -y comitup comitup-watch
     rm /etc/network/interfaces
@@ -119,6 +119,7 @@ then
     systemctl mask dhcpd.service
     systemctl mask dhcpcd.service
     systemctl mask wpa-supplicant.service
+    systemctl enable NetworkManager.service
     echo "web_service: nginx.service" >> /etc/comitup.conf
     echo "ap_name: Nabaztag-<nnn>" >> /etc/comitup.conf
     echo "service_name: Nabaztag" >> /etc/comitup.conf
