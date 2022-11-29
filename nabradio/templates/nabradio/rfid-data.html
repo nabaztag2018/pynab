@@ -1,14 +1,11 @@
 {% load i18n %}
-{% load static %}
-
-
-      {% trans "When Nabaztag sees that NFC tag, the streaming of the radio specified below will play (it can takes a few seconds before it starts)" %}
-	  <p>
-      
+<!-- {% trans "Radio" %} -->
+{% trans "When Nabaztag sees that NFC tag, it will play the radio specified below (it can take a few seconds before it starts)" %}
+<p>
 <div class="form-group row">
-        <label for="streaming_url" class="col-6 col-form-label">{% trans "URL of the MP3 stream:" %}</label>
-        <div class="col-6">
-          <input id="streaming_url" name="streaming_url" type="text" class="form-control" value="{{ streaming_url }}" placeholder="{% trans "Example for FIP:    http://icecast.radiofrance.fr/fip-midfi.mp3" %}">
-		  <input id="radio_uid" name="radio_uid" type="hidden" class="form-control" value="{{ radio_uid }}">
-        </div>
-      </div>
+  <label for="streaming_url" class="col-6 col-form-label">{% trans "URL of the MP3 stream:" %}</label>
+  <div class="col-6">
+    <input id="streaming_url" name="streaming_url" type="text" class="form-control" value="{{ streaming_url }}" placeholder="{% trans "Example for FIP:    http://icecast.radiofrance.fr/fip-midfi.mp3" %}">
+    <input id="radio_uid" name="radio_uid" type="hidden" class="form-control" value="{{ radio_uid }}">
+  </div>
+</div>

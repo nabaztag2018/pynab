@@ -120,6 +120,8 @@ class SoundAlsa(Sound):  # pragma: no cover
                 self._play_wav_file(device, filename)
             elif filename.endswith(".mp3"):
                 self._play_mp3_file(device, filename)
+        except Exception as err:
+            logging.error(f"{filename}: {err}")
         finally:
             self.currently_playing = False
             device.close()

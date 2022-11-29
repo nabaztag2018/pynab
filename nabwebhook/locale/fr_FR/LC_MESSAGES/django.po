@@ -3,15 +3,31 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: templates/nabwebhook/rfid-data.html:5
-
+#, fuzzy
 msgid ""
-"When Nabaztag sees that NFC tag, it will call the URL you specify to trigger "
-"whatever you need."
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-11-29 19:19+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/nabwebhook/rfid-data.html:2
+msgid "Webhook"
+msgstr "Point d’ancrage Web"
+
+#: templates/nabwebhook/rfid-data.html:3
+msgid ""
+"When Nabaztag sees that NFC tag, it will call the URL specified below to "
+"trigger whatever you need."
 msgstr ""
 "Quand Nabaztag va voir ce tag il va appeler cette URL. Il sera trop content."
 
-#: templates/nabwebhook/rfid-data.html:9
+#: templates/nabwebhook/rfid-data.html:6
 msgid "URL to be called:"
 msgstr "URL : "
-
