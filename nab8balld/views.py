@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView
 
@@ -21,3 +22,19 @@ class SettingsView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["config"] = config
         return render(request, SettingsView.template_name, context=context)
+
+
+class RFIDDataView(TemplateView):
+    template_name = "nab8balld/rfid-data.html"
+
+    def get(self, request, *args, **kwargs):
+        """
+        Unserialize RFID application data
+        """
+        return render(request, RFIDDataView.template_name)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Serialize RFID application data
+        """
+        return JsonResponse({"data": ""})

@@ -30,12 +30,13 @@ class Nab8Balld(NabService):
             packet = (
                 ""
                 '{"type":"mode","mode":"idle",'
-                '"events":["button","asr/nab8balld"],'
+                '"events":["button","asr/nab8balld","rfid/nab8balld"],'
                 '"request_id":"idle-button"}\r\n'
             )
         else:
             packet = (
-                '{"type":"mode","mode":"idle","events":["asr/nab8balld"],'
+                '{"type":"mode","mode":"idle",'
+                '"events":["asr/nab8balld","rfid/nab8balld"],'
                 '"request_id":"idle-disabled"}\r\n'
             )
         self.writer.write(packet.encode("utf8"))
@@ -54,6 +55,7 @@ class Nab8Balld(NabService):
             processors = {
                 "button_event": self.process_button_event_packet,
                 "asr_event": self.process_asr_event_packet,
+                "rfid_event": self.process_rfid_event_packet,
                 "response": self.process_response_packet,
             }
             if packet["type"] in processors:
@@ -118,6 +120,10 @@ class Nab8Balld(NabService):
 
     async def process_asr_event_packet(self, packet):
         if packet["nlu"]["intent"] == "nab8balld/8ball":
+            await self.perform()
+
+    async def process_rfid_event_packet(self, packet):
+        if packet["app"] == "nab8balld" and packet["event"] == "detected":
             await self.perform()
 
     def run(self):
