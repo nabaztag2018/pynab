@@ -10,13 +10,12 @@ from . import rfid_data
 class NabRadio(NabService):
     def __init__(self):
         super().__init__()
-        print("launch")
 
     async def reload_config(self):
         pass
 
-    async def _launch_radio(self, streaming_url, uid):
-        logging.info("Launching radio " + streaming_url)
+    async def _launch_radio(self, streaming_url):
+        logging.info("streaming radio " + streaming_url)
         now = datetime.datetime.now(datetime.timezone.utc)
         expiration = now + datetime.timedelta(minutes=1)
         packet = (
@@ -35,7 +34,7 @@ class NabRadio(NabService):
             and packet["event"] == "detected"
         ):
             streaming_url = await rfid_data.read_data_ui(packet["uid"])
-            await self._launch_radio(streaming_url, packet["uid"])
+            await self._launch_radio(streaming_url)
 
 
 if __name__ == "__main__":

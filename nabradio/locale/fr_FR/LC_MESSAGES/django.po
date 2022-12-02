@@ -3,17 +3,36 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: templates/nabradio/rfid-data.html:5
+#, fuzzy
 msgid ""
-"When Nabaztag sees that NFC tag, the streaming of the radio specified below "
-"will play (it can takes a few seconds before it starts)"
 msgstr ""
-"Quand Nabaztag va voir ce tag il va allumer la radio (cela peut prendre quelques secondes). Il sera trop content."
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-11-29 19:19+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 
-#: templates/nabradio/rfid-data.html:9
+#: templates/nabradio/rfid-data.html:2
+msgid "Radio"
+msgstr "Radio"
+
+#: templates/nabradio/rfid-data.html:3
+msgid ""
+"When Nabaztag sees that NFC tag, it will play the radio specified below (it "
+"can take a few seconds before it starts)"
+msgstr ""
+"Quand Nabaztag va voir ce tag il va allumer la radio (cela peut prendre "
+"quelques secondes). Il sera trop content."
+
+#: templates/nabradio/rfid-data.html:6
 msgid "URL of the MP3 stream:"
 msgstr "URL du flux MP3 de la radio :"
 
-#: templates/nabradio/rfid-data.html:11
+#: templates/nabradio/rfid-data.html:8
 msgid "Example for FIP:    http://icecast.radiofrance.fr/fip-midfi.mp3"
 msgstr "Exemple pour FIP : http://icecast.radiofrance.fr/fip-midfi.mp3"

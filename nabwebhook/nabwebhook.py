@@ -11,18 +11,17 @@ from . import rfid_data
 class NabWebhook(NabService):
     def __init__(self):
         super().__init__()
-        print("launch")
 
     async def reload_config(self):
         pass
 
-    async def _call_webhook(self, webhook_url, uid):
-        logging.info("Call URL " + webhook_url)
+    async def _call_webhook(self, webhook_url):
+        logging.info("calling URL " + webhook_url)
         try:
             result = requests.get(webhook_url, timeout=10)
-            logging.info("Result  " + result.text)
-        except Exception:
-            logging.error("Webhook exception (probably bad url)")
+            logging.info("result: " + result.reason)
+        except Exception as err:
+            logging.error(f"{webhook_url}: {err}")
 
     async def process_nabd_packet(self, packet):
         if (
@@ -31,7 +30,7 @@ class NabWebhook(NabService):
             and packet["event"] == "detected"
         ):
             webhook_url = await rfid_data.read_data_ui(packet["uid"])
-            await self._call_webhook(webhook_url, packet["uid"])
+            await self._call_webhook(webhook_url)
 
 
 if __name__ == "__main__":
