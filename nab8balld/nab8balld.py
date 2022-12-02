@@ -4,6 +4,8 @@ import sys
 from nabcommon.nabservice import NabService
 from nabcommon.typing import NabdPacket
 
+from . import rfid_data
+
 
 class Nab8Balld(NabService):
     DAEMON_PIDFILE = "/run/nab8balld.pid"
@@ -41,11 +43,16 @@ class Nab8Balld(NabService):
             )
         self.writer.write(packet.encode("utf8"))
 
-    async def perform(self):
+    async def perform(self, lang):
+        if lang is None or lang == "default":
+            lang_prefix = ""
+        else:
+            lang_prefix = lang + "/"
+        path = f"{lang_prefix}nab8balld/answers/*.mp3"
         packet = (
-            '{"type":"message",'
-            '"body":[{"audio":["nab8balld/answers/*.mp3"]}],'
-            '"request_id":"play-answer"}\r\n'
+            f'{{"type":"message",'
+            f'"body":[{{"audio":["{path}"]}}],'
+            f'"request_id":"play-answer"}}\r\n'
         )
         self.writer.write(packet.encode("utf8"))
         await self.writer.drain()
@@ -102,7 +109,7 @@ class Nab8Balld(NabService):
             '"request_id":"play-acquired"}\r\n'
         )
         self.writer.write(packet.encode("utf8"))
-        await self.perform()
+        await self.perform(None)
         self._interactive = False
         await self.setup_listener()
 
@@ -120,11 +127,15 @@ class Nab8Balld(NabService):
 
     async def process_asr_event_packet(self, packet):
         if packet["nlu"]["intent"] == "nab8balld/8ball":
-            await self.perform()
+            await self.perform(None)
 
     async def process_rfid_event_packet(self, packet):
         if packet["app"] == "nab8balld" and packet["event"] == "detected":
-            await self.perform()
+            if "data" in packet:
+                lang = rfid_data.unserialize(packet["data"].encode("utf8"))
+            else:
+                lang = "default"
+            await self.perform(lang)
 
     def run(self):
         super().connect()

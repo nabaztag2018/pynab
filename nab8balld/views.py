@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView
 
+from . import rfid_data
 from .models import Config
 from .nab8balld import Nab8Balld
 
@@ -31,10 +32,21 @@ class RFIDDataView(TemplateView):
         """
         Unserialize RFID application data
         """
-        return render(request, RFIDDataView.template_name)
+        lang = "default"
+        data = request.GET.get("data", None)
+        if data:
+            lang = rfid_data.unserialize(data.encode("utf8"))
+        context = self.get_context_data(**kwargs)
+        context["lang"] = lang
+        return render(request, RFIDDataView.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
         """
         Serialize RFID application data
         """
-        return JsonResponse({"data": ""})
+        lang = "default"
+        if "lang" in request.POST:
+            lang = request.POST["lang"]
+        data = rfid_data.serialize(lang)
+        data = data.decode("utf8")
+        return JsonResponse({"data": data})
