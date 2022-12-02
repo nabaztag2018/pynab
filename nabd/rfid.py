@@ -2,6 +2,7 @@ import abc
 from enum import IntEnum, IntFlag
 from typing import Callable, Optional
 
+import nab8balld
 import nabairqualityd
 import nabbookd
 import nabclockd
@@ -37,7 +38,7 @@ class TagTechnology(IntEnum):
 TAG_APPLICATION_NONE = 255
 TAG_APPLICATIONS = {
     TAG_APPLICATION_NONE: "none",
-    1: "nab8balld",
+    nab8balld.NABAZTAG_RFID_APPLICATION_ID: "nab8balld",  # 1
     2: "nabairqualityd",
     3: "nabblockly",
     nabbookd.NABAZTAG_RFID_APPLICATION_ID: "nabbookd",  # 4

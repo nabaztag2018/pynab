@@ -1,0 +1,17 @@
+{% load i18n %}
+<div class="form-group row">
+  <label for="8ballLanguage" class="col-sm-2 col-form-label">{% trans "Language" %}</label>
+  <div class="col-sm-6">
+    <select class="form-control form-control-sm" id="8ballLanguage" name="lang">
+      <option value="default"{% if lang == "default" %} selected{% endif %}>{% trans "Nabaztag's current language" %}</option>
+      <option value="fr_FR"{% if lang == "fr_FR" %} selected{% endif %}>{% trans "French" %}</option>
+      <option value="de_DE"{% if lang == "de_DE" %} selected{% endif %}>{% trans "German" %}</option>
+      <option value="en_US"{% if lang == "en_US" %} selected{% endif %}>{% trans "U.S. English" %}</option>
+      <option value="en_GB"{% if lang == "en_GB" %} selected{% endif %}>{% trans "British English" %}</option>
+      <option value="es_ES"{% if lang == "es_ES" %} selected{% endif %}>{% trans "Spanish" %}</option>
+      <!-- N/A <option value="it_IT"{% if lang == "it_IT" %} selected{% endif %}>{% trans "Italian" %}</option> -->
+      <!-- N/A <option value="ja_JP"{% if lang == "ja_JP" %} selected{% endif %}>{% trans "Japanese" %}</option> -->
+      <!-- N/A <option value="pt_BR"{% if lang == "pt_BR" %} selected{% endif %}>{% trans "Brazilian Portuguese" %}</option> -->
+    </select>
+  </div>
+</div>
