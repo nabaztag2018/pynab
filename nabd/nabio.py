@@ -22,6 +22,8 @@ class NabIO(object, metaclass=abc.ABCMeta):
     MODEL_2019_TAGTAG = 3
     # with NFC card
     MODEL_2022_NFC = 4
+    # no TagTagTag card
+    MODEL_NONE = 5
 
     # Each info loop lasts 15 seconds
     INFO_LOOP_LENGTH = 15.0

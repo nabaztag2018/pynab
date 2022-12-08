@@ -18,7 +18,7 @@ class TestNab8balld(unittest.TestCase):
         service = Nab8Balld()
         writer = MockWriter()
         service.writer = writer
-        async_to_sync(service.perform)()
+        async_to_sync(service.perform)(None)
         self.assertEqual(len(writer.written), 1)
         packet = writer.written[0]
         packet_json = json.loads(packet.decode("utf8"))

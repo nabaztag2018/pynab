@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from .button_gpio import ButtonGPIO
@@ -31,7 +32,10 @@ class NabIOHW(NabIO):
         self.button = ButtonGPIO(self.model)
 
     def has_sound_input(self):
-        return self.model != NabIOHW.MODEL_2018
+        return (
+            self.model != NabIOHW.MODEL_NONE
+            and self.model != NabIOHW.MODEL_2018
+        )
 
     def has_rfid(self):
         return self.rfid is not None
@@ -45,6 +49,7 @@ class NabIOHW(NabIO):
             NabIO.MODEL_2019_TAG: "2019_TAG",
             NabIO.MODEL_2019_TAGTAG: "2019_TAGTAG",
             NabIO.MODEL_2022_NFC: "2022_NFC",
+            NabIO.MODEL_NONE: "",
         }
         if self.model in MODEL_NAMES:
             model_name = MODEL_NAMES[self.model]
@@ -76,18 +81,23 @@ class NabIOHW(NabIO):
 
     @staticmethod
     def detect_model():
-        (
-            _,
-            sound_configuration,
-            _,
-        ) = SoundAlsa.sound_configuration()
+        try:
+            (
+                _,
+                sound_configuration,
+                _,
+            ) = SoundAlsa.sound_configuration()
 
-        if sound_configuration == SoundAlsa.MODEL_2019_CARD_NAME:
-            if RfidNFCDev.is_available():
-                return NabIO.MODEL_2022_NFC
-            elif RfidDev.is_available():
-                return NabIO.MODEL_2019_TAGTAG
-            else:
-                return NabIO.MODEL_2019_TAG
-        if sound_configuration == SoundAlsa.MODEL_2018_CARD_NAME:
-            return NabIO.MODEL_2018
+            if sound_configuration == SoundAlsa.MODEL_2019_CARD_NAME:
+                if RfidNFCDev.is_available():
+                    return NabIO.MODEL_2022_NFC
+                elif RfidDev.is_available():
+                    return NabIO.MODEL_2019_TAGTAG
+                else:
+                    return NabIO.MODEL_2019_TAG
+            elif sound_configuration == SoundAlsa.MODEL_2018_CARD_NAME:
+                return NabIO.MODEL_2018
+        except Exception as e:
+            logging.error(e)
+            logging.warning("no Tagtagtag card?")
+            return NabIO.MODEL_NONE

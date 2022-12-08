@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-17 15:01+0200\n"
+"POT-Creation-Date: 2022-12-02 17:41+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,39 +42,43 @@ msgid "British English"
 msgstr "Anglais britannique"
 
 #: templates/nabsurprised/rfid-data.html:11
+msgid "Spanish"
+msgstr "Espagnol"
+
+#: templates/nabsurprised/rfid-data.html:12
 msgid "Italian"
 msgstr "Italien"
 
-#: templates/nabsurprised/rfid-data.html:12
+#: templates/nabsurprised/rfid-data.html:13
 msgid "Japanese"
 msgstr "Japonais"
 
-#: templates/nabsurprised/rfid-data.html:13
+#: templates/nabsurprised/rfid-data.html:14
 msgid "Brazilian Portuguese"
 msgstr "Portugais brésilien"
 
-#: templates/nabsurprised/rfid-data.html:18
+#: templates/nabsurprised/rfid-data.html:19
 msgid "Theme"
 msgstr "Thème"
 
-#: templates/nabsurprised/rfid-data.html:21
+#: templates/nabsurprised/rfid-data.html:22
 #: templates/nabsurprised/settings.html:6
 msgid "Surprise"
 msgstr "Humeurs"
 
-#: templates/nabsurprised/rfid-data.html:22
+#: templates/nabsurprised/rfid-data.html:23
 msgid "Carrot"
 msgstr "Carotte"
 
-#: templates/nabsurprised/rfid-data.html:23
+#: templates/nabsurprised/rfid-data.html:24
 msgid "Birthday"
 msgstr "Anniversaire"
 
-#: templates/nabsurprised/rfid-data.html:24
+#: templates/nabsurprised/rfid-data.html:25
 msgid "What can you do?"
 msgstr "Que sais-tu faire ?"
 
-#: templates/nabsurprised/rfid-data.html:25
+#: templates/nabsurprised/rfid-data.html:26
 msgid "Valentine's"
 msgstr "Saint-Valentin"
 

@@ -1,6 +1,7 @@
 import asyncio
 import functools
 import io
+import logging
 import traceback
 import wave
 from concurrent.futures import ThreadPoolExecutor
@@ -15,7 +16,6 @@ from .sound import Sound
 
 class SoundAlsa(Sound):  # pragma: no cover
     MODEL_2018_CARD_NAME = "sndrpihifiberry"
-
     MODEL_2019_CARD_NAME = "tagtagtagsound"
 
     SOUND_CARDS_SUPPORTED = frozenset(
@@ -23,34 +23,42 @@ class SoundAlsa(Sound):  # pragma: no cover
     )
 
     def __init__(self, hw_model):
+        self.sound_card = ""
+        self.playback_device = "null"
+        self.playback_mixer = None
+        self.record_device = "null"
+        self.record_mixer = None
+        self._recorded_raw = None
 
-        (
-            card_index,
-            self.sound_card,
-            playback_device,
-        ) = SoundAlsa.sound_configuration()
-        self.playback_device = playback_device
+        try:
+            (
+                card_index,
+                self.sound_card,
+                playback_device,
+            ) = SoundAlsa.sound_configuration()
+            self.playback_device = playback_device
 
-        if self.sound_card == SoundAlsa.MODEL_2018_CARD_NAME:
-            self.playback_mixer = None
-            self.record_device = "null"
-            self.record_mixer = None
-        else:
-            # do we have anyone else? either way it is not supported
-            assert self.sound_card == SoundAlsa.MODEL_2019_CARD_NAME
-
-            self.playback_mixer = alsaaudio.Mixer(
-                control="Playback", cardindex=card_index
-            )
-            self.record_device = self.playback_device
-            self.record_mixer = alsaaudio.Mixer(
-                control="Capture", cardindex=card_index
-            )
-
-            if not SoundAlsa.__test_device(self.record_device, True):
-                raise RuntimeError(
-                    "Unable to configure sound card for recording"
+            if self.sound_card == SoundAlsa.MODEL_2019_CARD_NAME:
+                self.playback_mixer = alsaaudio.Mixer(
+                    control="Playback", cardindex=card_index
                 )
+                self.record_device = self.playback_device
+                self.record_mixer = alsaaudio.Mixer(
+                    control="Capture", cardindex=card_index
+                )
+
+                if not SoundAlsa.__test_device(self.record_device, True):
+                    raise RuntimeError(
+                        "Unable to configure sound card for recording"
+                    )
+            else:
+                # do we have anyone else? either way it is not supported
+                assert self.sound_card == SoundAlsa.MODEL_2018_CARD_NAME
+
+        except Exception as e:
+            logging.error(e)
+            if self.sound_card == "":
+                logging.warning("no sound card?")
 
         self.executor = ThreadPoolExecutor(max_workers=1)
 
@@ -112,6 +120,8 @@ class SoundAlsa(Sound):  # pragma: no cover
                 self._play_wav_file(device, filename)
             elif filename.endswith(".mp3"):
                 self._play_mp3_file(device, filename)
+        except Exception as err:
+            logging.error(f"{filename}: {err}")
         finally:
             self.currently_playing = False
             device.close()
@@ -244,9 +254,15 @@ class SoundAlsa(Sound):  # pragma: no cover
         self.future = None
 
     async def start_recording(self, stream_cb):
+        logging.debug("SoundAlsa: start recording")
         await self.stop_playing()
         self.currently_recording = True
-        self.recorded_raw = open("sound_alsa_recording.raw", "wb")
+        if logging.getLogger(__name__).isEnabledFor(logging.DEBUG):
+            logging.debug(
+                "SoundAlsa: creating sound_alsa_recording.raw to "
+                "save recorded frames"
+            )
+            self._recorded_raw = open("sound_alsa_recording.raw", "wb")
         self.future = asyncio.get_event_loop().run_in_executor(
             self.executor, lambda cb=stream_cb: self._record(cb)
         )
@@ -264,13 +280,17 @@ class SoundAlsa(Sound):  # pragma: no cover
             inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
             inp.setperiodsize(1600)  # 100ms
             finalize = False
+            count = 0
             while not finalize:
                 l, data = inp.read()
                 if not self.currently_recording:
                     finalize = True
                 if l or finalize:
-                    # self.recorded_raw.write(data)
+                    count += 1
+                    if self._recorded_raw is not None:
+                        self._recorded_raw.write(data)
                     cb(data, finalize)
+            logging.debug(f"SoundAlsa: Recorded {count} frames")
         except Exception:
             print(traceback.format_exc())
         finally:
@@ -279,10 +299,13 @@ class SoundAlsa(Sound):  # pragma: no cover
                 inp.close()
 
     async def stop_recording(self):
+        logging.debug("SoundAlsa: stop recording")
         if self.currently_recording:
             self.currently_recording = False
         await self.wait_until_done()
-        self.recorded_raw.close()
+        if self._recorded_raw is not None:
+            self._recorded_raw.close()
+            self._recorded_raw = None
 
     @staticmethod
     def __test_device(device, record):

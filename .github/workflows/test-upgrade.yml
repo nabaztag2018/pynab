@@ -2,6 +2,9 @@ name: 🛠  Test upgrade
 on:
   push:
     branches:
+        - master
+        - release
+        - releng
 
 jobs:
   test_upgrade:
@@ -33,7 +36,7 @@ jobs:
           base_image: https://github.com/nabaztag2018/pynab/releases/download/v1.0.0/pynab-v1.0.0-zero_raspbian.img.xz
           install_dir: /opt/pynab
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Run test script in chroot environment
         uses: pguyot/arm-runner-action@v2
         id: arm_runner_tests

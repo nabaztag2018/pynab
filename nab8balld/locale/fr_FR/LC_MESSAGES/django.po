@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-30 14:25+0200\n"
+"POT-Creation-Date: 2022-12-02 15:30+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,46 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: templates/nab8balld/rfid-data.html:3
+msgid "Language"
+msgstr "Langue"
+
+#: templates/nab8balld/rfid-data.html:6
+msgid "Nabaztag's current language"
+msgstr "Langue du Nabaztag"
+
+#: templates/nab8balld/rfid-data.html:7
+msgid "French"
+msgstr "Français"
+
+#: templates/nab8balld/rfid-data.html:8
+msgid "German"
+msgstr "Allemand"
+
+#: templates/nab8balld/rfid-data.html:9
+msgid "U.S. English"
+msgstr "Anglais des États-Unis"
+
+#: templates/nab8balld/rfid-data.html:10
+msgid "British English"
+msgstr "Anglais britannique"
+
+#: templates/nab8balld/rfid-data.html:11
+msgid "Spanish"
+msgstr "Espagnol"
+
+#: templates/nab8balld/rfid-data.html:12
+msgid "Italian"
+msgstr "Italien"
+
+#: templates/nab8balld/rfid-data.html:13
+msgid "Japanese"
+msgstr "Japonais"
+
+#: templates/nab8balld/rfid-data.html:14
+msgid "Brazilian Portuguese"
+msgstr "Portugais brésilien"
 
 #: templates/nab8balld/settings.html:6
 msgid "Magic 8 Ball"

@@ -293,12 +293,19 @@ class NabClockd(nabservice.NabService):
             packet["type"] == "asr_event"
             and "nlu" in packet
             and "intent" in packet["nlu"]
-            and packet["nlu"]["intent"] == "nabclockd/sleep"
         ):
-            async with self.loop_cv:
-                self.config.sleep_wakeup_override = True
-                await self.config.save_async()
-                self.loop_cv.notify()
+            if packet["nlu"]["intent"] == "nabclockd/sleep":
+                async with self.loop_cv:
+                    self.config.sleep_wakeup_override = True
+                    await self.config.save_async()
+                    self.loop_cv.notify()
+            elif packet["nlu"]["intent"] == "nabclockd/clock":
+                now = datetime.datetime.now()
+                if now.minute < 55:
+                    hour = now.hour
+                else:
+                    hour = (now.hour + 1) % 24
+                await self.chime(hour)
         elif packet["type"] == "button_event" and packet["event"] == "click":
             async with self.loop_cv:
                 self.config.sleep_wakeup_override = False
