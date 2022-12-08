@@ -53,33 +53,33 @@ use editors with SFTP support.
 
 If you haven't done so yet, fork the repository on GitHub, then add this fork
 to your rabbit's repository.
-```
-cd /opt/pynab
+```sh
+cd $HOME/pynab
 git remote add fork https://github.com/YOUR_GITHUB_USERNAME/pynab.git
 ```
 
 To develop your code, create a local branch with a name that makes sense.
-```
+```sh
 git fetch origin
 git checkout -b feature-name origin/master
 ```
 
 At anytime, you can run tests locally (on the rabbit) by first stopping pynab
 and services. Hardware tests require root access.
-```
+```sh
 sudo ./venv/bin/python manage.py stop_all
 sudo ./venv/bin/pytest
 sudo ./venv/bin/python manage.py start_all
 ```
 
 Before committing your code, make sure the style is conforming by running pre-commit
-```
+```sh
 ./venv/bin/pre-commit
 ```
 
 Once you are happy with the result, rebase and push it to a dedicated branch on
 your own GitHub fork.
-```
+```sh
 git fetch origin
 git rebase origin/master
 git push fork HEAD:feature-name
@@ -87,7 +87,7 @@ git push fork HEAD:feature-name
 
 GitHub will display the URL to create a pull request, with a git message such
 as:
-```
+```sh
 remote:
 remote: Create a pull request for 'branch-name' on GitHub by visiting:
 remote:      https://github.com/user/pynab/pull/new/branch-name
@@ -104,7 +104,7 @@ If tests fail, fix them and push to the branch, either with new commits or
 by amending. Once tests pass, your request will be reviewed.
 
 At any time, if you did commit your changes, you can go back to master with:
-```
+```sh
 git fetch origin
 git checkout master
 bash upgrade.sh
