@@ -1,0 +1,245 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-31 10:54+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/nabmqttd/settings.html:5
+msgid "mqtt"
+msgstr "mqtt"
+
+#: templates/nabmqttd/settings.html:18
+msgid ""
+"You can propose another Nabaztag registered on mqtt with the button "
+"below. They will receive the proposal and will be able to accept it."
+msgstr ""
+"Vous pouvez envoyer une demande de communion à un autre Nabaztag enregistré "
+"sur mqtt avec le bouton ci-dessous. Il/elle recevra la demande et pourra "
+"l'accepter."
+
+#: templates/nabmqttd/settings.html:23
+#: templates/nabmqttd/settings.html:82
+msgid "Kindred soul"
+msgstr "Âme sœur"
+
+#: templates/nabmqttd/settings.html:25
+msgid "Friend address"
+msgstr "Adresse de votre ami(e)"
+
+#: templates/nabmqttd/settings.html:25
+msgid "e.g. name@instance.tld"
+msgstr "ex: nom@instance.tld"
+
+#: templates/nabmqttd/settings.html:27
+msgid "Propose"
+msgstr "Envoyer une demande"
+
+#: templates/nabmqttd/settings.html:50
+msgid "An unknown error occurred trying to send proposal"
+msgstr "Une erreur inconnue est survenue en essayant d'envoyer votre demande"
+
+#: templates/nabmqttd/settings.html:52
+msgid "An error occurred trying to send proposal: "
+msgstr "Une erreur est survenue en essayant d'envoyer votre demande : "
+
+#: templates/nabmqttd/settings.html:67
+#, python-format
+msgid ""
+"Really cancel proposal to <a href=\"%(profile_url)s\" target=\"_blank\">"
+"%(spouse_handle)s</a>?"
+msgstr ""
+"Souhaitez-vous réellement annuler votre demande de communion à <a href="
+"\"%(profile_url)s\" target=\"_blank\">%(spouse_handle)s</a> ?"
+
+#: templates/nabmqttd/settings.html:73
+msgid "Really cancel"
+msgstr "Annuler la demande"
+
+#: templates/nabmqttd/settings.html:78
+#, python-format
+msgid ""
+"You sent a proposal to your friend <a href=\"%(profile_url)s\" target="
+"\"_blank\">%(spouse_handle)s</a>. They have yet to accept it."
+msgstr ""
+"Vous avez envoyé une demande de communion à votre ami(e) <a href="
+"\"%(profile_url)s\" target=\"_blank\">%(spouse_handle)s</a>. Il/elle doit "
+"encore l'accepter."
+
+#: templates/nabmqttd/settings.html:86
+msgid "Cancel proposal"
+msgstr "Annuler la demande"
+
+#: templates/nabmqttd/settings.html:112
+msgid "An unknown error occurred trying to cancel proposal"
+msgstr "Une erreur inconnue est survenue en tentant d'annuler la demande"
+
+#: templates/nabmqttd/settings.html:114
+msgid "An error occurred trying to cancel proposal: "
+msgstr "Une erreur est survenue en tentant d'annuler la demande : "
+
+#: templates/nabmqttd/settings.html:125
+#, python-format
+msgid ""
+"You received a proposal from <a href=\"%(profile_url)s\" target=\"_blank\">"
+"%(spouse_handle)s</a>. Do you want to accept it?"
+msgstr ""
+"Vous avez reçu une demande de communion de <a href=\"%(profile_url)s\" "
+"target=\"_blank\">%(spouse_handle)s</a>. Souhaitez-vous l'accepter ?"
+
+#: templates/nabmqttd/settings.html:126
+msgid "Accept"
+msgstr "Accepter"
+
+#: templates/nabmqttd/settings.html:127
+msgid "Reject"
+msgstr "Refuser"
+
+#: templates/nabmqttd/settings.html:148
+msgid "An unknown error occurred responding to proposal"
+msgstr "Une erreur inconnue est survenue en répondant à cette demande"
+
+#: templates/nabmqttd/settings.html:150
+msgid "An error occurred responding to proposal: "
+msgstr "Une erreur est survenue en répondant à cette demande : "
+
+#: templates/nabmqttd/settings.html:171
+#, python-format
+msgid ""
+"Really divorce from <a href=\"%(profile_url)s\" target=\"_blank\">"
+"%(spouse_handle)s</a>?"
+msgstr ""
+"Souhaitez-vous réellement divorcer de <a href=\"%(profile_url)s\" target="
+"\"_blank\">%(spouse_handle)s</a> ?"
+
+#: templates/nabmqttd/settings.html:177
+#: templates/nabmqttd/settings.html:321
+msgid "Cancel"
+msgstr "Annuler"
+
+#: templates/nabmqttd/settings.html:178
+#: templates/nabmqttd/settings.html:184
+msgid "Divorce"
+msgstr "Divorcer"
+
+#: templates/nabmqttd/settings.html:183
+#, python-format
+msgid ""
+"This Nabaztag is married to <a href=\"%(profile_url)s\" target=\"_blank\">"
+"%(spouse_handle)s</a>. Married Nabaztags have a special ear-based "
+"relationship."
+msgstr ""
+"Ce Nabaztag est en communion avec <a href=\"%(profile_url)s\" target=\"_blank"
+"\">%(spouse_handle)s</a>. Les Nabaztag en communion ont une relation "
+"spéciale au niveau des oreilles."
+
+#: templates/nabmqttd/settings.html:208
+msgid "An unknown error occurred trying to divorce"
+msgstr "Une erreur inconnue est survenue en tenant de supprimer la communion"
+
+#: templates/nabmqttd/settings.html:210
+msgid "An error occurred trying to divorce: "
+msgstr "Une erreur est survenue en tentant de supprimer la communion : "
+
+#: templates/nabmqttd/settings.html:221
+msgid "Fetching account data..."
+msgstr "Récupération des données du compte"
+
+#: templates/nabmqttd/settings.html:244
+msgid "An unknown error occurred fetching account data"
+msgstr ""
+"Une erreur inconnue est survenue lors de la récupération des données du "
+"compte"
+
+#: templates/nabmqttd/settings.html:246
+msgid "An error occurred fetching account data: "
+msgstr ""
+"Une erreur est survenue lors de la récupération des données du compte : "
+
+#: templates/nabmqttd/settings.html:257
+msgid ""
+"As we do not want Nabaztag to live in the cloud anymore, but do like ear "
+"communion, we use "
+msgstr ""
+"Comme nous ne voulons plus que Nabaztag habite dans le nuage mais que nous "
+"aimons bien la communion d'oreilles, nous utilisons "
+
+#: templates/nabmqttd/settings.html:257
+msgid ""
+"<a href='https://en.wikipedia.org/wiki/mqtt_(software)' target='blank' "
+"rel='noopener noreferrer'>mqtt</a>"
+msgstr ""
+"<a href='https://fr.wikipedia.org/wiki/mqtt_(r%C3%A9seau_social)' "
+"target='blank' rel='noopener noreferrer'>mqtt</a>"
+
+#: templates/nabmqttd/settings.html:257
+msgid ""
+" to connect rabbits to each other. <b>Currently your Nabaztag is not "
+"connected to mqtt</b>."
+msgstr ""
+" pour connecter les lapins entre eux. <b>En ce moment, votre Nabaztag n'est "
+"pas connecté à mqtt</b>."
+
+#: templates/nabmqttd/settings.html:259
+msgid ""
+"First, <strong>create an account for your Nabaztag</strong> on a given "
+"mqtt instance. You can find a directory of instances <a href='https://"
+"joinmqtt.org/' target='_blank' rel='noopener noreferrer'>here</a>."
+msgstr ""
+"Tout d'abord, <strong>créez un compte pour votre Nabaztag</strong> sur une "
+"instance mqtt. Vous trouverez <a href='https://joinmqtt.org/' "
+"target='_blank' rel='noopener noreferrer'>ici</a> un répertoire des "
+"instances."
+
+#: templates/nabmqttd/settings.html:260
+msgid ""
+"Enter below the name of the instance hosting your Nabaztag's account, and "
+"connect this account with the <kbd class=\"btn-primary\">Connect</kbd> "
+"button."
+msgstr ""
+"Indiquez ci-dessous l'instance de mqtt sur laquelle est le compte de "
+"votre Nabaztag, et connectez ce compte avec le bouton <kbd class=\"btn-"
+"primary\">Connexion</kbd>."
+
+#: templates/nabmqttd/settings.html:264
+msgid "Instance"
+msgstr "Instance"
+
+#: templates/nabmqttd/settings.html:267
+msgid "mqtt instance"
+msgstr "Instance mqtt"
+
+#: templates/nabmqttd/settings.html:269
+msgctxt "button"
+msgid "Connect"
+msgstr "Connexion"
+
+#: templates/nabmqttd/settings.html:294
+msgid "An unknown error occurred trying to connect with mqtt"
+msgstr "Une erreur inconnue est survenue en tentant de se connecter à mqtt"
+
+#: templates/nabmqttd/settings.html:296
+msgid "An error occurred trying to connect with mqtt: "
+msgstr "Une erreur est survenue en tentant de se connecter à mqtt : "
+
+#: templates/nabmqttd/settings.html:315
+msgid "Disconnect from mqtt?"
+msgstr "Déconnexion de mqtt ?"
+
+#: templates/nabmqttd/settings.html:322
+#: templates/nabmqttd/settings.html:328
+msgctxt "button"
+msgid "Disconnect"
+msgstr "Déconnexion"
