@@ -1,6 +1,6 @@
 # Direct dependencies
 wheel
-Django==3.2.15
+Django==3.2.17
 django-stubs==1.11.0
 django-stubs-ext==0.4.0
 mypy==0.950
