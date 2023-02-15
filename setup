@@ -210,6 +210,7 @@ echo "Installing sound driver for Ulule 2019 cards."
 sudo mkdir -p ${inst_dir}/wm8960
 sudo chown ${owner}:${group} ${inst_dir}/wm8960
 sudo -u ${owner} git clone --depth 1 -b tagtagtag-sound https://github.com/pguyot/wm8960 ${inst_dir}/wm8960
+sudo git config --system --add safe.directory ${inst_dir}/wm8960
 cd ${inst_dir}/wm8960
 build_and_install_driver
 
@@ -217,6 +218,7 @@ echo "Installing ears driver."
 sudo mkdir -p ${inst_dir}/tagtagtag-ears
 sudo chown ${owner}:${group} ${inst_dir}/tagtagtag-ears
 sudo -u ${owner} git clone --depth 1 -b ${driver_branch} https://github.com/pguyot/tagtagtag-ears ${inst_dir}/tagtagtag-ears
+sudo git config --system --add safe.directory ${inst_dir}/tagtagtag-ears
 cd ${inst_dir}/tagtagtag-ears
 build_and_install_driver
 
@@ -224,6 +226,7 @@ echo "Installing RFID reader driver for TAGTAG."
 sudo mkdir -p ${inst_dir}/cr14
 sudo chown ${owner}:${group} ${inst_dir}/cr14
 sudo -u ${owner} git clone --depth 1 -b ${driver_branch} https://github.com/pguyot/cr14 ${inst_dir}/cr14
+sudo git config --system --add safe.directory ${inst_dir}/cr14
 cd ${inst_dir}/cr14
 build_and_install_driver
 
@@ -231,6 +234,7 @@ echo "Installing RFID reader driver for 2022 NFC card."
 sudo mkdir -p ${inst_dir}/st25r391x
 sudo chown ${owner}:${group} ${inst_dir}/st25r391x
 sudo -u ${owner} git clone --depth 1 -b ${st25_branch} https://github.com/pguyot/st25r391x ${inst_dir}/st25r391x
+sudo git config --system --add safe.directory ${inst_dir}/st25r391x
 cd ${inst_dir}/st25r391x
 build_and_install_driver
 
@@ -249,11 +253,13 @@ else
     sudo chown ${owner}:${group} ${inst_dir}/pynab
     sudo -u ${owner} git clone --depth 1 -b ${pynab_branch} https://github.com/${pynab_repository}.git ${inst_dir}/pynab
 fi
+sudo git config --system --add safe.directory ${inst_dir}/pynab
 
 echo "Installing NabBlockly."
 sudo apt-get install --no-install-recommends -y erlang-base erlang-dev erlang-inets erlang-tools erlang-xmerl
 cd ${inst_dir}/pynab
 sudo -u ${owner} git clone --depth 1 -b ${driver_branch} https://github.com/pguyot/nabblockly
+sudo git config --system --add safe.directory ${inst_dir}/pynab/nabblockly
 cd ${inst_dir}/pynab/nabblockly
 # Until we can get OTP 24 from Raspian or Erlang Solutions, get an older rebar binary
 sudo -u ${owner} wget https://github.com/erlang/rebar3/releases/download/3.15.1/rebar3 && chmod +x rebar3
