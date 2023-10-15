@@ -599,8 +599,8 @@ class GitInfo:
             info["local_commits_count"] = int(local_commits_count)
         info["tag"] = (
             os.popen(
-                f"git -C {repo_dir} describe --long 2>/dev/null || "
-                f"git -C {repo_dir} describe --long --tags 2>/dev/null"
+                f"git -C {repo_dir} describe --long --tags --always "
+                f"2>/dev/null"
             )
             .read()
             .strip()
