@@ -48,14 +48,19 @@ def set_system_led(shutdown):
     if shutdown:
         return
 
-    with open("/sys/class/leds/led0/trigger", "w") as f:
-        f.write("none")
-
     kernel_version = platform.release()
     matchObj = re.match(r"[0-9]+", kernel_version)
     if matchObj:
         major_version = int(matchObj.group())
-        with open("/sys/class/leds/led0/brightness", "w") as f:
+        if major_version >= 6:
+            act_led = "ACT"
+        else:
+            act_led = "led0"
+
+        with open(f"/sys/class/leds/{act_led}/trigger", "w") as f:
+            f.write("none")
+
+        with open(f"/sys/class/leds/{act_led}/brightness", "w") as f:
             if major_version >= 5:
                 f.write("0")
             else:
