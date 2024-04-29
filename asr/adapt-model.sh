@@ -26,7 +26,4 @@ else
 fi
 DATE=`date +%Y%M%d`
 
-if [[ "$(docker images -q zamia-speech:latest 2> /dev/null)" == "" ]]; then
-    docker build -t zamia-speech .
-fi
-docker run -it -v ${PWD}:/nabaztag-asr/ zamia-speech bash /nabaztag-asr/adapt-model-i.sh $BASE_MODEL_URL $MODEL_NAME $GRAMMAR $DICTIONARY $OUTPUT_MODEL_NAME
+docker run -it -v ${PWD}:/nabaztag-asr/ pguyot/zamia-speech bash /nabaztag-asr/adapt-model-i.sh $BASE_MODEL_URL $MODEL_NAME $GRAMMAR $DICTIONARY $OUTPUT_MODEL_NAME
