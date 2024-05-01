@@ -8,7 +8,7 @@ on:
 jobs:
   test_suite:
     name: Run test suite
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     # Service containers
     services:
       postgres:
@@ -40,18 +40,13 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - name: Set up Rust
-        uses: hecrj/setup-rust-action@v1
-        with:
-          rust-version: 1.61.0
-
       - name: Install dependencies
         run: |
           sudo apt update -y
           sudo apt-get install -y libasound2-dev libmpg123-dev libatlas-base-dev curl
-          wget -q -O install_mkl.sh https://raw.githubusercontent.com/pguyot/kaldi/e4940d045d39deb86016bc176893303b5240ff59/tools/extras/install_mkl.sh
+          wget -q -O install_mkl.sh https://raw.githubusercontent.com/kaldi-asr/kaldi/aef1d98603b68e6cf3a973e9dcd71915e2a175fe/tools/extras/install_mkl.sh
           sudo bash install_mkl.sh
-          wget -q -O - "https://github.com/pguyot/kaldi/releases/download/e4940d045/kaldi-e4940d045-linux_ubuntu20.04-x86_64.tar.xz" | sudo tar xJ -C /
+          wget -q -O - "https://github.com/pguyot/kaldi/releases/download/0ff452b/kaldi-0ff452b-linux_ubuntu22.04-x86_64.tar.xz" | sudo tar xJ -C /
           sudo ldconfig
           python -m pip install --upgrade pip
           pip install Cython==0.29.30 numpy==1.21.4 setuptools_rust wheel
