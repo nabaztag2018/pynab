@@ -65,7 +65,7 @@ typed_ast==1.5.2
 click==8.1.2
 pytz==2021.3
 asgiref==3.5.0
-sqlparse==0.4.4; python_version == '3.7'
+sqlparse==0.5.0; python_version == '3.7'
 sqlparse==0.5.0; python_version != '3.7'
 # Latest importlib_metadata compatible with latest flake8
 importlib_metadata==4.2.0
