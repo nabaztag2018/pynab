@@ -8,7 +8,8 @@ mypy==0.950
 gunicorn==22.0.0
 lockfile==0.12.2
 Mastodon.py==1.5.1
-meteofrance-api==1.0.2
+meteofrance-api==1.3.0; python_version != '3.7'
+meteofrance-api==1.2.0; python_version == '3.7'
 mpg123==0.4
 psycopg2-binary==2.9.3
 pytest==7.0.1
@@ -55,8 +56,7 @@ ndef==0.2
 
 # Indirect frozen dependencies
 mypy_extensions==0.4.3
-# Latest typing_extensions compatible with latest meteofrance-api
-typing_extensions==3.10.0.2
+typing_extensions==4.7.1
 pathspec==0.9.0
 toml==0.10.2
 appdirs==1.4.4
@@ -65,8 +65,8 @@ typed_ast==1.5.2
 click==8.1.2
 pytz==2021.3
 asgiref==3.5.0
-sqlparse==0.4.4; python_version == '3.7'
 sqlparse==0.5.0; python_version != '3.7'
+sqlparse==0.4.4; python_version == '3.7'
 # Latest importlib_metadata compatible with latest flake8
 importlib_metadata==4.2.0
 mccabe==0.6.1
@@ -100,11 +100,12 @@ num2words==0.5.10
 scikit_learn==0.24.2
 deprecation==2.1.0
 pyaml==19.12.0
+# Latest future compatible with latest snips-nlu
 future==0.17.1
 sklearn_crfsuite==0.3.6
 zipp==3.7.0
 certifi==2023.7.22
-urllib3==1.26.8
+urllib3==1.26.18
 types_urllib3==1.26.15
 charset_normalizer==2.0.12
 idna==3.3
