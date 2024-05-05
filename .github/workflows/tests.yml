@@ -49,8 +49,8 @@ jobs:
           sudo bash install_mkl.sh
           wget -q -O - "https://github.com/pguyot/kaldi/releases/download/0ff452b/kaldi-0ff452b-linux_ubuntu22.04-x86_64.tar.xz" | sudo tar xJ -C /
           sudo ldconfig
-          python -m pip install --upgrade pip
-          pip install Cython==0.29.30 numpy==1.21.4 setuptools_rust wheel
+          python -m pip install --upgrade pip setuptools wheel
+          pip install Cython==0.29.30 numpy==1.21.4 setuptools_rust
 
       - name: Install requirements
         run: pip install -r requirements.txt
