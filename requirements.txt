@@ -118,7 +118,7 @@ joblib==1.2.0
 python_crfsuite==0.9.7
 tabulate==0.8.9
 tqdm==4.66.3
-requests==2.27.1
+requests==2.31.0
 types_requests==2.27.30
 iniconfig==1.1.1
 tomli==2.0.1
