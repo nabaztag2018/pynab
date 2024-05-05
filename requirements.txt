@@ -17,7 +17,8 @@ pytest-django==3.8.0
 pytest-pep8==1.0.6
 asynctest==0.13.0
 coverage==6.3.2
-black==24.3.0
+black==24.3.0 ; python_version != '3.7'
+black==23.3.0 ; python_version == '3.7'
 flake8==4.0.1
 isort==5.10.1
 pre_commit==2.17.0
@@ -84,7 +85,7 @@ attrs==21.4.0
 wcwidth==0.2.5
 more_itertools==8.12.0
 pluggy==0.13.1
-packaging==21.3
+packaging==22.0
 py==1.11.0
 virtualenv==20.13.3
 nodeenv==1.6.0
