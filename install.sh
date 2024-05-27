@@ -190,7 +190,7 @@ if [ $makerfaire2018 -eq 0 ]; then
   fi
 
   # Maker Faire card has no mic, no need to install Kaldi
-  kaldi_release="e4940d045"
+  kaldi_release="0ff452b"
   kaldi_dir="/opt/kaldi"; kaldi_pkgconfig="/usr/lib/pkgconfig/kaldi-asr.pc"
   if [[ -f "${kaldi_pkgconfig}" && "$(grep -c ${kaldi_release} ${kaldi_pkgconfig})" -eq 0 ]]; then
      # Installed Kaldi does not match needed version: remove it
