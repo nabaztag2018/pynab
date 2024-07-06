@@ -16,7 +16,7 @@ Ce système est conçu pour deux cartes pour **Nabaztag** (v1) et **Nabaztag:Tag
 
 Les schémas et fichiers de fabrication de ces deux cartes sont dans le repository [hardware](https://github.com/nabaztag2018/hardware), respectivement [`RPI_Nabaztag`](https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF) (2018) et [`tagtagtag_V2.0`](https://github.com/nabaztag2018/hardware/tree/master/tagtagtag_V2.0) (2019).
 
-Pour être prévenu de la prochaine campagne, vous pouvez vous inscrire à la [liste de diffusion](https://tinyletter.com/nabaztag).
+Pour être prévenu de la prochaine campagne, vous pouvez vous inscrire à la [liste de diffusion](https://a07ce19f.sibforms.com/serve/MUIFAF7ITzhVlIYbzbSgLRfhuo3H17PHtxwkC1MlH5Xj-O5hhqeiKsvRQUvcE4e-WW0YSkbCw-tld2abzpCFEjXwbNDkthtgw8LAWQoUBbu0Y-Z9NjBkC6S8UEKIhPM36n9OnlPaqOBhfL9-PLPU5BiDN4Wanhj1IB1yI9GQPfo7tX6TNBLPyBtdLNah7cmlhmFR4Z_JSn53Qmtd).
 
 ## Images
 
