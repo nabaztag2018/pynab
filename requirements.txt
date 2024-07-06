@@ -103,7 +103,7 @@ pyaml==19.12.0
 future==0.17.1
 sklearn_crfsuite==0.3.6
 zipp==3.7.0
-certifi==2023.7.22
+certifi==2024.7.4
 urllib3==1.26.18
 types_urllib3==1.26.15
 charset_normalizer==2.0.12
