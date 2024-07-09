@@ -102,7 +102,7 @@ deprecation==2.1.0
 pyaml==19.12.0
 future==0.17.1
 sklearn_crfsuite==0.3.6
-zipp==3.7.0
+zipp==3.19.1
 certifi==2023.7.22
 urllib3==1.26.18
 types_urllib3==1.26.15
