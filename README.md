@@ -16,8 +16,6 @@ Ce système est conçu pour deux cartes pour **Nabaztag** (v1) et **Nabaztag:Tag
 
 Les schémas et fichiers de fabrication de ces deux cartes sont dans le repository [hardware](https://github.com/nabaztag2018/hardware), respectivement [`RPI_Nabaztag`](https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF) (2018) et [`tagtagtag_V2.0`](https://github.com/nabaztag2018/hardware/tree/master/tagtagtag_V2.0) (2019).
 
-Pour être prévenu de la prochaine campagne, vous pouvez vous inscrire à la [liste de diffusion](https://tinyletter.com/nabaztag).
-
 ## Images
 
 Les [releases](https://github.com/nabaztag2018/pynab/releases) sont des images de [Raspberry Pi OS](https://www.raspberrypi.org/software/operating-systems/) Lite ou [DietPi](https://dietpi.com/) avec Pynab pré-installé.
