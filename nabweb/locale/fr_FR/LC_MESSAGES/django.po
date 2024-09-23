@@ -211,10 +211,6 @@ msgstr ""
 "<a target='_blank' href='https://tinyletter.com/nabaztag' rel='noopener "
 "noreferrer'>Nabaztag revient !</a>"
 
-#: templates/nabweb/help.html:17
-msgid "Subscribe to the newsletter."
-msgstr "Abonnez-vous à la lettre d'information."
-
 #: templates/nabweb/help.html:18
 msgid ""
 "The <a target='_blank' href='https://www.tagtagtag.fr/forum/' rel='noopener "
