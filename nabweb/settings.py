@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "nabbookd",
     "nabclockd",
     "nabmastodond",
+    "nabmqttd",
     "nabsurprised",
     "nabtaichid",
     "nabweatherd",
