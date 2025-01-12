@@ -207,6 +207,10 @@ class NabWeatherd(NabInfoService):
             "foggy",
             FOGGY_INFO_ANIMATION,
         ),
+        "Bancs de Brouillard": (
+            "foggy",
+            FOGGY_INFO_ANIMATION,
+        ),
         "Brouillard": (
             "foggy",
             FOGGY_INFO_ANIMATION,
