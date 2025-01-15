@@ -38,9 +38,8 @@ fi
 
 model=$(grep "^Model" /proc/cpuinfo ; true)
 if [[ ! "$model" == *"Raspberry Pi Zero"* ]]; then
-  # not a Pi Zero or Zero 2
-  echo "Installation only planned on Raspberry Pi Zero, will cowardly exit"
-  exit 1
+  # not a genuine Pi Zero or Zero 2
+  echo "WARNING: Installation only planned on Raspberry Pi Zero, will attempt anyway..."
 fi
 
 if [ $USER == "root" ]; then
