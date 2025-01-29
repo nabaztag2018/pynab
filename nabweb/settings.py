@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "nabtaichid",
     "nabweatherd",
     "nabairqualityd",
+    "nabrfid2server",
     "nabweb",
     "nabiftttd",
     "nabradio",

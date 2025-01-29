@@ -1,0 +1,80 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-02-12 14:21+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/nabrfid2server/settings.html:38
+msgid "RFID to Server"
+msgstr "RFID vers Serveur"
+
+#: templates/nabrfid2server/settings.html:38
+msgid "Tags can be transmitted to a remote server by URL."
+msgstr "Les Tags peuvent être envoyés à un serveur distant par URL."
+
+#: templates/nabrfid2server/settings.html:39
+msgid "Setup below the transmission mode that suits for you"
+msgstr "Sélectionnez ci-dessous votre mode de transmission préféré"
+
+#: templates/nabrfid2server/settings.html:40
+msgid ""
+"Setup also the url of your server. You can include, where you need in"
+" your  url the following tags:<br>#RFID_TAG#   : uid of the tag"
+"<br>#RFID_STATE# : state of the tag (detected, removed)"
+"<br>#RFID_FLAGS# : supported, formatted,etc."
+"<br>#RFID_APP#   : App called by a formatted tag"
+"<br>#RFID_PACK#  : the whole RFID packet received"
+"<br>#RFID_JEEPACK# : compatible RFID_PACK for Jeedom"
+msgstr ""
+"Configurez l'URL de votre serveur. Vous pouvez ajouter, où nécessaire "
+" dans votre url les tags suivants:<br>#RFID_TAG#   : uid du tag RFID"
+"<br>#RFID_STATE# : état du tag (detected, removed)"
+"<br>#RFID_FLAGS# : supported, formatted,etc."
+"<br>#RFID_APP#   : Application appelée par un tag programmé"
+"<br>#RFID_PACK#  : le paquet RFID reçu, au complet"
+"<br>#RFID_JEEPACK# : le paquet RFID_PACK compatible avec Jeedom"
+
+#: templates/nabrfid2server/settings.html:10
+msgid "URL Send Option"
+msgstr "Option d'envoie des Tags"
+
+#: templates/nabrfid2server/settings.html:13
+msgid "Never send the tag"
+msgstr "Ne jamais transmettre de Tag"
+
+#: templates/nabrfid2server/settings.html:14
+msgid "Only for unknown tag"
+msgstr "Seulement les tags inconnus"
+
+#: templates/nabrfid2server/settings.html:15
+msgid "Always send the tag"
+msgstr "Transmettre tous les tags"
+
+#: templates/nabrfid2server/settings.html:15
+msgid "URL of your server:"
+msgstr "URL de votre serveur:"
+
+#: templates/nabrfid2server/settings.html:22
+msgid "Test me now!"
+msgstr "Envoyer une url test"
+
+#: templates/nabrfid2server/settings.html:29
+msgid "Save"
+msgstr "Enregistrer"
+
+#: templates/nabrfid2server/settings.html:30
+msgid "Reset"
+msgstr "Annuler"
