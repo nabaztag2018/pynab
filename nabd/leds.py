@@ -3,7 +3,6 @@ import time
 from enum import Enum, unique
 from threading import Condition, Lock, Thread
 
-
 @unique
 class Led(Enum):
     BOTTOM = 4
@@ -12,44 +11,31 @@ class Led(Enum):
     LEFT = 1
     NOSE = 0
 
-
 class Leds(object, metaclass=abc.ABCMeta):
     """Interface for leds"""
 
     @abc.abstractmethod
     def set1(self, led, red, green, blue):
-        """
-        Set the color of a given led.
-        """
-        raise NotImplementedError("Should have implemented")
+        raise NotImplementedError("Subclasses must implement set1")
 
     @abc.abstractmethod
     def pulse(self, led, red, green, blue):
-        """
-        Set a given led to pulse to a given color.
-        """
-        raise NotImplementedError("Should have implemented")
+        raise NotImplementedError("Subclasses must implement pulse")
 
     @abc.abstractmethod
     def setall(self, red, green, blue):
-        """
-        Set the color of every led.
-        """
-        raise NotImplementedError("Should have implemented")
+        raise NotImplementedError("Subclasses must implement setall")
 
     def stop(self):
-        """
-        Stop the leds thread, if any.
-        """
-
+        """Stop the leds thread, if any."""
 
 class LedsSoft(Leds, metaclass=abc.ABCMeta):
     """
     Base implementation with software pulsing.
     """
 
-    PULSING_RATE = 0.200  # every 200ms
-    PULSING_STEPS = 10  # number of steps to reach target color
+    PULSING_RATE = 0.05  # faster: every 50ms
+    PULSING_STEPS = 30    # smoother gradient
 
     def __init__(self):
         self.condition = Condition()
@@ -176,12 +162,10 @@ class LedsSoft(Leds, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def do_set(self, led, red, green, blue):
-        """
-        Actually set a led.
-        """
+        """Actually set a led."""
+        raise NotImplementedError("Subclasses must implement do_set")
 
     @abc.abstractmethod
     def do_show(self):
-        """
-        Show all leds at once.
-        """
+        """Show all leds at once."""
+        raise NotImplementedError("Subclasses must implement do_show")
