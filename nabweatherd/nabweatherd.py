@@ -1,5 +1,6 @@
 import datetime
 import logging
+import os
 import random
 import sys
 
@@ -378,8 +379,15 @@ class NabWeatherd(NabInfoService):
         await config.save_async()
 
     def get_system_tz(self):
-        with open("/etc/timezone") as w:
-            return w.read().strip()
+        try:
+            with open("/etc/timezone") as w:
+                return w.read().strip()
+        except FileNotFoundError:
+            # Debian 12+ no longer ships /etc/timezone: use /etc/localtime
+            localtime = os.path.realpath("/etc/localtime")
+            if "/zoneinfo/" in localtime:
+                return localtime.split("/zoneinfo/", 1)[1]
+            return "UTC"
 
     def next_info_update(self, config):
         if config is None:
