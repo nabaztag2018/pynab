@@ -418,6 +418,22 @@ END
 sudo mv /tmp/pynab /etc/logrotate.d/pynab
 sudo chown root:root /etc/logrotate.d/pynab
 
+# refresh comitup APT signing key on rabbits installed from older images:
+# davesteele-comitup-apt-source 1.1 and 1.2 (which install davesteele-comitup.list)
+# only have a signing subkey that expired on 2026-02-22, so 'apt-get update'
+# fails with NO_PUBKEY B5E293D64E192FDE. Version 1.3 ships the new subkey and
+# its postinst removes the old .list file, so this runs only once.
+if [ $ci_chroot -eq 0 -a -f "/etc/apt/sources.list.d/davesteele-comitup.list" ]; then
+  echo "Updating comitup APT repository signing key"
+  comitup_deb=$(mktemp --suffix=.deb)
+  if wget -q -O "${comitup_deb}" https://davesteele.github.io/comitup/deb/davesteele-comitup-apt-source_1.3_all.deb; then
+    sudo dpkg -i --force-all "${comitup_deb}" || echo "WARNING: could not install comitup APT source package, skipping"
+  else
+    echo "WARNING: could not download comitup APT source package, skipping"
+  fi
+  rm -f "${comitup_deb}"
+fi
+
 # advertise rabbit on local network
 if [ ! -f "/etc/avahi/services/pynab.service" ]; then
   echo "Setting up Avahi service for Pynab"
