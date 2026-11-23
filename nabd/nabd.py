@@ -124,6 +124,10 @@ class Nabd:
         self._ears_moved_task: Optional[asyncio.Future] = None
         self.playing_cancelable = False
         self.playing_request_id: Optional[str] = None
+        # ASR: recording starts after the listen sound; a button release
+        # during that sound is deferred until recording has started.
+        self.asr_recording = False
+        self.asr_stop_requested = False
         Nabd.leds_boot(self.nabio, 2)
         if self.nabio.has_sound_input():
             from . import i18n
@@ -1031,7 +1035,12 @@ class Nabd:
         if button_event == "hold" and self.state == State.IDLE:
             asyncio.ensure_future(self.start_asr())
         elif button_event == "up" and self.state == State.RECORDING:
-            asyncio.ensure_future(self.stop_asr())
+            if self.asr_recording:
+                asyncio.ensure_future(self.stop_asr())
+            else:
+                # Released during the listen sound: stop_asr would run
+                # before recording starts and recording would never end.
+                self.asr_stop_requested = True
         elif button_event == "triple_click":
             asyncio.ensure_future(self._shutdown(False))
         elif (
@@ -1059,14 +1068,21 @@ class Nabd:
         Thread: run_loop
         """
         assert self.asr is not None
+        self.asr_recording = False
+        self.asr_stop_requested = False
         await self.transition_to(State.RECORDING)
         if self.nabio.rfid is not None:
             self.nabio.rfid.disable_polling()
         await self.nabio.start_acquisition(self.asr.decode_chunk)
+        self.asr_recording = True
+        if self.asr_stop_requested:
+            await self.stop_asr()
 
     async def stop_asr(self):
         assert self.asr is not None
         assert self.nlu is not None
+        self.asr_recording = False
+        self.asr_stop_requested = False
         await self.nabio.end_acquisition()
         now = time.time()
         decoded_str = await self.asr.get_decoded_string(True)
