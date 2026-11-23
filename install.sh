@@ -434,6 +434,20 @@ if [ $ci_chroot -eq 0 -a -f "/etc/apt/sources.list.d/davesteele-comitup.list" ];
   rm -f "${comitup_deb}"
 fi
 
+# mark Pynab Git repositories as safe directories: nabweb runs git as root
+# (see GitInfo in nabweb/views.py) on repositories owned by ${owner}, which
+# git refuses since CVE-2022-24765 ("detected dubious ownership"). setup does
+# this for new installs since b3eb13d (#451); this also covers rabbits installed
+# from older images, such as v1.0.2. Only missing entries are added.
+for repo_dir in "${root_dir}" "${root_dir}/nabblockly" "${inst_dir}/wm8960" \
+                "${inst_dir}/tagtagtag-ears" "${inst_dir}/cr14" \
+                "${inst_dir}/st25r391x"; do
+  if [ -e "${repo_dir}/.git" ] && ! git config --system --get-all safe.directory 2>/dev/null | grep -qxF "${repo_dir}"; then
+    echo "Marking ${repo_dir} as a safe Git directory"
+    sudo git config --system --add safe.directory "${repo_dir}"
+  fi
+done
+
 # advertise rabbit on local network
 if [ ! -f "/etc/avahi/services/pynab.service" ]; then
   echo "Setting up Avahi service for Pynab"
