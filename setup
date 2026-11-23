@@ -108,9 +108,11 @@ cat /boot/config.txt | grep "dtoverlay=hifiberry-dac"
 if [ "${install_env}" == "ci-chroot" ]
 then
     # Install comitup package for headless WiFi setup
-    wget https://davesteele.github.io/comitup/deb/davesteele-comitup-apt-source_1.2_all.deb
-    dpkg -i --force-all davesteele-comitup-apt-source_1.2_all.deb
-    rm davesteele-comitup-apt-source_1.2_all.deb
+    # (apt-source 1.3 ships the repository signing subkey B5E293D64E192FDE;
+    # the one in 1.1 and 1.2 expired on 2026-02-22, which breaks 'apt-get update')
+    wget https://davesteele.github.io/comitup/deb/davesteele-comitup-apt-source_1.3_all.deb
+    dpkg -i --force-all davesteele-comitup-apt-source_1.3_all.deb
+    rm davesteele-comitup-apt-source_1.3_all.deb
     apt-get update -y
     apt-get install --no-install-recommends -y comitup comitup-watch
     rm /etc/network/interfaces
