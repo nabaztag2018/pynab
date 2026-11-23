@@ -752,3 +752,64 @@ class TestRfid(TestNabdBase):
             )
         finally:
             s1.close()
+
+
+class AsrMock:
+    def decode_chunk(self, samples, finalize):
+        pass
+
+    async def get_decoded_string(self, sync):
+        return ""
+
+
+class NluMock:
+    async def interpret(self, decoded_str):
+        return None
+
+
+class TestAsr(TestNabdBase):
+    def test_button_released_during_listen_sound(self):
+        """
+        Releasing the button while the listen sound plays must stop the
+        recording once it starts, not leave nabd recording forever (#409).
+        """
+        self.nabd.asr = AsrMock()
+        self.nabd.nlu = NluMock()
+        sound = self.nabio.sound
+        listen_sound_playing = threading.Event()
+        listen_sound_done = threading.Event()
+        play_list = sound.play_list
+
+        async def slow_listen_sound(filenames, preloaded, event=None):
+            if filenames == ["asr/listen.mp3"]:
+                listen_sound_playing.set()
+                while not listen_sound_done.is_set():
+                    await asyncio.sleep(0.05)
+            else:
+                await play_list(filenames, preloaded, event)
+
+        sound.play_list = slow_listen_sound
+        asr_done = threading.Event()
+
+        async def asr_failed():
+            asr_done.set()
+
+        self.nabio.asr_failed = asr_failed
+        loop = self.nabd.loop
+        loop.call_soon_threadsafe(
+            self.nabd.button_callback, "hold", time.time()
+        )
+        self.assertTrue(listen_sound_playing.wait(5.0))
+        loop.call_soon_threadsafe(self.nabd.button_callback, "up", time.time())
+        time.sleep(0.5)
+        listen_sound_done.set()
+        self.assertTrue(asr_done.wait(5.0))
+        self.assertEqual(self.nabd.state, nabd.State.IDLE)
+        recording_calls = [
+            call
+            for call in sound.called_list
+            if call in ("start_recording()", "stop_recording()")
+        ]
+        self.assertEqual(
+            recording_calls, ["start_recording()", "stop_recording()"]
+        )
