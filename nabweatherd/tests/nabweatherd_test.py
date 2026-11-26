@@ -25,6 +25,52 @@ class TestNabWeatherd(unittest.TestCase):
         weather_class = service.normalize_weather_class("None")
         self.assertEqual(weather_class, None)
 
+    def test_hail_storm_spellings(self):
+        # Météo-France sends both the singular and the plural (PR #492)
+        service = get_nabweatherd_instance()
+        for desc in ("Orage avec grêle", "Orages avec grêle"):
+            self.assertEqual(service.normalize_weather_class(desc), desc)
+
+    UNKNOWN_CLASS_DATA = {
+        "weather_animation_type": "weather_only",
+        "current_weather_class": None,
+        "next_rain": False,
+        "today_forecast_weather_class": None,
+        "today_forecast_max_temp": 12,
+        "tomorrow_forecast_weather_class": None,
+        "tomorrow_forecast_max_temp": 14,
+    }
+
+    def test_unknown_class_has_no_animation(self):
+        # An unknown description (e.g. in English, issue #371) used to raise
+        # KeyError: None. The weather animation is skipped instead.
+        service = get_nabweatherd_instance()
+        service.writer = MockWriter()
+        for animation_type in ("weather_only", "weather_and_rain"):
+            info_data = dict(
+                self.UNKNOWN_CLASS_DATA, weather_animation_type=animation_type
+            )
+            self.assertIsNone(service.get_animation(info_data))
+
+    def test_unknown_class_says_nothing(self):
+        service = get_nabweatherd_instance()
+        writer = MockWriter()
+        service.writer = writer
+        config_t = (
+            TestNabWeatherdDB.RENNES_LOCATION,
+            NabWeatherd.UNIT_CELSIUS,
+            "weather_only",
+            3,
+            None,
+            False,
+        )
+        expiration = datetime.datetime(2019, 4, 22, 0, 0, 0)
+        for forecast in ("today", "tomorrow"):
+            async_to_sync(service.perform_additional)(
+                expiration, forecast, self.UNKNOWN_CLASS_DATA, config_t
+            )
+        self.assertEqual(writer.written, [])
+
 
 @pytest.mark.django_db(transaction=True)
 class TestNabWeatherdDB(unittest.TestCase):
