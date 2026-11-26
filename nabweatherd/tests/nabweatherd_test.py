@@ -1,6 +1,7 @@
 import datetime
 import json
 import unittest
+import unittest.mock
 
 import pytest
 from asgiref.sync import async_to_sync
@@ -24,6 +25,37 @@ class TestNabWeatherd(unittest.TestCase):
         self.assertEqual(weather_class, "Pluie forte")
         weather_class = service.normalize_weather_class("None")
         self.assertEqual(weather_class, None)
+
+    def test_tomorrow_max_temp(self):
+        # Tomorrow's maximum temperature used to be read from today's forecast
+        class FakeClient:
+            def get_forecast_for_place(self, place):
+                forecast = unittest.mock.Mock()
+                forecast.daily_forecast = [
+                    {"weather12H": {"desc": "Pluie"}, "T": {"max": 9}},
+                    {"weather12H": {"desc": "Ensoleillé"}, "T": {"max": 17}},
+                ]
+                return forecast
+
+            def get_rain(self, latitude, longitude):
+                raise RuntimeError("no rain data")
+
+        service = get_nabweatherd_instance()
+        config_t = (
+            TestNabWeatherdDB.RENNES_LOCATION,
+            NabWeatherd.UNIT_CELSIUS,
+            "weather_only",
+            3,
+            None,
+            False,
+        )
+        with unittest.mock.patch(
+            "nabweatherd.nabweatherd.MeteoFranceClient", FakeClient
+        ), unittest.mock.patch("nabweatherd.nabweatherd.Place"):
+            data = async_to_sync(service.fetch_info_data)(config_t)
+        self.assertEqual(data["today_forecast_max_temp"], 9)
+        self.assertEqual(data["tomorrow_forecast_max_temp"], 17)
+        self.assertEqual(data["tomorrow_forecast_weather_class"], "Ensoleillé")
 
 
 @pytest.mark.django_db(transaction=True)
