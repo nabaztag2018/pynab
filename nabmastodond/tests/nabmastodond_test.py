@@ -1567,7 +1567,16 @@ class TestMastodondEars(TestMastodondBase, MockMastodonClient):
 
 
 class TestMastodonClientBase:
-    INSTANCE = "botsin.space"
+    """
+    Integration tests against a real Mastodon instance.
+
+    They need two accounts on an instance that accepts bots, so they only run
+    when PYNAB_TEST_MASTODON_INSTANCE is set (e.g. "mastodon.social").
+    The former default, botsin.space, was shut down.
+    """
+
+    INSTANCE_ENV = "PYNAB_TEST_MASTODON_INSTANCE"
+    INSTANCE = os.environ.get(INSTANCE_ENV, "")
     API_BASE_URL = "https://" + INSTANCE
     REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob"
 
@@ -1579,6 +1588,11 @@ class TestMastodonClientBase:
     USER2OOB_FILE = "./tmp/mastodon-test-user-2-oob.txt"
 
     def setUp(self):
+        if not TestMastodonClientBase.INSTANCE:
+            pytest.skip(
+                f"Set {TestMastodonClientBase.INSTANCE_ENV} to run tests "
+                "against a real Mastodon instance"
+            )
         if not os.path.isfile(TestMastodonClientBase.APPKEY_FILE):
             if not os.path.exists("./tmp/"):
                 os.makedirs("./tmp/")
@@ -1716,7 +1730,7 @@ class TestMastodonClientProposal(TestMastodondBase, TestMastodonClientBase):
     def test_mastodon_client_alter_proposal_before_start(self):
         config = models.Config.load()
         config.last_processed_status_date = DATE_1
-        config.instance = "botsin.space"
+        config.instance = TestMastodonClientBase.INSTANCE
         config.username = self.user1_username
         config.access_token = self.user1_access_token
         config.save()
@@ -1733,14 +1747,17 @@ class TestMastodonClientProposal(TestMastodondBase, TestMastodonClientBase):
         self.assertEqual(
             config.last_processed_status_date, proposal_toot.created_at
         )
-        self.assertEqual(config.spouse_handle, "pynab_test_2@botsin.space")
+        self.assertEqual(
+            config.spouse_handle,
+            f"{self.user2_username}@{TestMastodonClientBase.INSTANCE}",
+        )
         self.assertEqual(config.spouse_pairing_state, "waiting_approval")
         self.assertEqual(config.spouse_pairing_date, proposal_toot.created_at)
 
     def test_mastodon_client_alter_proposal_after_start(self):
         config = models.Config.load()
         config.last_processed_status_date = DATE_1
-        config.instance = "botsin.space"
+        config.instance = TestMastodonClientBase.INSTANCE
         config.username = self.user1_username
         config.access_token = self.user1_access_token
         config.save()
@@ -1758,7 +1775,10 @@ class TestMastodonClientProposal(TestMastodondBase, TestMastodonClientBase):
         config = models.Config.load()
         self.assertNotEqual(config.last_processed_status_id, None)
         self.assertNotEqual(config.last_processed_status_date, None)
-        self.assertEqual(config.spouse_handle, "pynab_test_2@botsin.space")
+        self.assertEqual(
+            config.spouse_handle,
+            f"{self.user2_username}@{TestMastodonClientBase.INSTANCE}",
+        )
         self.assertEqual(config.spouse_pairing_state, "waiting_approval")
         self.assertEqual(
             config.spouse_pairing_date, config.last_processed_status_date
