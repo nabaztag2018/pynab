@@ -2,8 +2,8 @@ import asyncio
 import functools
 import logging
 import os
+import select
 from enum import Enum
-from threading import Timer
 from typing import Optional
 
 from .rfid import Rfid, TagFlags, TagTechnology
@@ -25,9 +25,11 @@ class RfidDev(Rfid):  # pragma: no cover
 
     DEVICE_PATH = "/dev/rfid0"
     NABAZTAG_SIGNATURE = b"Nb"
-    POLLING_TIMEOUT = 1.0
+    # The reader repeats the UID every 0.5 s while the tag stays on it.
+    POLLING_TIMEOUT = 2.0
 
     def __init__(self):
+        self.__loop = asyncio.get_event_loop()
         self.__state = RfidDevState.DISABLED
         self.__current_uid = None
         self.__current_picture = None
@@ -38,7 +40,7 @@ class RfidDev(Rfid):  # pragma: no cover
         self.__written_data = None
         if os.path.exists(RfidDev.DEVICE_PATH):
             self.__fd = os.open(RfidDev.DEVICE_PATH, os.O_RDWR)
-            asyncio.get_event_loop().add_reader(self.__fd, self._do_read)
+            self.__loop.add_reader(self.__fd, self._do_read)
         else:
             self.__fd = None
 
@@ -77,6 +79,13 @@ class RfidDev(Rfid):  # pragma: no cover
         """
         Timer invoked when no read happened after a given timeout.
         """
+        self.__polling_timer = None
+        if self._has_pending_packet():
+            # The reader answered, but nabd was busy (e.g. playing the
+            # detection sound) and has not read the packet yet. Reporting the
+            # tag removed now would detect it again and run its action twice.
+            self._start_timer()
+            return
         # Previous tag has been removed.
         if self.__current_uid:
             self._invoke_callback(None, TagFlags.REMOVED)
@@ -85,9 +94,17 @@ class RfidDev(Rfid):  # pragma: no cover
             self.__state = RfidDevState.POLLING_ONCE
             os.write(self.__fd, b"p")
 
+    def _has_pending_packet(self):
+        readable, _, _ = select.select([self.__fd], [], [], 0)
+        return bool(readable)
+
     def _start_timer(self):
-        self.__polling_timer = Timer(RfidDev.POLLING_TIMEOUT, self._timer_cb)
-        self.__polling_timer.start()
+        # Run in the event loop, like _do_read: a thread timer could fire
+        # while a packet from the reader is waiting to be read.
+        self._cancel_timer()
+        self.__polling_timer = self.__loop.call_later(
+            RfidDev.POLLING_TIMEOUT, self._timer_cb
+        )
 
     def _cancel_timer(self):
         if self.__polling_timer:
