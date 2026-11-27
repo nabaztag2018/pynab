@@ -226,6 +226,8 @@ class NabWeatherd(NabInfoService):
         "Pluies orageuses": ("stormy", STORMY_INFO_ANIMATION),
         "Pluie orageuses": ("stormy", STORMY_INFO_ANIMATION),
         "Orages": ("stormy", STORMY_INFO_ANIMATION),
+        "Orage avec grêle": ("stormy", STORMY_INFO_ANIMATION),
+        "Orages avec grêle": ("stormy", STORMY_INFO_ANIMATION),
         "Averses orageuses": ("stormy", STORMY_INFO_ANIMATION),
         "Risque d'orages": ("stormy", STORMY_INFO_ANIMATION),
     }
@@ -490,9 +492,11 @@ class NabWeatherd(NabInfoService):
                 packet = '{"type":"info",' '"info_id":"nabweatherd_rain"}\r\n'
                 self.writer.write(packet.encode("utf8"))
 
-            (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[
-                info_data["today_forecast_weather_class"]
-            ]
+            weather_class = info_data["today_forecast_weather_class"]
+            if weather_class is None:
+                # Unknown Météo-France description: no weather animation
+                return None
+            (_, info_animation) = NabWeatherd.WEATHER_CLASSES[weather_class]
             return info_animation
 
         if info_data["weather_animation_type"] == "nothing":
@@ -533,18 +537,20 @@ class NabWeatherd(NabInfoService):
             self.writer.write(packet.encode("utf8"))
         else:
             if type == "today":
-                (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[
-                    info_data["today_forecast_weather_class"]
-                ]
+                forecast_class = info_data["today_forecast_weather_class"]
                 max_temp = info_data["today_forecast_max_temp"]
             elif type == "tomorrow":
-                (weather_class, info_animation) = NabWeatherd.WEATHER_CLASSES[
-                    info_data["tomorrow_forecast_weather_class"]
-                ]
+                forecast_class = info_data["tomorrow_forecast_weather_class"]
                 max_temp = info_data["tomorrow_forecast_max_temp"]
             else:
                 logging.debug(f"Unknown type {type}")
                 return
+            if forecast_class is None:
+                # Unknown Météo-France description: rather than guessing the
+                # sky, say nothing.
+                logging.info(f"unknown {type} weather class, saying nothing")
+                return
+            (weather_class, _) = NabWeatherd.WEATHER_CLASSES[forecast_class]
             unit_sound_file = "degree.mp3"
             if unit == NabWeatherd.UNIT_FARENHEIT:
                 max_temp = round(max_temp * 1.8 + 32.0)
