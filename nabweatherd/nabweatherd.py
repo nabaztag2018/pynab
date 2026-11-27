@@ -440,7 +440,7 @@ class NabWeatherd(NabInfoService):
         tomorrow_forecast_weather_class = self.normalize_weather_class(
             data[1]["weather12H"]["desc"]
         )
-        tomorrow_forecast_max_temp = int(data[0]["T"]["max"])
+        tomorrow_forecast_max_temp = int(data[1]["T"]["max"])
 
         return {
             "weather_animation_type": weather_animation_type,
